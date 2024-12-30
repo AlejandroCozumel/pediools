@@ -260,19 +260,19 @@ function getIntergrowthRanges(
   };
 }
 
-function getKromeyerRanges(
-  ageInMonths: number,
-  gender: "male" | "female"
-): AgeRanges {
-  return interpolateRanges(
-    growthData as any,
-    "kromeyer-data.json",
-    null,
-    ageInMonths,
-    gender,
-    ["weight", "height"]
-  );
-}
+// function getKromeyerRanges(
+//   ageInMonths: number,
+//   gender: "male" | "female"
+// ): AgeRanges {
+//   return interpolateRanges(
+//     growthData as any,
+//     "kromeyer-data.json",
+//     null,
+//     ageInMonths,
+//     gender,
+//     ["weight", "height"]
+//   );
+// }
 
 // Main function to get measurement ranges
 export function getMeasurementRanges(
@@ -289,8 +289,8 @@ export function getMeasurementRanges(
       return getCDCChildRanges(ageInMonths, gender);
     case "intergrowth":
       return getIntergrowthRanges(ageInMonths, gender);
-    case "kromeyer":
-      return getKromeyerRanges(ageInMonths, gender);
+    // case "kromeyer":
+    //   return getKromeyerRanges(ageInMonths, gender);
     default:
       return getDefaultRanges();
   }

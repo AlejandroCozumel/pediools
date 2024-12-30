@@ -81,14 +81,14 @@ const growthStandards = [
     ageRange: "0-7 days",
     details: "Optimal for early postnatal growth monitoring",
   },
-  {
-    id: "kromeyer",
-    name: "Kromeyer-Hauschild",
-    description:
-      "German population-based reference for children and adolescents",
-    ageRange: "0-18 years",
-    details: "Standard reference in German-speaking countries",
-  },
+  // {
+  //   id: "kromeyer",
+  //   name: "Kromeyer-Hauschild",
+  //   description:
+  //     "German population-based reference for children and adolescents",
+  //   ageRange: "0-18 years",
+  //   details: "Standard reference in German-speaking countries",
+  // },
 ];
 
 const formSchema = z
@@ -219,8 +219,8 @@ const formSchema = z
           return ageInMonths >= 0 && ageInMonths <= 36;
         case "cdc_child":
           return ageInMonths >= 24 && ageInMonths <= 240;
-        case "kromeyer":
-          return ageInMonths >= 0 && ageInMonths <= 216;
+        // case "kromeyer":
+        //   return ageInMonths >= 0 && ageInMonths <= 216;
       }
       return true;
     },
@@ -411,7 +411,7 @@ export function GrowthForm() {
     | "who"
     | "cdc_infant"
     | "cdc_child"
-    | "kromeyer";
+    // | "kromeyer";
 
   useEffect(() => {
     if (birthDate && measurementDate) {
@@ -459,11 +459,11 @@ export function GrowthForm() {
           max: 240,
           validStandards: ["cdc_child"],
         },
-        kromeyer: {
-          min: 0,
-          max: 216,
-          validStandards: ["cdc_child"],
-        },
+        // kromeyer: {
+        //   min: 0,
+        //   max: 216,
+        //   validStandards: ["cdc_child"],
+        // },
       };
 
       // Precise age checking function

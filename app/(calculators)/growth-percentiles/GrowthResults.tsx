@@ -489,8 +489,8 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
         return "WHO Growth Standards (ages 0 to 24 months)";
       case "intergrowth":
         return "INTERGROWTH-21st Newborn Growth Standards (0-7 days)";
-      case "kromeyer":
-        return "Kromeyer-Hauschild Growth Reference (ages 0 to 18)";
+      // case "kromeyer":
+      //   return "Kromeyer-Hauschild Growth Reference (ages 0 to 18)";
       default:
         return "Growth Data Reference";
     }
