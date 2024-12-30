@@ -29,7 +29,6 @@ const AddPatient = () => {
         savePatient={savePatient}
         isSubmitting={savePatient.isPending}
       />
-      <p>Hola</p>
     </div>
   );
 };

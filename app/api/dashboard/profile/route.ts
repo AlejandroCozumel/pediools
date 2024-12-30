@@ -96,7 +96,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
-    console.log("Clerk User ID:", userId);
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });

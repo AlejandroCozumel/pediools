@@ -507,7 +507,7 @@ export function GrowthForm() {
   }, [birthDate, measurementDate, selectedStandard]);
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
           Growth Percentile Calculator
@@ -831,7 +831,7 @@ export function GrowthForm() {
                   : "bg-gradient-to-r from-medical-pink-600 to-medical-pink-700 hover:from-medical-pink-700 hover:to-medical-pink-800"
               )}
             >
-              Calculate
+              Graph
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
 

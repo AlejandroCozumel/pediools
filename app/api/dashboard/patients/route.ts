@@ -1,5 +1,5 @@
 import { getAuth } from "@clerk/nextjs/server";
-import { currentUser } from '@clerk/nextjs/server'
+// import { currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prismadb";
@@ -51,8 +51,8 @@ type PatientCreateInput = {
 export async function GET(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
-    const user = await currentUser()
-    console.log(user);
+    // const user = await currentUser()
+    // console.log(user);
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
