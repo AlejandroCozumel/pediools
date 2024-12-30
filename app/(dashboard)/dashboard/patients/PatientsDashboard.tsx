@@ -105,7 +105,23 @@ export default function PatientsDashboard({
           </Button>
         );
       },
-      cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+      cell: ({ row }) => `${row.original.firstName}`,
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="p-0 hover:bg-transparent text-medical-700"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Patient Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => `${row.original.lastName}`,
     },
     {
       accessorKey: "age",
