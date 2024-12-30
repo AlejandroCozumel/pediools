@@ -42,6 +42,7 @@ import cdcInfantHeightHead from "@/app/data/cdc-data-infant-head.json";
 import whoHeadData from "@/app/data/who-data-head.json";
 
 import MeasurementInputIntergrowth from "@/components/MeasurementInputIntergrowth";
+import { usePremiumStore } from "@/stores/premiumStore";
 
 interface StandardRange {
   min: number;
@@ -230,6 +231,8 @@ const formSchema = z
   );
 
 export function GrowthForm() {
+  const { isPremium, selectedPatient } = usePremiumStore();
+
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({

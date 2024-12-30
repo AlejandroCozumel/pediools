@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/toaster";
 import ProvidersQuery from "@/providers/ProviderQuery";
+import PremiumStatusProvider from "@/components/premium/PremiumStatusProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,7 +35,9 @@ export default function RootLayout({
         <body
           className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
         >
-          <ProvidersQuery>{children}</ProvidersQuery>
+          <ProvidersQuery>
+            <PremiumStatusProvider>{children}</PremiumStatusProvider>
+          </ProvidersQuery>
           <Toaster />
         </body>
       </html>
