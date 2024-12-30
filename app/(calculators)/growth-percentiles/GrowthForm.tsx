@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Ruler, Weight, Baby, ArrowRight } from "lucide-react";
+import { Ruler, Weight, Baby, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -232,6 +232,7 @@ const formSchema = z
 
 export function GrowthForm() {
   const { isPremium, selectedPatient } = usePremiumStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
 
@@ -261,110 +262,91 @@ export function GrowthForm() {
       ? differenceInMonths(measurementDate, birthDate)
       : 0;
 
+  console.log(isSubmitting);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    switch (selectedStandard) {
-      case "cdc_child":
-      case "cdc_infant":
-      case "who":
-        if (!values.dateOfBirth || !values.dateOfMeasurement) return;
-
-        const normalizedBirthDate = new Date(
-          values.dateOfBirth.getFullYear(),
-          values.dateOfBirth.getMonth(),
-          values.dateOfBirth.getDate() || 1,
-          0,
-          0,
-          0
-        );
-
-        const normalizedMeasurementDate = new Date(
-          values.dateOfMeasurement.getFullYear(),
-          values.dateOfMeasurement.getMonth(),
-          values.dateOfMeasurement.getDate() || 1,
-          0,
-          0,
-          0
-        );
-
-        const weightData = {
-          gender: values.gender,
-          dateOfBirth: normalizedBirthDate.toISOString(),
-          measurements: [
-            {
-              date: normalizedMeasurementDate.toISOString(),
-              weight: parseFloat(values.weight),
-            },
-          ],
-          type: "weight",
-        };
-
-        const heightData = {
-          gender: values.gender,
-          dateOfBirth: normalizedBirthDate.toISOString(),
-          measurements: [
-            {
-              date: normalizedMeasurementDate.toISOString(),
-              height: parseFloat(values.height),
-            },
-          ],
-          type: "height",
-        };
-
-        const encodedWeightData = encodeURIComponent(
-          JSON.stringify(weightData)
-        );
-        const encodedHeightData = encodeURIComponent(
-          JSON.stringify(heightData)
-        );
-
+    setIsSubmitting(true);
+    const timeoutId = setTimeout(() => {
+      try {
         switch (selectedStandard) {
           case "cdc_child":
-            router.push(
-              `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
-            );
-            break;
           case "cdc_infant":
-            router.push(
-              `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
-            );
-            break;
           case "who":
-            router.push(
-              `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
-            );
-            break;
-        }
-        break;
+            if (!values.dateOfBirth || !values.dateOfMeasurement) return;
 
-      case "intergrowth":
-        if (!values.gestationalWeeks || !values.gestationalDays) {
-          return;
-        }
-        const intergrowthWeightData = {
-          gender: values.gender,
-          measurements: [
-            {
-              value: parseFloat(values.weight),
-              gestationalAge: parseInt(values.gestationalWeeks),
-              gestationalDays: parseInt(values.gestationalDays),
+            const normalizedBirthDate = new Date(
+              values.dateOfBirth.getFullYear(),
+              values.dateOfBirth.getMonth(),
+              values.dateOfBirth.getDate() || 1,
+              0,
+              0,
+              0
+            );
+
+            const normalizedMeasurementDate = new Date(
+              values.dateOfMeasurement.getFullYear(),
+              values.dateOfMeasurement.getMonth(),
+              values.dateOfMeasurement.getDate() || 1,
+              0,
+              0,
+              0
+            );
+
+            const weightData = {
+              gender: values.gender,
+              dateOfBirth: normalizedBirthDate.toISOString(),
+              measurements: [
+                {
+                  date: normalizedMeasurementDate.toISOString(),
+                  weight: parseFloat(values.weight),
+                },
+              ],
               type: "weight",
-            },
-          ],
-        };
-        const intergrowthHeightData = {
-          gender: values.gender,
-          measurements: [
-            {
-              value: parseFloat(values.height),
-              gestationalAge: parseInt(values.gestationalWeeks),
-              gestationalDays: parseInt(values.gestationalDays),
+            };
+
+            const heightData = {
+              gender: values.gender,
+              dateOfBirth: normalizedBirthDate.toISOString(),
+              measurements: [
+                {
+                  date: normalizedMeasurementDate.toISOString(),
+                  height: parseFloat(values.height),
+                },
+              ],
               type: "height",
-            },
-          ],
-        };
-        router.push(
-          `/charts/intergrowth-growth-chart?weightData=${encodeURIComponent(
-            JSON.stringify({
+            };
+
+            const encodedWeightData = encodeURIComponent(
+              JSON.stringify(weightData)
+            );
+            const encodedHeightData = encodeURIComponent(
+              JSON.stringify(heightData)
+            );
+
+            switch (selectedStandard) {
+              case "cdc_child":
+                router.push(
+                  `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
+                );
+                break;
+              case "cdc_infant":
+                router.push(
+                  `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
+                );
+                break;
+              case "who":
+                router.push(
+                  `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
+                );
+                break;
+            }
+            break;
+
+          case "intergrowth":
+            if (!values.gestationalWeeks || !values.gestationalDays) {
+              return;
+            }
+            const intergrowthWeightData = {
               gender: values.gender,
               measurements: [
                 {
@@ -374,9 +356,8 @@ export function GrowthForm() {
                   type: "weight",
                 },
               ],
-            })
-          )}&heightData=${encodeURIComponent(
-            JSON.stringify({
+            };
+            const intergrowthHeightData = {
               gender: values.gender,
               measurements: [
                 {
@@ -386,11 +367,43 @@ export function GrowthForm() {
                   type: "height",
                 },
               ],
-            })
-          )}`
-        );
-        break;
-    }
+            };
+            router.push(
+              `/charts/intergrowth-growth-chart?weightData=${encodeURIComponent(
+                JSON.stringify({
+                  gender: values.gender,
+                  measurements: [
+                    {
+                      value: parseFloat(values.weight),
+                      gestationalAge: parseInt(values.gestationalWeeks),
+                      gestationalDays: parseInt(values.gestationalDays),
+                      type: "weight",
+                    },
+                  ],
+                })
+              )}&heightData=${encodeURIComponent(
+                JSON.stringify({
+                  gender: values.gender,
+                  measurements: [
+                    {
+                      value: parseFloat(values.height),
+                      gestationalAge: parseInt(values.gestationalWeeks),
+                      gestationalDays: parseInt(values.gestationalDays),
+                      type: "height",
+                    },
+                  ],
+                })
+              )}`
+            );
+            break;
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsSubmitting(false);
+        clearTimeout(timeoutId);
+      }
+    }, 1500);
   }
 
   type GrowthStandardKey =
@@ -826,6 +839,7 @@ export function GrowthForm() {
 
             <Button
               type="submit"
+              disabled={isSubmitting}
               size="lg"
               className={cn(
                 "w-full transition-all duration-300 ease-in-out",
@@ -834,10 +848,18 @@ export function GrowthForm() {
                   : "bg-gradient-to-r from-medical-pink-600 to-medical-pink-700 hover:from-medical-pink-700 hover:to-medical-pink-800"
               )}
             >
-              Graph
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Calculating...
+                </>
+              ) : (
+                <>
+                  Graph
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
-
             {((birthDate &&
               form.watch("weight") &&
               form.watch("height") &&
