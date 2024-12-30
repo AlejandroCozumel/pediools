@@ -25,7 +25,13 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import DateInputs from "@/components/DateInputs";
 import GestationalSelects from "@/components/GestationalSelects";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +49,7 @@ import whoHeadData from "@/app/data/who-data-head.json";
 
 import MeasurementInputIntergrowth from "@/components/MeasurementInputIntergrowth";
 import { usePremiumStore } from "@/stores/premiumStore";
+import PatientSelector from "@/components/premium/PatientSelector";
 
 interface StandardRange {
   min: number;
@@ -233,7 +240,6 @@ const formSchema = z
 export function GrowthForm() {
   const { isPremium, selectedPatient } = usePremiumStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -404,12 +410,8 @@ export function GrowthForm() {
     }, 1500);
   }
 
-  type GrowthStandardKey =
-    | "intergrowth"
-    | "who"
-    | "cdc_infant"
-    | "cdc_child"
-    // | "kromeyer";
+  type GrowthStandardKey = "intergrowth" | "who" | "cdc_infant" | "cdc_child";
+  // | "kromeyer";
 
   useEffect(() => {
     if (birthDate && measurementDate) {
@@ -527,6 +529,9 @@ export function GrowthForm() {
           Growth Percentile Calculator
         </CardTitle>
       </CardHeader>
+      <CardDescription className="p-4 lg:p-6 pb-0">
+        {isPremium && <PatientSelector />}
+      </CardDescription>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
