@@ -60,11 +60,11 @@ const doctorProfileSchema = z.object({
 
   // Contact Information
   phoneNumber: z.string().optional().nullable(),
-  address: z.string().min(2, "Address is required"),
-  country: z.string().min(2, "Please select a country"),
-  state: z.string().min(2, "Please select a state"),
-  city: z.string().min(2, "City is required"),
-  postalCode: z.string().min(2, "Postal code is required"),
+  address: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  postalCode: z.string().optional().nullable(),
 
   // Branding
   logoUrl: z.string().optional().nullable(),

@@ -4,6 +4,32 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prismadb";
 
+const defaultProfileValues = {
+  prefix: "",
+  specialty: "",
+  licenseNumber: "",
+  clinicName: "",
+  phoneNumber: "",
+  address: "",
+  city: "",
+  state: "",
+  country: "",
+  postalCode: "",
+  logoUrl: "",
+  signatureUrl: "",
+  primaryColor: "#2563EB",
+  secondaryColor: "#1E40AF",
+  headerText: "",
+  footerText: "",
+  website: "",
+  socialMedia: {
+    facebook: "",
+    twitter: "",
+    linkedin: "",
+    instagram: "",
+  },
+};
+
 export async function GET(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
@@ -25,7 +51,42 @@ export async function GET(req: NextRequest) {
       return new NextResponse("Doctor not found", { status: 404 });
     }
 
-    return NextResponse.json(doctor);
+    // If there's no profile, return default values
+    if (!doctor.profile) {
+      return NextResponse.json({
+        profile: defaultProfileValues
+      });
+    }
+
+    // Return the profile data in the expected format
+    return NextResponse.json({
+      profile: {
+        prefix: doctor.profile.prefix || "",
+        specialty: doctor.profile.specialty || "",
+        licenseNumber: doctor.profile.licenseNumber || "",
+        clinicName: doctor.profile.clinicName || "",
+        phoneNumber: doctor.profile.phoneNumber || "",
+        address: doctor.profile.address || "",
+        city: doctor.profile.city || "",
+        state: doctor.profile.state || "",
+        country: doctor.profile.country || "",
+        postalCode: doctor.profile.postalCode || "",
+        logoUrl: doctor.profile.logoUrl || "",
+        signatureUrl: doctor.profile.signatureUrl || "",
+        primaryColor: doctor.profile.primaryColor || "#2563EB",
+        secondaryColor: doctor.profile.secondaryColor || "#1E40AF",
+        headerText: doctor.profile.headerText || "",
+        footerText: doctor.profile.footerText || "",
+        website: doctor.profile.website || "",
+        socialMedia: doctor.profile.socialMedia || {
+          facebook: "",
+          twitter: "",
+          linkedin: "",
+          instagram: "",
+        },
+      }
+    });
+
   } catch (error) {
     console.error("[DOCTOR_PROFILE_GET]", error);
     return new NextResponse("Internal error", { status: 500 });
