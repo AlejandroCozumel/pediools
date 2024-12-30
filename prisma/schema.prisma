@@ -1,0 +1,583 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Core Models
+model Doctor {
+  id               String             @id @default(cuid())
+  clerkUserId      String             @unique
+  email            String             @unique
+  name             String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  subscription     Subscription?
+  profile          DoctorProfile?
+  staff            Staff[]
+  patients         Patient[]
+  calculations     Calculation[]
+  appointments     Appointment[]
+  accessLogs       FeatureAccessLog[]
+  clinics          Clinic[]
+  prescriptions    Prescription[]
+  inventory        Inventory[]
+  invoices         Invoice[]
+  analytics        Analytics[]
+  patientMetrics   PatientMetrics[]
+  financialMetrics FinancialMetrics[]
+}
+
+model Patient {
+  id               String                @id @default(cuid())
+  doctorId         String
+  doctor           Doctor                @relation(fields: [doctorId], references: [id])
+  // Personal Information
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  gender           Gender
+  // Contact Information
+  email            String?
+  phoneNumber      String?
+  secondaryPhone   String?
+  address          String?
+  city             String?
+  state            String?
+  zipCode          String?
+  country          String?
+  // Medical Information
+  bloodType        BloodType?
+  allergies        String?
+  medications      String?
+  medicalNotes     String?
+  insuranceInfo    Json?
+  emergencyContact Json?
+  // Guardian Information
+  guardianName     String?
+  guardianPhone    String?
+  guardianEmail    String?
+  guardianRelation GuardianRelationType?
+  // Relationships
+  calculations     Calculation[]
+  charts           Chart[]
+  appointments     Appointment[]
+  notifications    EmailNotification[]
+  medicalHistory   MedicalHistory[]
+  surgeries        Surgery[]
+  prescriptions    Prescription[]
+  vaccinations     Vaccination[]
+  labResults       LabResult[]
+  invoices         Invoice[]
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+}
+
+// Staff and Clinic Management
+model Staff {
+  id          String      @id @default(cuid())
+  doctorId    String
+  doctor      Doctor      @relation(fields: [doctorId], references: [id])
+  email       String      @unique
+  firstName   String
+  lastName    String
+  role        StaffRole
+  status      StaffStatus @default(ACTIVE)
+  permissions Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Clinic {
+  id           String        @id @default(cuid())
+  doctorId     String
+  doctor       Doctor        @relation(fields: [doctorId], references: [id])
+  name         String
+  address      String
+  city         String
+  state        String
+  country      String
+  phoneNumber  String
+  email        String?
+  isMain       Boolean       @default(false)
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// Medical Records
+model MedicalHistory {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  condition   String
+  diagnosedAt DateTime
+  status      String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Surgery {
+  id            String   @id @default(cuid())
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  procedureName String
+  date          DateTime
+  surgeon       String
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Prescription {
+  id          String             @id @default(cuid())
+  patientId   String
+  patient     Patient            @relation(fields: [patientId], references: [id])
+  doctorId    String
+  doctor      Doctor             @relation(fields: [doctorId], references: [id])
+  medications Json[]
+  issuedAt    DateTime           @default(now())
+  validUntil  DateTime
+  status      PrescriptionStatus @default(ACTIVE)
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model Vaccination {
+  id             String    @id @default(cuid())
+  patientId      String
+  patient        Patient   @relation(fields: [patientId], references: [id])
+  vaccineName    String
+  doseNumber     Int
+  administeredAt DateTime
+  nextDoseDate   DateTime?
+  batchNumber    String?
+  administeredBy String
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model LabResult {
+  id        String          @id @default(cuid())
+  patientId String
+  patient   Patient         @relation(fields: [patientId], references: [id])
+  testName  String
+  testDate  DateTime
+  results   Json
+  labName   String
+  reportUrl String?
+  status    LabResultStatus
+  notes     String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+// Appointments and Calculations
+model Appointment {
+  id        String            @id @default(cuid())
+  patientId String
+  patient   Patient           @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor            @relation(fields: [doctorId], references: [id])
+  clinicId  String
+  clinic    Clinic            @relation(fields: [clinicId], references: [id])
+  datetime  DateTime
+  status    AppointmentStatus
+  type      String?
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model Calculation {
+  id        String          @id @default(cuid())
+  patientId String
+  patient   Patient         @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor          @relation(fields: [doctorId], references: [id])
+  type      CalculationType
+  date      DateTime        @default(now())
+  inputData Json
+  results   Json
+  createdAt DateTime        @default(now())
+  charts    Chart[]
+}
+
+model Chart {
+  id            String      @id @default(cuid())
+  patientId     String
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  calculationId String
+  calculation   Calculation @relation(fields: [calculationId], references: [id])
+  type          ChartType
+  imageUrl      String?
+  pdfUrl        String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// Inventory Management
+model Inventory {
+  id           String                 @id @default(cuid())
+  doctorId     String
+  doctor       Doctor                 @relation(fields: [doctorId], references: [id])
+  itemName     String
+  category     String
+  quantity     Int
+  unit         String
+  minThreshold Int
+  expiryDate   DateTime?
+  supplier     String?
+  transactions InventoryTransaction[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+}
+
+model InventoryTransaction {
+  id          String          @id @default(cuid())
+  inventoryId String
+  inventory   Inventory       @relation(fields: [inventoryId], references: [id])
+  type        TransactionType
+  quantity    Int
+  notes       String?
+  createdAt   DateTime        @default(now())
+}
+
+// Billing and Invoicing
+model Invoice {
+  id            String         @id @default(cuid())
+  invoiceNumber String         @unique
+  patientId     String
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  doctorId      String
+  doctor        Doctor         @relation(fields: [doctorId], references: [id])
+  date          DateTime       @default(now())
+  dueDate       DateTime
+  status        InvoiceStatus  @default(PENDING)
+  subtotal      Float
+  tax           Float          @default(0)
+  total         Float
+  paidAmount    Float          @default(0)
+  balance       Float
+  paymentMethod PaymentMethod?
+  items         InvoiceItem[]
+  payments      Payment[]
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model InvoiceItem {
+  id          String      @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id])
+  description String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+  type        ServiceType
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  invoiceId String
+  invoice   Invoice       @relation(fields: [invoiceId], references: [id])
+  amount    Float
+  method    PaymentMethod
+  status    PaymentStatus
+  reference String?
+  date      DateTime      @default(now())
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// Notifications and Logs
+model EmailNotification {
+  id        String      @id @default(cuid())
+  patientId String
+  patient   Patient     @relation(fields: [patientId], references: [id])
+  type      EmailType
+  sentAt    DateTime    @default(now())
+  status    EmailStatus
+}
+
+model FeatureAccessLog {
+  id         String   @id @default(cuid())
+  doctorId   String
+  doctor     Doctor   @relation(fields: [doctorId], references: [id])
+  feature    Feature
+  granted    Boolean
+  accessedAt DateTime @default(now())
+  error      String?
+}
+
+// Analytics and Metrics
+model Analytics {
+  id        String        @id @default(cuid())
+  doctorId  String
+  doctor    Doctor        @relation(fields: [doctorId], references: [id])
+  date      DateTime      @default(now())
+  metrics   Json
+  type      AnalyticsType
+  createdAt DateTime      @default(now())
+}
+
+model PatientMetrics {
+  id             String   @id @default(cuid())
+  doctorId       String
+  doctor         Doctor   @relation(fields: [doctorId], references: [id])
+  date           DateTime @default(now())
+  totalPatients  Int
+  newPatients    Int
+  activePatients Int
+  demographics   Json
+  conditions     Json
+  createdAt      DateTime @default(now())
+}
+
+model FinancialMetrics {
+  id               String   @id @default(cuid())
+  doctorId         String
+  doctor           Doctor   @relation(fields: [doctorId], references: [id])
+  date             DateTime @default(now())
+  revenue          Float
+  expenses         Float
+  outstanding      Float
+  serviceBreakdown Json
+  paymentMethods   Json
+  createdAt        DateTime @default(now())
+}
+
+// Subscription and Profile
+model Subscription {
+  id                   String                @id @default(cuid())
+  doctorId             String                @unique
+  doctor               Doctor                @relation(fields: [doctorId], references: [id])
+  stripeCustomerId     String                @unique
+  stripePriceId        String
+  stripeSubscriptionId String                @unique
+  status               SubscriptionStatus
+  plan                 PlanType              @default(FREE)
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  gracePeriodEnd       DateTime?
+  canceledAt           DateTime?
+  paymentFailures      Int                   @default(0)
+  lastPaymentIntent    String?
+  lastPaymentStatus    PaymentStatus?
+  features             SubscriptionFeature[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+}
+
+model SubscriptionFeature {
+  id             String       @id @default(cuid())
+  subscriptionId String
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  feature        Feature
+  enabled        Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([subscriptionId, feature])
+}
+
+model DoctorProfile {
+  id             String   @id @default(cuid())
+  doctorId       String   @unique
+  doctor         Doctor   @relation(fields: [doctorId], references: [id])
+  prefix         String?
+  specialty      String?
+  licenseNumber  String?
+  phoneNumber    String?
+  address        String?
+  city           String?
+  state          String?
+  country        String?
+  postalCode     String?
+  logoUrl        String?
+  signatureUrl   String?
+  clinicName     String?
+  primaryColor   String?
+  secondaryColor String?
+  headerText     String?
+  footerText     String?
+  website        String?
+  socialMedia    Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// Enums
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum BloodType {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+}
+
+enum GuardianRelationType {
+  MOTHER
+  FATHER
+  STEPMOTHER
+  STEPFATHER
+  GRANDMOTHER
+  GRANDFATHER
+  AUNT
+  UNCLE
+  SIBLING
+  LEGAL_GUARDIAN
+  FOSTER_PARENT
+  CAREGIVER
+  OTHER
+}
+
+enum StaffRole {
+  RECEPTIONIST
+  NURSE
+  ASSISTANT
+  ADMIN
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum CalculationType {
+  GROWTH_PERCENTILE
+  BLOOD_PRESSURE
+  HEART_RATE
+  BILIRUBIN
+}
+
+enum ChartType {
+  GROWTH_CDC
+  GROWTH_WHO
+  GROWTH_INTERGROWTH
+  BLOOD_PRESSURE
+  HEART_RATE
+  BILIRUBIN
+}
+
+enum TransactionType {
+  RECEIVED
+  USED
+  EXPIRED
+  DAMAGED
+}
+
+enum PrescriptionStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum LabResultStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  INSURANCE
+  OTHER
+}
+
+enum PaymentStatus {
+  SUCCEEDED
+  FAILED
+  PENDING
+  REFUNDED
+}
+
+enum ServiceType {
+  CONSULTATION
+  PROCEDURE
+  VACCINATION
+  LAB_TEST
+  MEDICATION
+  FOLLOW_UP
+  OTHER
+}
+
+enum EmailType {
+  APPOINTMENT_REMINDER
+  CALCULATION_RESULTS
+  REPORT_READY
+  GENERAL_NOTIFICATION
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+  PENDING
+}
+
+enum PlanType {
+  FREE
+  PREMIUM
+}
+
+enum Feature {
+  GROWTH_CHARTS
+  PDF_REPORTS
+  EMAIL_REPORTS
+  PATIENT_TRACKING
+  DATA_EXPORT
+  CUSTOM_BRANDING
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  TRIALING
+}
+
+enum AnalyticsType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
