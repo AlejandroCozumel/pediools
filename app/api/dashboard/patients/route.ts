@@ -1,8 +1,8 @@
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import prisma from "@/lib/prismadb";
 import { Gender, BloodType, GuardianRelationType } from "@prisma/client";
+import prisma from "@/lib/prismadb";
 
 // Define types for better type safety
 type PatientFromDB = {
