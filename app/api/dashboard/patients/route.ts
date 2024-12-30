@@ -1,7 +1,6 @@
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { Gender, BloodType, GuardianRelationType } from "@prisma/client";
 import prisma from "@/lib/prismadb";
 
 // Define types for better type safety
@@ -10,7 +9,7 @@ type PatientFromDB = {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
-  gender: Gender;
+  gender: "MALE" | "FEMALE";
 }
 
 type TransformedPatient = {
@@ -18,7 +17,7 @@ type TransformedPatient = {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
-  gender: Gender;
+  gender: "MALE" | "FEMALE";
 }
 
 // Type for POST request body
@@ -26,7 +25,7 @@ type PatientCreateInput = {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
-  gender: Gender;
+  gender: "MALE" | "FEMALE";
   email?: string;
   phoneNumber?: string;
   secondaryPhone?: string;
@@ -35,7 +34,7 @@ type PatientCreateInput = {
   state?: string;
   zipCode?: string;
   country?: string;
-  bloodType?: BloodType;
+  bloodType?: "A_POSITIVE" | "A_NEGATIVE" | "B_POSITIVE" | "B_NEGATIVE" | "O_POSITIVE" | "O_NEGATIVE" | "AB_POSITIVE" | "AB_NEGATIVE";
   allergies?: string;
   medications?: string;
   medicalNotes?: string;
@@ -44,7 +43,7 @@ type PatientCreateInput = {
   guardianName?: string;
   guardianPhone?: string;
   guardianEmail?: string;
-  guardianRelation?: GuardianRelationType;
+  guardianRelation?: "MOTHER" | "FATHER" | "STEPMOTHER" | "STEPFATHER" | "GRANDMOTHER" | "GRANDFATHER" | "AUNT" | "UNCLE" | "SIBLING" | "LEGAL_GUARDIAN" | "FOSTER_PARENT" | "CAREGIVER" | "OTHER";
 }
 
 // GET all patients
