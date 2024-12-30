@@ -262,8 +262,6 @@ export function GrowthForm() {
       ? differenceInMonths(measurementDate, birthDate)
       : 0;
 
-  console.log(isSubmitting);
-
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     const timeoutId = setTimeout(() => {
