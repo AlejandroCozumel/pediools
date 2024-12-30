@@ -1,4 +1,5 @@
 // components/PremiumStatusProvider.tsx
+import { ReactNode } from 'react';
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import ClientPremiumStatusSetter from "@/components/premium/ClientPremiumStatusSetter";
@@ -25,7 +26,11 @@ export async function checkPremiumStatus() {
   );
 }
 
-export default async function PremiumStatusProvider({ children }) {
+export default async function PremiumStatusProvider({
+  children
+}: {
+  children: ReactNode
+}) {
   const isPremium = await checkPremiumStatus();
 
   return (
