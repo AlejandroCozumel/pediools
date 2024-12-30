@@ -84,8 +84,7 @@ export async function PATCH(
       },
       data: {
         firstName: body.firstName,
-        paternalLastName: body.paternalLastName,
-        maternalLastName: body.maternalLastName,
+        lastName: body.lastName,
         dateOfBirth: new Date(body.dateOfBirth),
         gender: body.gender,
         email: body.email,
