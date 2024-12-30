@@ -1,8 +1,51 @@
-// app/api/patients/route.ts
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prismadb";
+import { Gender, BloodType, GuardianRelationType } from "@prisma/client";
+
+// Define types for better type safety
+type PatientFromDB = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  gender: Gender;
+}
+
+type TransformedPatient = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: Gender;
+}
+
+// Type for POST request body
+type PatientCreateInput = {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: Gender;
+  email?: string;
+  phoneNumber?: string;
+  secondaryPhone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  bloodType?: BloodType;
+  allergies?: string;
+  medications?: string;
+  medicalNotes?: string;
+  insuranceInfo?: string;
+  emergencyContact?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  guardianEmail?: string;
+  guardianRelation?: GuardianRelationType;
+}
 
 // GET all patients
 export async function GET(req: NextRequest) {
@@ -40,7 +83,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Transform the data to match the dashboard requirements
-    const transformedPatients = patients.map(patient => ({
+    const transformedPatients = patients.map((patient: PatientFromDB): TransformedPatient => ({
       id: patient.id,
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -74,7 +117,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Doctor not found", { status: 404 });
     }
 
-    const body = await req.json();
+    const body: PatientCreateInput = await req.json();
     const patient = await prisma.patient.create({
       data: {
         doctorId: doctor.id,
