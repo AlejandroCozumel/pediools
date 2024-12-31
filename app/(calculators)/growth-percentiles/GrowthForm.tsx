@@ -279,8 +279,12 @@ export function GrowthForm() {
       ? differenceInMonths(measurementDate, birthDate)
       : 0;
 
-  function onSubmit(values: z.infer<typeof formSchema>, skipSave?: boolean) {
-    if (isPremium && selectedPatient && !skipSave) {
+  function onSubmit(
+    values: z.infer<typeof formSchema>,
+    skipSave?: boolean,
+    confirmed?: boolean
+  ) {
+    if (isPremium && selectedPatient && !skipSave && !confirmed) {
       setShowConfirmModal(true);
       return;
     }
@@ -587,7 +591,7 @@ export function GrowthForm() {
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit((values) => onSubmit(values, false))}
+            onSubmit={form.handleSubmit((values) => onSubmit(values))}
             className="space-y-6"
           >
             <FormField
@@ -955,38 +959,41 @@ export function GrowthForm() {
                 whoHeadData={whoHeadData}
               />
             )}
+            <AlertDialog
+              open={showConfirmModal}
+              onOpenChange={setShowConfirmModal}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Save Measurements?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Would you like to save these measurements to{" "}
+                    {selectedPatient?.firstName}'s records?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      onSubmit(form.getValues(), true, true);
+                    }}
+                  >
+                    Just View Graph
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      onSubmit(form.getValues(), false, true); // Call onSubmit with skipSave set to false and confirmed set to true
+                    }}
+                  >
+                    Save and View Graph
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </form>
         </Form>
       </CardContent>
-      <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Save Measurements?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Would you like to save these measurements to{" "}
-              {selectedPatient?.firstName}'s records?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-            <AlertDialogCancel
-              onClick={() => {
-                setShowConfirmModal(false);
-                onSubmit(form.getValues(), true);
-              }}
-            >
-              Just View Graph
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowConfirmModal(false);
-                onSubmit(form.getValues(), false);
-              }}
-            >
-              Save and View Graph
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </Card>
   );
 }

@@ -111,7 +111,6 @@ export default function PatientSelector({
     );
   };
 
-  console.log(search.length);
   return (
     <div className="relative w-full">
       <Popover open={open} onOpenChange={setOpen}>
