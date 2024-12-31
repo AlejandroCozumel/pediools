@@ -7,7 +7,7 @@ export const patientSchema = z.object({
   // Personal Information
   firstName: z.string().min(2, "First name is required"),
   lastName: z.string().min(2, "Last name is required"),
-  dateOfBirth: z.string(), // Will be converted to DateTime in the backend
+  dateOfBirth: z.string(),
   gender: z.enum(["MALE", "FEMALE"]),
 
   // Contact Information
@@ -21,19 +21,12 @@ export const patientSchema = z.object({
   country: z.string().optional().nullable(),
 
   // Medical Information
-  bloodType: z
-    .enum([
-      "A_POSITIVE",
-      "A_NEGATIVE",
-      "B_POSITIVE",
-      "B_NEGATIVE",
-      "O_POSITIVE",
-      "O_NEGATIVE",
-      "AB_POSITIVE",
-      "AB_NEGATIVE",
-    ])
-    .optional()
-    .nullable(),
+  bloodType: z.enum([
+    "A_POSITIVE", "A_NEGATIVE",
+    "B_POSITIVE", "B_NEGATIVE",
+    "O_POSITIVE", "O_NEGATIVE",
+    "AB_POSITIVE", "AB_NEGATIVE"
+  ]).optional().nullable(),
   allergies: z.string().optional().nullable(),
   medications: z.string().optional().nullable(),
   medicalNotes: z.string().optional().nullable(),
@@ -44,24 +37,12 @@ export const patientSchema = z.object({
   guardianName: z.string().optional().nullable(),
   guardianPhone: z.string().optional().nullable(),
   guardianEmail: z.string().email().optional().nullable(),
-  guardianRelation: z
-    .enum([
-      "MOTHER",
-      "FATHER",
-      "STEPMOTHER",
-      "STEPFATHER",
-      "GRANDMOTHER",
-      "GRANDFATHER",
-      "AUNT",
-      "UNCLE",
-      "SIBLING",
-      "LEGAL_GUARDIAN",
-      "FOSTER_PARENT",
-      "CAREGIVER",
-      "OTHER",
-    ])
-    .optional()
-    .nullable(),
+  guardianRelation: z.enum([
+    "MOTHER", "FATHER", "STEPMOTHER", "STEPFATHER",
+    "GRANDMOTHER", "GRANDFATHER", "AUNT", "UNCLE",
+    "SIBLING", "LEGAL_GUARDIAN", "FOSTER_PARENT",
+    "CAREGIVER", "OTHER"
+  ]).optional().nullable(),
 
   // Dashboard Specific Fields
   id: z.string(),
@@ -74,32 +55,35 @@ export const patientSchema = z.object({
 export type PatientData = z.infer<typeof patientSchema>;
 
 // Default patient values
-const defaultPatientValues = {
+export const defaultPatientValues: PatientData = {
+  id: '',
   firstName: "",
   lastName: "",
   dateOfBirth: "",
-  gender: "MALE" as const,
-  email: "",
-  phoneNumber: "",
-  secondaryPhone: "",
-  address: "",
-  city: "",
-  state: "",
-  zipCode: "",
-  country: "",
+  gender: "MALE",
+  email: null,
+  phoneNumber: null,
+  secondaryPhone: null,
+  address: null,
+  city: null,
+  state: null,
+  zipCode: null,
+  country: null,
   bloodType: null,
-  allergies: "",
-  medications: "",
-  medicalNotes: "",
-  insuranceInfo: {},
-  emergencyContact: {},
-  guardianName: "",
-  guardianPhone: "",
-  guardianEmail: "",
+  allergies: null,
+  medications: null,
+  medicalNotes: null,
+  insuranceInfo: null,
+  emergencyContact: null,
+  guardianName: null,
+  guardianPhone: null,
+  guardianEmail: null,
   guardianRelation: null,
+  lastVisit: null,
+  lastCalculation: null,
+  status: null
 };
 
-// Hook for fetching patients list
 export function usePatients() {
   return useQuery({
     queryKey: ["patients"],
@@ -107,20 +91,15 @@ export function usePatients() {
       const { data } = await axios.get("/api/dashboard/patients");
       return data;
     },
-    select: (patients) => {
-      // Keep the existing structure of additional transformations
-      return patients.map((patient: any) => ({
-        ...patient,
-        // Any additional client-side data processing
-      }));
-    },
+    select: (patients) => patients.map((patient: PatientData) => ({
+      ...patient,
+    })),
   });
 }
 
 export function usePatient(patientId?: string) {
   const queryClient = useQueryClient();
 
-  // Fetch patient data
   const {
     data: patient,
     isLoading,
@@ -130,9 +109,7 @@ export function usePatient(patientId?: string) {
   } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: async () => {
-      if (!patientId) {
-        return defaultPatientValues;
-      }
+      if (!patientId) return defaultPatientValues;
 
       try {
         const { data } = await axios.get(
@@ -149,7 +126,6 @@ export function usePatient(patientId?: string) {
     enabled: !!patientId,
   });
 
-  // Mutation for saving/updating patient
   const savePatient = useMutation({
     mutationFn: async (patientData: PatientData) => {
       if (patientId) {
@@ -166,14 +142,12 @@ export function usePatient(patientId?: string) {
         return data;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["patient", patientId] });
-      // Also invalidate the patients list if you have one
+    onSuccess: (newPatient) => {
+      queryClient.invalidateQueries({ queryKey: ["patient", newPatient.id] });
       queryClient.invalidateQueries({ queryKey: ["patients"] });
     },
   });
 
-  // Mutation for deleting patient
   const deletePatient = useMutation({
     mutationFn: async () => {
       if (!patientId) throw new Error("Patient ID is required for deletion");
@@ -181,7 +155,6 @@ export function usePatient(patientId?: string) {
     },
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["patient", patientId] });
-      // Also invalidate the patients list if you have one
       queryClient.invalidateQueries({ queryKey: ["patients"] });
     },
   });

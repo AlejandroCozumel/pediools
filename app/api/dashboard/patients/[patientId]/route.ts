@@ -3,11 +3,8 @@ import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import { CalculationType } from "@prisma/client";
 
-// GET calculations for a specific patient
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { patientId: string } }
-) {
+// GET calculations (with optional patient filter)
+export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
@@ -22,22 +19,40 @@ export async function GET(
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    // Fetch calculations for the specific patient, ensuring the patient belongs to the doctor
-    const calculations = await prisma.calculation.findMany({
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const patientId = searchParams.get("patientId");
+
+    // Base query for calculations
+    const calculationsQuery = {
       where: {
-        patientId: params.patientId,
-        doctorId: doctor.id
+        doctorId: doctor.id,
+        ...(patientId ? { patientId } : {}),
       },
       include: {
-        charts: true // Include associated charts
+        charts: true,
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
       orderBy: {
-        date: 'desc' // Most recent calculations first
+        date: "desc" as const,
       },
-      take: 50 // Limit to 50 most recent calculations
-    });
+      take: 50,
+    };
 
-    return NextResponse.json(calculations);
+    const calculations = await prisma.calculation.findMany(calculationsQuery);
+
+    // Add patient name to each calculation
+    const calculationsWithPatientName = calculations.map((calc) => ({
+      ...calc,
+      patientName: `${calc.patient.firstName} ${calc.patient.lastName}`,
+    }));
+
+    return NextResponse.json(calculationsWithPatientName);
   } catch (error) {
     console.error("[CALCULATIONS_GET]", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
@@ -45,10 +60,7 @@ export async function GET(
 }
 
 // POST create a new calculation
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { patientId: string } }
-) {
+export async function POST(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
     if (!userId) {
@@ -63,47 +75,69 @@ export async function POST(
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
+    // Parse request body
+    const body = await req.json();
+    const { patientId, ...calculationData } = body;
+
     // Validate patient belongs to doctor
-    const patient = await prisma.patient.findFirst({
-      where: {
-        id: params.patientId,
-        doctorId: doctor.id
-      }
+    const patient = await prisma.patient.findUnique({
+      where: { id: patientId },
+      include: {
+        calculations: {
+          orderBy: { date: "desc" },
+          take: 50,
+          include: {
+            charts: true,
+            patient: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!patient) {
       return NextResponse.json({ error: "Patient not found" }, { status: 404 });
     }
 
-    // Parse request body
-    const body = await req.json();
-
     // Create calculation
     const calculation = await prisma.calculation.create({
       data: {
         patientId: patient.id,
         doctorId: doctor.id,
-        type: body.type || CalculationType.GROWTH_PERCENTILE,
-        inputData: body.inputData || {},
-        results: body.results || {},
+        type: calculationData.type || CalculationType.GROWTH_PERCENTILE,
+        inputData: calculationData.inputData || {},
+        results: calculationData.results || {},
       },
       include: {
-        charts: true
-      }
+        charts: true,
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
     });
 
-    return NextResponse.json(calculation, { status: 201 });
+    // Add patient name to the new calculation
+    const calculationWithPatientName = {
+      ...calculation,
+      patientName: `${calculation.patient.firstName} ${calculation.patient.lastName}`,
+    };
+
+    return NextResponse.json(calculationWithPatientName, { status: 201 });
   } catch (error) {
     console.error("[CALCULATIONS_POST]", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 
-// Optional: DELETE calculation by ID
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { patientId: string } }
-) {
+// DELETE a specific calculation
+export async function DELETE(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
     if (!userId) {
@@ -118,20 +152,30 @@ export async function DELETE(
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    // Parse calculation ID from request body
-    const { calculationId } = await req.json();
+    // Parse calculation ID from query parameters
+    const { searchParams } = new URL(req.url);
+    const calculationId = searchParams.get("calculationId");
 
-    // Delete calculation, ensuring it belongs to the patient and doctor
+    if (!calculationId) {
+      return NextResponse.json(
+        { error: "Calculation ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Delete calculation, ensuring it belongs to the doctor
     const deletedCalculation = await prisma.calculation.deleteMany({
       where: {
         id: calculationId,
-        patientId: params.patientId,
-        doctorId: doctor.id
-      }
+        doctorId: doctor.id,
+      },
     });
 
     if (deletedCalculation.count === 0) {
-      return NextResponse.json({ error: "Calculation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Calculation not found" },
+        { status: 404 }
+      );
     }
 
     return new NextResponse(null, { status: 204 });

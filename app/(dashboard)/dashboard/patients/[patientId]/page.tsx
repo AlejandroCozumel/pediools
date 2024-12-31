@@ -4,13 +4,19 @@ import { usePatient } from "@/hooks/use-patient";
 import { useParams } from "next/navigation";
 import LoaderSpinner from "@/components/LoaderSpinnner";
 import PatientInformation from "./PatientInformation";
+import CalculationTable from "./CalculationTable";
 
 const Patient = () => {
   const params = useParams();
   const patientId = params.patientId as string;
-  const { patient, isLoading, isError } = usePatient(patientId);
-console.log(patient)
-  if (isError) {
+
+  const {
+    patient,
+    isLoading: isPatientLoading,
+    isError: isPatientError,
+  } = usePatient(patientId);
+
+  if (isPatientError) {
     return (
       <div className="flex items-center justify-center min-h-screen text-medical-600">
         Error loading patient profile.
@@ -18,13 +24,19 @@ console.log(patient)
     );
   }
 
-  if (isLoading) {
+  if (isPatientLoading) {
     return <LoaderSpinner />;
+  }
+
+  // Ensure patient exists before rendering
+  if (!patient) {
+    return <div>No patient found</div>;
   }
 
   return (
     <div>
       <PatientInformation patient={patient} />
+      <CalculationTable calculations={patient} patientId={patientId} />
     </div>
   );
 };
