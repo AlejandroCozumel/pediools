@@ -6,7 +6,7 @@ import PatientsDashboard from "./PatientsDashboard";
 
 const Patients = () => {
   const { data: patients, isLoading, error } = usePatients();
-
+console.log(patients,"<=patients")
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen text-medical-600">

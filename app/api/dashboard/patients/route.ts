@@ -10,7 +10,7 @@ type PatientFromDB = {
   lastName: string;
   dateOfBirth: Date;
   gender: "MALE" | "FEMALE";
-}
+};
 
 type TransformedPatient = {
   id: string;
@@ -18,7 +18,7 @@ type TransformedPatient = {
   lastName: string;
   dateOfBirth: string;
   gender: "MALE" | "FEMALE";
-}
+};
 
 // Type for POST request body
 type PatientCreateInput = {
@@ -34,7 +34,15 @@ type PatientCreateInput = {
   state?: string;
   zipCode?: string;
   country?: string;
-  bloodType?: "A_POSITIVE" | "A_NEGATIVE" | "B_POSITIVE" | "B_NEGATIVE" | "O_POSITIVE" | "O_NEGATIVE" | "AB_POSITIVE" | "AB_NEGATIVE";
+  bloodType?:
+    | "A_POSITIVE"
+    | "A_NEGATIVE"
+    | "B_POSITIVE"
+    | "B_NEGATIVE"
+    | "O_POSITIVE"
+    | "O_NEGATIVE"
+    | "AB_POSITIVE"
+    | "AB_NEGATIVE";
   allergies?: string;
   medications?: string;
   medicalNotes?: string;
@@ -43,57 +51,68 @@ type PatientCreateInput = {
   guardianName?: string;
   guardianPhone?: string;
   guardianEmail?: string;
-  guardianRelation?: "MOTHER" | "FATHER" | "STEPMOTHER" | "STEPFATHER" | "GRANDMOTHER" | "GRANDFATHER" | "AUNT" | "UNCLE" | "SIBLING" | "LEGAL_GUARDIAN" | "FOSTER_PARENT" | "CAREGIVER" | "OTHER";
-}
+  guardianRelation?:
+    | "MOTHER"
+    | "FATHER"
+    | "STEPMOTHER"
+    | "STEPFATHER"
+    | "GRANDMOTHER"
+    | "GRANDFATHER"
+    | "AUNT"
+    | "UNCLE"
+    | "SIBLING"
+    | "LEGAL_GUARDIAN"
+    | "FOSTER_PARENT"
+    | "CAREGIVER"
+    | "OTHER";
+};
 
 // GET all patients
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const { userId } = getAuth(req);
+    const { userId } = getAuth(request);
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const doctor = await prisma.doctor.findUnique({
-      where: {
-        clerkUserId: userId,
+      where: { clerkUserId: userId },
+      include: {
+        patients: {
+          orderBy: {
+            calculations: {
+              _count: 'desc',
+            }
+          },
+          include: {
+            calculations: {
+              orderBy: { date: "desc" },
+              take: 1,
+            },
+          },
+        },
       },
     });
 
     if (!doctor) {
-      return new NextResponse("Doctor not found", { status: 404 });
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    // Fetch patients
-    const patients = await prisma.patient.findMany({
-      where: {
-        doctorId: doctor.id,
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        dateOfBirth: true,
-        gender: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    // Transform the data to match the dashboard requirements
-    const transformedPatients = patients.map((patient: PatientFromDB): TransformedPatient => ({
+    const formattedPatients = doctor.patients.map((patient) => ({
       id: patient.id,
       firstName: patient.firstName,
       lastName: patient.lastName,
       dateOfBirth: patient.dateOfBirth.toISOString(),
       gender: patient.gender,
+      lastCalculation: patient.calculations[0]?.date.toISOString() || null,
+      lastVisit: patient.updatedAt.toISOString(),
+      status: "Active", // Or implement your status logic
     }));
 
-    return NextResponse.json(transformedPatients);
+    return NextResponse.json(formattedPatients);
   } catch (error) {
     console.error("[PATIENTS_GET]", error);
-    return new NextResponse("Internal error", { status: 500 });
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 
@@ -141,7 +160,7 @@ export async function POST(req: NextRequest) {
         guardianName: body.guardianName,
         guardianPhone: body.guardianPhone,
         guardianEmail: body.guardianEmail,
-        guardianRelation: body.guardianRelation
+        guardianRelation: body.guardianRelation,
       },
     });
 
