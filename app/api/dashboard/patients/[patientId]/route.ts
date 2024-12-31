@@ -1,163 +1,142 @@
-// app/api/dashboard/patients/[patientId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
+import { CalculationType } from "@prisma/client";
 
+// GET calculations for a specific patient
 export async function GET(
   request: NextRequest,
-  context: { params: { patientId: string } }
+  { params }: { params: { patientId: string } }
 ) {
   try {
     const { userId } = getAuth(request);
-
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const doctor = await prisma.doctor.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
+      where: { clerkUserId: userId },
     });
 
     if (!doctor) {
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    const patient = await prisma.patient.findUnique({
+    // Fetch calculations for the specific patient, ensuring the patient belongs to the doctor
+    const calculations = await prisma.calculation.findMany({
       where: {
-        id: context.params.patientId,
-        doctorId: doctor.id,
+        patientId: params.patientId,
+        doctorId: doctor.id
       },
+      include: {
+        charts: true // Include associated charts
+      },
+      orderBy: {
+        date: 'desc' // Most recent calculations first
+      },
+      take: 50 // Limit to 50 most recent calculations
+    });
+
+    return NextResponse.json(calculations);
+  } catch (error) {
+    console.error("[CALCULATIONS_GET]", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
+
+// POST create a new calculation
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { patientId: string } }
+) {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const doctor = await prisma.doctor.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!doctor) {
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
+    }
+
+    // Validate patient belongs to doctor
+    const patient = await prisma.patient.findFirst({
+      where: {
+        id: params.patientId,
+        doctorId: doctor.id
+      }
     });
 
     if (!patient) {
       return NextResponse.json({ error: "Patient not found" }, { status: 404 });
     }
 
-    return NextResponse.json(patient);
+    // Parse request body
+    const body = await req.json();
+
+    // Create calculation
+    const calculation = await prisma.calculation.create({
+      data: {
+        patientId: patient.id,
+        doctorId: doctor.id,
+        type: body.type || CalculationType.GROWTH_PERCENTILE,
+        inputData: body.inputData || {},
+        results: body.results || {},
+      },
+      include: {
+        charts: true
+      }
+    });
+
+    return NextResponse.json(calculation, { status: 201 });
   } catch (error) {
-    console.error("[PATIENT_GET]", error);
+    console.error("[CALCULATIONS_POST]", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 
-// PATCH update patient
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { patientId: string } }
-) {
-  try {
-    const { userId } = getAuth(req);
-
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const doctor = await prisma.doctor.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-
-    if (!doctor) {
-      return new NextResponse("Doctor not found", { status: 404 });
-    }
-
-    const body = await req.json();
-
-    // Verify patient belongs to doctor
-    const existingPatient = await prisma.patient.findUnique({
-      where: {
-        id: params.patientId,
-        doctorId: doctor.id,
-      },
-    });
-
-    if (!existingPatient) {
-      return new NextResponse("Patient not found", { status: 404 });
-    }
-
-    const updatedPatient = await prisma.patient.update({
-      where: {
-        id: params.patientId,
-      },
-      data: {
-        firstName: body.firstName,
-        lastName: body.lastName,
-        dateOfBirth: new Date(body.dateOfBirth),
-        gender: body.gender,
-        email: body.email,
-        phoneNumber: body.phoneNumber,
-        secondaryPhone: body.secondaryPhone,
-        address: body.address,
-        city: body.city,
-        state: body.state,
-        zipCode: body.zipCode,
-        country: body.country,
-        bloodType: body.bloodType,
-        allergies: body.allergies,
-        medications: body.medications,
-        medicalNotes: body.medicalNotes,
-        insuranceInfo: body.insuranceInfo,
-        emergencyContact: body.emergencyContact,
-        guardianName: body.guardianName,
-        guardianPhone: body.guardianPhone,
-        guardianEmail: body.guardianEmail,
-        guardianRelation: body.guardianRelation,
-      },
-    });
-
-    return NextResponse.json(updatedPatient);
-  } catch (error) {
-    console.error("[PATIENT_PATCH]", error);
-    return new NextResponse("Internal error", { status: 500 });
-  }
-}
-
-// DELETE patient
+// Optional: DELETE calculation by ID
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { patientId: string } }
 ) {
   try {
     const { userId } = getAuth(req);
-
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const doctor = await prisma.doctor.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
+      where: { clerkUserId: userId },
     });
 
     if (!doctor) {
-      return new NextResponse("Doctor not found", { status: 404 });
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    // Verify patient belongs to doctor
-    const patient = await prisma.patient.findUnique({
+    // Parse calculation ID from request body
+    const { calculationId } = await req.json();
+
+    // Delete calculation, ensuring it belongs to the patient and doctor
+    const deletedCalculation = await prisma.calculation.deleteMany({
       where: {
-        id: params.patientId,
-        doctorId: doctor.id,
-      },
+        id: calculationId,
+        patientId: params.patientId,
+        doctorId: doctor.id
+      }
     });
 
-    if (!patient) {
-      return new NextResponse("Patient not found", { status: 404 });
+    if (deletedCalculation.count === 0) {
+      return NextResponse.json({ error: "Calculation not found" }, { status: 404 });
     }
-
-    await prisma.patient.delete({
-      where: {
-        id: params.patientId,
-      },
-    });
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("[PATIENT_DELETE]", error);
-    return new NextResponse("Internal error", { status: 500 });
+    console.error("[CALCULATIONS_DELETE]", error);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
