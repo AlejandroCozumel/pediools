@@ -6,6 +6,7 @@ interface Patient {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
+  gender: 'male' | 'female';
 }
 
 async function searchPatients(search: string): Promise<Patient[]> {

@@ -38,11 +38,17 @@ export async function POST(req: NextRequest) {
         firstName: true,
         lastName: true,
         dateOfBirth: true,
+        gender: true,
       },
       take: 10,
     });
 
-    return NextResponse.json(patients);
+    const transformedPatients = patients.map(patient => ({
+      ...patient,
+      gender: patient.gender.toLowerCase()
+    }));
+
+    return NextResponse.json(transformedPatients);
   } catch (error) {
     console.error("[PATIENT_SEARCH]", error);
     return new NextResponse("Internal Error", { status: 500 });

@@ -98,7 +98,7 @@ const growthStandards = [
   // },
 ];
 
-const formSchema = z
+export const formSchema = z
   .object({
     standard: z.string().min(1, "Please select a growth standard"),
     gender: z.enum(["male", "female"], {
@@ -530,7 +530,7 @@ export function GrowthForm() {
         </CardTitle>
       </CardHeader>
       <CardDescription className="p-4 lg:p-6 pb-0">
-        {isPremium && <PatientSelector />}
+        {isPremium && <PatientSelector form={form} />}
       </CardDescription>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>

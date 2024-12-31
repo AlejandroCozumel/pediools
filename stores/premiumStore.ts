@@ -1,11 +1,11 @@
-// stores/premiumStore.ts
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface Patient {
   id: string;
   firstName: string;
   lastName: string;
+  dateOfBirth: Date | string;
+  gender: 'male' | 'female';
 }
 
 interface PremiumState {
@@ -15,14 +15,9 @@ interface PremiumState {
   setPatient: (patient: Patient | null) => void;
 }
 
-export const usePremiumStore = create<PremiumState>()(
-  persist(
-    (set) => ({
-      isPremium: false,
-      selectedPatient: null,
-      setIsPremium: (status) => set({ isPremium: status }),
-      setPatient: (patient) => set({ selectedPatient: patient }),
-    }),
-    { name: 'premium-store' }
-  )
-);
+export const usePremiumStore = create<PremiumState>()((set) => ({
+  isPremium: false,
+  selectedPatient: null,
+  setIsPremium: (status) => set({ isPremium: status }),
+  setPatient: (patient) => set({ selectedPatient: patient }),
+}));
