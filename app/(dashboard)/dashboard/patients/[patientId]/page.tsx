@@ -16,6 +16,7 @@ const Patient = () => {
     isError: isPatientError,
   } = usePatient(patientId);
 
+
   if (isPatientError) {
     return (
       <div className="flex items-center justify-center min-h-screen text-medical-600">
