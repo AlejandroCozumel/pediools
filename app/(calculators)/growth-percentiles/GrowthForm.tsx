@@ -541,6 +541,7 @@ export function GrowthForm() {
               render={({ field }) => (
                 <FormItem className="space-y-0 mb-6">
                   <Tabs
+                    value={field.value}
                     defaultValue="male"
                     className="w-full"
                     onValueChange={field.onChange}
