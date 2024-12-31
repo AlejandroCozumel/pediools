@@ -529,7 +529,7 @@ export function GrowthForm() {
           Growth Percentile Calculator
         </CardTitle>
       </CardHeader>
-      <CardDescription className="p-4 lg:p-6 pb-0">
+      <CardDescription className="p-4 lg:p-6 pb-0 lg:pb-0">
         {isPremium && <PatientSelector form={form} />}
       </CardDescription>
       <CardContent className="p-4 lg:p-6">
