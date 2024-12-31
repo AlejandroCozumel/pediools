@@ -32,6 +32,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import DateInputs from "@/components/DateInputs";
 import GestationalSelects from "@/components/GestationalSelects";
 import { Badge } from "@/components/ui/badge";
@@ -240,6 +250,7 @@ export const formSchema = z
 export function GrowthForm() {
   const { isPremium, selectedPatient } = usePremiumStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -268,10 +279,51 @@ export function GrowthForm() {
       ? differenceInMonths(measurementDate, birthDate)
       : 0;
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>, skipSave?: boolean) {
+    if (isPremium && selectedPatient && !skipSave) {
+      setShowConfirmModal(true);
+      return;
+    }
+
     setIsSubmitting(true);
     const timeoutId = setTimeout(() => {
       try {
+        if (selectedPatient && !skipSave) {
+          // Common structure for all standards
+          const measurementData = {
+            patientId: selectedPatient.id,
+            calculatorType: selectedStandard,
+            measurement: {
+              weight: parseFloat(values.weight),
+              height: parseFloat(values.height),
+              headCircumference: values.headCircumference
+                ? parseFloat(values.headCircumference)
+                : undefined,
+              standard: selectedStandard,
+              // For WHO/CDC standards
+              ...(values.dateOfBirth && values.dateOfMeasurement
+                ? {
+                    birthDate: values.dateOfBirth,
+                    measurementDate: values.dateOfMeasurement,
+                  }
+                : {}),
+              // For Intergrowth
+              ...(values.gestationalWeeks && values.gestationalDays
+                ? {
+                    gestationalWeeks: parseInt(values.gestationalWeeks),
+                    gestationalDays: parseInt(values.gestationalDays),
+                  }
+                : {}),
+            },
+          };
+
+          fetch("/api/dashboard/patients/measurements/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(measurementData),
+          });
+        }
+
         switch (selectedStandard) {
           case "cdc_child":
           case "cdc_infant":
@@ -534,7 +586,10 @@ export function GrowthForm() {
       </CardDescription>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit((values) => onSubmit(values, false))}
+            className="space-y-6"
+          >
             <FormField
               control={form.control}
               name="gender"
@@ -903,6 +958,35 @@ export function GrowthForm() {
           </form>
         </Form>
       </CardContent>
+      <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save Measurements?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Would you like to save these measurements to{" "}
+              {selectedPatient?.firstName}'s records?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+            <AlertDialogCancel
+              onClick={() => {
+                setShowConfirmModal(false);
+                onSubmit(form.getValues(), true);
+              }}
+            >
+              Just View Graph
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowConfirmModal(false);
+                onSubmit(form.getValues(), false);
+              }}
+            >
+              Save and View Graph
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
