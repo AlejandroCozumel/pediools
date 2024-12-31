@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Check, ChevronsUpDown, Search, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Search, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,26 +115,43 @@ export default function PatientSelector({
     <div className="relative w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between bg-white hover:bg-gray-50/50"
-          >
-            {globalSelectedPatient ? (
-              <span className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
-                {globalSelectedPatient.firstName}{" "}
-                {globalSelectedPatient.lastName}
-              </span>
-            ) : (
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                Search patients...
-              </span>
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between bg-white hover:bg-gray-50/50"
+            >
+              {globalSelectedPatient ? (
+                <span className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500" />
+                  {globalSelectedPatient.firstName}{" "}
+                  {globalSelectedPatient.lastName}
+                </span>
+              ) : (
+                <span className="text-muted-foreground flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  Search patients...
+                </span>
+              )}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+            {globalSelectedPatient && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="ml-2 flex items-center justify-center aspect-square h-[35px]"
+                onClick={() => {
+                  setPatient(null);
+                  setSelected(null);
+                  form.setValue("dateOfBirth", undefined);
+                  form.setValue("gender", "male");
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             )}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
+          </div>
         </PopoverTrigger>
         <PopoverContent
           className="p-0"
