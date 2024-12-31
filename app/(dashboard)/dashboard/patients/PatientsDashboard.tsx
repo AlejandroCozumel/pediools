@@ -50,6 +50,7 @@ import {
   Mail,
   ArrowUpDown,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Define a type for patients to improve type safety
 interface Patient {
@@ -197,6 +198,7 @@ export default function PatientsDashboard({
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
+        const router = useRouter();
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -207,11 +209,14 @@ export default function PatientsDashboard({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  router.push(`/dashboard/patients/${row.original.id}`)
+                }
+              >
                 <Calendar className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
-              {/* Other dropdown items */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
