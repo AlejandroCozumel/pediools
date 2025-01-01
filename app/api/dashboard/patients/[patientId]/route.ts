@@ -31,12 +31,7 @@ export async function GET(request: NextRequest) {
       },
       include: {
         charts: true,
-        patient: {
-          select: {
-            firstName: true,
-            lastName: true,
-          },
-        },
+        patient: true
       },
       orderBy: {
         date: "desc" as const,
@@ -47,12 +42,13 @@ export async function GET(request: NextRequest) {
     const calculations = await prisma.calculation.findMany(calculationsQuery);
 
     // Add patient name to each calculation
-    const calculationsWithPatientName = calculations.map((calc) => ({
+    const calculationsWithFullPatient = calculations.map((calc) => ({
       ...calc,
-      patientName: `${calc.patient.firstName} ${calc.patient.lastName}`,
+      patient: calc.patient,
     }));
 
-    return NextResponse.json(calculationsWithPatientName);
+
+    return NextResponse.json(calculationsWithFullPatient);
   } catch (error) {
     console.error("[CALCULATIONS_GET]", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

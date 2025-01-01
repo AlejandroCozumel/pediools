@@ -73,60 +73,6 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ patient }) => {
         </p>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link
-          href={`/dashboard/patients/${patientId}/calculations`}
-          className="block"
-        >
-          <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden">
-            <CardContent className="flex items-center p-4">
-              <LineChart className="mr-4 h-8 w-8 text-medical-500" />
-              <div>
-                <p className="font-medium text-medical-900">Calculations</p>
-                <p className="text-xs text-medical-600">
-                  View patient's growth charts and calculations
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link
-          href={`/dashboard/patients/${patientId}/appointments`}
-          className="block"
-        >
-          <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden">
-            <CardContent className="flex items-center p-4">
-              <Calendar className="mr-4 h-8 w-8 text-medical-500" />
-              <div>
-                <p className="font-medium text-medical-900">Appointments</p>
-                <p className="text-xs text-medical-600">
-                  Manage patient appointments
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link
-          href={`/dashboard/patients/${patientId}/documents`}
-          className="block"
-        >
-          <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden">
-            <CardContent className="flex items-center p-4">
-              <FileText className="mr-4 h-8 w-8 text-medical-500" />
-              <div>
-                <p className="font-medium text-medical-900">Documents</p>
-                <p className="text-xs text-medical-600">
-                  View and manage patient documents
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
       {/* Personal Information Card */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="border-medical-100">
