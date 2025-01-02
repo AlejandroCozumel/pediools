@@ -51,6 +51,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import PatientQuickActions from "@/app/(dashboard)/dashboard/patients/[patientId]/PatientQuickActions";
 
 // Define a type for patients to improve type safety
 interface Patient {
@@ -251,9 +252,9 @@ export default function PatientsDashboard({
   ).length;
 
   return (
-    <div className="container mx-auto my-6 px-4 md:px-0">
+    <div className="container mx-auto my-6">
       {/* Header Section */}
-      <div className="mb-8 space-y-3">
+      <div className="space-y-3">
         <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
           Patients
         </h1>
@@ -262,8 +263,35 @@ export default function PatientsDashboard({
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="flex flex-col gap-6">
+        <PatientQuickActions
+          actions={[
+            {
+              link: `/dashboard/patients/calculations`,
+              icon: <LineChart className="h-8 w-8 text-medical-500" />,
+              title: "Calculations",
+              description: "View patient's growth charts and calculations",
+              category: "Graphs",
+            },
+            {
+              link: `/dashboard/patients/appointments`,
+              icon: <Calendar className="h-8 w-8 text-medical-500" />,
+              title: "Appointments",
+              description: "Manage patient appointments",
+              category: "Scheduling",
+            },
+            {
+              link: `/dashboard/patients/documents`,
+              icon: <FileText className="h-8 w-8 text-medical-500" />,
+              title: "Documents",
+              description: "View and manage patient documents",
+              category: "Records",
+            },
+          ]}
+        />
+
+        {/* Stats Cards */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Link href="#" className="block group">
           <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-medical-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -317,118 +345,122 @@ export default function PatientsDashboard({
             </CardContent>
           </Card>
         </Link>
-      </div>
+      </div> */}
 
-      {/* Main Content Card */}
-      <Card className="border-medical-100">
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <CardTitle className="text-xl font-heading text-medical-900">
-                Patient List
-              </CardTitle>
-              <CardDescription>
-                Manage your patients and their records
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
-                <Input
-                  placeholder="Search patients..."
-                  value={globalFilter}
-                  onChange={(e) => setGlobalFilter(e.target.value)}
-                  className="pl-8 w-[250px] border-medical-200"
-                />
+        {/* Main Content Card */}
+        <Card className="border-medical-100">
+          <CardHeader>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <CardTitle className="text-xl font-heading text-medical-900">
+                  Patient List
+                </CardTitle>
+                <CardDescription>
+                  Manage your patients and their records
+                </CardDescription>
               </div>
-              <Link href="/dashboard/patients/add">
-                <Button className="bg-medical-600 hover:bg-medical-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Patient
-                </Button>
-              </Link>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                  <Input
+                    placeholder="Search patients..."
+                    value={globalFilter}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    className="pl-8 w-[250px] border-medical-200"
+                  />
+                </div>
+                <Link href="/dashboard/patients/add">
+                  <Button className="bg-medical-600 hover:bg-medical-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Patient
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {patients.length > 0 ? (
-            <>
-              <div className="rounded-md border border-medical-100">
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow
-                        key={headerGroup.id}
-                        className="bg-medical-50 hover:bg-medical-100"
-                      >
-                        {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id} className="hover:bg-medical-50">
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
+          </CardHeader>
+          <CardContent>
+            {patients.length > 0 ? (
+              <>
+                <div className="rounded-md border border-medical-100">
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow
+                          key={headerGroup.id}
+                          className="bg-medical-50 hover:bg-medical-100"
+                        >
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className="h-24 text-center"
-                        >
-                          No results.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow
+                            key={row.id}
+                            className="hover:bg-medical-50"
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className="h-24 text-center"
+                          >
+                            No results.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="flex items-center justify-end space-x-2 py-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    className="border-medical-200 text-medical-700"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    className="border-medical-200 text-medical-700"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-medical-600">
+                No patients found. Add a new patient to get started.
               </div>
-              <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="border-medical-200 text-medical-700"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="border-medical-200 text-medical-700"
-                >
-                  Next
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-8 text-medical-600">
-              No patients found. Add a new patient to get started.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
