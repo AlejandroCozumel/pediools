@@ -568,6 +568,7 @@ export async function POST(req: NextRequest) {
           weight: results.weightResults,
           height: results.heightResults,
           headCircumference: results.headResults,
+          calculationType: calculatorType,
         },
       },
     });

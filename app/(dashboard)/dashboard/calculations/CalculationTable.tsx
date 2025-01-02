@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -48,6 +48,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
 
 // Define a type for calculations to improve type safety
 interface Calculation {
@@ -56,7 +57,10 @@ interface Calculation {
   date: string;
   results: any;
   patientId: string;
-  patientName?: string;
+  patient: {
+    firstName: string;
+    lastName: string;
+  };
 }
 
 type ColumnDef<TData> = ReactTableColumnDef<TData, any> & {
@@ -80,15 +84,29 @@ export default function CalculationTable({
   calculations: Calculation[];
   patientId?: string;
 }) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  useEffect(() => {
+    setGlobalFilter(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
+
   const [globalFilter, setGlobalFilter] = React.useState("");
 
   const router = useRouter();
 
   const columns: ColumnDef<Calculation>[] = [
+    {
+      accessorKey: "patient.firstName",
+      header: "First Name",
+    },
+    {
+      accessorKey: "patient.lastName",
+      header: "Last Name",
+    },
     {
       accessorKey: "type",
       header: ({ column }) => {
@@ -109,6 +127,18 @@ export default function CalculationTable({
           className="border-medical-200 text-medical-700"
         >
           {row.original.type}
+        </Badge>
+      ),
+    },
+    {
+      header: "Standard",
+      accessorFn: (row) => row.results?.calculationType ?? "N/A",
+      cell: ({ getValue }) => (
+        <Badge
+          variant="outline"
+          className="border-medical-200 text-medical-700"
+        >
+          {getValue()}
         </Badge>
       ),
     },
@@ -206,6 +236,11 @@ export default function CalculationTable({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const fullName =
+        `${row.original.patient.firstName} ${row.original.patient.lastName}`.toLowerCase();
+      return fullName.includes(filterValue.toLowerCase());
+    },
     state: {
       sorting,
       columnFilters,
@@ -219,21 +254,21 @@ export default function CalculationTable({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <CardTitle className="text-xl font-heading text-medical-900">
-              {patientId ? "Patient Calculations" : "All Calculations"}
+              {patientId ? "Patient Calculations" : "Latest Calculations"}
             </CardTitle>
             <CardDescription>
               {patientId
                 ? "View and manage this patient's calculations"
-                : "View and manage calculations across all patients"}
+                : "View and manage recent patient calculations"}
             </CardDescription>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
               <Input
-                placeholder="Search calculations..."
-                value={globalFilter}
-                onChange={(e) => setGlobalFilter(e.target.value)}
+                placeholder="Search by patient name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8 w-[250px] border-medical-200"
               />
             </div>

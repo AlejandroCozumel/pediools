@@ -265,21 +265,21 @@ export default function PatientsDashboard({
         <QuickActions
           actions={[
             {
-              link: `/dashboard/patients/calculations`,
+              link: `/dashboard/calculations`,
               icon: <LineChart className="h-8 w-8 text-medical-500" />,
               title: "Calculations",
               description: "View patient's growth charts and calculations",
               category: "Graphs",
             },
             {
-              link: `/dashboard/patients/appointments`,
+              link: `/dashboard/appointments`,
               icon: <Calendar className="h-8 w-8 text-medical-500" />,
               title: "Appointments",
               description: "Manage patient appointments",
               category: "Scheduling",
             },
             {
-              link: `/dashboard/patients/documents`,
+              link: `/dashboard/documents`,
               icon: <FileText className="h-8 w-8 text-medical-500" />,
               title: "Documents",
               description: "View and manage patient documents",

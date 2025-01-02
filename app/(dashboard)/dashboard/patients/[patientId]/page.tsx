@@ -4,7 +4,7 @@ import { usePatient } from "@/hooks/use-patient";
 import { useParams } from "next/navigation";
 import LoaderSpinner from "@/components/LoaderSpinnner";
 import PatientInformation from "./PatientInformation";
-import CalculationTable from "./CalculationTable";
+import CalculationTable from "@/app/(dashboard)/dashboard/calculations/CalculationTable";
 
 const Patient = () => {
   const params = useParams();
