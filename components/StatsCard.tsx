@@ -15,7 +15,7 @@ const StatsCard: React.FC<StatProps> = ({ title, value, previousValue, icon }) =
   const isUp = percentageChange ? percentageChange > 0 : null;
 
   return (
-    <Card className="group hover:shadow-md transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden h-full">
+    <Card className="group hover:shadow-md transition-all duration-300 border-border/50 hover:border-medical-200 relative overflow-hidden h-full">
       <div className="absolute inset-0 bg-gradient-to-br from-medical-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <CardHeader className="relative p-3">
         <div className="flex items-center justify-between mb-2">

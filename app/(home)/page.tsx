@@ -69,42 +69,42 @@ const calculators = [
 
 const CalculatorsList = () => {
   return (
-    <div className="container mx-auto my-6 px-4 md:px-0">
+    <div className="container mx-auto my-6 px-4 md:px-6 lg:px-8">
       <DashboardTitle
         title="Pediatric Calculators"
         subtitle="Professional tools for pediatric assessment and monitoring"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {calculators.map((calc, index) => (
           <Link href={calc.link} key={index} className="block group">
-            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden">
+            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden h-full">
               <div className="absolute inset-0 bg-gradient-to-br from-medical-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardHeader className="relative">
+              <CardHeader className="relative p-4 pb-2">
                 <div className="flex items-center justify-between mb-3">
                   {calc.icon}
                   <Badge
                     variant="default"
-                    className="bg-medical-600 hover:bg-medical-700 transition-colors"
+                    className="text-xs bg-medical-600 hover:bg-medical-700 transition-colors"
                   >
                     {calc.category}
                   </Badge>
                 </div>
-                <CardTitle className="text-xl mb-2 text-medical-900 group-hover:text-medical-700 transition-colors font-heading">
+                <CardTitle className="text-base sm:text-lg md:text-xl mb-2 text-medical-900 group-hover:text-medical-700 transition-colors font-heading">
                   {calc.title}
                 </CardTitle>
-                <CardDescription className="text-muted-foreground/80 leading-relaxed">
+                <CardDescription className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed">
                   {calc.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="relative">
+              <CardContent className="relative p-4 pt-0">
                 {calc.standards && (
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-1.5 flex-wrap">
                     {calc.standards.map((standard, idx) => (
                       <Badge
                         key={idx}
                         variant="outline"
-                        className="border-medical-200 text-medical-700 hover:bg-medical-50 hover:text-medical-800 transition-colors"
+                        className="text-xs border-medical-200 text-medical-700 hover:bg-medical-50 hover:text-medical-800 transition-colors"
                       >
                         {standard}
                       </Badge>
@@ -117,21 +117,21 @@ const CalculatorsList = () => {
         ))}
       </div>
 
-      <div className="mt-12 flex justify-center">
+      <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
         <Card className="w-full lg:w-2/3 border-medical-100 bg-gradient-to-br from-white to-medical-50">
-          <CardHeader>
+          <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
-              <Sparkles className="h-6 w-6 text-medical-600" />
-              <CardTitle className="text-2xl text-medical-900 font-heading">
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-medical-600" />
+              <CardTitle className="text-xl sm:text-2xl text-medical-900 font-heading">
                 Premium Features
               </CardTitle>
             </div>
-            <CardDescription className="text-medical-700 text-lg mt-2">
+            <CardDescription className="text-medical-700 text-base sm:text-lg mt-2">
               Subscribe to unlock advanced features:
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-3 text-muted-foreground">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
               {[
                 "Detailed graphical visualizations",
                 "PDF report generation with your branding",
