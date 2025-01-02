@@ -22,34 +22,34 @@ const Calculations = () => {
   if (isLoading) {
     return <LoaderSpinnner />;
   }
-  console.log(calculations);
+
   return (
     <div className="my-6">
       <DashboardTitle
         title="Calculations Dashboard"
         subtitle="View and manage growth percentile calculations for all patients"
       />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatsCard
-          title="Total Calculations"
-          value={calculations.totalCalculations}
-          previousValue={calculations.previousTotalCalculations}
-          icon={<CalculatorIcon className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatsCard
-          title="Unique Patients"
-          value={calculations.uniquePatients}
-          previousValue={calculations.previousUniquePatients}
-          icon={<UsersIcon className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatsCard
-          title="Calculations This Month"
-          value={calculations.calculationsThisMonth}
-          previousValue={calculations.calculationsLastMonth}
-          icon={<CalendarIcon className="h-4 w-4 text-muted-foreground" />}
-        />
+      <div className="flex flex-col-reverse md:flex-col gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatsCard
+            title="Total Calculations"
+            value={calculations.totalCalculations}
+            icon={<CalculatorIcon className="h-4 w-4 text-muted-foreground" />}
+          />
+          <StatsCard
+            title="Unique Patients"
+            value={calculations.uniquePatients}
+            icon={<UsersIcon className="h-4 w-4 text-muted-foreground" />}
+          />
+          <StatsCard
+            title="Calculations This Month"
+            value={calculations.calculationsThisMonth}
+            previousValue={calculations.calculationsLastMonth}
+            icon={<CalendarIcon className="h-4 w-4 text-muted-foreground" />}
+          />
+        </div>
+        <CalculationTable calculations={calculations.calculations} />
       </div>
-      <CalculationTable calculations={calculations.calculations} />
     </div>
   );
 };

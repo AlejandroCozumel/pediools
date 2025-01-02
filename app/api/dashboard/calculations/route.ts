@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
-import { startOfMonth } from "date-fns";
+import { startOfMonth, subMonths, endOfMonth } from "date-fns";
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,9 +11,12 @@ export async function GET(request: NextRequest) {
     const doctor = await prisma.doctor.findUnique({ where: { clerkUserId: userId } });
     if (!doctor) return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
 
-    const firstDayOfMonth = startOfMonth(new Date());
+    const now = new Date();
+    const firstDayOfMonth = startOfMonth(now);
+    const firstDayOfLastMonth = startOfMonth(subMonths(now, 1));
+    const lastDayOfLastMonth = endOfMonth(subMonths(now, 1));
 
-    const calculations = await prisma.calculation.findMany({
+    const calculationsThisMonth = await prisma.calculation.findMany({
       where: {
         doctorId: doctor.id,
         date: { gte: firstDayOfMonth }
@@ -25,11 +28,33 @@ export async function GET(request: NextRequest) {
       orderBy: { date: "desc" },
     });
 
-    const totalCalculations = calculations.length;
-    const uniquePatients = new Set(calculations.map(c => c.patientId)).size;
-    const calculationsThisMonth = calculations.length;
+    const calculationsLastMonth = await prisma.calculation.findMany({
+      where: {
+        doctorId: doctor.id,
+        date: {
+          gte: firstDayOfLastMonth,
+          lte: lastDayOfLastMonth
+        }
+      }
+    });
 
-    return NextResponse.json({ calculations, totalCalculations, uniquePatients, calculationsThisMonth });
+    const totalCalculations = await prisma.calculation.count({
+      where: { doctorId: doctor.id }
+    });
+
+    const uniquePatients = await prisma.calculation.findMany({
+      where: { doctorId: doctor.id },
+      distinct: ['patientId'],
+      select: { patientId: true }
+    });
+
+    return NextResponse.json({
+      calculations: calculationsThisMonth,
+      totalCalculations,
+      uniquePatients: uniquePatients.length,
+      calculationsThisMonth: calculationsThisMonth.length,
+      calculationsLastMonth: calculationsLastMonth.length
+    });
   } catch (error) {
     console.error("[CALCULATIONS_DASHBOARD_GET]", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

@@ -250,7 +250,7 @@ export default function CalculationTable({
 
   return (
     <Card className="border-medical-100">
-      <CardHeader>
+      <CardHeader className="p-4 lg:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <CardTitle className="text-xl font-heading text-medical-900">
@@ -288,7 +288,7 @@ export default function CalculationTable({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 lg:p-6">
         {calculations.length > 0 ? (
           <>
             <div className="rounded-md border border-medical-100">
@@ -339,7 +339,7 @@ export default function CalculationTable({
                 </TableBody>
               </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-center justify-end space-x-2 pt-4 lg:pt-6">
               <Button
                 variant="outline"
                 size="sm"
