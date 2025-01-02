@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import DashboardTitle from "@/components/DashboardTitle";
 
 const calculators = [
   {
@@ -69,15 +70,10 @@ const calculators = [
 const CalculatorsList = () => {
   return (
     <div className="container mx-auto my-6 px-4 md:px-0">
-      <div className="mb-8 space-y-3">
-        <h1 className="text-4xl font-bold tracking-tight font-heading">
-          Pediatric Calculators
-        </h1>
-        {/* Plus Jakarta Sans will be applied automatically */}
-        <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
-          Professional tools for pediatric assessment and monitoring
-        </p>
-      </div>
+      <DashboardTitle
+        title="Pediatric Calculators"
+        subtitle="Professional tools for pediatric assessment and monitoring"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {calculators.map((calc, index) => (

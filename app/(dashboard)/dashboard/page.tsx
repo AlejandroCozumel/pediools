@@ -19,6 +19,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import Link from "next/link";
+import DashboardTitle from "@/components/DashboardTitle";
 
 const Dashboard = () => {
   // Mock data
@@ -90,14 +91,7 @@ const Dashboard = () => {
   return (
     <div className="my-6">
       {/* Header Section */}
-      <div className="mb-8 space-y-3">
-        <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
-          Dashboard
-        </h1>
-        <p className="text-medical-600 text-lg leading-relaxed">
-          Welcome back, Dr. Smith
-        </p>
-      </div>
+      <DashboardTitle title="Dashboard" subtitle="Welcome back, Dr. Smith" />
 
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -51,7 +51,8 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import PatientQuickActions from "@/app/(dashboard)/dashboard/patients/[patientId]/PatientQuickActions";
+import QuickActions from "@/components/QuickActions";
+import DashboardTitle from "@/components/DashboardTitle";
 
 // Define a type for patients to improve type safety
 interface Patient {
@@ -254,17 +255,14 @@ export default function PatientsDashboard({
   return (
     <div className="container mx-auto my-6">
       {/* Header Section */}
-      <div className="space-y-3">
-        <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
-          Patients
-        </h1>
-        <p className="text-medical-600 text-lg leading-relaxed">
-          Manage and monitor your patient records
-        </p>
-      </div>
+
+      <DashboardTitle
+        title="Patients"
+        subtitle="Manage and monitor your patient records"
+      />
 
       <div className="flex flex-col gap-6">
-        <PatientQuickActions
+        <QuickActions
           actions={[
             {
               link: `/dashboard/patients/calculations`,

@@ -25,7 +25,7 @@ type PatientQuickActionsProps = {
 const PatientQuickActions: React.FC<PatientQuickActionsProps> = ({
   actions,
 }) => (
-  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
     {actions.map((action, index) => (
       <Link href={action.link} key={index} className="block group">
         <Card className="group hover:shadow-md transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden h-full">
