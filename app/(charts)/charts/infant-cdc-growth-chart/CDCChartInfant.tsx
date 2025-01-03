@@ -309,8 +309,8 @@ const CDCChartInfant = ({ data }: ChartProps) => {
 
   const chartData = {
     data: fullCurveData,
-    patientData: data.data.height[0],
-    originalInput: data.originalInput.height,
+    patientData: data.data.weight[0],
+    originalInput: data.originalInput.weight,
   };
 
   const patientAge = chartData.patientData
