@@ -55,11 +55,29 @@ interface Calculation {
   id: string;
   type: string;
   date: string;
-  results: any;
+  results: {
+    calculationType: string;
+    weight: {
+      value: number;
+      percentiles: {
+        calculatedPercentile: number;
+        zScore: number;
+      };
+    };
+    height: {
+      value: number;
+      percentiles: {
+        calculatedPercentile: number;
+        zScore: number;
+      };
+    };
+  };
   patientId: string;
   patient: {
     firstName: string;
     lastName: string;
+    gender: "male" | "female";
+    dateOfBirth: string;
   };
 }
 
@@ -72,9 +90,30 @@ interface Calculation {
   id: string;
   type: string;
   date: string;
-  results: any;
+  results: {
+    calculationType: string;
+    weight: {
+      value: number;
+      percentiles: {
+        calculatedPercentile: number;
+        zScore: number;
+      };
+    };
+    height: {
+      value: number;
+      percentiles: {
+        calculatedPercentile: number;
+        zScore: number;
+      };
+    };
+  };
   patientId: string;
-  patientName?: string;
+  patient: {
+    firstName: string;
+    lastName: string;
+    gender: "male" | "female";
+    dateOfBirth: string;
+  };
 }
 
 export default function CalculationTable({
@@ -86,7 +125,7 @@ export default function CalculationTable({
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
+  console.log(calculations);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -202,6 +241,71 @@ export default function CalculationTable({
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              onClick={() => {
+                const calculatorType = row.original.results.calculationType;
+                const patientId = row.original.patientId;
+                const calculationId = row.original.id;
+
+                const weightData = {
+                  gender: row.original.patient.gender.toLowerCase(),
+                  dateOfBirth: row.original.patient.dateOfBirth,
+                  measurements: [
+                    {
+                      date: row.original.date,
+                      weight: row.original.results.weight.value,
+                    },
+                  ],
+                  type: "weight",
+                };
+
+                const heightData = {
+                  gender: row.original.patient.gender.toLowerCase(),
+                  dateOfBirth: row.original.patient.dateOfBirth,
+                  measurements: [
+                    {
+                      date: row.original.date,
+                      height: row.original.results.height.value,
+                    },
+                  ],
+                  type: "height",
+                };
+
+                const encodedWeightData = encodeURIComponent(
+                  JSON.stringify(weightData)
+                );
+                const encodedHeightData = encodeURIComponent(
+                  JSON.stringify(heightData)
+                );
+
+                let chartUrl: string;
+
+                switch (calculatorType) {
+                  case "cdc_child":
+                    chartUrl = `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    break;
+                  case "cdc_infant":
+                    chartUrl = `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    break;
+                  case "who":
+                    chartUrl = `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    break;
+                  case "intergrowth":
+                    chartUrl = `/charts/intergrowth-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    break;
+                  default:
+                    console.error("Unknown chart type");
+                    return; // Exit the function if chartUrl is not set
+                }
+
+                if (chartUrl) {
+                  router.push(chartUrl);
+                }
+              }}
+            >
+              <LineChart className="mr-2 h-4 w-4" />
+              View Chart
+            </DropdownMenuItem>
+            {/* <DropdownMenuItem
               onClick={() =>
                 router.push(
                   `/dashboard/patients/${row.original.patientId}/calculations/${row.original.id}`
@@ -210,7 +314,7 @@ export default function CalculationTable({
             >
               <LineChart className="mr-2 h-4 w-4" />
               View Details
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem
               onClick={() => {
                 // TODO: Implement PDF export functionality

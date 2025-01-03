@@ -6,10 +6,14 @@ import { startOfMonth, subMonths, endOfMonth } from "date-fns";
 export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const doctor = await prisma.doctor.findUnique({ where: { clerkUserId: userId } });
-    if (!doctor) return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
+    const doctor = await prisma.doctor.findUnique({
+      where: { clerkUserId: userId },
+    });
+    if (!doctor)
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
 
     const now = new Date();
     const firstDayOfMonth = startOfMonth(now);
@@ -19,10 +23,17 @@ export async function GET(request: NextRequest) {
     const calculationsThisMonth = await prisma.calculation.findMany({
       where: {
         doctorId: doctor.id,
-        date: { gte: firstDayOfMonth }
+        date: { gte: firstDayOfMonth },
       },
       include: {
-        patient: { select: { firstName: true, lastName: true } },
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+            gender: true,
+            dateOfBirth: true,
+          },
+        },
         charts: true,
       },
       orderBy: { date: "desc" },
@@ -33,19 +44,19 @@ export async function GET(request: NextRequest) {
         doctorId: doctor.id,
         date: {
           gte: firstDayOfLastMonth,
-          lte: lastDayOfLastMonth
-        }
-      }
+          lte: lastDayOfLastMonth,
+        },
+      },
     });
 
     const totalCalculations = await prisma.calculation.count({
-      where: { doctorId: doctor.id }
+      where: { doctorId: doctor.id },
     });
 
     const uniquePatients = await prisma.calculation.findMany({
       where: { doctorId: doctor.id },
-      distinct: ['patientId'],
-      select: { patientId: true }
+      distinct: ["patientId"],
+      select: { patientId: true },
     });
 
     return NextResponse.json({
@@ -53,7 +64,7 @@ export async function GET(request: NextRequest) {
       totalCalculations,
       uniquePatients: uniquePatients.length,
       calculationsThisMonth: calculationsThisMonth.length,
-      calculationsLastMonth: calculationsLastMonth.length
+      calculationsLastMonth: calculationsLastMonth.length,
     });
   } catch (error) {
     console.error("[CALCULATIONS_DASHBOARD_GET]", error);
