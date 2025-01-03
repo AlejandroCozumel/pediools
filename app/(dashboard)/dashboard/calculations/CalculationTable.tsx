@@ -281,16 +281,16 @@ export default function CalculationTable({
 
                 switch (calculatorType) {
                   case "cdc_child":
-                    chartUrl = `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    chartUrl = `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
                     break;
                   case "cdc_infant":
-                    chartUrl = `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    chartUrl = `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
                     break;
                   case "who":
-                    chartUrl = `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    chartUrl = `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
                     break;
                   case "intergrowth":
-                    chartUrl = `/charts/intergrowth-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`;
+                    chartUrl = `/charts/intergrowth-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
                     break;
                   default:
                     console.error("Unknown chart type");
