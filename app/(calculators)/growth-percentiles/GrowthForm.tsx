@@ -258,7 +258,9 @@ export function GrowthForm() {
     defaultValues: {
       standard: "cdc_child",
       gender: selectedPatient?.gender || "male",
-      dateOfBirth: selectedPatient?.dateOfBirth ? new Date(selectedPatient.dateOfBirth) : undefined,
+      dateOfBirth: selectedPatient?.dateOfBirth
+        ? new Date(selectedPatient.dateOfBirth)
+        : undefined,
       dateOfMeasurement: new Date(),
     },
     mode: "onSubmit",
@@ -387,17 +389,23 @@ export function GrowthForm() {
             switch (selectedStandard) {
               case "cdc_child":
                 router.push(
-                  `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
+                  `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
+                    selectedPatient && `&patientId=${selectedPatient.id}`
+                  }`
                 );
                 break;
               case "cdc_infant":
                 router.push(
-                  `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
+                  `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
+                    selectedPatient && `&patientId=${selectedPatient.id}`
+                  }`
                 );
                 break;
               case "who":
                 router.push(
-                  `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
+                  `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
+                    selectedPatient && `&patientId=${selectedPatient.id}`
+                  }`
                 );
                 break;
             }
@@ -407,28 +415,6 @@ export function GrowthForm() {
             if (!values.gestationalWeeks || !values.gestationalDays) {
               return;
             }
-            const intergrowthWeightData = {
-              gender: values.gender,
-              measurements: [
-                {
-                  value: parseFloat(values.weight),
-                  gestationalAge: parseInt(values.gestationalWeeks),
-                  gestationalDays: parseInt(values.gestationalDays),
-                  type: "weight",
-                },
-              ],
-            };
-            const intergrowthHeightData = {
-              gender: values.gender,
-              measurements: [
-                {
-                  value: parseFloat(values.height),
-                  gestationalAge: parseInt(values.gestationalWeeks),
-                  gestationalDays: parseInt(values.gestationalDays),
-                  type: "height",
-                },
-              ],
-            };
             router.push(
               `/charts/intergrowth-growth-chart?weightData=${encodeURIComponent(
                 JSON.stringify({
@@ -454,7 +440,7 @@ export function GrowthForm() {
                     },
                   ],
                 })
-              )}`
+              )}${selectedPatient && `&patientId=${selectedPatient.id}`}`
             );
             break;
         }

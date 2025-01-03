@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { differenceInMonths } from "date-fns";
 import cdcWeightData from "@/app/data/cdc-data-weight.json";
 import cdcHeightData from "@/app/data/cdc-data-height.json";
+import prisma from "@/lib/prismadb";
 
 interface CDCDataPoint {
   Sex: number;
@@ -31,6 +32,14 @@ interface GrowthData {
   dateOfBirth: string;
   measurements: HistoricalMeasurement[];
   type: "weight" | "height";
+}
+
+interface ProgressionData {
+  date: string;
+  age: string;
+  weight: string;
+  height: string;
+  bmi: string;
 }
 
 // Error function implementation
@@ -207,11 +216,30 @@ function validateGrowthData(data: GrowthData): string | null {
   return null;
 }
 
+async function getPatientMeasurements(patientId: string) {
+  return prisma.calculation.findMany({
+    where: {
+      patientId: patientId,
+    },
+    orderBy: {
+      date: "asc",
+    },
+    include: {
+      patient: {
+        select: {
+          dateOfBirth: true,
+        },
+      },
+    },
+  });
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const encodedWeightData = searchParams.get("weightData");
     const encodedHeightData = searchParams.get("heightData");
+    const patientId = searchParams.get("patientId");
 
     if (!encodedWeightData || !encodedHeightData) {
       return NextResponse.json(
@@ -220,33 +248,79 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const weightData: GrowthData = JSON.parse(decodeURIComponent(encodedWeightData));
-    const heightData: GrowthData = JSON.parse(decodeURIComponent(encodedHeightData));
+    const weightData: GrowthData = JSON.parse(
+      decodeURIComponent(encodedWeightData)
+    );
+    const heightData: GrowthData = JSON.parse(
+      decodeURIComponent(encodedHeightData)
+    );
 
     const weightValidationError = validateGrowthData(weightData);
     const heightValidationError = validateGrowthData(heightData);
 
     if (weightValidationError) {
-      return NextResponse.json({ error: weightValidationError }, { status: 400 });
+      return NextResponse.json(
+        { error: weightValidationError },
+        { status: 400 }
+      );
     }
 
     if (heightValidationError) {
-      return NextResponse.json({ error: heightValidationError }, { status: 400 });
+      return NextResponse.json(
+        { error: heightValidationError },
+        { status: 400 }
+      );
     }
 
-    const weightPercentileResults = calculateGrowthPercentiles(weightData, cdcWeightData);
-    const heightPercentileResults = calculateGrowthPercentiles(heightData, cdcHeightData);
+    const weightPercentileResults = calculateGrowthPercentiles(
+      weightData,
+      cdcWeightData
+    );
+    const heightPercentileResults = calculateGrowthPercentiles(
+      heightData,
+      cdcHeightData
+    );
+
+    let progressionData: ProgressionData[] = [];
+    if (patientId) {
+      const patientMeasurements = await getPatientMeasurements(patientId);
+      progressionData = patientMeasurements
+        .filter((measurement) => measurement.results != null)
+        .map((measurement) => {
+          const ageInMonths = differenceInMonths(
+            new Date(measurement.date),
+            new Date(measurement.patient.dateOfBirth)
+          );
+          const ageInYears = ageInMonths / 12;
+
+          const results = measurement.results as {
+            weight: { value: number };
+            height: { value: number };
+          };
+          const bmi =
+            results.weight.value / Math.pow(results.height.value / 100, 2);
+
+          return {
+            date: measurement.date.toISOString(),
+            age: ageInYears.toFixed(2),
+            weight: results.weight.value.toFixed(2),
+            height: results.height.value.toFixed(2),
+            bmi: bmi.toFixed(2),
+          };
+        });
+    }
 
     return NextResponse.json({
       success: true,
       data: {
         weight: weightPercentileResults,
-        height: heightPercentileResults
+        height: heightPercentileResults,
       },
       originalInput: {
         weight: weightData,
-        height: heightData
-      }
+        height: heightData,
+      },
+      progressionData: progressionData,
     });
   } catch (error) {
     console.error("Growth chart calculation error:", error);
