@@ -257,7 +257,8 @@ export function GrowthForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       standard: "cdc_child",
-      gender: "male",
+      gender: selectedPatient?.gender || "male",
+      dateOfBirth: selectedPatient?.dateOfBirth ? new Date(selectedPatient.dateOfBirth) : undefined,
       dateOfMeasurement: new Date(),
     },
     mode: "onSubmit",
