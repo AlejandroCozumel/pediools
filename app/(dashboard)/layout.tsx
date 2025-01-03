@@ -11,7 +11,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <>
       <Navbar />
-      <main className="px-4 md:px-0 m-auto container">{children}</main>
+      <main className="px-4 m-auto container">{children}</main>
     </>
   );
 };

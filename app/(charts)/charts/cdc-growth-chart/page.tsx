@@ -5,6 +5,7 @@ import axios from "axios";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import CDCChart from "./CDCChart";
 import CDCChartHeight from "./CDCChartHeight";
+import ProgressionTable from "@/components/ProgressionTable";
 
 // Define the fetch function
 const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
@@ -55,13 +56,14 @@ const Charts = () => {
   }
 
   return (
-    <div className="container mx-auto my-4 md:my-6 flex flex-col gap-6">
+    <div className="my-4 md:my-6 flex flex-col gap-6">
       <h2 className="my-0 md:my-4 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2">
         United States CDC Growth Charts
         <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
           Child Growth Visualization (2-20 years)
         </span>
       </h2>
+      <ProgressionTable progressionData={data.progressionData} />
       <CDCChart data={data} />
       <CDCChartHeight data={data} />
     </div>
