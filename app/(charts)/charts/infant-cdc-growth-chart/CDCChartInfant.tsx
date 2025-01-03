@@ -85,11 +85,32 @@ interface PatientMeasurement {
   };
 }
 
-interface ChartData {
-  data: DataPoint[];
-  patientData: PatientMeasurement;
-  originalInput: {
-    gender: "male" | "female";
+interface ChartProps {
+  data: {
+    success: boolean;
+    originalInput: {
+      weight: {
+        gender: "male" | "female";
+      };
+    };
+    data: {
+      weight: Array<{
+        ageInMonths: number;
+        weight: {
+          value: number;
+          percentiles: {
+            calculatedPercentile: number;
+          };
+        };
+      }>;
+    };
+    progressionData?: Array<{
+      date: string;
+      age: string;
+      weight: string;
+      height: string;
+      bmi: string;
+    }>;
   };
 }
 
@@ -123,12 +144,7 @@ const CustomizedDot: React.FC<CustomizedDotProps> = (props) => {
   return null;
 };
 
-const CDCChartInfant = () => {
-  const [chartData, setChartData] = useState<ChartData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-
+const CDCChartInfant = ({ data }: ChartProps) => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
 
   useEffect(() => {
@@ -285,65 +301,17 @@ const CDCChartInfant = () => {
     return allData;
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const weightData = searchParams.get("weightData");
-        const heightData = searchParams.get("heightData");
+  const fullCurveData = generateFullCurveData(
+    cdcData,
+    data.originalInput.weight.gender,
+    data.data.weight[0]
+  );
 
-        if (!weightData || !heightData) {
-          throw new Error("Weight and height data are required");
-        }
-
-        const response = await fetch(
-          `/api/charts/cdc-growth-chart-infant?weightData=${weightData}&heightData=${heightData}`
-        );
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error || "Failed to load chart data");
-        }
-
-        const fullCurveData = generateFullCurveData(
-          cdcData,
-          result.originalInput.weight.gender,
-          result.data.weight[0]
-        );
-
-        setChartData({
-          data: fullCurveData,
-          patientData: result.data.weight[0],
-          originalInput: result.originalInput.weight,
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [searchParams]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-600" />
-      </div>
-    );
-  }
-
-  if (error || !chartData) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-red-600 bg-red-50 px-6 py-4 rounded-lg shadow-sm border border-red-100">
-          <p className="font-medium">Error Loading Chart</p>
-          <p className="mt-1 text-sm">{error || "Failed to load chart"}</p>
-        </div>
-      </div>
-    );
-  }
+  const chartData = {
+    data: fullCurveData,
+    patientData: data.data.height[0],
+    originalInput: data.originalInput.height,
+  };
 
   const patientAge = chartData.patientData
     ? chartData.patientData.ageInMonths

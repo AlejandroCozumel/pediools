@@ -85,14 +85,6 @@ interface PatientMeasurement {
   };
 }
 
-interface ChartData {
-  data: DataPoint[];
-  patientData: PatientMeasurement;
-  originalInput: {
-    gender: "male" | "female";
-  };
-}
-
 interface ChartProps {
   data: {
     success: boolean;

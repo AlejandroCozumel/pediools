@@ -390,21 +390,21 @@ export function GrowthForm() {
               case "cdc_child":
                 router.push(
                   `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
-                    selectedPatient && `&patientId=${selectedPatient.id}`
+                    selectedPatient ? `&patientId=${selectedPatient.id}` : ""
                   }`
                 );
                 break;
               case "cdc_infant":
                 router.push(
                   `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
-                    selectedPatient && `&patientId=${selectedPatient.id}`
+                    selectedPatient ? `&patientId=${selectedPatient.id}` : ""
                   }`
                 );
                 break;
               case "who":
                 router.push(
                   `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
-                    selectedPatient && `&patientId=${selectedPatient.id}`
+                    selectedPatient ? `&patientId=${selectedPatient.id}` : ""
                   }`
                 );
                 break;
@@ -440,7 +440,7 @@ export function GrowthForm() {
                     },
                   ],
                 })
-              )}${selectedPatient && `&patientId=${selectedPatient.id}`}`
+              )}${selectedPatient ? `&patientId=${selectedPatient.id}` : ""}`
             );
             break;
         }
