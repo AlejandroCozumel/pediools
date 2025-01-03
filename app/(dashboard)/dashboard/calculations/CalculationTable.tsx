@@ -46,6 +46,7 @@ import {
   LineChart,
   FileText,
   ArrowUpDown,
+  Calculator,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -241,6 +242,14 @@ export default function CalculationTable({
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
+              onClick={() =>
+                router.push(`/dashboard/calculations/${row.original.patientId}`)
+              }
+            >
+              <Calculator className="mr-2 h-4 w-4" />
+              View Patient Calculations
+            </DropdownMenuItem>
+            <DropdownMenuItem
               onClick={() => {
                 const calculatorType = row.original.results.calculationType;
                 const patientId = row.original.patientId;
@@ -303,18 +312,8 @@ export default function CalculationTable({
               }}
             >
               <LineChart className="mr-2 h-4 w-4" />
-              View Chart
+              View This Chart
             </DropdownMenuItem>
-            {/* <DropdownMenuItem
-              onClick={() =>
-                router.push(
-                  `/dashboard/patients/${row.original.patientId}/calculations/${row.original.id}`
-                )
-              }
-            >
-              <LineChart className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem> */}
             <DropdownMenuItem
               onClick={() => {
                 // TODO: Implement PDF export functionality
@@ -322,7 +321,7 @@ export default function CalculationTable({
               }}
             >
               <FileText className="mr-2 h-4 w-4" />
-              Export PDF
+              Export This PDF
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
