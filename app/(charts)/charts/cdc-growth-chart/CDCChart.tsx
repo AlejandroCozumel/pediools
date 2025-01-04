@@ -112,6 +112,9 @@ interface ChartProps {
       bmi: string;
     }>;
   };
+  isFullCurveView: boolean;
+  yearRangeAround: number;
+  weightRangeAround: number;
 }
 
 const CustomizedDot: React.FC<CustomizedDotProps> = (props) => {
@@ -144,7 +147,12 @@ const CustomizedDot: React.FC<CustomizedDotProps> = (props) => {
   return null;
 };
 
-const CDCChart = ({ data }: ChartProps) => {
+const CDCChart: React.FC<ChartProps> = ({
+  data,
+  isFullCurveView,
+  yearRangeAround,
+  weightRangeAround,
+}) => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
 
   useEffect(() => {
@@ -408,10 +416,51 @@ const CDCChart = ({ data }: ChartProps) => {
     return null;
   };
 
-  const xAxisTicks = Array.from({ length: 19 }, (_, i) => i + 2); // 2 to 20
-  const xAxisTicksMobile = Array.from({ length: 10 }, (_, i) => (i + 1) * 2); // 2 to 20 every 2
-  const yAxisTicks = Array.from({ length: 22 }, (_, i) => i * 5 + 5); // 0 to 105 by 5s
-  const yAxisTicksMobile = Array.from({ length: 11 }, (_, i) => i * 10 + 5); // 0 to 105 by 5s
+  const calculateChartRange = () => {
+    if (!chartData.patientData)
+      return { minAge: 2, maxAge: 20, minWeight: 0, maxWeight: 105 };
+
+    const patientAge = chartData.patientData.ageInMonths / 12;
+    const patientWeight = chartData.patientData.weight?.value || 0;
+
+    if (isFullCurveView) {
+      return { minAge: 2, maxAge: 20, minWeight: 0, maxWeight: 105 };
+    } else {
+      const minAge = Math.max(2, patientAge - yearRangeAround / 2);
+      const maxAge = Math.min(20, patientAge + yearRangeAround / 2);
+      const minWeight = Math.max(0, patientWeight - weightRangeAround / 2);
+      const maxWeight = Math.min(105, patientWeight + weightRangeAround / 2);
+      return { minAge, maxAge, minWeight, maxWeight };
+    }
+  };
+
+  const { minAge, maxAge, minWeight, maxWeight } = calculateChartRange();
+
+  const fullCurveTicks = {
+    xAxisTicks: isMediumScreen
+      ? Array.from({ length: 19 }, (_, i) => i + 2) // 2 to 20 for medium screens
+      : [2, 4, 6, 8, 10, 12, 14, 16, 18, 20], // Every 2 years for mobile
+    yAxisTicks: isMediumScreen
+      ? Array.from({ length: 22 }, (_, i) => i * 5 + 5) // 0 to 105 by 5s
+      : Array.from({ length: 11 }, (_, i) => i * 10 + 5), // 0 to 105 by 10s for mobile
+  };
+
+  const focusedTicks = {
+    xAxisTicks: Array.from(
+      { length: Math.floor(maxAge - minAge) + 1 },
+      (_, i) => Math.floor(minAge) + i
+    ),
+    yAxisTicks: Array.from(
+      { length: Math.floor((maxWeight - minWeight) / 2) + 1 },
+      (_, i) => Math.floor(minWeight / 5) * 5 + i * 5
+    ),
+  };
+
+  const filteredData = isFullCurveView
+    ? fullCurveData
+    : fullCurveData.filter((point) => {
+        return point.age >= minAge && point.age <= maxAge;
+      });
 
   return (
     <div className="w-full">
@@ -450,7 +499,7 @@ const CDCChart = ({ data }: ChartProps) => {
           <div className="w-full h-96 md:h-[600px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={chartData.data}
+                data={filteredData}
                 margin={{ top: 30, right: 30, left: 20, bottom: 10 }}
               >
                 <CartesianGrid
@@ -461,9 +510,13 @@ const CDCChart = ({ data }: ChartProps) => {
                 <XAxis
                   dataKey="age"
                   type="number"
-                  domain={[2, 20]}
+                  domain={isFullCurveView ? [2, 20] : [minAge, maxAge]}
+                  ticks={
+                    isFullCurveView
+                      ? fullCurveTicks.xAxisTicks
+                      : focusedTicks.xAxisTicks
+                  }
                   interval={0}
-                  ticks={isMediumScreen ? xAxisTicks : xAxisTicksMobile}
                   stroke="#6B7280"
                   tick={{ fontSize: 12 }}
                   label={{
@@ -474,8 +527,12 @@ const CDCChart = ({ data }: ChartProps) => {
                   }}
                 />
                 <YAxis
-                  domain={[0, 105]}
-                  ticks={isMediumScreen ? yAxisTicks : yAxisTicksMobile}
+                  domain={isFullCurveView ? [0, 105] : [minWeight, maxWeight]}
+                  ticks={
+                    isFullCurveView
+                      ? fullCurveTicks.yAxisTicks
+                      : focusedTicks.yAxisTicks
+                  }
                   stroke="#6B7280"
                   interval={0}
                   width={isMediumScreen ? 60 : 30}

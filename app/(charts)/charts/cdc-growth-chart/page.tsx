@@ -6,8 +6,9 @@ import LoaderSpinnner from "@/components/LoaderSpinnner";
 import CDCChart from "./CDCChart";
 import CDCChartHeight from "./CDCChartHeight";
 import ProgressionTable from "@/components/ProgressionTable";
+import { usePremiumStore } from "@/stores/premiumStore";
+import ToggleViewChart from "@/components/ToggleViewChart";
 
-// Define the fetch function
 const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
   const weightData = searchParams.get("weightData");
   const heightData = searchParams.get("heightData");
@@ -33,6 +34,8 @@ const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
 };
 
 const Charts = () => {
+  const { isFullCurveView } = usePremiumStore();
+
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
@@ -63,9 +66,24 @@ const Charts = () => {
           Child Growth Visualization (2-20 years)
         </span>
       </h2>
+
       <ProgressionTable progressionData={data.progressionData} />
-      <CDCChart data={data} />
-      <CDCChartHeight data={data} />
+
+      <ToggleViewChart />
+
+      <CDCChart
+        data={data}
+        isFullCurveView={isFullCurveView}
+        yearRangeAround={isFullCurveView ? 9 : 4}
+        weightRangeAround={isFullCurveView ? 50 : 10}
+      />
+
+      <CDCChartHeight
+        data={data}
+        isFullCurveView={isFullCurveView}
+        yearRangeAround={isFullCurveView ? 9 : 4}
+        heightRangeAround={isFullCurveView ? 50 : 100}
+      />
     </div>
   );
 };

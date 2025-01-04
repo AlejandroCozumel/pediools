@@ -15,6 +15,7 @@ model Doctor {
   name             String
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  defaultChartView ChartViewType @default(FOCUSED)
   subscription     Subscription?
   profile          DoctorProfile?
   staff            Staff[]
@@ -580,4 +581,9 @@ enum AnalyticsType {
   WEEKLY
   MONTHLY
   YEARLY
+}
+
+enum ChartViewType {
+  FOCUSED
+  FULL_CURVE
 }

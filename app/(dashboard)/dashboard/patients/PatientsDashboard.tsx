@@ -49,6 +49,7 @@ import {
   FileText,
   Mail,
   ArrowUpDown,
+  Calculator,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import QuickActions from "@/components/QuickActions";
@@ -218,6 +219,15 @@ export default function PatientsDashboard({
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 View Details
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() =>
+                  router.push(`/dashboard/calculations/${row.original.id}`)
+                }
+              >
+                <Calculator className="mr-2 h-4 w-4" />
+                View Calculations
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
