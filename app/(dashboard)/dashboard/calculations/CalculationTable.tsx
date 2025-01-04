@@ -249,11 +249,12 @@ export default function CalculationTable({
               <Calculator className="mr-2 h-4 w-4" />
               View Patient Calculations
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 const calculatorType = row.original.results.calculationType;
                 const patientId = row.original.patientId;
-                const calculationId = row.original.id;
+                    const calculationId = row.original.id;
 
                 const weightData = {
                   gender: row.original.patient.gender.toLowerCase(),
@@ -314,6 +315,7 @@ export default function CalculationTable({
               <LineChart className="mr-2 h-4 w-4" />
               View This Chart
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 // TODO: Implement PDF export functionality
