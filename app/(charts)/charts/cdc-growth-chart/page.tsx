@@ -75,14 +75,14 @@ const Charts = () => {
         data={data}
         isFullCurveView={isFullCurveView}
         yearRangeAround={isFullCurveView ? 9 : 4}
-        weightRangeAround={isFullCurveView ? 50 : 10}
+        weightRangeAround={isFullCurveView ? 50 : 20}
       />
 
       <CDCChartHeight
         data={data}
         isFullCurveView={isFullCurveView}
         yearRangeAround={isFullCurveView ? 9 : 4}
-        heightRangeAround={isFullCurveView ? 50 : 100}
+        heightRangeAround={isFullCurveView ? 50 : 50}
       />
     </div>
   );
