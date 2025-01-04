@@ -450,10 +450,15 @@ const CDCChartHeight: React.FC<ChartProps> = ({
       { length: Math.floor(maxAge - minAge) + 1 },
       (_, i) => Math.floor(minAge) + i
     ),
-    yAxisTicks: Array.from(
-      { length: Math.floor((maxHeight - minHeight) / 5) + 1 },
-      (_, i) => Math.floor(minHeight / 5) * 5 + i * 5
-    ),
+    yAxisTicks: isMediumScreen
+      ? Array.from(
+          { length: Math.floor((maxHeight - minHeight) / 5) + 1 },
+          (_, i) => Math.floor(minHeight / 5) * 5 + i * 5
+        )
+      : Array.from(
+          { length: Math.floor((maxHeight - minHeight) / 10) + 1 },
+          (_, i) => Math.floor(minHeight / 10) * 10 + i * 10
+        )
   };
 
   const filteredData = isFullCurveView
@@ -527,12 +532,12 @@ const CDCChartHeight: React.FC<ChartProps> = ({
                   }}
                 />
                 <YAxis
-                  domain={isFullCurveView ? [70, 200] : [minHeight, maxHeight]}
-                  ticks={
-                    isFullCurveView
-                      ? fullCurveTicks.yAxisTicks
-                      : focusedTicks.yAxisTicks
-                  }
+                   domain={isFullCurveView ? [70, 200] : [minHeight, maxHeight]}
+                   ticks={
+                     isFullCurveView
+                       ? fullCurveTicks.yAxisTicks
+                       : focusedTicks.yAxisTicks
+                   }
                   stroke="#6B7280"
                   interval={0}
                   width={isMediumScreen ? 60 : 30}

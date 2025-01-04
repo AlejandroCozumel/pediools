@@ -82,7 +82,7 @@ const Charts = () => {
         data={data}
         isFullCurveView={isFullCurveView}
         yearRangeAround={isFullCurveView ? 9 : 4}
-        heightRangeAround={isFullCurveView ? 50 : 50}
+        heightRangeAround={isFullCurveView ? 50 : 60}
       />
     </div>
   );
