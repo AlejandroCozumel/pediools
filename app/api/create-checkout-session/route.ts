@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { SubscriptionStatus, PlanType } from "@prisma/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-12-18.acacia",
@@ -17,7 +18,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { priceId } = body;
 
-    // Find doctor using the authenticated user's ID
     const doctor = await prisma.doctor.findUnique({
       where: { clerkUserId: userId },
       select: { id: true, clerkUserId: true },
@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
       stripeCustomerId = customer.id;
     }
 
-    // Create the checkout session
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
@@ -52,6 +51,30 @@ export async function POST(req: NextRequest) {
       )}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/subscribe`,
       metadata: { doctorId: doctor.id },
+    });
+
+    // Create minimal initial subscription record
+    await prisma.subscription.upsert({
+      where: { doctorId: doctor.id },
+      update: {
+        stripeCustomerId,
+        status: SubscriptionStatus.TRIALING,
+        plan: PlanType.FREE,
+        stripePriceId: priceId, // Add this
+        stripeSubscriptionId: "", // Temporary placeholder
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+      create: {
+        doctorId: doctor.id,
+        stripeCustomerId,
+        status: SubscriptionStatus.TRIALING,
+        plan: PlanType.FREE,
+        stripePriceId: priceId,
+        stripeSubscriptionId: "", // Temporary placeholder
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
     });
 
     return NextResponse.json({ sessionId: session.id });
