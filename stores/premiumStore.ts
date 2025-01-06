@@ -9,14 +9,20 @@ interface Patient {
   gender: 'male' | 'female';
 }
 
+type SubscriptionStatus = 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'UNPAID' | 'TRIALING';
+type PlanType = 'FREE' | 'PREMIUM';
+
 interface PremiumState {
   isPremium: boolean;
   selectedPatient: Patient | null;
-  isFullCurveView: boolean;  // Property for chart view mode
+  isFullCurveView: boolean;
+  subscriptionStatus: SubscriptionStatus | null;
+  subscriptionPlan: PlanType | null;
   setIsPremium: (status: boolean) => void;
   setPatient: (patient: Patient | null) => void;
-  toggleFullCurveView: () => void;  // Method to toggle view
-  setFullCurveView: (isFullCurve: boolean) => void;  // Method to set specific view
+  toggleFullCurveView: () => void;
+  setFullCurveView: (isFullCurve: boolean) => void;
+  setSubscriptionInfo: (status: SubscriptionStatus, plan: PlanType) => void;
 }
 
 export const usePremiumStore = create<PremiumState>()(
@@ -24,7 +30,9 @@ export const usePremiumStore = create<PremiumState>()(
     (set) => ({
       isPremium: false,
       selectedPatient: null,
-      isFullCurveView: false,  // Default to focused view
+      isFullCurveView: false,
+      subscriptionStatus: null,
+      subscriptionPlan: null,
       setIsPremium: (status) => set({ isPremium: status }),
       setPatient: (patient) => set({ selectedPatient: patient }),
       toggleFullCurveView: () => set((state) => ({
@@ -33,12 +41,19 @@ export const usePremiumStore = create<PremiumState>()(
       setFullCurveView: (isFullCurve) => set({
         isFullCurveView: isFullCurve
       }),
+      setSubscriptionInfo: (status, plan) => set({
+        subscriptionStatus: status,
+        subscriptionPlan: plan,
+        isPremium: plan === 'PREMIUM' && status === 'ACTIVE'
+      }),
     }),
     {
-      name: 'premium-storage', // name of the item in the storage
+      name: 'premium-storage',
       partialize: (state) => ({
         isPremium: state.isPremium,
-        isFullCurveView: state.isFullCurveView
+        isFullCurveView: state.isFullCurveView,
+        subscriptionStatus: state.subscriptionStatus,
+        subscriptionPlan: state.subscriptionPlan
       }),
     }
   )
