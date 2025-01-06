@@ -46,7 +46,7 @@ const SubscribePage = () => {
         <h2>Monthly Plan</h2>
         <p>$19.99/month</p>
         <button
-          onClick={() => handleSubscribe('price_1QdvlrJOM1rSKNWLcgV22wSk')}
+          onClick={() => handleSubscribe('price_1QeMglJOM1rSKNWLTR2vQ18q')}
           disabled={isLoading}
         >
           {isLoading ? 'Processing...' : 'Subscribe Monthly'}

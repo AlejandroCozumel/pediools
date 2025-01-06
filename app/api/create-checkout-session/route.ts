@@ -12,9 +12,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const body = await req.json();
     const { priceId } = body;
 
@@ -35,51 +37,88 @@ export async function POST(req: NextRequest) {
     let stripeCustomerId = existingSubscription?.stripeCustomerId;
 
     if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        metadata: { doctorId: doctor.id },
-      });
-      stripeCustomerId = customer.id;
+      try {
+        const customer = await stripe.customers.create({
+          metadata: { doctorId: doctor.id },
+        });
+        stripeCustomerId = customer.id;
+      } catch (stripeError) {
+        return NextResponse.json(
+          {
+            error: "Failed to create Stripe customer",
+            details:
+              stripeError instanceof Error
+                ? stripeError.message
+                : "Unknown error",
+          },
+          { status: 500 }
+        );
+      }
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      customer: stripeCustomerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.headers.get(
-        "origin"
-      )}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/subscribe`,
-      metadata: { doctorId: doctor.id },
-    });
+    try {
+      await stripe.prices.retrieve(priceId);
+    } catch (priceError) {
+      return NextResponse.json(
+        {
+          error: "Invalid price ID",
+          details:
+            priceError instanceof Error ? priceError.message : "Unknown error",
+        },
+        { status: 400 }
+      );
+    }
 
-    // Create minimal initial subscription record
-    await prisma.subscription.upsert({
-      where: { doctorId: doctor.id },
-      update: {
-        stripeCustomerId,
-        status: SubscriptionStatus.TRIALING,
-        plan: PlanType.FREE,
-        stripePriceId: priceId, // Add this
-        stripeSubscriptionId: "", // Temporary placeholder
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      },
-      create: {
-        doctorId: doctor.id,
-        stripeCustomerId,
-        status: SubscriptionStatus.TRIALING,
-        plan: PlanType.FREE,
-        stripePriceId: priceId,
-        stripeSubscriptionId: "", // Temporary placeholder
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-    });
+    try {
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        customer: stripeCustomerId,
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${req.headers.get(
+          "origin"
+        )}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.get("origin")}/subscribe`,
+        metadata: { doctorId: doctor.id },
+      });
 
-    return NextResponse.json({ sessionId: session.id });
+      await prisma.subscription.upsert({
+        where: { doctorId: doctor.id },
+        update: {
+          stripeCustomerId,
+          status: SubscriptionStatus.TRIALING,
+          plan: PlanType.FREE,
+          stripePriceId: priceId,
+          stripeSubscriptionId: "",
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+        create: {
+          doctorId: doctor.id,
+          stripeCustomerId,
+          status: SubscriptionStatus.TRIALING,
+          plan: PlanType.FREE,
+          stripePriceId: priceId,
+          stripeSubscriptionId: "",
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      });
+
+      return NextResponse.json({ sessionId: session.id });
+    } catch (sessionError) {
+      return NextResponse.json(
+        {
+          error: "Failed to create checkout session",
+          details:
+            sessionError instanceof Error
+              ? sessionError.message
+              : "Unknown error",
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error("Checkout session creation error:", error);
     return NextResponse.json(
       {
         error: "Failed to create checkout session",
