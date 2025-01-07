@@ -1,43 +1,52 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Menu, ChevronRight } from "lucide-react";
-import { Button } from "../ui/button";
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { usePremiumStore } from "@/stores/premiumStore";
+import UserMenu from "./UserMenu";
 
+// Navigation Items Configuration
+const navigationItems = [
+  {
+    text: "Solutions",
+    href: "/solutions",
+    premiumOnly: false,
+    mobileOrder: 1,
+  },
+  {
+    text: "Community",
+    href: "/community",
+    premiumOnly: false,
+    mobileOrder: 2,
+  },
+  {
+    text: "Pricing",
+    href: "/pricing",
+    premiumOnly: false,
+    mobileOrder: 3,
+  },
+  {
+    text: "Analytics",
+    href: "/analytics",
+    premiumOnly: true,
+    mobileOrder: 4,
+  },
+  {
+    text: "Advanced Reports",
+    href: "/reports",
+    premiumOnly: true,
+    mobileOrder: 5,
+  },
+];
+
+// Interfaces
 interface NavLeftProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-interface NavLinkProps {
-  text: string;
-}
-
-interface NavMenuProps {
-  isOpen: boolean;
-}
-
-interface MenuLinkProps {
-  text: string;
-}
-
-const Navbar: React.FC = () => {
-  return <FlipNav />;
-};
-
-const FlipNav: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  return (
-    <nav className="bg-white p-4 border-b-[1px] border-gray-200 flex items-center justify-between relative">
-      <NavLeft setIsOpen={setIsOpen} />
-      <NavRight />
-      <NavMenu isOpen={isOpen} />
-    </nav>
-  );
-};
-
+// Logo Component
 const Logo: React.FC = () => {
   return (
     <svg
@@ -60,7 +69,63 @@ const Logo: React.FC = () => {
   );
 };
 
-const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
+// NavLink Component
+const NavLink: React.FC<{
+  text: string;
+  href: string;
+  isPremium?: boolean;
+}> = ({ text, href, isPremium }) => {
+  return (
+    <Link
+      href={href}
+      className="hidden lg:block h-[30px] overflow-hidden font-medium"
+    >
+      <motion.div whileHover={{ y: -30 }}>
+        <span className="flex items-center h-[30px] text-gray-500">
+          {isPremium ? `Premium: ${text}` : text}
+        </span>
+        <span className="flex items-center h-[30px] text-indigo-600">
+          {isPremium ? `Premium: ${text}` : text}
+        </span>
+      </motion.div>
+    </Link>
+  );
+};
+
+// Navbar Component
+const Navbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { isPremium } = usePremiumStore();
+
+  // Filter navigation items based on premium status
+  const visibleNavItems = navigationItems.filter(
+    (item) => !item.premiumOnly || isPremium
+  );
+
+  return (
+    <nav className="bg-white p-4 border-b-[1px] border-gray-200 flex items-center justify-between relative">
+      <NavLeft setIsOpen={setIsOpen} />
+      <NavRight />
+      <NavMenu
+        isOpen={isOpen}
+        isPremium={isPremium}
+        navigationItems={visibleNavItems}
+      />
+    </nav>
+  );
+};
+
+// NavLeft Component
+const NavLeft: React.FC<{
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ setIsOpen }) => {
+  const { isPremium } = usePremiumStore();
+
+  // Filter navigation items based on premium status
+  const visibleNavItems = navigationItems.filter(
+    (item) => !item.premiumOnly || isPremium
+  );
+
   return (
     <div className="flex items-center gap-6">
       <motion.button
@@ -74,93 +139,82 @@ const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
       <Link href="/">
         <Logo />
       </Link>
-      <NavLink text="Solutions" />
-      <NavLink text="Community" />
-      <NavLink text="Pricing" />
-      <NavLink text="Company" />
+      {visibleNavItems.map((item) => (
+        <NavLink
+          key={item.text}
+          text={item.text}
+          href={item.href}
+          isPremium={isPremium && item.premiumOnly}
+        />
+      ))}
     </div>
   );
 };
 
-const NavLink: React.FC<NavLinkProps> = ({ text }) => {
-  return (
-    <a
-      href="#"
-      rel="nofollow"
-      className="hidden lg:block h-[30px] overflow-hidden font-medium"
-    >
-      <motion.div whileHover={{ y: -30 }}>
-        <span className="flex items-center h-[30px] text-gray-500">{text}</span>
-        <span className="flex items-center h-[30px] text-indigo-600">
-          {text}
-        </span>
-      </motion.div>
-    </a>
-  );
-};
-
+// NavRight Component
 const NavRight: React.FC = () => {
   return (
     <div className="flex items-center gap-4">
-      <UserButton afterSignOutUrl="/sign-in" />
+      <UserMenu />
     </div>
   );
 };
 
-const NavMenu: React.FC<NavMenuProps> = ({ isOpen }) => {
+// NavMenu Component
+const NavMenu: React.FC<{
+  isOpen: boolean;
+  isPremium: boolean;
+  navigationItems: typeof navigationItems;
+}> = ({ isOpen, isPremium, navigationItems }) => {
   return (
     <motion.div
       variants={menuVariants}
       initial="closed"
       animate={isOpen ? "open" : "closed"}
-      className="absolute p-4 bg-white shadow-lg left-0 right-0 top-full origin-top flex flex-col gap-4"
+      className="z-10 absolute p-4 bg-white shadow-lg left-0 right-0 top-full origin-top flex flex-col gap-4"
     >
-      <MenuLink text="Solutions" />
-      <MenuLink text="Community" />
-      <MenuLink text="Pricing" />
-      <MenuLink text="Company" />
+      {navigationItems
+        .sort((a, b) => a.mobileOrder - b.mobileOrder)
+        .map((item) => (
+          <MenuLink
+            key={item.text}
+            text={item.text}
+            href={item.href}
+            isPremium={isPremium && item.premiumOnly}
+          />
+        ))}
     </motion.div>
   );
 };
 
-const MenuLink: React.FC<MenuLinkProps> = ({ text }) => {
+// MenuLink Component
+const MenuLink: React.FC<{
+  text: string;
+  href: string;
+  isPremium?: boolean;
+}> = ({ text, href, isPremium }) => {
   return (
-    <motion.a
-      variants={menuLinkVariants}
-      rel="nofollow"
-      href="#"
+    <Link
+      href={href}
       className="h-[30px] overflow-hidden font-medium text-lg flex items-start gap-2"
     >
-      <motion.span variants={menuLinkArrowVariants}>
+      <span>
         <ChevronRight className="h-[30px] text-gray-950" />
-      </motion.span>
-      <motion.div whileHover={{ y: -30 }}>
-        <span className="flex items-center h-[30px] text-gray-500">{text}</span>
-        <span className="flex items-center h-[30px] text-indigo-600">
-          {text}
+      </span>
+      <div className="w-full">
+        <span className="flex items-center h-[30px] text-gray-500">
+          {isPremium ? `Premium: ${text}` : text}
         </span>
-      </motion.div>
-    </motion.a>
+        <span className="flex items-center h-[30px] text-indigo-600">
+          {isPremium ? `Premium: ${text}` : text}
+        </span>
+      </div>
+    </Link>
   );
 };
 
-// Animation variants with proper typing
-const menuVariants: {
-  open: {
-    scaleY: number;
-    transition: {
-      when: string;
-      staggerChildren: number;
-    };
-  };
-  closed: {
-    scaleY: number;
-    transition: {
-      when: string;
-      staggerChildren: number;
-    };
-  };
-} = {
+// Animation Variants
+const menuVariants = {
   open: {
     scaleY: 1,
     transition: {
@@ -174,42 +228,6 @@ const menuVariants: {
       when: "afterChildren",
       staggerChildren: 0.1,
     },
-  },
-};
-
-const menuLinkVariants: {
-  open: {
-    y: number;
-    opacity: number;
-  };
-  closed: {
-    y: number;
-    opacity: number;
-  };
-} = {
-  open: {
-    y: 0,
-    opacity: 1,
-  },
-  closed: {
-    y: -10,
-    opacity: 0,
-  },
-};
-
-const menuLinkArrowVariants: {
-  open: {
-    x: number;
-  };
-  closed: {
-    x: number;
-  };
-} = {
-  open: {
-    x: 0,
-  },
-  closed: {
-    x: -4,
   },
 };
 
