@@ -67,12 +67,34 @@ const UserMenu = () => {
     {
       label: "My Profile",
       path: "/dashboard/profile",
-      onClick: () => router.push("/dashboard/profile"),
+      onClick: () => {
+        router.push("/dashboard/profile");
+        setIsOpen(false);
+      },
+    },
+    {
+      label: "My Patients",
+      path: "/dashboard/patients",
+      onClick: () => {
+        router.push("/dashboard/patients");
+        setIsOpen(false);
+      },
+    },
+    {
+      label: "My Calculations",
+      path: "/dashboard/calculations",
+      onClick: () => {
+        router.push("/dashboard/calculations");
+        setIsOpen(false);
+      },
     },
     {
       label: "My Subscription",
       path: "/dashboard/profile/billing",
-      onClick: () => router.push("/dashboard/profile/billing"),
+      onClick: () => {
+        router.push("/dashboard/profile/billing");
+        setIsOpen(false);
+      },
     },
   ];
 
@@ -155,11 +177,17 @@ const UserMenu = () => {
                 <>
                   <MenuItem
                     label="Sign up"
-                    onClick={() => router.push("/sign-up")}
+                    onClick={() => {
+                      router.push("/sign-up");
+                      setIsOpen(false);
+                    }}
                   />
                   <MenuItem
                     label="Sign in"
-                    onClick={() => router.push("/sign-in")}
+                    onClick={() => {
+                      router.push("/sign-in");
+                      setIsOpen(false);
+                    }}
                   />
                 </>
               )}
