@@ -49,7 +49,7 @@ export const sendEmail = {
   subscriptionCanceled: async (email: string, name: string, endDate: Date) => {
     await resend.emails.send({
       from: "onboarding@resend.dev",
-      to: 'richard190982@gmail.com',
+      to: email,
       subject: "Subscription Cancelled",
       html: `
         <h1>Subscription Cancelled</h1>
@@ -65,7 +65,7 @@ export const sendEmail = {
   subscriptionReactivated: async (email: string, name: string, nextBillingDate: Date) => {
     await resend.emails.send({
       from: "onboarding@resend.dev",
-      to: 'richard190982@gmail.com',
+      to: email,
       subject: "Subscription Reactivated",
       html: `
         <h1>Welcome Back!</h1>
