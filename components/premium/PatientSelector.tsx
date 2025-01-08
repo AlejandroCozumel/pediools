@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Check, ChevronsUpDown, Search, Loader2, Trash2 } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Search,
+  Loader2,
+  Trash2,
+  Plus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +29,7 @@ import { usePremiumStore } from "@/stores/premiumStore";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "@/app/(calculators)/growth-percentiles/GrowthForm";
+import { useRouter } from "next/navigation";
 
 interface Patient {
   id: string;
@@ -47,6 +55,8 @@ export default function PatientSelector({
   const [selected, setSelected] = useState<Patient | null>(
     globalSelectedPatient
   );
+
+  const router = useRouter();
 
   const debouncedSearch = useDebounce(search, 300);
   const { data: patients = [], isLoading } = useSearchPatients(debouncedSearch);
@@ -169,11 +179,25 @@ export default function PatientSelector({
               {search.length !== 0 && (
                 <CommandEmpty className="py-2 px-4 text-sm">
                   {isLoading ? (
-                    <div className="flex items-center justify-center gap-2 p-4 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
                     </div>
                   ) : (
-                    patients.length === 0 && "No patients found."
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground text-center">
+                        No patients found.
+                      </p>
+                      <Button
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => {
+                          router.push("/dashboard/patients/add");
+                        }}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add New Patient
+                      </Button>
+                    </div>
                   )}
                 </CommandEmpty>
               )}

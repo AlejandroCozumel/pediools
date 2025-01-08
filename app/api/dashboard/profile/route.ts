@@ -187,11 +187,16 @@ export async function PATCH(req: NextRequest) {
       return new NextResponse("Doctor not found", { status: 404 });
     }
 
-    const profile = await prisma.doctorProfile.update({
+    // Using upsert instead of update
+    const profile = await prisma.doctorProfile.upsert({
       where: {
         doctorId: doctor.id,
       },
-      data: body,
+      create: {
+        doctorId: doctor.id,
+        ...body
+      },
+      update: body,
     });
 
     return NextResponse.json(profile);
