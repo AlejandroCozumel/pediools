@@ -62,6 +62,7 @@ export const sendEmail = {
     });
   },
 
+
   subscriptionReactivated: async (email: string, name: string, nextBillingDate: Date) => {
     await resend.emails.send({
       from: "onboarding@resend.dev",
