@@ -8,6 +8,7 @@ import CDCChartHeight from "./CDCChartHeight";
 import ProgressionTable from "@/components/ProgressionTable";
 import { usePremiumStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
+import SendChartNotification from "@/components/SendChartNotification ";
 
 const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
   const weightData = searchParams.get("weightData");
@@ -60,12 +61,21 @@ const Charts = () => {
 
   return (
     <div className="my-4 md:my-6 flex flex-col gap-6">
-      <h2 className="my-0 md:my-4 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2">
-        United States CDC Growth Charts
+      <div className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2">
+        <h2>United States CDC Growth Charts</h2>
         <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
           Child Growth Visualization (2-20 years)
         </span>
-      </h2>
+        {data && searchParams.get("patientId") && (
+          <div className="flex justify-center mt-2">
+            <SendChartNotification
+              chartData={data}
+              patientId={searchParams.get("patientId")!}
+              chartType="CDC Growth Chart"
+            />
+          </div>
+        )}
+      </div>
 
       <ProgressionTable progressionData={data.progressionData} />
 

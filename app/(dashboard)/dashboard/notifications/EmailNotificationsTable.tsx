@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -41,45 +39,34 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   Search,
-  Plus,
   MoreHorizontal,
-  LineChart,
+  RefreshCw,
+  Trash2,
   FileText,
   ArrowUpDown,
-  Calculator,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
-// Define a type for calculations to improve type safety
-interface Calculation {
+// Define a type for email notifications
+interface EmailNotification {
   id: string;
   type: string;
-  date: string;
-  results: {
-    calculationType: string;
-    weight: {
-      value: number;
-      percentiles: {
-        calculatedPercentile: number;
-        zScore: number;
-      };
-    };
-    height: {
-      value: number;
-      percentiles: {
-        calculatedPercentile: number;
-        zScore: number;
-      };
-    };
-  };
-  patientId: string;
+  sentAt: string;
+  status: string;
   patient: {
+    id: string;
     firstName: string;
     lastName: string;
-    gender: "male" | "female";
-    dateOfBirth: string;
   };
+  chart?: {
+    id: string;
+    pdfUrl?: string;
+  };
+  pdfUrl?: string;
+  openedAt?: string;
+  clickedAt?: string;
+  deliveryAttempts: number;
 }
 
 type ColumnDef<TData> = ReactTableColumnDef<TData, any> & {
@@ -87,42 +74,14 @@ type ColumnDef<TData> = ReactTableColumnDef<TData, any> & {
   id?: string;
 };
 
-interface Calculation {
-  id: string;
-  type: string;
-  date: string;
-  results: {
-    calculationType: string;
-    weight: {
-      value: number;
-      percentiles: {
-        calculatedPercentile: number;
-        zScore: number;
-      };
-    };
-    height: {
-      value: number;
-      percentiles: {
-        calculatedPercentile: number;
-        zScore: number;
-      };
-    };
-  };
-  patientId: string;
-  patient: {
-    firstName: string;
-    lastName: string;
-    gender: "male" | "female";
-    dateOfBirth: string;
-  };
-}
-
-export default function CalculationTable({
-  calculations,
-  patientId,
+export default function EmailNotificationsTable({
+  notifications,
+  onResend,
+  onDelete,
 }: {
-  calculations: Calculation[];
-  patientId?: string;
+  notifications: EmailNotification[];
+  onResend: (params: { notificationId: string; patientId: string }) => void;
+  onDelete: (params: { notificationId: string; patientId: string }) => void;
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -137,7 +96,7 @@ export default function CalculationTable({
 
   const router = useRouter();
 
-  const columns: ColumnDef<Calculation>[] = [
+  const columns: ColumnDef<EmailNotification>[] = [
     {
       accessorKey: "patient.firstName",
       header: "First Name",
@@ -155,7 +114,7 @@ export default function CalculationTable({
             className="p-0 hover:bg-transparent text-medical-700"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Calculation Type
+            Notification Type
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
@@ -170,19 +129,7 @@ export default function CalculationTable({
       ),
     },
     {
-      header: "Standard",
-      accessorFn: (row) => row.results?.calculationType ?? "N/A",
-      cell: ({ getValue }) => (
-        <Badge
-          variant="outline"
-          className="border-medical-200 text-medical-700"
-        >
-          {getValue()}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "date",
+      accessorKey: "sentAt",
       header: ({ column }) => {
         return (
           <Button
@@ -190,42 +137,37 @@ export default function CalculationTable({
             className="p-0 hover:bg-transparent text-medical-700"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Date
+            Sent Date
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      cell: ({ row }) => new Date(row.original.sentAt).toLocaleString(),
     },
     {
-      header: "Height",
-      accessorFn: (row) => row.results?.height?.value,
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          variant={
+            row.original.status === "SENT"
+              ? "default"
+              : row.original.status === "FAILED"
+              ? "destructive"
+              : "outline"
+          }
+        >
+          {row.original.status}
+        </Badge>
+      ),
     },
     {
-      header: "Weight",
-      accessorFn: (row) => row.results?.weight?.value,
+      header: "Delivery Attempts",
+      accessorKey: "deliveryAttempts",
     },
     {
-      header: "Height Percentile",
-      accessorFn: (row) =>
-        row.results?.height?.percentiles?.calculatedPercentile,
-      cell: ({ getValue }) => `${getValue().toFixed(2)}P`,
-    },
-    {
-      header: "Weight Percentile",
-      accessorFn: (row) =>
-        row.results?.weight?.percentiles?.calculatedPercentile,
-      cell: ({ getValue }) => `${getValue().toFixed(2)}P`,
-    },
-    {
-      header: "Height Z-Score",
-      accessorFn: (row) => row.results?.height?.percentiles?.zScore,
-      cell: ({ getValue }) => getValue().toFixed(2),
-    },
-    {
-      header: "Weight Z-Score",
-      accessorFn: (row) => row.results?.weight?.percentiles?.zScore,
-      cell: ({ getValue }) => getValue().toFixed(2),
+      header: "Opened",
+      accessorFn: (row) => row.openedAt ? "Yes" : "No",
     },
     {
       id: "actions",
@@ -241,88 +183,39 @@ export default function CalculationTable({
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() =>
-                router.push(`/dashboard/calculations/${row.original.patientId}`)
-              }
+              onClick={() => {
+                onResend({
+                  notificationId: row.original.id,
+                  patientId: row.original.patient.id,
+                });
+              }}
             >
-              <Calculator className="mr-2 h-4 w-4" />
-              View Patient Calculations
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Resend Notification
             </DropdownMenuItem>
+            {(row.original.pdfUrl || row.original.chart?.pdfUrl) && (
+              <DropdownMenuItem
+                onClick={() => {
+                  const pdfUrl = row.original.pdfUrl || row.original.chart?.pdfUrl;
+                  if (pdfUrl) window.open(pdfUrl, "_blank");
+                }}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                View PDF
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                const calculatorType = row.original.results.calculationType;
-                const patientId = row.original.patientId;
-                    const calculationId = row.original.id;
-
-                const weightData = {
-                  gender: row.original.patient.gender.toLowerCase(),
-                  dateOfBirth: row.original.patient.dateOfBirth,
-                  measurements: [
-                    {
-                      date: row.original.date,
-                      weight: row.original.results.weight.value,
-                    },
-                  ],
-                  type: "weight",
-                };
-
-                const heightData = {
-                  gender: row.original.patient.gender.toLowerCase(),
-                  dateOfBirth: row.original.patient.dateOfBirth,
-                  measurements: [
-                    {
-                      date: row.original.date,
-                      height: row.original.results.height.value,
-                    },
-                  ],
-                  type: "height",
-                };
-
-                const encodedWeightData = encodeURIComponent(
-                  JSON.stringify(weightData)
-                );
-                const encodedHeightData = encodeURIComponent(
-                  JSON.stringify(heightData)
-                );
-
-                let chartUrl: string;
-
-                switch (calculatorType) {
-                  case "cdc_child":
-                    chartUrl = `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
-                    break;
-                  case "cdc_infant":
-                    chartUrl = `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
-                    break;
-                  case "who":
-                    chartUrl = `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
-                    break;
-                  case "intergrowth":
-                    chartUrl = `/charts/intergrowth-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
-                    break;
-                  default:
-                    console.error("Unknown chart type");
-                    return; // Exit the function if chartUrl is not set
-                }
-
-                if (chartUrl) {
-                  router.push(chartUrl);
-                }
+                onDelete({
+                  notificationId: row.original.id,
+                  patientId: row.original.patient.id,
+                });
               }}
+              className="text-red-600 focus:text-red-700"
             >
-              <LineChart className="mr-2 h-4 w-4" />
-              View This Chart
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                // TODO: Implement PDF export functionality
-                console.log("Export PDF", row.original);
-              }}
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              Export This PDF
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Notification
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -331,7 +224,7 @@ export default function CalculationTable({
   ];
 
   const table = useReactTable({
-    data: calculations,
+    data: notifications,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -358,12 +251,10 @@ export default function CalculationTable({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <CardTitle className="text-xl font-heading text-medical-900">
-              {patientId ? "Patient Calculations" : "Latest Calculations"}
+              Email Notifications
             </CardTitle>
             <CardDescription>
-              {patientId
-                ? "View and manage this patient's calculations"
-                : "View and manage recent patient calculations"}
+              View and manage email notifications sent to patients
             </CardDescription>
           </div>
           <div className="flex items-center gap-4">
@@ -376,24 +267,11 @@ export default function CalculationTable({
                 className="pl-8 w-[250px] border-medical-200"
               />
             </div>
-            {patientId && (
-              <Button
-                className="bg-medical-600 hover:bg-medical-700"
-                onClick={() =>
-                  router.push(
-                    `/dashboard/patients/${patientId}/calculations/add`
-                  )
-                }
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Calculation
-              </Button>
-            )}
           </div>
         </div>
       </CardHeader>
       <CardContent className="p-4 lg:p-6">
-        {calculations.length > 0 ? (
+        {notifications.length > 0 ? (
           <>
             <div className="rounded-md border border-medical-100">
               <Table>
@@ -436,7 +314,7 @@ export default function CalculationTable({
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        No calculations found.
+                        No email notifications found.
                       </TableCell>
                     </TableRow>
                   )}
@@ -466,9 +344,7 @@ export default function CalculationTable({
           </>
         ) : (
           <div className="text-center py-8 text-medical-600">
-            {patientId
-              ? "No calculations found for this patient."
-              : "No calculations found. Add a new calculation to get started."}
+            No email notifications found. New notifications will appear here.
           </div>
         )}
       </CardContent>
