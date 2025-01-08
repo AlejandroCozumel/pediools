@@ -44,7 +44,7 @@ export const usePremiumStore = create<PremiumState>()(
       setSubscriptionInfo: (status, plan) => set({
         subscriptionStatus: status,
         subscriptionPlan: plan,
-        isPremium: plan === 'PREMIUM' && status === 'ACTIVE'
+        isPremium: plan === 'PREMIUM'
       }),
     }),
     {

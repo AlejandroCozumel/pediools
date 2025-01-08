@@ -1,5 +1,5 @@
 // components/PremiumStatusProvider.tsx
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import ClientPremiumStatusSetter from "@/components/premium/ClientPremiumStatusSetter";
@@ -20,16 +20,13 @@ export async function checkPremiumStatus() {
     },
   });
 
-  return (
-    doctor?.subscription?.plan === "PREMIUM" &&
-    doctor?.subscription?.status === "ACTIVE"
-  );
+  return doctor?.subscription?.plan === "PREMIUM";
 }
 
 export default async function PremiumStatusProvider({
-  children
+  children,
 }: {
-  children: ReactNode
+  children: ReactNode;
 }) {
   const isPremium = await checkPremiumStatus();
 
