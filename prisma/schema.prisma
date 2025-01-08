@@ -9,74 +9,75 @@ generator client {
 
 // Core Models
 model Doctor {
-  id               String             @id @default(cuid())
-  clerkUserId      String             @unique
-  email            String             @unique
-  name             String
-  lastName         String?
-  profilePicture   String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  defaultChartView ChartViewType      @default(FOCUSED)
-  subscription     Subscription?
-  profile          DoctorProfile?
-  staff            Staff[]
-  patients         Patient[]
-  calculations     Calculation[]
-  appointments     Appointment[]
-  accessLogs       FeatureAccessLog[]
-  clinics          Clinic[]
-  prescriptions    Prescription[]
-  inventory        Inventory[]
-  invoices         Invoice[]
-  analytics        Analytics[]
-  patientMetrics   PatientMetrics[]
-  financialMetrics FinancialMetrics[]
+  id                 String              @id @default(cuid())
+  clerkUserId        String              @unique
+  email              String              @unique
+  name               String
+  lastName           String?
+  profilePicture     String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  defaultChartView   ChartViewType       @default(FOCUSED)
+  subscription       Subscription?
+  profile            DoctorProfile?
+  staff              Staff[]
+  patients           Patient[]
+  calculations       Calculation[]
+  appointments       Appointment[]
+  accessLogs         FeatureAccessLog[]
+  clinics            Clinic[]
+  prescriptions      Prescription[]
+  inventory          Inventory[]
+  invoices           Invoice[]
+  analytics          Analytics[]
+  patientMetrics     PatientMetrics[]
+  financialMetrics   FinancialMetrics[]
+  emailNotifications EmailNotification[]
 }
 
 model Patient {
-  id               String                @id @default(cuid())
-  doctorId         String
-  doctor           Doctor                @relation(fields: [doctorId], references: [id])
+  id                 String                @id @default(cuid())
+  doctorId           String
+  doctor             Doctor                @relation(fields: [doctorId], references: [id])
   // Personal Information
-  firstName        String
-  lastName         String
-  dateOfBirth      DateTime
-  gender           Gender
+  firstName          String
+  lastName           String
+  dateOfBirth        DateTime
+  gender             Gender
   // Contact Information
-  email            String?
-  phoneNumber      String?
-  secondaryPhone   String?
-  address          String?
-  city             String?
-  state            String?
-  zipCode          String?
-  country          String?
+  email              String?
+  phoneNumber        String?
+  secondaryPhone     String?
+  address            String?
+  city               String?
+  state              String?
+  zipCode            String?
+  country            String?
   // Medical Information
-  bloodType        BloodType?
-  allergies        String?
-  medications      String?
-  medicalNotes     String?
-  insuranceInfo    Json?
-  emergencyContact Json?
+  bloodType          BloodType?
+  allergies          String?
+  medications        String?
+  medicalNotes       String?
+  insuranceInfo      Json?
+  emergencyContact   Json?
   // Guardian Information
-  guardianName     String?
-  guardianPhone    String?
-  guardianEmail    String?
-  guardianRelation GuardianRelationType?
+  guardianName       String?
+  guardianPhone      String?
+  guardianEmail      String?
+  guardianRelation   GuardianRelationType?
   // Relationships
-  calculations     Calculation[]
-  charts           Chart[]
-  appointments     Appointment[]
-  notifications    EmailNotification[]
-  medicalHistory   MedicalHistory[]
-  surgeries        Surgery[]
-  prescriptions    Prescription[]
-  vaccinations     Vaccination[]
-  labResults       LabResult[]
-  invoices         Invoice[]
-  createdAt        DateTime              @default(now())
-  updatedAt        DateTime              @updatedAt
+  calculations       Calculation[]
+  charts             Chart[]
+  appointments       Appointment[]
+  emailNotifications EmailNotification[]
+  medicalHistory     MedicalHistory[]
+  surgeries          Surgery[]
+  prescriptions      Prescription[]
+  vaccinations       Vaccination[]
+  labResults         LabResult[]
+  invoices           Invoice[]
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 }
 
 // Staff and Clinic Management
@@ -213,16 +214,16 @@ model Calculation {
 }
 
 model Chart {
-  id            String      @id @default(cuid())
-  patientId     String
-  patient       Patient     @relation(fields: [patientId], references: [id])
-  calculationId String
-  calculation   Calculation @relation(fields: [calculationId], references: [id])
-  type          ChartType
-  imageUrl      String?
-  pdfUrl        String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id                 String              @id @default(cuid())
+  patientId          String
+  patient            Patient             @relation(fields: [patientId], references: [id])
+  calculationId      String
+  calculation        Calculation         @relation(fields: [calculationId], references: [id])
+  type               ChartType
+  imageUrl           String?
+  pdfUrl             String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   emailNotifications EmailNotification[]
 }
 
@@ -306,25 +307,29 @@ model Payment {
 
 // Notifications and Logs
 model EmailNotification {
-  id        String      @id @default(cuid())
+  id        String  @id @default(cuid())
   patientId String
-  patient   Patient     @relation(fields: [patientId], references: [id])
-  type      EmailType
-  sentAt    DateTime    @default(now())
-  status    EmailStatus
+  patient   Patient @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id])
 
-  // New fields for PDF report tracking
-  chartId       String?     // Link to the specific chart being sent
-  chart         Chart?      @relation(fields: [chartId], references: [id])
+  type   EmailType
+  sentAt DateTime    @default(now())
+  status EmailStatus
 
-  pdfUrl        String?     // URL of the generated PDF
-  emailSubject  String?     // Subject of the email
+  chartId String? // Link to the specific chart being sent
+  chart   Chart?  @relation(fields: [chartId], references: [id])
 
-  // Enhanced email tracking
-  openedAt      DateTime?   // Track when email was opened
-  clickedAt     DateTime?   // Track when links in email were clicked
-  deliveryAttempts Int      @default(1)
-  errorMessage   String?    // Store any email sending errors
+  pdfUrl       String? // URL of the generated PDF
+  emailSubject String? // Subject of the email
+
+  openedAt         DateTime? // Track when email was opened
+  clickedAt        DateTime? // Track when links in email were clicked
+  deliveryAttempts Int       @default(1)
+  errorMessage     String? // Store any email sending errors
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model FeatureAccessLog {

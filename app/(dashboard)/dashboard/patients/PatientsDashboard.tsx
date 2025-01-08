@@ -50,6 +50,7 @@ import {
   Mail,
   ArrowUpDown,
   Calculator,
+  MailIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import QuickActions from "@/components/QuickActions";
@@ -282,11 +283,11 @@ export default function PatientsDashboard({
               category: "Graphs",
             },
             {
-              link: `/dashboard/appointments`,
-              icon: <Calendar className="h-8 w-8 text-medical-500" />,
-              title: "Appointments",
-              description: "Manage patient appointments",
-              category: "Scheduling",
+              link: `/dashboard/notifications`,
+              icon: <MailIcon className="h-8 w-8 text-medical-500" />,
+              title: "Email Notifications",
+              description: "Manage patient email notifications",
+              category: "Notifications",
             },
             {
               link: `/dashboard/documents`,
