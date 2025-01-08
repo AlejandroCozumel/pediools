@@ -223,6 +223,7 @@ model Chart {
   pdfUrl        String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  emailNotifications EmailNotification[]
 }
 
 // Inventory Management
@@ -311,6 +312,19 @@ model EmailNotification {
   type      EmailType
   sentAt    DateTime    @default(now())
   status    EmailStatus
+
+  // New fields for PDF report tracking
+  chartId       String?     // Link to the specific chart being sent
+  chart         Chart?      @relation(fields: [chartId], references: [id])
+
+  pdfUrl        String?     // URL of the generated PDF
+  emailSubject  String?     // Subject of the email
+
+  // Enhanced email tracking
+  openedAt      DateTime?   // Track when email was opened
+  clickedAt     DateTime?   // Track when links in email were clicked
+  deliveryAttempts Int      @default(1)
+  errorMessage   String?    // Store any email sending errors
 }
 
 model FeatureAccessLog {
