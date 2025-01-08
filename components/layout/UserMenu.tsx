@@ -38,6 +38,11 @@ const UserMenu = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -65,14 +70,9 @@ const UserMenu = () => {
       onClick: () => router.push("/dashboard/profile"),
     },
     {
-      label: "My Subscriptions",
-      path: "/dashboard/subscriptions",
-      onClick: () => router.push("/dashboard/subscriptions"),
-    },
-    {
-      label: "Settings",
-      path: "/dashboard/settings",
-      onClick: () => router.push("/dashboard/settings"),
+      label: "My Subscription",
+      path: "/dashboard/profile/billing",
+      onClick: () => router.push("/dashboard/profile/billing"),
     },
   ];
 
@@ -149,7 +149,7 @@ const UserMenu = () => {
                     />
                   ))}
                   <div className="border-b" />
-                  <MenuItem label="Sign out" onClick={() => signOut()} />
+                  <MenuItem label="Sign out" onClick={handleSignOut} />
                 </>
               ) : (
                 <>
