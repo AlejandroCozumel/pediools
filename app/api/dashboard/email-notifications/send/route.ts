@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     // Generate PDF
     const pdfBlob = await generateGrowthChartPDF(
       chartData,
-      doctor.profile,
+      {},
       patient
     );
     const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer());
