@@ -234,6 +234,37 @@ async function getPatientMeasurements(patientId: string) {
   });
 }
 
+async function getPatientDetails(patientId: string) {
+  return prisma.patient.findUnique({
+    where: {
+      id: patientId,
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      guardianEmail: true,
+      doctor: {
+        select: {
+          name: true,
+          lastName: true,
+          profile: {
+            select: {
+              clinicName: true,
+              logoUrl: true,
+              address: true,
+              city: true,
+              state: true,
+              postalCode: true,
+              website: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -282,32 +313,48 @@ export async function GET(request: NextRequest) {
     );
 
     let progressionData: ProgressionData[] = [];
+    let patientDetails = null;
+
     if (patientId) {
-      const patientMeasurements = await getPatientMeasurements(patientId);
-      progressionData = patientMeasurements
-        .filter((measurement) => measurement.results != null)
-        .map((measurement) => {
-          const ageInMonths = differenceInMonths(
-            new Date(measurement.date),
-            new Date(measurement.patient.dateOfBirth)
-          );
-          const ageInYears = ageInMonths / 12;
+      try {
+        // Get both measurements and patient details in parallel
+        const [measurements, details] = await Promise.all([
+          getPatientMeasurements(patientId),
+          getPatientDetails(patientId),
+        ]);
 
-          const results = measurement.results as {
-            weight: { value: number };
-            height: { value: number };
-          };
-          const bmi =
-            results.weight.value / Math.pow(results.height.value / 100, 2);
+        patientDetails = details;
 
-          return {
-            date: measurement.date.toISOString(),
-            age: ageInYears.toFixed(2),
-            weight: results.weight.value.toFixed(2),
-            height: results.height.value.toFixed(2),
-            bmi: bmi.toFixed(2),
-          };
-        });
+        progressionData = measurements
+          .filter((measurement) => measurement.results != null)
+          .map((measurement) => {
+            const ageInMonths = differenceInMonths(
+              new Date(measurement.date),
+              new Date(measurement.patient.dateOfBirth)
+            );
+            const ageInYears = ageInMonths / 12;
+
+            const results = measurement.results as {
+              weight: { value: number };
+              height: { value: number };
+            };
+            const bmi =
+              results.height.value > 0
+                ? results.weight.value / Math.pow(results.height.value / 100, 2)
+                : 0;
+
+            return {
+              date: measurement.date.toISOString(),
+              age: ageInYears.toFixed(2),
+              weight: results.weight.value.toFixed(2),
+              height: results.height.value.toFixed(2),
+              bmi: bmi.toFixed(2),
+            };
+          });
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+        // You might want to handle this error specifically
+      }
     }
 
     return NextResponse.json({
@@ -321,6 +368,18 @@ export async function GET(request: NextRequest) {
         height: heightData,
       },
       progressionData: progressionData,
+      patientDetails:
+        patientDetails && patientDetails.doctor
+          ? {
+              name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+              email: patientDetails.email,
+              guardianEmail: patientDetails.guardianEmail,
+              doctor: {
+                name: `${patientDetails.doctor.name} ${patientDetails.doctor.lastName}`,
+                clinic: patientDetails.doctor.profile || null,
+              },
+            }
+          : null,
     });
   } catch (error) {
     console.error("Growth chart calculation error:", error);

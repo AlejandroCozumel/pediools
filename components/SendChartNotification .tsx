@@ -74,6 +74,23 @@ interface ChartData {
     height: HeightData[];
   };
   success: boolean;
+  patientDetails?: {
+    name: string;
+    email: string | null;
+    guardianEmail: string | null;
+    doctor: {
+      name: string;
+      clinic: {
+        clinicName: string | null;
+        logoUrl: string | null;
+        address: string | null;
+        city: string | null;
+        state: string | null;
+        postalCode: string | null;
+        website: string | null;
+      } | null;
+    };
+  } | null;
 }
 
 // Props interface
@@ -114,20 +131,31 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
   const form = useForm<FormData>({
     resolver: zodResolver(emailNotificationSchema),
     defaultValues: {
-      emailSubject: `${chartType} Report`,
+      emailSubject: `Growth Chart Report for ${
+        chartData.patientDetails?.name || ""
+      }`,
       additionalMessage: "",
-      recipientEmail: "",
+      recipientEmail:
+        chartData.patientDetails?.email ||
+        chartData.patientDetails?.guardianEmail ||
+        "",
       notificationType: "CALCULATION_RESULTS",
     },
   });
-
   // Function to handle PDF preview
   const handlePreviewPDF = async () => {
+    let chartImages: string[] = [];
     try {
       setIsGeneratingPreview(true);
 
-      // First, capture the charts
-      const chartImages = await captureCharts();
+      // First, capture the charts as base64 data URLs
+      chartImages = await captureCharts();
+
+      // Ensure chartImages is not empty or undefined
+      if (!chartImages || chartImages.length === 0) {
+        toast.error("No charts found to generate preview.");
+        return;
+      }
 
       // Get current form values
       const formValues = form.getValues();
@@ -280,23 +308,12 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
                 )}
               />
 
-              <DialogFooter className="flex gap-2">
-                <DialogClose asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-medical-200 text-medical-700 hover:bg-medical-50"
-                  >
-                    Cancel
-                  </Button>
-                </DialogClose>
-
+              <DialogFooter className="flex !justify-between gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handlePreviewPDF}
                   disabled={isGeneratingPreview}
-                  className="border-medical-200 text-medical-700 hover:bg-medical-50"
                 >
                   {isGeneratingPreview ? (
                     <>
@@ -314,7 +331,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
                 <Button
                   type="submit"
                   disabled={sendNotification.isPending}
-                  className="bg-medical-600 text-white hover:bg-medical-700 focus:ring-medical-300"
+                  variant="default"
                 >
                   {sendNotification.isPending ? (
                     <>
