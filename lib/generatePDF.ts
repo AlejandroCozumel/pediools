@@ -9,13 +9,20 @@ interface ProgressionRow {
   weight: string | number;
   height: string | number;
   bmi: string | number;
+  weightPercentile: number;  // Added this
+  heightPercentile: number;  // Added this
 }
 
 interface ChartData {
   progressionData?: ProgressionRow[];
   originalInput?: {
-    weight?: { gender?: "male" | "female" };
-    height?: { gender?: "male" | "female" };
+    weight?: {
+      gender?: "male" | "female";
+      dateOfBirth?: string;     // Added this to match
+    };
+    height?: {
+      gender?: "male" | "female"
+    };
   };
   patientDetails?: PatientDetails;
   success?: boolean;

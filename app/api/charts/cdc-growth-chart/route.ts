@@ -326,31 +326,52 @@ export async function GET(request: NextRequest) {
         patientDetails = details;
 
         progressionData = measurements
-          .filter((measurement) => measurement.results != null)
-          .map((measurement) => {
-            const ageInMonths = differenceInMonths(
-              new Date(measurement.date),
-              new Date(measurement.patient.dateOfBirth)
-            );
-            const ageInYears = ageInMonths / 12;
+        .filter((measurement) => measurement.results != null)
+        .map((measurement) => {
+          const ageInMonths = differenceInMonths(
+            new Date(measurement.date),
+            new Date(measurement.patient.dateOfBirth)
+          );
+          const ageInYears = ageInMonths / 12;
 
-            const results = measurement.results as {
-              weight: { value: number };
-              height: { value: number };
-            };
-            const bmi =
-              results.height.value > 0
-                ? results.weight.value / Math.pow(results.height.value / 100, 2)
-                : 0;
+          const results = measurement.results as {
+            weight: { value: number };
+            height: { value: number };
+          };
+          const bmi =
+            results.height.value > 0
+              ? results.weight.value / Math.pow(results.height.value / 100, 2)
+              : 0;
 
-            return {
-              date: measurement.date.toISOString(),
-              age: ageInYears.toFixed(2),
-              weight: results.weight.value.toFixed(2),
-              height: results.height.value.toFixed(2),
-              bmi: bmi.toFixed(2),
-            };
-          });
+          const weightDataPoint = findClosestDataPoint(
+            ageInMonths,
+            weightData.gender,
+            cdcWeightData,
+            'weight'
+          );
+          const heightDataPoint = findClosestDataPoint(
+            ageInMonths,
+            heightData.gender,
+            cdcHeightData,
+            'height'
+          );
+
+          return {
+            date: measurement.date.toISOString(),
+            age: ageInYears.toFixed(2),
+            weight: results.weight.value.toFixed(2),
+            height: results.height.value.toFixed(2),
+            bmi: bmi.toFixed(2),
+            weightPercentile: calculatePercentile(
+              results.weight.value,
+              weightDataPoint
+            ),
+            heightPercentile: calculatePercentile(
+              results.height.value,
+              heightDataPoint
+            ),
+          };
+        });
       } catch (error) {
         console.error("Error fetching patient data:", error);
         // You might want to handle this error specifically

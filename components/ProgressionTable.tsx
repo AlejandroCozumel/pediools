@@ -25,6 +25,8 @@ interface ProgressionData {
   weight: string;
   height: string;
   bmi: string;
+  weightPercentile: number;
+  heightPercentile: number;
 }
 
 interface ProgressionTableProps {
@@ -38,13 +40,14 @@ const ProgressionTable: React.FC<ProgressionTableProps> = ({
     return null;
   }
 
+  const formatPercentile = (percentile: number) => `${percentile.toFixed(1)}%`;
+
   return (
     <Card className="border-medical-100">
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1" className="border-none">
           <AccordionTrigger className="p-4 lg:p-6 lg:py-4 hover:no-underline">
-            <h3 className="text-base md:text-lg
-             lg:text-xl font-heading text-medical-900">
+            <h3 className="text-base md:text-lg lg:text-xl font-heading text-medical-900">
               Patient Progression
             </h3>
           </AccordionTrigger>
@@ -52,20 +55,16 @@ const ProgressionTable: React.FC<ProgressionTableProps> = ({
             <div className="p-4 pt-0 lg:p-6 lg:pt-0">
               <Table>
                 <TableCaption className="text-medical-600">
-                  Historical measurements of patient growth
+                  Historical measurements and percentiles of patient growth
                 </TableCaption>
                 <TableHeader>
                   <TableRow className="bg-medical-50 hover:bg-medical-100">
                     <TableHead className="text-medical-700">Date</TableHead>
-                    <TableHead className="text-medical-700">
-                      Age (years)
-                    </TableHead>
-                    <TableHead className="text-medical-700">
-                      Weight (kg)
-                    </TableHead>
-                    <TableHead className="text-medical-700">
-                      Height (cm)
-                    </TableHead>
+                    <TableHead className="text-medical-700">Age (years)</TableHead>
+                    <TableHead className="text-medical-700">Weight (kg)</TableHead>
+                    <TableHead className="text-medical-700">Weight %ile</TableHead>
+                    <TableHead className="text-medical-700">Height (cm)</TableHead>
+                    <TableHead className="text-medical-700">Height %ile</TableHead>
                     <TableHead className="text-medical-700">BMI</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -83,15 +82,19 @@ const ProgressionTable: React.FC<ProgressionTableProps> = ({
                           {entry.age}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-medical-800">{entry.weight}</TableCell>
                       <TableCell className="text-medical-800">
-                        {entry.weight}
+                        <Badge variant="outline" className="border-medical-200 text-medical-700">
+                          {formatPercentile(entry.weightPercentile)}
+                        </Badge>
                       </TableCell>
+                      <TableCell className="text-medical-800">{entry.height}</TableCell>
                       <TableCell className="text-medical-800">
-                        {entry.height}
+                        <Badge variant="outline" className="border-medical-200 text-medical-700">
+                          {formatPercentile(entry.heightPercentile)}
+                        </Badge>
                       </TableCell>
-                      <TableCell className="text-medical-800">
-                        {entry.bmi}
-                      </TableCell>
+                      <TableCell className="text-medical-800">{entry.bmi}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
