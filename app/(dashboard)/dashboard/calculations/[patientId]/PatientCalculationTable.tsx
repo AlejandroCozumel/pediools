@@ -49,6 +49,9 @@ import {
   LineChart,
   ArrowUpDown,
   Trash,
+  Send,
+  FileText,
+  NotebookPen,
 } from "lucide-react";
 
 // Define Calculation type
@@ -213,36 +216,111 @@ export default function PatientCalculationTable({
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
+
+            {/* View Chart */}
+            <DropdownMenuItem
+              onClick={() => {
+                const chartTypeMap = {
+                  GROWTH_PERCENTILE: "cdc-growth-chart",
+                  DEFAULT: "cdc-growth-chart",
+                };
+
+                const chartType =
+                  chartTypeMap[
+                    row.original.type as keyof typeof chartTypeMap
+                  ] || chartTypeMap.DEFAULT;
+
+                const weightData = JSON.stringify({
+                  gender: row.original.patient.gender.toLowerCase(), // Convert to lowercase
+                  dateOfBirth: row.original.patient.dateOfBirth, // Use original date
+                  measurements: [
+                    {
+                      date: row.original.date, // Use original date
+                      weight: row.original.results.weight?.value,
+                    },
+                  ],
+                  type: "weight",
+                });
+
+                const heightData = JSON.stringify({
+                  gender: row.original.patient.gender.toLowerCase(), // Convert to lowercase
+                  dateOfBirth: row.original.patient.dateOfBirth, // Use original date
+                  measurements: [
+                    {
+                      date: row.original.date, // Use original date
+                      height: row.original.results.height?.value,
+                    },
+                  ],
+                  type: "height",
+                });
+
+                const calculationParams = new URLSearchParams({
+                  weightData,
+                  heightData,
+                  patientId: row.original.patientId,
+                  calculationId: row.original.id,
+                });
+
+                // Navigate to the charts page with the encoded parameters
+                router.push(
+                  `/charts/${chartType}?${calculationParams.toString()}`
+                );
+              }}
+            >
+              <LineChart className="mr-2 h-4 w-4" />
+              View Chart
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            {/* Add/Edit Notes */}
+            <DropdownMenuItem
+              onClick={() => {
+                console.log("Add/Edit Notes", row.original);
+                // TODO: Implement add/edit notes functionality
+              }}
+            >
+              <NotebookPen className="mr-2 h-4 w-4" />
+              Add/Edit Notes
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            {/* Email Report */}
+            <DropdownMenuItem
+              onClick={() => {
+                console.log("Email Report", row.original);
+                // TODO: Implement email report functionality
+              }}
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Email Report
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            {/* Download Report */}
+            <DropdownMenuItem
+              onClick={() => {
+                console.log("Download Report", row.original);
+                // TODO: Implement report download functionality
+              }}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Download Report
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            {/* Delete Calculation */}
             <DropdownMenuItem
               onSelect={(e) => {
-                e.preventDefault(); // Prevent dropdown from closing
+                e.preventDefault();
                 setDeleteModalState({
                   open: true,
                   calculationId: row.original.id,
                 });
               }}
-              className="text-red-500 focus:bg-red-50"
+              className="text-red-500 focus:bg-red-500 focus:text-white "
             >
               <Trash className="mr-2 h-4 w-4" />
               Delete Calculation
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                const calculatorType = row.original.results.calculationType;
-                const heightData = row.original.results.height;
-                const weightData = row.original.results.weight;
-
-                // TODO: Implement chart navigation logic
-                console.log("View Chart", {
-                  calculatorType,
-                  heightData,
-                  weightData,
-                });
-              }}
-            >
-              <LineChart className="mr-2 h-4 w-4" />
-              View Chart
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

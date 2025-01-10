@@ -287,6 +287,7 @@ export async function GET(request: NextRequest) {
     const encodedWeightData = searchParams.get("weightData");
     const encodedHeightData = searchParams.get("heightData");
     const patientId = searchParams.get("patientId");
+    const calculationId = searchParams.get("calculationId");
 
     if (!encodedWeightData || !encodedHeightData) {
       return NextResponse.json(
@@ -349,6 +350,22 @@ export async function GET(request: NextRequest) {
 
         progressionData = measurements
           .filter((measurement) => measurement.results != null)
+          .filter((measurement) => {
+            // If calculationId is provided, only include measurements
+            // that are on or before the current calculation's date
+            if (calculationId) {
+              const currentCalculation = measurements.find(
+                (m) => m.id === calculationId
+              );
+              if (currentCalculation) {
+                return (
+                  new Date(measurement.date) <=
+                  new Date(currentCalculation.date)
+                );
+              }
+            }
+            return true; // If no calculationId, return all measurements
+          })
           .map((measurement) => {
             const ageInMonths = differenceInMonths(
               new Date(measurement.date),
@@ -369,13 +386,13 @@ export async function GET(request: NextRequest) {
               ageInMonths,
               weightData.gender,
               cdcWeightData,
-              'weight'
+              "weight"
             );
             const heightDataPoint = findClosestDataPoint(
               ageInMonths,
               heightData.gender,
               cdcHeightData,
-              'height'
+              "height"
             );
 
             return {
@@ -394,7 +411,11 @@ export async function GET(request: NextRequest) {
                 heightDataPoint
               ),
             };
-          });
+          })
+          // Sort by date in ascending order to ensure chronological progression
+          .sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
       } catch (error) {
         console.error("Error fetching patient data:", error);
       }

@@ -14,32 +14,30 @@ const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
   const weightData = searchParams.get("weightData");
   const heightData = searchParams.get("heightData");
   const patientId = searchParams.get("patientId");
-
+  const calculationId = searchParams.get("calculationId");
   if (!weightData || !heightData) {
     throw new Error("Weight and height data are required");
   }
-
   const { data } = await axios.get("/api/charts/cdc-growth-chart", {
     params: {
       weightData,
       heightData,
       ...(patientId && { patientId }),
+      calculationId
     },
   });
-
   if (!data.success) {
     throw new Error(data.error || "Failed to load chart data");
   }
-
   return data;
 };
 
 const Charts = () => {
   const { isFullCurveView } = usePremiumStore();
-
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
+  const calculationId = searchParams.get("calculationId"); // Add this line
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["growthChartData", searchParams.toString()],
@@ -74,18 +72,17 @@ const Charts = () => {
           />
         </div>
       </div>
-
-      <ProgressionTable progressionData={data.progressionData} />
-
+      <ProgressionTable
+        progressionData={data.progressionData}
+        highlightCalculationId={calculationId || undefined}
+      />
       <ToggleViewChart />
-
       <CDCChart
         data={data}
         isFullCurveView={isFullCurveView}
         yearRangeAround={isFullCurveView ? 9 : 4}
         weightRangeAround={isFullCurveView ? 50 : 20}
       />
-
       <CDCChartHeight
         data={data}
         isFullCurveView={isFullCurveView}

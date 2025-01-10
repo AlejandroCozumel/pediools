@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/accordion";
 
 interface ProgressionData {
+  calculationId?: string; // Make calculationId optional
   date: string;
   age: string;
   weight: string;
@@ -31,16 +32,29 @@ interface ProgressionData {
 
 interface ProgressionTableProps {
   progressionData: ProgressionData[];
+  highlightCalculationId?: string; // New optional prop
 }
 
 const ProgressionTable: React.FC<ProgressionTableProps> = ({
   progressionData,
+  highlightCalculationId,
 }) => {
   if (!progressionData || progressionData.length === 0) {
     return null;
   }
 
   const formatPercentile = (percentile: number) => `${percentile.toFixed(1)}%`;
+
+  // If a calculationId is provided, filter and limit progression data
+  const filteredProgressionData = highlightCalculationId
+    ? progressionData.filter(
+        (entry) =>
+          new Date(entry.date) <=
+          new Date(progressionData.find(
+            (p) => p.calculationId === highlightCalculationId
+          )?.date || new Date())
+      )
+    : progressionData;
 
   return (
     <Card className="border-medical-100">
@@ -69,8 +83,19 @@ const ProgressionTable: React.FC<ProgressionTableProps> = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {progressionData.map((entry, index) => (
-                    <TableRow key={index} className="hover:bg-medical-50">
+                  {filteredProgressionData.map((entry, index) => (
+                    <TableRow
+                      key={index}
+                      className={`
+                        hover:bg-medical-50
+                        ${
+                          highlightCalculationId &&
+                          entry.calculationId === highlightCalculationId
+                            ? 'bg-medical-100 font-semibold'
+                            : ''
+                        }
+                      `}
+                    >
                       <TableCell className="text-medical-800">
                         {format(new Date(entry.date), "PP")}
                       </TableCell>
