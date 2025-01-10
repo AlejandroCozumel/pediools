@@ -77,7 +77,8 @@ interface Calculation {
     };
   };
   patientId: string;
-  charts?: { // Add this optional property
+  charts?: {
+    // Add this optional property
     pdfUrl?: string;
   }[];
   patient: {
@@ -101,7 +102,6 @@ export default function PatientCalculationTable({
 }: PatientCalculationTableProps) {
   const router = useRouter();
   const { deleteCalculation } = useCalculations(patientId);
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchTerm, setSearchTerm] = useState("");

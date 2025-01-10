@@ -6,7 +6,7 @@ import prisma from "@/lib/prismadb";
 import { generateGrowthChartPDF } from "@/lib/generatePDF";
 import { Storage } from "@google-cloud/storage";
 import { v4 as uuidv4 } from "uuid";
-import { EmailType, EmailStatus } from "@prisma/client";
+import { EmailType, EmailStatus, Prisma } from "@prisma/client";
 
 if (
   !process.env.GOOGLE_PROJECT_ID ||
@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       recipientEmail,
       emailSubject,
       additionalMessage,
+      preview,
     } = await request.json();
 
     // Validate chart images
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get doctor details (needed for both cases)
+    // Get doctor details
     const doctor = await prisma.doctor.findUnique({
       where: { clerkUserId: userId },
       include: { profile: true },
@@ -61,9 +62,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    // If patientId exists, verify patient exists
+    let patient;
     if (patientId) {
-      const patient = await prisma.patient.findUnique({
+      patient = await prisma.patient.findUnique({
         where: { id: patientId },
       });
 
@@ -73,19 +74,19 @@ export async function POST(request: NextRequest) {
           { status: 404 }
         );
       }
+    }
 
-      // Verify calculation exists if calculationId is provided
-      if (chartData.calculationId) {
-        const calculation = await prisma.calculation.findUnique({
-          where: { id: chartData.calculationId },
-        });
+    let calculation;
+    if (chartData.calculationId) {
+      calculation = await prisma.calculation.findUnique({
+        where: { id: chartData.calculationId },
+      });
 
-        if (!calculation) {
-          return NextResponse.json(
-            { error: "Calculation not found" },
-            { status: 404 }
-          );
-        }
+      if (!calculation) {
+        return NextResponse.json(
+          { error: "Calculation not found" },
+          { status: 404 }
+        );
       }
     }
 
@@ -103,58 +104,100 @@ export async function POST(request: NextRequest) {
         }
       : {};
 
-    // Generate PDF for both cases
-    let pdfBlob;
-    try {
-      pdfBlob = await generateGrowthChartPDF(
-        chartData,
-        profileDetails,
-        {
-          ...chartData.patientDetails,
-          dateOfBirth: chartData.originalInput?.weight?.dateOfBirth
-            ? new Date(chartData.originalInput.weight.dateOfBirth)
-            : undefined,
-          gender: chartData.originalInput?.weight?.gender,
+    // Check for existing chart record
+    let chart;
+    if (patientId && chartData.calculationId) {
+      chart = await prisma.chart.findFirst({
+        where: {
+          patientId,
+          calculationId: chartData.calculationId,
+          type: "GROWTH_CDC",
         },
-        chartImages
-      );
-    } catch (error) {
-      console.error("PDF Generation failed:", error);
-      return NextResponse.json(
-        { error: "Failed to generate PDF" },
-        { status: 500 }
-      );
-    }
-
-    // Upload PDF to Google Cloud Storage
-    let pdfUrl;
-    try {
-      const timestamp = new Date().toISOString().split("T")[0];
-      // Different paths for patient vs anonymous charts
-      const fileName = patientId
-        ? `doctors/${
-            doctor.id
-          }/patients/${patientId}/growth-charts/${timestamp}_${uuidv4()}.pdf`
-        : `doctors/${doctor.id}/anonymous/${timestamp}_${uuidv4()}.pdf`;
-
-      const bucket = storage.bucket(bucketName);
-      const file = bucket.file(fileName);
-
-      const arrayBuffer = await pdfBlob.arrayBuffer();
-      await file.save(Buffer.from(arrayBuffer), {
-        contentType: "application/pdf",
+        orderBy: { createdAt: "desc" },
       });
-
-      pdfUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
-    } catch (error) {
-      console.error("File upload failed:", error);
-      return NextResponse.json(
-        { error: "Failed to upload file" },
-        { status: 500 }
-      );
     }
 
-    // Send email in both cases
+    // Check if PDF URL exists
+    let pdfUrl = chart?.pdfUrl;
+
+    if (!pdfUrl) {
+      // Generate PDF if URL doesn't exist
+      try {
+        const pdfBlob = await generateGrowthChartPDF(
+          chartData,
+          profileDetails,
+          {
+            ...chartData.patientDetails,
+            dateOfBirth: chartData.originalInput?.weight?.dateOfBirth
+              ? new Date(chartData.originalInput.weight.dateOfBirth)
+              : undefined,
+            gender: chartData.originalInput?.weight?.gender,
+          },
+          chartImages
+        );
+
+        const timestamp = new Date().toISOString().split("T")[0];
+        const fileName = patientId
+          ? `doctors/${
+              doctor.id
+            }/patients/${patientId}/growth-charts/${timestamp}_${uuidv4()}.pdf`
+          : `doctors/${doctor.id}/anonymous/${timestamp}_${uuidv4()}.pdf`;
+
+        const bucket = storage.bucket(bucketName);
+        const file = bucket.file(fileName);
+
+        await file.save(Buffer.from(await pdfBlob.arrayBuffer()), {
+          contentType: "application/pdf",
+        });
+
+        pdfUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+
+        // First, check if patientId AND calculationId exist, since both are needed for chart
+        if (patientId && calculation?.id) {
+          // Try to find existing chart first
+          const existingChart = await prisma.chart.findFirst({
+            where: {
+              patientId,
+              calculationId: calculation.id,
+              type: "GROWTH_CDC",
+            },
+          });
+
+          if (existingChart) {
+            // Update existing chart with new PDF URL
+            chart = await prisma.chart.update({
+              where: { id: existingChart.id },
+              data: { pdfUrl },
+            });
+          } else {
+            // Create new chart only if we have both required fields
+            chart = await prisma.chart.create({
+              data: {
+                type: "GROWTH_CDC",
+                pdfUrl,
+                patient: { connect: { id: patientId } },
+                calculation: { connect: { id: calculation.id } },
+              },
+            });
+          }
+        }
+      } catch (error) {
+        console.error("PDF Generation/Upload failed:", error);
+        return NextResponse.json(
+          { error: "Failed to generate or upload PDF" },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (preview) {
+      return NextResponse.json({
+        success: true,
+        data: { pdfUrl },
+      });
+    }
+
+    // Send email
     try {
       await resend.emails.send({
         from: "onboarding@resend.dev",
@@ -176,101 +219,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only create database records if patientId exists
-    if (patientId) {
-      try {
-        // Use transaction for database operations
-        const [chart, emailNotification] = await prisma.$transaction(
-          async (tx) => {
-            // Find the existing chart
-            const existingChart = await tx.chart.findFirst({
-              where: {
-                patientId: patientId,
-                calculationId: chartData.calculationId,
-                type: "GROWTH_CDC",
-              },
-              orderBy: {
-                createdAt: "desc",
-              },
-            });
+    // Create email notification record
+    let emailNotification;
+    if (chart) {
+      const notificationData: Prisma.EmailNotificationCreateInput = {
+        type: EmailType.CALCULATION_RESULTS,
+        status: EmailStatus.SENT,
+        pdfUrl,
+        emailSubject,
+        deliveryAttempts: 1,
+        doctor: { connect: { id: doctor.id } },
+        chart: { connect: { id: chart.id } },
+        recipientEmail,
+      };
 
-            if (existingChart) {
-              // Update the existing chart
-              const updatedChart = await tx.chart.update({
-                where: {
-                  id: existingChart.id,
-                },
-                data: {
-                  pdfUrl: pdfUrl,
-                },
-              });
-
-              const newEmailNotification = await tx.emailNotification.create({
-                data: {
-                  type: EmailType.CALCULATION_RESULTS,
-                  status: EmailStatus.SENT,
-                  pdfUrl,
-                  emailSubject,
-                  deliveryAttempts: 1,
-                  patient: { connect: { id: patientId } },
-                  doctor: { connect: { id: doctor.id } },
-                  chart: { connect: { id: updatedChart.id } },
-                },
-              });
-
-              return [updatedChart, newEmailNotification];
-            } else {
-              // If no existing chart is found, create a new one
-              const newChart = await tx.chart.create({
-                data: {
-                  type: "GROWTH_CDC",
-                  pdfUrl,
-                  patient: { connect: { id: patientId } },
-                  ...(chartData.calculationId && {
-                    calculation: { connect: { id: chartData.calculationId } },
-                  }),
-                },
-              });
-
-              const newEmailNotification = await tx.emailNotification.create({
-                data: {
-                  type: EmailType.CALCULATION_RESULTS,
-                  status: EmailStatus.SENT,
-                  pdfUrl,
-                  emailSubject,
-                  deliveryAttempts: 1,
-                  patient: { connect: { id: patientId } },
-                  doctor: { connect: { id: doctor.id } },
-                  chart: { connect: { id: newChart.id } },
-                },
-              });
-
-              return [newChart, newEmailNotification];
-            }
-          }
-        );
-
-        return NextResponse.json({
-          success: true,
-          data: {
-            emailId: emailNotification.id,
-            chartId: chart.id,
-            pdfUrl,
-          },
-        });
-      } catch (error) {
-        console.error("Database operation failed:", error);
-        return NextResponse.json(
-          { error: "Failed to save records" },
-          { status: 500 }
-        );
+      if (patient) {
+        notificationData.patient = { connect: { id: patient.id } };
       }
+
+      emailNotification = await prisma.emailNotification.create({
+        data: notificationData,
+      });
     }
 
-    // Return simplified response when no patient
     return NextResponse.json({
       success: true,
       data: {
+        chartId: chart?.id,
+        emailId: emailNotification?.id,
         pdfUrl,
       },
     });

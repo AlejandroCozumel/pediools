@@ -147,16 +147,15 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
       notificationType: "CALCULATION_RESULTS",
     },
   });
+
   // Function to handle PDF preview
   const handlePreviewPDF = async () => {
     let chartImages: string[] = [];
     try {
       setIsGeneratingPreview(true);
 
-      // First, capture the charts as base64 data URLs
       chartImages = await captureCharts();
 
-      // Ensure chartImages is not empty or undefined
       if (!chartImages || chartImages.length === 0) {
         toast({
           title: "No charts found to generate preview.",
@@ -166,34 +165,29 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
         return;
       }
 
-      // Get current form values
       const formValues = form.getValues();
 
-      // Generate PDF preview
       const response = await axios.post(
-        "/api/dashboard/email-notifications/preview",
+        "/api/dashboard/email-notifications/send",
         {
           chartData,
           chartImages,
+          patientId,
           emailSubject: formValues.emailSubject,
           additionalMessage: formValues.additionalMessage,
-        },
-        {
-          responseType: "blob",
+          preview: true,
         }
       );
 
-      // Create and open blob URL
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const blobUrl = window.URL.createObjectURL(blob);
-      window.open(blobUrl, "_blank");
-
-      // Clean up the blob URL
-      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+      if (response.data?.data?.pdfUrl) {
+        window.open(response.data.data.pdfUrl, "_blank");
+      } else {
+        throw new Error("No PDF URL received");
+      }
     } catch (error) {
       console.error("Failed to generate preview:", error);
       toast({
-        title: "Failed to generate preview. Please try again.",
+        title: "Failed to generate preview",
         description: "Please try again later.",
         variant: "destructive",
       });
@@ -205,25 +199,20 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
   // Mutation for sending notification
   const sendNotification = useMutation({
     mutationFn: async (values: FormData) => {
-      // First capture the charts
       const chartImages = await captureCharts();
 
-      // Validate that we have charts
       if (!chartImages || chartImages.length === 0) {
         throw new Error("No charts found to send.");
       }
 
-      // Send the request with both values and chart images
       const response = await axios.post(
         "/api/dashboard/email-notifications/send",
         {
           ...values,
           patientId,
-          chartData: {
-            ...chartData,
-            chartType,
-          },
-          chartImages, // Add captured charts to the request
+          chartData,
+          chartImages,
+          preview: false,
         }
       );
       return response.data;
