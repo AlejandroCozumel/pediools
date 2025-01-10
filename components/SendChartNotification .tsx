@@ -26,7 +26,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { captureCharts } from "@/utils/captureCharts";
 
 // Types for progression data
@@ -129,6 +129,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
   chartType = "Growth Chart",
   className = "",
 }) => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
@@ -157,7 +158,11 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
 
       // Ensure chartImages is not empty or undefined
       if (!chartImages || chartImages.length === 0) {
-        toast.error("No charts found to generate preview.");
+        toast({
+          title: "No charts found to generate preview.",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -187,7 +192,11 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
     } catch (error) {
       console.error("Failed to generate preview:", error);
-      toast.error("Failed to generate preview. Please try again.");
+      toast({
+        title: "Failed to generate preview. Please try again.",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
     } finally {
       setIsGeneratingPreview(false);
     }
@@ -220,7 +229,11 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
       return response.data;
     },
     onSuccess: () => {
-      toast.success("Chart sent successfully!");
+      toast({
+        title: "Email sent successfully!",
+        description: "Email has been sent to the patient.",
+        variant: "default",
+      });
       form.reset();
       setIsOpen(false);
     },
@@ -230,9 +243,17 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
         error instanceof Error &&
         error.message === "No charts found to send."
       ) {
-        toast.error("No charts found to send. Please try again.");
+        toast({
+          title: "No charts found to send",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
       } else {
-        toast.error("Failed to send chart. Please try again.");
+        toast({
+          title: "Failed to send chart",
+          description: "Please double check the email is correct.",
+          variant: "destructive",
+        });
       }
     },
   });
@@ -360,7 +381,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
                       Sending...
                     </>
                   ) : (
-                    "Send Notification"
+                    "Send Email"
                   )}
                 </Button>
               </DialogFooter>
