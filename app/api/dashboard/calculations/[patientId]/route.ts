@@ -3,20 +3,34 @@ import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import { CalculationType } from "@prisma/client";
 
-export async function GET(request: NextRequest, { params }: { params: { patientId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { patientId: string } }
+) {
   try {
     const { userId } = getAuth(request);
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const doctor = await prisma.doctor.findUnique({ where: { clerkUserId: userId } });
-    if (!doctor) return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const doctor = await prisma.doctor.findUnique({
+      where: { clerkUserId: userId },
+    });
+    if (!doctor)
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
 
     const calculations = await prisma.calculation.findMany({
       where: { doctorId: doctor.id, patientId: params.patientId },
       include: {
-        patient: { select: { firstName: true, lastName: true, gender: true, dateOfBirth: true } },
-        charts: true
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+            gender: true,
+            dateOfBirth: true,
+          },
+        },
+        charts: true,
       },
-      orderBy: { date: "desc" }
+      orderBy: { date: "desc" },
     });
 
     const groupedCalculations = calculations.reduce((acc, calc) => {
@@ -32,24 +46,34 @@ export async function GET(request: NextRequest, { params }: { params: { patientI
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { patientId: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { patientId: string } }
+) {
   try {
     const { userId } = getAuth(request);
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const doctor = await prisma.doctor.findUnique({ where: { clerkUserId: userId } });
-    if (!doctor) return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
+    const doctor = await prisma.doctor.findUnique({
+      where: { clerkUserId: userId },
+    });
+    if (!doctor)
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
 
     const { searchParams } = new URL(request.url);
     const calculationId = searchParams.get("calculationId");
 
     if (!calculationId) {
-      return NextResponse.json({ error: "Calculation ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Calculation ID is required" },
+        { status: 400 }
+      );
     }
 
     // First, delete associated charts
     await prisma.chart.deleteMany({
-      where: { calculationId }
+      where: { calculationId },
     });
 
     // Then delete the calculation
@@ -57,8 +81,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { patie
       where: {
         id: calculationId,
         patientId: params.patientId,
-        doctorId: doctor.id
-      }
+        doctorId: doctor.id,
+      },
     });
 
     return NextResponse.json({ success: true });

@@ -77,6 +77,9 @@ interface Calculation {
     };
   };
   patientId: string;
+  charts?: { // Add this optional property
+    pdfUrl?: string;
+  }[];
   patient: {
     firstName: string;
     lastName: string;
@@ -299,8 +302,22 @@ export default function PatientCalculationTable({
             {/* Download Report */}
             <DropdownMenuItem
               onClick={() => {
-                console.log("Download Report", row.original);
-                // TODO: Implement report download functionality
+                // Assuming the PDF URL is stored in the chart
+                const pdfUrl = row.original.charts?.[0]?.pdfUrl;
+
+                if (pdfUrl) {
+                  // Create a temporary anchor element to trigger download
+                  const link = document.createElement("a");
+                  link.href = pdfUrl;
+                  link.download = `calculation_report_${row.original.id}.pdf`;
+                  link.target = "_blank";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                } else {
+                  // Optional: Show a toast or alert that no PDF is available
+                  console.log("No PDF report available for this calculation");
+                }
               }}
             >
               <FileText className="mr-2 h-4 w-4" />

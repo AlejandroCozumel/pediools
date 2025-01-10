@@ -182,31 +182,71 @@ export async function POST(request: NextRequest) {
         // Use transaction for database operations
         const [chart, emailNotification] = await prisma.$transaction(
           async (tx) => {
-            const newChart = await tx.chart.create({
-              data: {
+            // Find the existing chart
+            const existingChart = await tx.chart.findFirst({
+              where: {
+                patientId: patientId,
+                calculationId: chartData.calculationId,
                 type: "GROWTH_CDC",
-                pdfUrl,
-                patient: { connect: { id: patientId } },
-                ...(chartData.calculationId && {
-                  calculation: { connect: { id: chartData.calculationId } },
-                }),
+              },
+              orderBy: {
+                createdAt: "desc",
               },
             });
 
-            const newEmailNotification = await tx.emailNotification.create({
-              data: {
-                type: EmailType.CALCULATION_RESULTS,
-                status: EmailStatus.SENT,
-                pdfUrl,
-                emailSubject,
-                deliveryAttempts: 1,
-                patient: { connect: { id: patientId } },
-                doctor: { connect: { id: doctor.id } },
-                chart: { connect: { id: newChart.id } },
-              },
-            });
+            if (existingChart) {
+              // Update the existing chart
+              const updatedChart = await tx.chart.update({
+                where: {
+                  id: existingChart.id,
+                },
+                data: {
+                  pdfUrl: pdfUrl,
+                },
+              });
 
-            return [newChart, newEmailNotification];
+              const newEmailNotification = await tx.emailNotification.create({
+                data: {
+                  type: EmailType.CALCULATION_RESULTS,
+                  status: EmailStatus.SENT,
+                  pdfUrl,
+                  emailSubject,
+                  deliveryAttempts: 1,
+                  patient: { connect: { id: patientId } },
+                  doctor: { connect: { id: doctor.id } },
+                  chart: { connect: { id: updatedChart.id } },
+                },
+              });
+
+              return [updatedChart, newEmailNotification];
+            } else {
+              // If no existing chart is found, create a new one
+              const newChart = await tx.chart.create({
+                data: {
+                  type: "GROWTH_CDC",
+                  pdfUrl,
+                  patient: { connect: { id: patientId } },
+                  ...(chartData.calculationId && {
+                    calculation: { connect: { id: chartData.calculationId } },
+                  }),
+                },
+              });
+
+              const newEmailNotification = await tx.emailNotification.create({
+                data: {
+                  type: EmailType.CALCULATION_RESULTS,
+                  status: EmailStatus.SENT,
+                  pdfUrl,
+                  emailSubject,
+                  deliveryAttempts: 1,
+                  patient: { connect: { id: patientId } },
+                  doctor: { connect: { id: doctor.id } },
+                  chart: { connect: { id: newChart.id } },
+                },
+              });
+
+              return [newChart, newEmailNotification];
+            }
           }
         );
 

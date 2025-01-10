@@ -10,8 +10,12 @@ export function useCalculations(patientId?: string) {
       const url = patientId
         ? `/api/dashboard/calculations/${patientId}`
         : "/api/dashboard/calculations";
-      const { data } = await axios.get(url);
-      return data;
+        const { data } = await axios.get(url, {
+          params: {
+            includeCharts: true
+          }
+        });
+        return data;
     },
   });
 
