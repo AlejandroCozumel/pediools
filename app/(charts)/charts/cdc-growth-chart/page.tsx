@@ -66,15 +66,13 @@ const Charts = () => {
         <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
           Child Growth Visualization (2-20 years)
         </span>
-        {data && searchParams.get("patientId") && (
-          <div className="flex justify-center mt-2">
-            <SendChartNotification
-              chartData={data}
-              patientId={searchParams.get("patientId")!}
-              chartType="CDC Growth Chart"
-            />
-          </div>
-        )}
+        <div className="flex justify-center mt-2">
+          <SendChartNotification
+            chartData={data}
+            patientId={searchParams.get("patientId")!}
+            chartType="CDC Growth Chart"
+          />
+        </div>
       </div>
 
       <ProgressionTable progressionData={data.progressionData} />

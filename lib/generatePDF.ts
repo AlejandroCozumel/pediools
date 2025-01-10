@@ -18,7 +18,7 @@ interface ChartData {
   originalInput?: {
     weight?: {
       gender?: "male" | "female";
-      dateOfBirth?: string;     // Added this to match
+      dateOfBirth?: string;
     };
     height?: {
       gender?: "male" | "female"

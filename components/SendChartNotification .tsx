@@ -31,11 +31,14 @@ import { captureCharts } from "@/utils/captureCharts";
 
 // Types for progression data
 interface ProgressionData {
+  calculationId: string; // Add this
   date: string;
   age: string;
   weight: string;
   height: string;
   bmi: string;
+  weightPercentile: number; // Add this
+  heightPercentile: number; // Add this
 }
 
 // Types for weight and height data
@@ -60,6 +63,7 @@ interface HeightData {
 
 // Types for the main chart data
 interface ChartData {
+  calculationId: string;
   progressionData: ProgressionData[];
   originalInput: {
     weight: {
@@ -192,6 +196,15 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
   // Mutation for sending notification
   const sendNotification = useMutation({
     mutationFn: async (values: FormData) => {
+      // First capture the charts
+      const chartImages = await captureCharts();
+
+      // Validate that we have charts
+      if (!chartImages || chartImages.length === 0) {
+        throw new Error("No charts found to send.");
+      }
+
+      // Send the request with both values and chart images
       const response = await axios.post(
         "/api/dashboard/email-notifications/send",
         {
@@ -201,6 +214,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
             ...chartData,
             chartType,
           },
+          chartImages, // Add captured charts to the request
         }
       );
       return response.data;
@@ -212,7 +226,14 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
     },
     onError: (error) => {
       console.error("Failed to send notification:", error);
-      toast.error("Failed to send chart. Please try again.");
+      if (
+        error instanceof Error &&
+        error.message === "No charts found to send."
+      ) {
+        toast.error("No charts found to send. Please try again.");
+      } else {
+        toast.error("Failed to send chart. Please try again.");
+      }
     },
   });
 
