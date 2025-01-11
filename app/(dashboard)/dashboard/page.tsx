@@ -1,11 +1,66 @@
+"use client";
 import React from "react";
+import { useDashboardHome } from "@/hooks/use-dashboard";
+import LoaderSpinnner from "@/components/LoaderSpinnner";
 import DashboardStats from "./DashboardStats";
+import PatientQuickActions from "@/components/QuickActions";
+import { Baby, LineChart, MailIcon } from "lucide-react";
+import DashboardTitle from "@/components/DashboardTitle";
 
 const Dashboard = () => {
+  const { data, isLoading, error } = useDashboardHome();
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-medical-600">
+        Something went wrong loading your dashboard.
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <LoaderSpinnner />;
+  }
+
   return (
-    <>
-      <DashboardStats />
-    </>
+    <div className="my-6">
+      <DashboardTitle
+        title="Dashboard"
+        subtitle="Welcome back"
+      />
+      <div className="flex flex-col gap-6">
+        <PatientQuickActions
+          actions={[
+            {
+              link: `/dashboard/patients`,
+              icon: <Baby className="h-8 w-8 text-medical-500" />,
+              title: "Patients",
+              description: "View and manage patient documents",
+              category: "Records",
+            },
+            {
+              link: `/dashboard/calculations`,
+              icon: <LineChart className="h-8 w-8 text-medical-500" />,
+              title: "Calculations",
+              description: "View patient's growth charts and calculations",
+              category: "Graphs",
+            },
+            {
+              link: `/dashboard/notifications`,
+              icon: <MailIcon className="h-8 w-8 text-medical-500" />,
+              title: "Email Notifications",
+              description: "Manage patient email notifications",
+              category: "Notifications",
+            },
+          ]}
+        />
+      </div>
+      <DashboardStats
+        stats={data.stats}
+        recentPatients={data.recentPatients}
+        recentCalculations={data.recentCalculations}
+      />
+    </div>
   );
 };
 
