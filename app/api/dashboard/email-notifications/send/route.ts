@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       emailSubject,
       additionalMessage,
       preview,
+      type,
     } = await request.json();
 
     // Validate chart images
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
         where: {
           patientId,
           calculationId: chartData.calculationId,
-          type: "GROWTH_CDC",
+          type: type,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -159,7 +160,7 @@ export async function POST(request: NextRequest) {
             where: {
               patientId,
               calculationId: calculation.id,
-              type: "GROWTH_CDC",
+              type: type,
             },
           });
 
@@ -173,7 +174,7 @@ export async function POST(request: NextRequest) {
             // Create new chart only if we have both required fields
             chart = await prisma.chart.create({
               data: {
-                type: "GROWTH_CDC",
+                type: type,
                 pdfUrl,
                 patient: { connect: { id: patientId } },
                 calculation: { connect: { id: calculation.id } },

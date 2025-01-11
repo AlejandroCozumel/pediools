@@ -103,6 +103,7 @@ interface SendChartNotificationProps {
   patientId: string;
   chartType?: string;
   className?: string;
+  type?: string;
 }
 
 // Zod schema for form validation
@@ -128,6 +129,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
   patientId,
   chartType = "Growth Chart",
   className = "",
+  type,
 }) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -176,6 +178,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
           emailSubject: formValues.emailSubject,
           additionalMessage: formValues.additionalMessage,
           preview: true,
+          type,
         }
       );
 
@@ -213,6 +216,7 @@ export const SendChartNotification: React.FC<SendChartNotificationProps> = ({
           chartData,
           chartImages,
           preview: false,
+          type,
         }
       );
       return response.data;

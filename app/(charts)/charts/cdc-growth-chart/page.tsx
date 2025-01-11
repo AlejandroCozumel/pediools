@@ -69,6 +69,7 @@ const Charts = () => {
             chartData={data}
             patientId={searchParams.get("patientId")!}
             chartType="CDC Growth Chart"
+            type="GROWTH_CDC"
           />
         </div>
       </div>
