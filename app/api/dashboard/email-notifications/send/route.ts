@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
         html: `
           <p>Dear Patient/Guardian,</p>
           <p>${additionalMessage || ""}</p>
-          <p>You can download your growth chart report using the following link:</p>
+          <p>You can download your report using the following link:</p>
           <p><a href="${pdfUrl}">Download Report</a></p>
           <p>Best regards,<br/>Dr. ${doctor.name} ${doctor.lastName || ""}</p>
         `,

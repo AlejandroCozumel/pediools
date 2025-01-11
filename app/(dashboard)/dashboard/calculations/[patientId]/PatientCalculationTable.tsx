@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -13,7 +12,6 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { useCalculations } from "@/hooks/use-calculations";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DeleteModal } from "@/components/DeleteModal";
 
@@ -53,6 +51,7 @@ import {
   FileText,
   NotebookPen,
 } from "lucide-react";
+import SendEmailReportDialog from "@/components/SendEmailReportDialog";
 
 // Define Calculation type
 interface Calculation {
@@ -78,7 +77,6 @@ interface Calculation {
   };
   patientId: string;
   charts?: {
-    // Add this optional property
     pdfUrl?: string;
   }[];
   patient: {
@@ -86,22 +84,31 @@ interface Calculation {
     lastName: string;
     gender: "male" | "female";
     dateOfBirth: string;
+    email: string | null | undefined;
+    guardianEmail: string | null | undefined;
   };
 }
 
+// Define DeleteCalculation Mutation Type
+interface DeleteCalculationMutation {
+  mutate: (variables: { patientId: string; calculationId: string }) => void;
+}
+
+// Props interface for PatientCalculationTable
 interface PatientCalculationTableProps {
   patientId: string;
   type: string;
   calculations: Calculation[];
+  onDeleteCalculation: DeleteCalculationMutation;
 }
 
 export default function PatientCalculationTable({
   patientId,
   type,
   calculations,
+  onDeleteCalculation,
 }: PatientCalculationTableProps) {
   const router = useRouter();
-  const { deleteCalculation } = useCalculations(patientId);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -111,6 +118,9 @@ export default function PatientCalculationTable({
     open: boolean;
     calculationId: string | null;
   }>({ open: false, calculationId: null });
+  const [emailReportDialogOpen, setEmailReportDialogOpen] = useState(false);
+  const [selectedCalculation, setSelectedCalculation] =
+    useState<Calculation | null>(null);
 
   useEffect(() => {
     setGlobalFilter(debouncedSearchTerm);
@@ -118,7 +128,7 @@ export default function PatientCalculationTable({
 
   const handleDeleteConfirm = () => {
     if (deleteModalState.calculationId) {
-      deleteCalculation.mutate({
+      onDeleteCalculation.mutate({
         patientId,
         calculationId: deleteModalState.calculationId,
       });
@@ -290,8 +300,19 @@ export default function PatientCalculationTable({
             {/* Email Report */}
             <DropdownMenuItem
               onClick={() => {
-                console.log("Email Report", row.original);
-                // TODO: Implement email report functionality
+                const pdfUrl = row.original.charts?.[0]?.pdfUrl;
+                if (pdfUrl) {
+                  // Ensure the calculation is set BEFORE opening the dialog
+                  setSelectedCalculation(row.original);
+
+                  // Use a slight delay to ensure state is updated
+                  setTimeout(() => {
+                    setEmailReportDialogOpen(true);
+                  }, 0);
+                } else {
+                  console.log("No PDF report available for this calculation");
+                  // Optional: Show a toast or alert that no PDF is available
+                }
               }}
             >
               <Send className="mr-2 h-4 w-4" />
@@ -482,6 +503,25 @@ export default function PatientCalculationTable({
         title="Delete Calculation"
         description="Are you sure you want to delete this calculation? This action cannot be undone."
         onConfirmDelete={handleDeleteConfirm}
+      />
+      <SendEmailReportDialog
+        isOpen={emailReportDialogOpen}
+        onClose={() => setEmailReportDialogOpen(false)}
+        chartData={
+          selectedCalculation
+            ? {
+                calculationId: selectedCalculation.id,
+                patientDetails: {
+                  name: `${selectedCalculation.patient.firstName} ${selectedCalculation.patient.lastName}`,
+                  email: selectedCalculation.patient.email ?? null,
+                  guardianEmail:
+                    selectedCalculation.patient.guardianEmail ?? null,
+                },
+              }
+            : null
+        }
+        patientId={patientId}
+        pdfUrl={selectedCalculation?.charts?.[0]?.pdfUrl || ""}
       />
     </>
   );

@@ -26,6 +26,8 @@ export async function GET(
             lastName: true,
             gender: true,
             dateOfBirth: true,
+            email: true, // Add email field
+            guardianEmail: true, // Add guardianEmail field
           },
         },
         charts: true,

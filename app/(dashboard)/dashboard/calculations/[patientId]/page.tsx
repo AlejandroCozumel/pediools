@@ -1,12 +1,12 @@
 "use client";
-
 import React from "react";
-import { useCalculations } from "@/hooks/use-calculations";
+import { UseMutationResult } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import DashboardTitle from "@/components/DashboardTitle";
 import PatientCalculationTable from "./PatientCalculationTable";
 
+// Detailed Calculation interface
 interface Calculation {
   id: string;
   type: string;
@@ -29,20 +29,58 @@ interface Calculation {
     };
   };
   patientId: string;
+  charts?: {
+    pdfUrl?: string;
+  }[];
   patient: {
     firstName: string;
     lastName: string;
     gender: "male" | "female";
     dateOfBirth: string;
+    email: string | null | undefined;
+    guardianEmail: string | null | undefined;
   };
 }
 
+// Interface for delete mutation
+interface DeleteCalculationMutation {
+  mutate: (variables: {
+    patientId: string;
+    calculationId: string
+  }) => void;
+}
+
+// Props interface for PatientCalculationTable
+interface PatientCalculationTableProps {
+  type: string;
+  patientId: string;
+  calculations: Calculation[];
+  onDeleteCalculation?: DeleteCalculationMutation;
+}
+
+// Calculations hook type
+interface CalculationsHookResult {
+  calculations: Record<string, Calculation[]> | undefined;
+  isLoading: boolean;
+  error: Error | null;
+  deleteCalculation: DeleteCalculationMutation;
+}
+
+// Import the hook and other dependencies
+import { useCalculations } from "@/hooks/use-calculations";
+
 const PatientCalculations = () => {
+  // Destructure the calculations hook result
   const params = useParams();
   const patientId = params.patientId as string;
-  const { calculations, isLoading, error, deleteCalculation } =
-    useCalculations(patientId);
+  const {
+    calculations,
+    isLoading,
+    error,
+    deleteCalculation
+  }: CalculationsHookResult = useCalculations(patientId);
 
+  // Error handling
   if (error)
     return (
       <div className="text-center text-medical-600">
@@ -50,8 +88,10 @@ const PatientCalculations = () => {
       </div>
     );
 
+  // Loading state
   if (isLoading) return <LoaderSpinnner />;
 
+  // Main render
   return (
     <div className="my-6">
       <DashboardTitle
@@ -65,6 +105,7 @@ const PatientCalculations = () => {
               type={type}
               patientId={patientId}
               calculations={typeCalculations as Calculation[]}
+              onDeleteCalculation={deleteCalculation}
             />
           </div>
         ))}
