@@ -52,6 +52,7 @@ import {
   NotebookPen,
 } from "lucide-react";
 import SendEmailReportDialog from "@/components/SendEmailReportDialog";
+import { useToast } from "@/hooks/use-toast";
 
 // Define Calculation type
 interface Calculation {
@@ -108,6 +109,7 @@ export default function PatientCalculationTable({
   calculations,
   onDeleteCalculation,
 }: PatientCalculationTableProps) {
+  const { toast } = useToast();
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -128,11 +130,26 @@ export default function PatientCalculationTable({
 
   const handleDeleteConfirm = () => {
     if (deleteModalState.calculationId) {
-      onDeleteCalculation.mutate({
-        patientId,
-        calculationId: deleteModalState.calculationId,
-      });
-      setDeleteModalState({ open: false, calculationId: null });
+      try {
+        onDeleteCalculation.mutate({
+          patientId,
+          calculationId: deleteModalState.calculationId,
+        });
+
+        toast({
+          title: "Calculation Deleted",
+          description: "The calculation has been successfully removed.",
+          variant: "default",
+        });
+
+        setDeleteModalState({ open: false, calculationId: null });
+      } catch (error) {
+        toast({
+          title: "Delete Failed",
+          description: "Unable to delete the calculation. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -310,8 +327,11 @@ export default function PatientCalculationTable({
                     setEmailReportDialogOpen(true);
                   }, 0);
                 } else {
-                  console.log("No PDF report available for this calculation");
-                  // Optional: Show a toast or alert that no PDF is available
+                  toast({
+                    title: "There is no PDF created for this calculation.",
+                    description: "Go to 'View Chart' and generate a preview",
+                    variant: "destructive",
+                  });
                 }
               }}
             >
@@ -337,7 +357,11 @@ export default function PatientCalculationTable({
                   document.body.removeChild(link);
                 } else {
                   // Optional: Show a toast or alert that no PDF is available
-                  console.log("No PDF report available for this calculation");
+                  toast({
+                    title: "There is no PDF created for this calculation.",
+                    description: "Go to 'View Chart' and generate a preview",
+                    variant: "destructive",
+                  });
                 }
               }}
             >

@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import DashboardTitle from "@/components/DashboardTitle";

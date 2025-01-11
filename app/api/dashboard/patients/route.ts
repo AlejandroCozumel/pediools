@@ -2,6 +2,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prismadb";
+import { startOfMonth, subMonths, endOfMonth } from 'date-fns';
 
 // Define types for better type safety
 type PatientFromDB = {
@@ -98,18 +99,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
-    const formattedPatients = doctor.patients.map((patient) => ({
-      id: patient.id,
-      firstName: patient.firstName,
-      lastName: patient.lastName,
-      dateOfBirth: patient.dateOfBirth.toISOString(),
-      gender: patient.gender,
-      lastCalculation: patient.calculations[0]?.date.toISOString() || null,
-      lastVisit: patient.updatedAt.toISOString(),
-      status: "Active", // Or implement your status logic
-    }));
+    // Calculate statistics
+    const totalPatients = doctor.patients.length;
+    const patientsWithCalculations = doctor.patients.filter(patient => patient.calculations.length > 0).length;
+    const newPatientsThisMonth = await prisma.patient.count({
+      where: {
+        doctorId: doctor.id,
+        createdAt: {
+          gte: startOfMonth(new Date()),
+        },
+      },
+    });
 
-    return NextResponse.json(formattedPatients);
+    const newPatientsLastMonth = await prisma.patient.count({
+      where: {
+        doctorId: doctor.id,
+        createdAt: {
+          gte: startOfMonth(subMonths(new Date(), 1)),
+          lte: endOfMonth(subMonths(new Date(), 1)),
+        },
+      },
+    });
+
+    return NextResponse.json({
+      patients: doctor.patients.map((patient) => ({
+        id: patient.id,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        dateOfBirth: patient.dateOfBirth.toISOString(),
+        gender: patient.gender,
+        lastCalculation: patient.calculations[0]?.date.toISOString() || null,
+        lastVisit: patient.updatedAt.toISOString(),
+        status: "Active", // Or implement your status logic
+      })),
+      totalPatients,
+      patientsWithCalculations,
+      newPatientsThisMonth,
+      newPatientsLastMonth,
+    });
   } catch (error) {
     console.error("[PATIENTS_GET]", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

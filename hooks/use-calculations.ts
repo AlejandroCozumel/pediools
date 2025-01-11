@@ -16,6 +16,7 @@ export function useCalculations(patientId?: string) {
           }
         });
         return data;
+
     },
   });
 

@@ -91,9 +91,15 @@ export function usePatients() {
       const { data } = await axios.get("/api/dashboard/patients");
       return data;
     },
-    select: (patients) => patients.map((patient: PatientData) => ({
-      ...patient,
-    })),
+    select: (data) => ({
+      patients: data.patients.map((patient: PatientData) => ({
+        ...patient,
+      })),
+      totalPatients: data.totalPatients,
+      patientsWithCalculations: data.patientsWithCalculations,
+      newPatientsThisMonth: data.newPatientsThisMonth,
+      newPatientsLastMonth: data.newPatientsLastMonth,
+    }),
   });
 }
 
