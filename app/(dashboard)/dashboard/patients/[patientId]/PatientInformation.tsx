@@ -1,32 +1,74 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import {
-  Users,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  HeartPulse,
-  UserCheck,
-  Stethoscope,
-  FileText,
-  LineChart,
-} from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { PatientData, patientSchema } from "@/hooks/use-patient";
+import { motion, AnimatePresence } from "framer-motion";
+import PersonalInfoTab from "./PersonalInfoTab";
+import ContactInfoTab from "./ContactInfoTab";
+import MedicalInfoTab from "./MedicalInfoTab";
+import GuardianInfoTab from "./GuardianInfoTab";
 
 interface PatientInformationProps {
-  patient: any;
+  patient: PatientData;
+  savePatient: any;
 }
 
-const PatientInformation: React.FC<PatientInformationProps> = ({ patient }) => {
+const tabContentVariants = {
+  initial: {
+    opacity: 0,
+  },
+  enter: {
+    opacity: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.76, 0, 0.24, 1],
+    },
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.76, 0, 0.24, 1],
+    },
+  },
+};
 
-  const params = useParams();
-  const patientId = params.patientId as string;
+const PatientInformation = ({
+  patient,
+  savePatient,
+}: PatientInformationProps) => {
+  const { toast } = useToast();
+  const form = useForm<PatientData>({
+    resolver: zodResolver(patientSchema),
+    defaultValues: patient,
+  });
+
+  const handleSectionSave = async (
+    sectionData: Partial<PatientData>,
+    section: string
+  ) => {
+    try {
+      await savePatient.mutateAsync(sectionData);
+
+      toast({
+        title: "Changes saved",
+        description: `${section} information updated successfully.`,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error saving changes",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  };
 
   const calculateAge = (birthDate: string) => {
     const birth = new Date(birthDate);
@@ -41,169 +83,115 @@ const PatientInformation: React.FC<PatientInformationProps> = ({ patient }) => {
 
   return (
     <div className="container mx-auto my-6 px-4">
-      {/* Header Section */}
-      <div className="mb-8 space-y-3">
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
-            {patient.patientName} {patient.lastName}
-          </h1>
-          <div className="flex items-center space-x-2">
-            <Link href={`/dashboard/patients/${patientId}/edit`}>
-              <Button
-                variant="outline"
-                className="border-medical-200 text-medical-700"
-              >
-                Edit Patient
-              </Button>
-            </Link>
-            <Badge
-              variant="outline"
-              className={
-                patient.status === "Active"
-                  ? "border-green-200 text-green-700 bg-green-50"
-                  : "border-medical-pink-200 text-medical-pink-700 bg-medical-pink-50"
-              }
-            >
-              {patient.status || "Unknown Status"}
-            </Badge>
+      {/* Header */}
+      <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex justify-between items-center"
+        >
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
+              {patient.firstName} {patient.lastName}
+            </h1>
+            <p className="text-medical-600 mt-2">
+              {patient.dateOfBirth && calculateAge(patient.dateOfBirth)} •{" "}
+              {patient.gender}
+            </p>
           </div>
-        </div>
-        <p className="text-medical-600 text-lg leading-relaxed">
-          Patient Details and Medical Information
-        </p>
+          <Badge
+            variant="outline"
+            className={
+              patient.status === "Active"
+                ? "border-green-200 text-green-700 bg-green-50"
+                : "border-medical-200 text-medical-700"
+            }
+          >
+            {patient.status || "Unknown Status"}
+          </Badge>
+        </motion.div>
       </div>
 
-      {/* Personal Information Card */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border-medical-100">
-          <CardHeader>
-            <CardTitle className="flex items-center text-medical-900">
-              <Users className="mr-2 h-5 w-5 text-medical-500" />
-              Personal Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-medical-600">First Name</p>
-              <p className="font-medium">{patient.firstName || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Last Name</p>
-              <p className="font-medium">{patient.lastName || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Date of Birth</p>
-              <p className="font-medium">
-                {patient.dateOfBirth
-                  ? `${new Date(
-                      patient.dateOfBirth
-                    ).toLocaleDateString()} (${calculateAge(
-                      patient.dateOfBirth
-                    )})`
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Gender</p>
-              <p className="font-medium">{patient.gender || "N/A"}</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Form with Tabs */}
+      <Form {...form}>
+        <Tabs defaultValue="personal" className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <TabsList>
+              <TabsTrigger value="personal">Personal</TabsTrigger>
+              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="medical">Medical</TabsTrigger>
+              <TabsTrigger value="guardian">Guardian</TabsTrigger>
+            </TabsList>
+          </motion.div>
 
-        {/* Contact Information Card */}
-        <Card className="border-medical-100">
-          <CardHeader>
-            <CardTitle className="flex items-center text-medical-900">
-              <Mail className="mr-2 h-5 w-5 text-medical-500" />
-              Contact Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-medical-600">Email</p>
-              <p className="font-medium">{patient.email || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Phone Number</p>
-              <p className="font-medium">{patient.phoneNumber || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Address</p>
-              <p className="font-medium">
-                {patient.address
-                  ? `${patient.address}, ${patient.city || ""} ${
-                      patient.state || ""
-                    }`
-                  : "N/A"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          <AnimatePresence>
+            <TabsContent key="personal" value="personal" asChild>
+              <motion.div
+                variants={tabContentVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+              >
+                <PersonalInfoTab
+                  form={form}
+                  onSave={handleSectionSave}
+                  isLoading={savePatient?.isPending || false}
+                />
+              </motion.div>
+            </TabsContent>
 
-        {/* Medical Information Card */}
-        <Card className="border-medical-100">
-          <CardHeader>
-            <CardTitle className="flex items-center text-medical-900">
-              <Stethoscope className="mr-2 h-5 w-5 text-medical-500" />
-              Medical Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-medical-600">Blood Type</p>
-              <p className="font-medium">{patient.bloodType || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Allergies</p>
-              <p className="font-medium">{patient.allergies || "None"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Medications</p>
-              <p className="font-medium">{patient.medications || "None"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-medical-600">Medical Notes</p>
-              <p className="font-medium">
-                {patient.medicalNotes || "No notes"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            <TabsContent key="contact" value="contact" asChild>
+              <motion.div
+                variants={tabContentVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+              >
+                <ContactInfoTab
+                  form={form}
+                  onSave={handleSectionSave}
+                  isLoading={savePatient?.isPending || false}
+                />
+              </motion.div>
+            </TabsContent>
 
-        {/* Guardian Information Card */}
-        {(patient.guardianName ||
-          patient.guardianPhone ||
-          patient.guardianEmail) && (
-          <Card className="border-medical-100">
-            <CardHeader>
-              <CardTitle className="flex items-center text-medical-900">
-                <UserCheck className="mr-2 h-5 w-5 text-medical-500" />
-                Guardian Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-medical-600">Guardian Name</p>
-                <p className="font-medium">{patient.guardianName || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-medical-600">Relation</p>
-                <p className="font-medium">
-                  {patient.guardianRelation || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-medical-600">Guardian Phone</p>
-                <p className="font-medium">{patient.guardianPhone || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-medical-600">Guardian Email</p>
-                <p className="font-medium">{patient.guardianEmail || "N/A"}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            <TabsContent key="medical" value="medical" asChild>
+              <motion.div
+                variants={tabContentVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+              >
+                <MedicalInfoTab
+                  form={form}
+                  onSave={handleSectionSave}
+                  isLoading={savePatient?.isPending || false}
+                />
+              </motion.div>
+            </TabsContent>
+
+            <TabsContent key="guardian" value="guardian" asChild>
+              <motion.div
+                variants={tabContentVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+              >
+                <GuardianInfoTab
+                  form={form}
+                  onSave={handleSectionSave}
+                  isLoading={savePatient?.isPending || false}
+                />
+              </motion.div>
+            </TabsContent>
+          </AnimatePresence>
+        </Tabs>
+      </Form>
     </div>
   );
 };

@@ -48,7 +48,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       <div className="grid grid-cols-1 gap-6">
         {/* Recent Patients */}
         <Card className="border-medical-100">
-          <CardHeader className="!pb-0">
+          <CardHeader className="lg:!pb-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-heading text-medical-900">
                 Recent Patients
@@ -101,7 +101,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
 
         {/* Recent Calculations */}
         <Card className="border-medical-100">
-          <CardHeader className="!pb-0">
+          <CardHeader className="lg:!pb-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-heading text-medical-900">
                 Recent Calculations

@@ -4,7 +4,6 @@ import { usePatient } from "@/hooks/use-patient";
 import { useParams } from "next/navigation";
 import LoaderSpinner from "@/components/LoaderSpinnner";
 import PatientInformation from "./PatientInformation";
-import CalculationTable from "@/app/(dashboard)/dashboard/calculations/CalculationTable";
 
 const Patient = () => {
   const params = useParams();
@@ -14,7 +13,9 @@ const Patient = () => {
     patient,
     isLoading: isPatientLoading,
     isError: isPatientError,
+    savePatient, // Get the savePatient mutation from the hook
   } = usePatient(patientId);
+
   if (isPatientError) {
     return (
       <div className="flex items-center justify-center min-h-screen text-medical-600">
@@ -33,9 +34,11 @@ const Patient = () => {
   }
 
   return (
-    <div>
-      <CalculationTable calculations={patient} patientId={patientId} />
-      <PatientInformation patient={patient?.[0]?.patient} />
+    <div className="max-w-5xl mx-auto">
+      <PatientInformation
+        patient={patient}
+        savePatient={savePatient} // Pass the mutation to the component
+      />
     </div>
   );
 };
