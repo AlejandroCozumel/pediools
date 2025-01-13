@@ -164,7 +164,7 @@ const AddMedicalConsultationForm = ({
       consultationDate: new Date(),
       status: "SCHEDULED",
       prescribedMedications: [{ name: "" }],
-      recommendedStudies: [{ type: "BLOOD_TEST" }],
+      recommendedStudies: [{ type: "Blood test" }],
     },
   });
 
@@ -511,7 +511,7 @@ const AddMedicalConsultationForm = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => appendStudy({ type: "BLOOD_TEST" })}
+                    onClick={() => appendStudy({ type: "Blood test" })}
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
