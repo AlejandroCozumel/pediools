@@ -545,16 +545,12 @@ const AddMedicalConsultationForm = ({
                     />
 
                     {/* Remove Button */}
-                    <div className="flex flex-col justify-end h-full">
-                      <FormLabel className="text-medical-700 invisible">
-                        Action
-                      </FormLabel>
+                    <div className="flex flex-col justify-start h-full pt-0 md:pt-6">
                       <Button
                         type="button"
                         variant="destructive"
                         size="icon"
                         onClick={() => removeMedication(index)}
-                        className="mt-2"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -613,7 +609,7 @@ const AddMedicalConsultationForm = ({
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                        value={field.value || undefined}
+                            value={field.value || undefined}
                           >
                             <FormControl>
                               <SelectTrigger
@@ -670,16 +666,12 @@ const AddMedicalConsultationForm = ({
                     />
 
                     {/* Remove Button with proper alignment */}
-                    <div className="flex flex-col justify-end h-full">
-                      <FormLabel className="text-medical-700 invisible">
-                        Action
-                      </FormLabel>
+                    <div className="flex flex-col justify-start h-full pt-0 md:pt-6">
                       <Button
                         type="button"
                         variant="destructive"
                         size="icon"
                         onClick={() => removeStudy(index)}
-                        className="mt-2"
                       >
                         <X className="h-4 w-4" />
                       </Button>
