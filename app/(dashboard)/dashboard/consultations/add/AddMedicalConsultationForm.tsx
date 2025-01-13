@@ -53,10 +53,10 @@ import PatientSelectorConsultation from "@/components/premium/PatientSelectorCon
 
 // Consultation Status Enum
 const ConsultationStatusEnum = [
-  "SCHEDULED",
-  "IN_PROGRESS",
-  "COMPLETED",
-  "FOLLOW_UP_NEEDED",
+  "Scheduled",
+  "In progress",
+  "Completed",
+  "Follow up needed",
 ] as const;
 
 // Medication Frequency Options
@@ -115,8 +115,12 @@ const medicalConsultationSchema = z.object({
     .array(
       z.object({
         name: z.string().min(1, "Medication name is required"),
-        dosage: z.string().optional(),
-        frequency: z.enum(MedicationFrequencyEnum).optional(),
+        dosage: z.string().min(1, "Dosage is required"), // Made required
+        frequency: z
+          .enum(MedicationFrequencyEnum, {
+            required_error: "Frequency is required",
+          })
+          .nullable(),
         duration: z.string().optional(),
         instructions: z.string().optional(),
       })
@@ -127,10 +131,12 @@ const medicalConsultationSchema = z.object({
   recommendedStudies: z
     .array(
       z.object({
-        type: z.enum(StudyTypeEnum, {
-          required_error: "Study type is required",
-        }),
-        reason: z.string().optional(),
+        type: z
+          .enum(StudyTypeEnum, {
+            required_error: "Study type is required",
+          })
+          .nullable(),
+        reason: z.string().min(1, "Reason for study is required"), // Made required
         additionalNotes: z.string().optional(),
       })
     )
@@ -162,9 +168,20 @@ const AddMedicalConsultationForm = ({
     defaultValues: {
       patientId: initialPatientId || selectedPatient?.id || "",
       consultationDate: new Date(),
-      status: "SCHEDULED",
-      prescribedMedications: [{ name: "" }],
-      recommendedStudies: [{ type: "Blood test" }],
+      status: "Scheduled",
+      prescribedMedications: [
+        {
+          name: "",
+          dosage: "",
+          frequency: null,
+        },
+      ],
+      recommendedStudies: [
+        {
+          type: null,
+          reason: "",
+        },
+      ],
     },
   });
 
@@ -255,7 +272,7 @@ const AddMedicalConsultationForm = ({
                   Record patient consultation details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 lg:pt-0">
                 {/* Consultation Date and Status */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Consultation Date */}
@@ -263,7 +280,7 @@ const AddMedicalConsultationForm = ({
                     control={form.control}
                     name="consultationDate"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Consultation Date
                         </FormLabel>
@@ -272,12 +289,18 @@ const AddMedicalConsultationForm = ({
                             <FormControl>
                               <Button
                                 variant="outline"
-                                className="w-full pl-3 text-left font-normal border-medical-200"
+                                className={`w-full pl-3 text-left font-normal ${
+                                  form.formState.errors.consultationDate
+                                    ? "border-red-500"
+                                    : "border-medical-200"
+                                }`}
                               >
                                 {field.value ? (
                                   format(field.value, "PPP")
                                 ) : (
-                                  <span>Pick a date</span>
+                                  <span className="text-muted-foreground">
+                                    Pick a date
+                                  </span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -293,7 +316,7 @@ const AddMedicalConsultationForm = ({
                             />
                           </PopoverContent>
                         </Popover>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
@@ -303,7 +326,7 @@ const AddMedicalConsultationForm = ({
                     control={form.control}
                     name="status"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Consultation Status
                         </FormLabel>
@@ -312,7 +335,15 @@ const AddMedicalConsultationForm = ({
                           value={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="border-medical-200">
+                            <SelectTrigger
+                              className={`
+              ${
+                form.formState.errors.status
+                  ? "border-red-500"
+                  : "border-medical-200"
+              }
+            `}
+                            >
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                           </FormControl>
@@ -324,7 +355,7 @@ const AddMedicalConsultationForm = ({
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
@@ -336,18 +367,24 @@ const AddMedicalConsultationForm = ({
                     control={form.control}
                     name="consultationMotive"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Consultation Motive
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Reason for consultation"
-                            className="border-medical-200"
+                            className={`
+              ${
+                form.formState.errors.consultationMotive
+                  ? "border-red-500"
+                  : "border-medical-200"
+              }
+            `}
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
@@ -355,18 +392,22 @@ const AddMedicalConsultationForm = ({
                     control={form.control}
                     name="presentedSymptoms"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Presented Symptoms
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Describe patient's symptoms"
-                            className="border-medical-200 min-h-[100px]"
+                            className={`min-h-[100px] resize-none ${
+                              form.formState.errors.presentedSymptoms
+                                ? "border-red-500"
+                                : "border-medical-200"
+                            }`}
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
@@ -388,7 +429,13 @@ const AddMedicalConsultationForm = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => appendMedication({ name: "" })}
+                    onClick={() =>
+                      appendMedication({
+                        name: "",
+                        dosage: "",
+                        frequency: null,
+                      })
+                    }
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
@@ -396,29 +443,36 @@ const AddMedicalConsultationForm = ({
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 lg:pt-0">
                 {medicationFields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center"
+                    className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-start"
                   >
                     {/* Medication Name */}
                     <FormField
                       control={form.control}
                       name={`prescribedMedications.${index}.name`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col space-y-2">
                           <FormLabel className="text-medical-700">
                             Medication Name
+                            <span className="text-red-500 ml-1">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Medication name"
-                              className="border-medical-200"
+                              className={`${
+                                form.formState.errors?.prescribedMedications?.[
+                                  index
+                                ]?.name
+                                  ? "border-red-500"
+                                  : "border-medical-200"
+                              }`}
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -428,18 +482,25 @@ const AddMedicalConsultationForm = ({
                       control={form.control}
                       name={`prescribedMedications.${index}.dosage`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col space-y-2">
                           <FormLabel className="text-medical-700">
                             Dosage
+                            <span className="text-red-500 ml-1">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="e.g., 500mg"
-                              className="border-medical-200"
+                              className={`${
+                                form.formState.errors?.prescribedMedications?.[
+                                  index
+                                ]?.dosage
+                                  ? "border-red-500"
+                                  : "border-medical-200"
+                              }`}
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -449,17 +510,25 @@ const AddMedicalConsultationForm = ({
                       control={form.control}
                       name={`prescribedMedications.${index}.frequency`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col space-y-2">
                           <FormLabel className="text-medical-700">
                             Frequency
+                            <span className="text-red-500 ml-1">*</span>
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value}
+                            value={field.value || undefined}
                           >
                             <FormControl>
-                              <SelectTrigger className="border-medical-200">
-                                <SelectValue placeholder="Frequency" />
+                              <SelectTrigger
+                                className={`${
+                                  form.formState.errors
+                                    ?.prescribedMedications?.[index]?.frequency
+                                    ? "border-red-500"
+                                    : "border-medical-200"
+                                }`}
+                              >
+                                <SelectValue placeholder="Select frequency" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -470,19 +539,22 @@ const AddMedicalConsultationForm = ({
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
 
                     {/* Remove Button */}
-                    <div className="flex items-end">
+                    <div className="flex flex-col justify-end h-full">
+                      <FormLabel className="text-medical-700 invisible">
+                        Action
+                      </FormLabel>
                       <Button
                         type="button"
                         variant="destructive"
                         size="icon"
                         onClick={() => removeMedication(index)}
-                        className="mt-6"
+                        className="mt-2"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -497,7 +569,6 @@ const AddMedicalConsultationForm = ({
               </CardContent>
             </Card>
 
-            {/* Recommended Studies */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -511,7 +582,12 @@ const AddMedicalConsultationForm = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => appendStudy({ type: "Blood test" })}
+                    onClick={() =>
+                      appendStudy({
+                        type: null,
+                        reason: "",
+                      })
+                    }
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
@@ -519,27 +595,36 @@ const AddMedicalConsultationForm = ({
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 lg:pt-0">
                 {studyFields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center"
+                    className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-4 items-start"
                   >
                     {/* Study Type */}
                     <FormField
                       control={form.control}
                       name={`recommendedStudies.${index}.type`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col space-y-2">
                           <FormLabel className="text-medical-700">
                             Study Type
+                            <span className="text-red-500 ml-1">*</span>
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value}
+                        value={field.value || undefined}
                           >
                             <FormControl>
-                              <SelectTrigger className="border-medical-200">
+                              <SelectTrigger
+                                className={`${
+                                  form.formState.errors?.recommendedStudies?.[
+                                    index
+                                  ]?.type
+                                    ? "border-red-500"
+                                    : "border-medical-200"
+                                }`}
+                              >
                                 <SelectValue placeholder="Select study type" />
                               </SelectTrigger>
                             </FormControl>
@@ -551,7 +636,7 @@ const AddMedicalConsultationForm = ({
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -561,30 +646,40 @@ const AddMedicalConsultationForm = ({
                       control={form.control}
                       name={`recommendedStudies.${index}.reason`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col space-y-2">
                           <FormLabel className="text-medical-700">
                             Reason for Study
+                            <span className="text-red-500 ml-1">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Reason for recommended study"
-                              className="border-medical-200"
+                              className={`${
+                                form.formState.errors?.recommendedStudies?.[
+                                  index
+                                ]?.reason
+                                  ? "border-red-500"
+                                  : "border-medical-200"
+                              }`}
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
 
-                    {/* Remove Button */}
-                    <div className="flex items-end">
+                    {/* Remove Button with proper alignment */}
+                    <div className="flex flex-col justify-end h-full">
+                      <FormLabel className="text-medical-700 invisible">
+                        Action
+                      </FormLabel>
                       <Button
                         type="button"
                         variant="destructive"
                         size="icon"
                         onClick={() => removeStudy(index)}
-                        className="mt-6"
+                        className="mt-2"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -612,7 +707,7 @@ const AddMedicalConsultationForm = ({
                   Next steps and follow-up instructions
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 lg:pt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Follow-up Date */}
                   <FormField
@@ -691,7 +786,7 @@ const AddMedicalConsultationForm = ({
                   Any additional remarks or observations
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="lg:pt-0">
                 <FormField
                   control={form.control}
                   name="additionalNotes"
