@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/routing";
 import {
   DropdownMenu,
@@ -28,10 +28,12 @@ const LanguageSwitcher: React.FC = () => {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const t = useTranslations("LanguageSwitcher");
 
   const handleLanguageChange = (newLocale: string) => {
-    router.push(pathname, { locale: newLocale });
+    // Use replace instead of push to prevent adding a new history entry
+    router.replace(pathname, {
+      locale: newLocale
+    });
   };
 
   const getLanguageInfo = (langCode: string) => {
