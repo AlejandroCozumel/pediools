@@ -30,23 +30,17 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    console.log('Current pathname:', pathname);
-    console.log('Current locale:', locale);
-    console.log('New locale:', newLocale);
-
     // Remove the current locale prefix if present
     const cleanPathname = pathname.startsWith(`/${locale}`)
       ? pathname.slice(`/${locale}`.length)
       : pathname;
 
-    console.log('Clean pathname:', cleanPathname);
-
     // Ensure we always have a path (use root if empty)
-    const destinationPath = cleanPathname || '/';
+    const destinationPath = cleanPathname || "/";
 
     // Replace with the new locale
     router.replace(destinationPath, {
-      locale: newLocale
+      locale: newLocale,
     });
   };
 
@@ -74,21 +68,23 @@ const LanguageSwitcher: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {languages.filter(lang => lang.code !== locale).map((lang) => {
-          const langInfo = getLanguageInfo(lang.code);
-          return (
-            <DropdownMenuItem
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className="flex items-center justify-between"
-            >
-              <div className="flex items-center">
-                <langInfo.FlagIcon className="w-5 h-5 mr-2" />
-                <span>{langInfo.name}</span>
-              </div>
-            </DropdownMenuItem>
-          );
-        })}
+        {languages
+          .filter((lang) => lang.code !== locale)
+          .map((lang) => {
+            const langInfo = getLanguageInfo(lang.code);
+            return (
+              <DropdownMenuItem
+                key={lang.code}
+                onClick={() => handleLanguageChange(lang.code)}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center">
+                  <langInfo.FlagIcon className="w-5 h-5 mr-2" />
+                  <span>{langInfo.name}</span>
+                </div>
+              </DropdownMenuItem>
+            );
+          })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
