@@ -30,13 +30,9 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    // If current route is root or doesn't have a locale prefix,
-    // use the root path for the new locale
-    const cleanPathname = pathname.startsWith(`/${locale}`)
-      ? pathname.slice(`/${locale}`.length)
-      : pathname;
+    // Use replace instead of push to prevent adding a new history entry
 
-    router.replace(cleanPathname || '/', {
+    router.replace(pathname, {
       locale: newLocale
     });
   };
@@ -69,6 +65,7 @@ const LanguageSwitcher: React.FC = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         {languages.map((lang) => {
+          console.log(lang.code)
           const langInfo = getLanguageInfo(lang.code);
           return (
             <DropdownMenuItem
