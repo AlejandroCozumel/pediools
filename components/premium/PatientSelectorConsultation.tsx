@@ -28,7 +28,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePremiumStore } from "@/stores/premiumStore";
 import { UseFormReturn } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { MedicalConsultationData } from "@/app/[locale]/(dashboard)/dashboard/consultations/add/AddMedicalConsultationForm";
+import { MedicalConsultationData } from "@/app/[locale]/(dashboard)/dashboard/appointments/add/AddMedicalConsultationForm";
 
 interface ConsultationPatient {
   id: string;

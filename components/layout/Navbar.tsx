@@ -1,5 +1,4 @@
 "use client";
-
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { Menu, ChevronRight } from "lucide-react";
@@ -8,46 +7,43 @@ import { usePremiumStore } from "@/stores/premiumStore";
 import UserMenu from "./UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-// Navigation Items Configuration
 const navigationItems = [
   {
-    text: "Solutions",
-    href: "/solutions",
+    text: "Premium",
+    href: "/premium",
     premiumOnly: false,
     mobileOrder: 1,
   },
   {
-    text: "Community",
-    href: "/community",
-    premiumOnly: false,
+    text: "Dashboard",
+    href: "/dashboard",
+    premiumOnly: true,
     mobileOrder: 2,
   },
   {
-    text: "Pricing",
-    href: "/pricing",
-    premiumOnly: false,
+    text: "Patients",
+    href: "/dashboard/patients",
+    premiumOnly: true,
     mobileOrder: 3,
   },
   {
-    text: "Analytics",
-    href: "/analytics",
+    text: "Appointments",
+    href: "/dashboard/appointments",
     premiumOnly: true,
     mobileOrder: 4,
   },
   {
-    text: "Advanced Reports",
-    href: "/reports",
+    text: "Calculations",
+    href: "/dashboard/calculations",
     premiumOnly: true,
     mobileOrder: 5,
   },
 ];
 
-// Interfaces
 interface NavLeftProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// Logo Component
 const Logo: React.FC = () => {
   return (
     <svg
@@ -70,7 +66,6 @@ const Logo: React.FC = () => {
   );
 };
 
-// NavLink Component
 const NavLink: React.FC<{
   text: string;
   href: string;
@@ -93,14 +88,13 @@ const NavLink: React.FC<{
   );
 };
 
-// Navbar Component
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isPremium } = usePremiumStore();
 
-  // Filter navigation items based on premium status
+  // Updated filtering logic
   const visibleNavItems = navigationItems.filter(
-    (item) => !item.premiumOnly || isPremium
+    (item) => isPremium ? item.premiumOnly : !item.premiumOnly
   );
 
   return (
@@ -116,15 +110,12 @@ const Navbar: React.FC = () => {
   );
 };
 
-// NavLeft Component
-const NavLeft: React.FC<{
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ setIsOpen }) => {
+const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
   const { isPremium } = usePremiumStore();
 
-  // Filter navigation items based on premium status
+  // Updated filtering logic
   const visibleNavItems = navigationItems.filter(
-    (item) => !item.premiumOnly || isPremium
+    (item) => isPremium ? item.premiumOnly : !item.premiumOnly
   );
 
   return (
@@ -145,14 +136,12 @@ const NavLeft: React.FC<{
           key={item.text}
           text={item.text}
           href={item.href}
-          isPremium={isPremium && item.premiumOnly}
         />
       ))}
     </div>
   );
 };
 
-// NavRight Component
 const NavRight: React.FC = () => {
   return (
     <div className="flex items-center gap-4">
@@ -162,7 +151,6 @@ const NavRight: React.FC = () => {
   );
 };
 
-// NavMenu Component
 const NavMenu: React.FC<{
   isOpen: boolean;
   isPremium: boolean;
@@ -182,14 +170,12 @@ const NavMenu: React.FC<{
             key={item.text}
             text={item.text}
             href={item.href}
-            isPremium={isPremium && item.premiumOnly}
           />
         ))}
     </motion.div>
   );
 };
 
-// MenuLink Component
 const MenuLink: React.FC<{
   text: string;
   href: string;
@@ -215,7 +201,6 @@ const MenuLink: React.FC<{
   );
 };
 
-// Animation Variants
 const menuVariants = {
   open: {
     scaleY: 1,
