@@ -29,7 +29,7 @@ const LanguageSwitcher: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-  onst handleLanguageChange = (newLocale: string) => {
+  const handleLanguageChange = (newLocale: string) => {
     console.log('Current pathname:', pathname);
     console.log('Current locale:', locale);
     console.log('New locale:', newLocale);
