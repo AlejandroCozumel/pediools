@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import * as countryFlags from "country-flag-icons/react/3x2";
 
 // Define an interface for language configuration
@@ -30,30 +30,11 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    console.log('Current pathname:', pathname);
-    console.log('Current locale:', locale);
-    console.log('New locale:', newLocale);
-
-    // Remove the current locale prefix if present
-    const cleanPathname = pathname.startsWith(`/${locale}/`)
-      ? pathname.slice(`/${locale}/`.length)
-      : (pathname.startsWith(`/${locale}`)
-        ? pathname.slice(`/${locale}`.length) || '/'
-        : pathname);
-
-    console.log('Clean pathname:', cleanPathname);
-
-    // Ensure the destination path starts with the new locale
-    const destinationPath = cleanPathname === '/'
-      ? `/${newLocale}`
-      : `/${newLocale}/${cleanPathname.replace(/^\//, '')}`;
-
-    console.log('Destination path:', destinationPath);
-
-    // Replace with the new locale
-    router.replace(destinationPath, {
-      locale: newLocale
-    });
+    if (pathname === '/' || pathname === '') {
+      router.replace('/', { locale: newLocale });
+    } else {
+      router.replace(pathname, { locale: newLocale });
+    }
   };
 
   const getLanguageInfo = (langCode: string) => {
