@@ -30,17 +30,18 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    // Remove the current locale prefix if present
-    const cleanPathname = pathname.startsWith(`/${locale}`)
-      ? pathname.slice(`/${locale}`.length)
-      : pathname;
+    console.log('Current pathname:', pathname);
+    console.log('Current locale:', locale);
+    console.log('New locale:', newLocale);
 
-    // Ensure we always have a path (use root if empty)
-    const destinationPath = cleanPathname || "/";
+    // If pathname is root or empty, use explicit root path
+    const destinationPath = pathname === '/' || pathname === '' ? '/' : pathname;
+
+    console.log('Destination path:', destinationPath);
 
     // Replace with the new locale
     router.replace(destinationPath, {
-      locale: newLocale,
+      locale: newLocale
     });
   };
 
