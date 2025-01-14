@@ -53,10 +53,10 @@ import PatientSelectorConsultation from "@/components/premium/PatientSelectorCon
 
 // Consultation Status Enum
 const ConsultationStatusEnum = [
-  "Scheduled",
-  "In progress",
-  "Completed",
-  "Follow up needed",
+  "SCHEDULED",
+  "COMPLETED",
+  "CANCELLED",
+  "NO_SHOW",
 ] as const;
 
 // Medication Frequency Options
@@ -99,16 +99,16 @@ const medicalConsultationSchema = z.object({
   }),
 
   // Consultation Specifics
-  consultationMotive: z.string().optional(),
-  presentedSymptoms: z.string().optional(),
+  consultationMotive: z.string().min(1, "Consultation motive is required"),
+  presentedSymptoms: z.string().min(1, "Presented Symptoms is required"),
 
   // Medical Assessment
   initialObservations: z.string().optional(),
   physicalExamFindings: z.string().optional(),
 
   // Diagnostic Information
-  preliminaryDiagnosis: z.string().optional(),
-  differentialDiagnosis: z.string().optional(),
+  diagnoses: z.string().optional(),
+  diagnosticNotes: z.string().optional(),
 
   // Treatment Plan
   prescribedMedications: z
@@ -168,7 +168,7 @@ const AddMedicalConsultationForm = ({
     defaultValues: {
       patientId: initialPatientId || selectedPatient?.id || "",
       consultationDate: new Date(),
-      status: "Scheduled",
+      status: "SCHEDULED",
       prescribedMedications: [
         {
           name: "",
@@ -283,6 +283,7 @@ const AddMedicalConsultationForm = ({
                       <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Consultation Date
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -329,6 +330,7 @@ const AddMedicalConsultationForm = ({
                       <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Consultation Status
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -370,6 +372,7 @@ const AddMedicalConsultationForm = ({
                       <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Consultation Motive
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -395,12 +398,144 @@ const AddMedicalConsultationForm = ({
                       <FormItem className="flex flex-col space-y-2">
                         <FormLabel className="text-medical-700">
                           Presented Symptoms
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Describe patient's symptoms"
                             className={`min-h-[100px] resize-none ${
                               form.formState.errors.presentedSymptoms
+                                ? "border-red-500"
+                                : "border-medical-200"
+                            }`}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Medical Assessment */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5 text-medical-500" />
+                  <CardTitle className="text-xl font-heading text-medical-900">
+                    Medical Assessment
+                  </CardTitle>
+                </div>
+                <CardDescription>
+                  Document initial observations and physical examination
+                  findings
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 lg:pt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="initialObservations"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col space-y-2">
+                        <FormLabel className="text-medical-700">
+                          Initial Observations
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Record initial observations"
+                            className={`min-h-[100px] resize-none ${
+                              form.formState.errors.initialObservations
+                                ? "border-red-500"
+                                : "border-medical-200"
+                            }`}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="physicalExamFindings"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col space-y-2">
+                        <FormLabel className="text-medical-700">
+                          Physical Exam Findings
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Document physical examination findings"
+                            className={`min-h-[100px] resize-none ${
+                              form.formState.errors.physicalExamFindings
+                                ? "border-red-500"
+                                : "border-medical-200"
+                            }`}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Diagnostic Information */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-medical-500" />
+                  <CardTitle className="text-xl font-heading text-medical-900">
+                    Diagnostic Information
+                  </CardTitle>
+                </div>
+                <CardDescription>
+                  Record diagnostic findings and assessments
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 lg:pt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="diagnoses"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col space-y-2">
+                        <FormLabel className="text-medical-700">
+                          Diagnosis
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Enter diagnosis"
+                            className={`min-h-[100px] resize-none ${
+                              form.formState.errors.diagnoses
+                                ? "border-red-500"
+                                : "border-medical-200"
+                            }`}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="diagnosticNotes"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col space-y-2">
+                        <FormLabel className="text-medical-700">
+                          Diagnostic notes
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="List differential diagnoses"
+                            className={`min-h-[100px] resize-none ${
+                              form.formState.errors.diagnosticNotes
                                 ? "border-red-500"
                                 : "border-medical-200"
                             }`}

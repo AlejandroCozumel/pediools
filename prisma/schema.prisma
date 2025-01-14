@@ -9,30 +9,33 @@ generator client {
 
 // Core Models
 model Doctor {
-  id                 String              @id @default(cuid())
-  clerkUserId        String              @unique
-  email              String              @unique
-  name               String
-  lastName           String?
-  profilePicture     String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  defaultChartView   ChartViewType       @default(FOCUSED)
-  subscription       Subscription?
-  profile            DoctorProfile?
-  staff              Staff[]
-  patients           Patient[]
-  calculations       Calculation[]
-  appointments       Appointment[]
-  accessLogs         FeatureAccessLog[]
-  clinics            Clinic[]
-  prescriptions      Prescription[]
-  inventory          Inventory[]
-  invoices           Invoice[]
-  analytics          Analytics[]
-  patientMetrics     PatientMetrics[]
-  financialMetrics   FinancialMetrics[]
-  emailNotifications EmailNotification[]
+  id                          String                       @id @default(cuid())
+  clerkUserId                 String                       @unique
+  email                       String                       @unique
+  name                        String
+  lastName                    String?
+  profilePicture              String?
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  defaultChartView            ChartViewType                @default(FOCUSED)
+  subscription                Subscription?
+  profile                     DoctorProfile?
+  staff                       Staff[]
+  patients                    Patient[]
+  calculations                Calculation[]
+  appointments                Appointment[]
+  accessLogs                  FeatureAccessLog[]
+  clinics                     Clinic[]
+  prescriptions               Prescription[]
+  inventory                   Inventory[]
+  invoices                    Invoice[]
+  analytics                   Analytics[]
+  patientMetrics              PatientMetrics[]
+  financialMetrics            FinancialMetrics[]
+  emailNotifications          EmailNotification[]
+  doctorAvailability          DoctorAvailability[]
+  doctorAvailabilityOverrides DoctorAvailabilityOverride[]
+  appointmentSlots            AppointmentSlot[]
 }
 
 model Patient {
@@ -184,42 +187,45 @@ model LabResult {
 
 // Appointments and Calculations
 model Appointment {
-  id             String            @id @default(cuid())
-  patientId      String
-  patient        Patient           @relation(fields: [patientId], references: [id])
-  doctorId       String
-  doctor         Doctor            @relation(fields: [doctorId], references: [id])
-  clinicId       String
-  clinic         Clinic            @relation(fields: [clinicId], references: [id])
+  id        String  @id @default(cuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id])
+  clinicId  String
+  clinic    Clinic  @relation(fields: [clinicId], references: [id])
 
   // Consultation Details
-  datetime       DateTime
-  status         AppointmentStatus
+  datetime           DateTime
+  status             AppointmentStatus
+  consultationMotive String? // Reason for consultation
+  presentedSymptoms  Json? // Symptoms presented (can be a structured JSON)
 
-  // Pediatric-Specific Fields
-  consultationMotive   String?      // Reason for consultation
-  presentedSymptoms    Json?        // Symptoms presented (can be a structured JSON)
-  initialObservations String?       // Initial clinical observations
+  // Medical Assessment
+  physicalExamFindings Json? // Findings from physical examination
+  initialObservations  Json? // Initial clinical observations
 
   // Diagnostic Information
-  diagnoses      Json?             // Possible multiple diagnoses
-  diagnosticNotes String?          // Additional diagnostic notes
+  diagnoses       Json? // Possible multiple diagnoses
+  diagnosticNotes String? // Additional diagnostic notes
 
   // Treatment Details
-  treatments     Json?             // Treatments or recommendations
-  prescribedMedications Json?      // Structured medication information
+  treatments            Json? // Treatments or recommendations
+  prescribedMedications Json? // Structured medication information
 
   // Follow-up and Studies
-  requestedStudies   Json?         // Requested medical studies or lab tests
-  studyResults       Json?         // Results of studies
+  requestedStudies Json? // Requested medical studies or lab tests
+  studyResults     Json? // Results of studies
 
-  followUpDate   DateTime?         // Next follow-up appointment date
-  followUpNotes  String?           // Notes for follow-up
+  followUpDate  DateTime? // Next follow-up appointment date
+  followUpNotes Json? // Notes for follow-up
 
-  type           String?
-  notes          String?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  type              String?
+  notes             Json?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  appointmentSlotId String?          @unique // Add @unique here
+  appointmentSlot   AppointmentSlot? @relation(fields: [appointmentSlotId], references: [id])
 }
 
 model Calculation {
@@ -330,11 +336,11 @@ model Payment {
 
 // Notifications and Logs
 model EmailNotification {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   patientId String?
   patient   Patient? @relation(fields: [patientId], references: [id])
   doctorId  String
-  doctor    Doctor  @relation(fields: [doctorId], references: [id])
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
 
   type   EmailType
   sentAt DateTime    @default(now())
@@ -461,6 +467,59 @@ model DoctorProfile {
   socialMedia    Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model DoctorAvailability {
+  id       String @id @default(cuid())
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  dayOfWeek      Int // 0-6 representing days of the week
+  startTime      String // e.g., "09:00"
+  endTime        String // e.g., "17:00"
+  slotDuration   Int     @default(60) // slot duration in minutes
+  breakStartTime String?
+  breakEndTime   String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DoctorAvailabilityOverride {
+  id       String @id @default(cuid())
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  date        DateTime
+  isAvailable Boolean
+  startTime   String?
+  endTime     String?
+  reason      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AppointmentSlot {
+  id       String @id @default(cuid())
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  startTime DateTime
+  endTime   DateTime
+  status    SlotStatus @default(AVAILABLE)
+
+  appointment Appointment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum SlotStatus {
+  AVAILABLE
+  BOOKED
+  BLOCKED
 }
 
 // Enums
