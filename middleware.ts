@@ -8,24 +8,17 @@ const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
 
-  // Check if it's the root path or any non-localized path
-  if (pathname === '/' || !pathname.startsWith('/(en|es)/')) {
-    // Rewrite the request to /en internally
-    const newUrl = new URL(`/en${pathname}`, req.url);
-    return NextResponse.rewrite(newUrl);
-  }
-
   // Check if it's an API route
   if (pathname.startsWith('/api')) {
     if (isProtectedRoute(req)) await auth.protect();
     return;
   }
 
-  // Apply next-intl middleware for other routes
+  // Apply next-intl middleware for all routes
   const handler = createMiddleware(routing);
   const result = await handler(req);
 
-  // Apply Clerk protection for specific routes
+  // After next-intl middleware, check if it's a protected route
   if (isProtectedRoute(req)) await auth.protect();
 
   return result;
