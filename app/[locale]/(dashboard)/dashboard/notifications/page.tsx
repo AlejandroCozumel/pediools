@@ -7,7 +7,7 @@ import DashboardTitle from "@/components/DashboardTitle";
 import StatsCard from "@/components/StatsCard";
 import { MailIcon, CalendarIcon, UsersIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import EmailNotificationsTable from "@/app/(dashboard)/dashboard/notifications/EmailNotificationsTable";
+import EmailNotificationsTable from "@/app/[locale]/(dashboard)/dashboard/notifications/EmailNotificationsTable";
 
 const Notifications = () => {
   const router = useRouter();

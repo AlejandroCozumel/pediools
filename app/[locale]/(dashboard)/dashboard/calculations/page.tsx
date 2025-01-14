@@ -2,7 +2,7 @@
 import React from "react";
 import { useCalculations } from "@/hooks/use-calculations";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
-import CalculationTable from "@/app/(dashboard)/dashboard/calculations/CalculationTable";
+import CalculationTable from "@/app/[locale]/(dashboard)/dashboard/calculations/CalculationTable";
 import DashboardTitle from "@/components/DashboardTitle";
 import StatsCard from "@/components/StatsCard";
 import { CalculatorIcon, CalendarIcon, UsersIcon } from "lucide-react";

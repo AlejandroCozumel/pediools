@@ -23,7 +23,7 @@ export async function checkPremiumStatus() {
   return doctor?.subscription?.plan === "PREMIUM";
 }
 
-export default async function PremiumStatusProvider({
+export default async function ServerPremiumStatusProvider({
   children,
 }: {
   children: ReactNode;
