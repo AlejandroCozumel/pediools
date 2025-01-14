@@ -34,8 +34,10 @@ const LanguageSwitcher: React.FC = () => {
     console.log('Current locale:', locale);
     console.log('New locale:', newLocale);
 
-    // If pathname is root or empty, use explicit root path
-    const destinationPath = pathname === '/' || pathname === '' ? '/' : pathname;
+    // If pathname is root or empty, use root path with new locale
+    const destinationPath = pathname === '/' || pathname === ''
+      ? `/${newLocale}`
+      : pathname;
 
     console.log('Destination path:', destinationPath);
 
