@@ -30,8 +30,13 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    // Use replace instead of push to prevent adding a new history entry
-    router.replace(pathname, {
+    // If current route is root or doesn't have a locale prefix,
+    // use the root path for the new locale
+    const cleanPathname = pathname.startsWith(`/${locale}`)
+      ? pathname.slice(`/${locale}`.length)
+      : pathname;
+
+    router.replace(cleanPathname || '/', {
       locale: newLocale
     });
   };
