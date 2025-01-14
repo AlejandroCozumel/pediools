@@ -1,6 +1,48 @@
 {
-  "HomePage": {
-    "title": "Hello world!",
-    "about": "Go to the about page"
+  "CalculatorsList": {
+    "dashboardTitle": "Pediatric Calculators",
+    "dashboardSubtitle": "Professional tools for pediatric assessment and monitoring",
+    "categories": {
+      "growth": "Growth",
+      "cardiovascular": "Cardiovascular",
+      "neonatal": "Neonatal"
+    },
+    "calculators": {
+      "growthPercentiles": {
+        "title": "Growth Percentiles",
+        "description": "Calculate and track growth measurements using different standards"
+      },
+      "bloodPressure": {
+        "title": "Blood Pressure Percentiles",
+        "description": "Evaluate blood pressure readings based on age, height, and gender"
+      },
+      "heartRate": {
+        "title": "Heart Rate Assessment",
+        "description": "Analyze heart rate ranges by age and clinical context"
+      },
+      "bilirubin": {
+        "title": "Bilirubin Thresholds",
+        "description": "Calculate risk levels for neonatal hyperbilirubinemia"
+      },
+      "bmi": {
+        "title": "BMI Calculator",
+        "description": "Body Mass Index calculation and percentile tracking"
+      },
+      "headCircumference": {
+        "title": "Head Circumference",
+        "description": "Track head circumference measurements and percentiles"
+      }
+    },
+    "premiumFeatures": {
+      "title": "Premium Features",
+      "description": "Subscribe to unlock advanced features:",
+      "features": [
+        "Detailed graphical visualizations",
+        "PDF report generation with your branding",
+        "Email reports to parents",
+        "Patient tracking and historical data",
+        "Multiple growth standard comparisons"
+      ]
+    }
   }
 }

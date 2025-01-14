@@ -18,63 +18,65 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import DashboardTitle from "@/components/DashboardTitle";
-
-const calculators = [
-  {
-    title: "Growth Percentiles",
-    description:
-      "Calculate and track growth measurements using different standards",
-    icon: <LineChart className="h-6 w-6 icon" />,
-    standards: ["CDC", "WHO", "Intergrowth"],
-    category: "Growth",
-    link: "/growth-percentiles",
-  },
-  {
-    title: "Blood Pressure Percentiles",
-    description:
-      "Evaluate blood pressure readings based on age, height, and gender",
-    icon: <Activity className="h-6 w-6 icon" />,
-    category: "Cardiovascular",
-    link: "/blood-pressure",
-  },
-  {
-    title: "Heart Rate Assessment",
-    description: "Analyze heart rate ranges by age and clinical context",
-    icon: <Heart className="h-6 w-6 icon" />,
-    category: "Cardiovascular",
-    link: "/heart-rate",
-  },
-  {
-    title: "Bilirubin Thresholds",
-    description: "Calculate risk levels for neonatal hyperbilirubinemia",
-    icon: <DropletsIcon className="h-6 w-6 icon" />,
-    category: "Neonatal",
-    link: "/bilirubin-thresholds",
-  },
-  {
-    title: "BMI Calculator",
-    description: "Body Mass Index calculation and percentile tracking",
-    icon: <RulerIcon className="h-6 w-6 icon" />,
-    category: "Growth",
-    link: "/bmi-calculator",
-  },
-  {
-    title: "Head Circumference",
-    description: "Track head circumference measurements and percentiles",
-    icon: <Baby className="h-6 w-6 icon" />,
-    category: "Growth",
-    link: "/head-circumference",
-  },
-];
+import { useTranslations } from "next-intl";
 
 const CalculatorsList = () => {
+  const t = useTranslations("CalculatorsList");
+
+  const premiumFeatures = t.raw("premiumFeatures.features") as string[];
+
+  const calculators = [
+    {
+      title: t("calculators.growthPercentiles.title"),
+      description: t("calculators.growthPercentiles.description"),
+      icon: <LineChart className="h-6 w-6 icon" />,
+      standards: ["CDC", "WHO", "Intergrowth"],
+      category: t("categories.growth"),
+      link: "/growth-percentiles",
+    },
+    {
+      title: t("calculators.bloodPressure.title"),
+      description: t("calculators.bloodPressure.description"),
+      icon: <Activity className="h-6 w-6 icon" />,
+      category: t("categories.cardiovascular"),
+      link: "/blood-pressure",
+    },
+    {
+      title: t("calculators.heartRate.title"),
+      description: t("calculators.heartRate.description"),
+      icon: <Heart className="h-6 w-6 icon" />,
+      category: t("categories.cardiovascular"),
+      link: "/heart-rate",
+    },
+    {
+      title: t("calculators.bilirubin.title"),
+      description: t("calculators.bilirubin.description"),
+      icon: <DropletsIcon className="h-6 w-6 icon" />,
+      category: t("categories.neonatal"),
+      link: "/bilirubin-thresholds",
+    },
+    {
+      title: t("calculators.bmi.title"),
+      description: t("calculators.bmi.description"),
+      icon: <RulerIcon className="h-6 w-6 icon" />,
+      category: t("categories.growth"),
+      link: "/bmi-calculator",
+    },
+    {
+      title: t("calculators.headCircumference.title"),
+      description: t("calculators.headCircumference.description"),
+      icon: <Baby className="h-6 w-6 icon" />,
+      category: t("categories.growth"),
+      link: "/head-circumference",
+    },
+  ];
+
   return (
     <div className="container mx-auto my-6 px-4 md:px-6 lg:px-8">
       <DashboardTitle
-        title="Pediatric Calculators"
-        subtitle="Professional tools for pediatric assessment and monitoring"
+        title={t("dashboardTitle")}
+        subtitle={t("dashboardSubtitle")}
       />
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {calculators.map((calc, index) => (
           <Link href={calc.link} key={index} className="block group">
@@ -116,29 +118,22 @@ const CalculatorsList = () => {
           </Link>
         ))}
       </div>
-
       <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
         <Card className="w-full lg:w-2/3 border-medical-100 bg-gradient-to-br from-white to-medical-50">
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
               <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-medical-600" />
               <CardTitle className="text-xl sm:text-2xl text-medical-900 font-heading">
-                Premium Features
+                {t("premiumFeatures.title")}
               </CardTitle>
             </div>
             <CardDescription className="text-medical-700 text-base sm:text-lg mt-2">
-              Subscribe to unlock advanced features:
+              {t("premiumFeatures.description")}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
             <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
-              {[
-                "Detailed graphical visualizations",
-                "PDF report generation with your branding",
-                "Email reports to parents",
-                "Patient tracking and historical data",
-                "Multiple growth standard comparisons",
-              ].map((feature, index) => (
+              {premiumFeatures.map((feature: string, index: number) => (
                 <li
                   key={index}
                   className="flex items-center gap-2 text-medical-800"

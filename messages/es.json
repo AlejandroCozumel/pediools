@@ -1,6 +1,48 @@
 {
-  "HomePage": {
-    "title": "Hola Mundo",
-    "about": "Ir a pagina"
+  "CalculatorsList": {
+    "dashboardTitle": "Calculadoras Pediátricas",
+    "dashboardSubtitle": "Herramientas profesionales para evaluación y seguimiento pediátrico",
+    "categories": {
+      "growth": "Crecimiento",
+      "cardiovascular": "Cardiovascular",
+      "neonatal": "Neonatal"
+    },
+    "calculators": {
+      "growthPercentiles": {
+        "title": "Percentiles de Crecimiento",
+        "description": "Calcule y realice seguimiento de medidas de crecimiento utilizando diferentes estándares"
+      },
+      "bloodPressure": {
+        "title": "Percentiles de Presión Arterial",
+        "description": "Evalúe lecturas de presión arterial basadas en edad, altura y género"
+      },
+      "heartRate": {
+        "title": "Evaluación de Frecuencia Cardíaca",
+        "description": "Analice rangos de frecuencia cardíaca por edad y contexto clínico"
+      },
+      "bilirubin": {
+        "title": "Umbrales de Bilirrubina",
+        "description": "Calcule niveles de riesgo para hiperbilirrubinemia neonatal"
+      },
+      "bmi": {
+        "title": "Calculadora de IMC",
+        "description": "Cálculo del Índice de Masa Corporal y seguimiento de percentiles"
+      },
+      "headCircumference": {
+        "title": "Circunferencia de la Cabeza",
+        "description": "Realice seguimiento de medidas y percentiles de circunferencia de la cabeza"
+      }
+    },
+    "premiumFeatures": {
+      "title": "Características Premium",
+      "description": "Suscríbase para desbloquear funciones avanzadas:",
+      "features": [
+        "Visualizaciones gráficas detalladas",
+        "Generación de informes PDF con su marca",
+        "Envío de informes por correo electrónico a los padres",
+        "Seguimiento de pacientes y datos históricos",
+        "Comparaciones de múltiples estándares de crecimiento"
+      ]
+    }
   }
 }

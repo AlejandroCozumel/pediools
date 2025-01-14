@@ -6,6 +6,7 @@ import { Menu, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePremiumStore } from "@/stores/premiumStore";
 import UserMenu from "./UserMenu";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 // Navigation Items Configuration
 const navigationItems = [
@@ -155,6 +156,7 @@ const NavLeft: React.FC<{
 const NavRight: React.FC = () => {
   return (
     <div className="flex items-center gap-4">
+      <LanguageSwitcher />
       <UserMenu />
     </div>
   );
