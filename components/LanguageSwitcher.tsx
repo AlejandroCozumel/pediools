@@ -30,23 +30,33 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
-    // Use replace instead of push to prevent adding a new history entry
+    console.log('Current pathname:', pathname);
+    console.log('Current locale:', locale);
+    console.log('New locale:', newLocale);
 
-    router.replace(pathname, {
+    // Remove the current locale prefix if present
+    const cleanPathname = pathname.startsWith(`/${locale}`)
+      ? pathname.slice(`/${locale}`.length)
+      : pathname;
+
+    console.log('Clean pathname:', cleanPathname);
+
+    // Ensure we always have a path (use root if empty)
+    const destinationPath = cleanPathname || '/';
+
+    // Replace with the new locale
+    router.replace(destinationPath, {
       locale: newLocale
     });
   };
 
   const getLanguageInfo = (langCode: string) => {
     const lang = languages.find((l) => l.code === langCode);
-
     if (!lang) {
       throw new Error(`Language code ${langCode} not found`);
     }
-
     // Safely get the flag component
     const FlagIcon = countryFlags[lang.countryCode];
-
     return {
       ...lang,
       FlagIcon,
@@ -64,8 +74,7 @@ const LanguageSwitcher: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {languages.map((lang) => {
-          console.log(lang.code)
+        {languages.filter(lang => lang.code !== locale).map((lang) => {
           const langInfo = getLanguageInfo(lang.code);
           return (
             <DropdownMenuItem
@@ -77,7 +86,6 @@ const LanguageSwitcher: React.FC = () => {
                 <langInfo.FlagIcon className="w-5 h-5 mr-2" />
                 <span>{langInfo.name}</span>
               </div>
-              {locale === lang.code && <Check className="h-4 w-4 ml-2" />}
             </DropdownMenuItem>
           );
         })}
