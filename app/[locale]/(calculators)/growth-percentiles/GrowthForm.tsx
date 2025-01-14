@@ -60,53 +60,13 @@ import whoHeadData from "@/app/data/who-data-head.json";
 import MeasurementInputIntergrowth from "@/components/MeasurementInputIntergrowth";
 import { usePremiumStore } from "@/stores/premiumStore";
 import PatientSelector from "@/components/premium/PatientSelector";
+import { useTranslations } from "next-intl";
 
 interface StandardRange {
   min: number;
   max: number;
   validStandards: string[];
 }
-
-const growthStandards = [
-  {
-    id: "who",
-    name: "WHO Growth Standard",
-    description:
-      "International standards for optimal growth (breastfed children from multiple countries)",
-    ageRange: "0-24 months",
-    details: "Recommended by WHO for international use",
-  },
-  {
-    id: "cdc_infant",
-    name: "CDC Growth (Infant)",
-    description:
-      "U.S. reference charts for tracking infant growth and development",
-    ageRange: "0-36 months",
-    details: "Based on U.S. national survey data",
-  },
-  {
-    id: "cdc_child",
-    name: "CDC Growth (Child)",
-    description: "Standard U.S. pediatric growth charts for children and teens",
-    ageRange: "2-20 years",
-    details: "Most widely used in U.S. clinical practice",
-  },
-  {
-    id: "intergrowth",
-    name: "INTERGROWTH-21st",
-    description: "International standards for newborn growth assessment",
-    ageRange: "0-7 days",
-    details: "Optimal for early postnatal growth monitoring",
-  },
-  // {
-  //   id: "kromeyer",
-  //   name: "Kromeyer-Hauschild",
-  //   description:
-  //     "German population-based reference for children and adolescents",
-  //   ageRange: "0-18 years",
-  //   details: "Standard reference in German-speaking countries",
-  // },
-];
 
 export const formSchema = z
   .object({
@@ -252,6 +212,38 @@ export function GrowthForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const router = useRouter();
+  const t = useTranslations("GrowthForm");
+
+  const growthStandards = [
+    {
+      id: "who",
+      name: t("standardTypes.who.name"),
+      description: t("standardTypes.who.description"),
+      ageRange: t("standardTypes.who.ageRange"),
+      details: t("standardTypes.who.details"),
+    },
+    {
+      id: "cdc_infant",
+      name: t("standardTypes.cdc_infant.name"),
+      description: t("standardTypes.cdc_infant.description"),
+      ageRange: t("standardTypes.cdc_infant.ageRange"),
+      details: t("standardTypes.cdc_infant.details"),
+    },
+    {
+      id: "cdc_child",
+      name: t("standardTypes.cdc_child.name"),
+      description: t("standardTypes.cdc_child.description"),
+      ageRange: t("standardTypes.cdc_child.ageRange"),
+      details: t("standardTypes.cdc_child.details"),
+    },
+    {
+      id: "intergrowth",
+      name: t("standardTypes.intergrowth.name"),
+      description: t("standardTypes.intergrowth.description"),
+      ageRange: t("standardTypes.intergrowth.ageRange"),
+      details: t("standardTypes.intergrowth.details"),
+    },
+  ];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -569,7 +561,7 @@ export function GrowthForm() {
     <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
-          Growth Percentile Calculator
+          {t("title")}
         </CardTitle>
       </CardHeader>
       <CardDescription className="p-4 lg:p-6 pb-0 lg:pb-0">
@@ -610,7 +602,9 @@ export function GrowthForm() {
                                   : "text-medical-600"
                               }`}
                           />
-                          <span className="font-medium">Boy</span>
+                          <span className="font-medium">
+                            {t("gender.male")}
+                          </span>
                         </div>
                       </TabsTrigger>
                       <TabsTrigger
@@ -630,7 +624,9 @@ export function GrowthForm() {
                                   : "text-medical-pink-600"
                               }`}
                           />
-                          <span className="font-medium">Girl</span>
+                          <span className="font-medium">
+                            {t("gender.female")}
+                          </span>
                         </div>
                       </TabsTrigger>
                     </TabsList>
@@ -645,7 +641,7 @@ export function GrowthForm() {
               name="standard"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Growth Standard</FormLabel>
+                  <FormLabel>{t("growthStandard.label")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -719,11 +715,12 @@ export function GrowthForm() {
             {standardRecommendation && (
               <Alert className="bg-red-50 border-blue-200">
                 <AlertTitle className="text-blue-800">
-                  Recommended Standard Change
+                  {t("alerts.standardChange.title")}
                 </AlertTitle>
                 <AlertDescription className="text-blue-700">
-                  Based on the patient's age, we recommend using the{" "}
-                  {standardRecommendation} standard.
+                  {t("alerts.standardChange.description", {
+                    standard: standardRecommendation,
+                  })}
                 </AlertDescription>
               </Alert>
             )}
@@ -736,7 +733,7 @@ export function GrowthForm() {
                     name="weight"
                     render={({ field }) => (
                       <MeasurementInput
-                        label="Weight (kg)"
+                        label={t("measurements.weight")}
                         field={field}
                         icon={Weight}
                         gender={selectedGender}
@@ -901,11 +898,11 @@ export function GrowthForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Calculating...
+                  {t("buttons.calculating")}
                 </>
               ) : (
                 <>
-                  Graph
+                  {t("buttons.calculate")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -952,10 +949,13 @@ export function GrowthForm() {
             >
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Save Measurements?</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t("alerts.savePrompt.title")}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Would you like to save these measurements to{" "}
-                    {selectedPatient?.firstName}'s records?
+                    {t("alerts.savePrompt.description", {
+                      name: selectedPatient?.firstName,
+                    })}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
@@ -965,7 +965,7 @@ export function GrowthForm() {
                       onSubmit(form.getValues(), true, true);
                     }}
                   >
-                    Just View Graph
+                    {t("buttons.justView")}
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => {
@@ -973,7 +973,7 @@ export function GrowthForm() {
                       onSubmit(form.getValues(), false, true); // Call onSubmit with skipSave set to false and confirmed set to true
                     }}
                   >
-                    Save and View Graph
+                    {t("buttons.saveAndView")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

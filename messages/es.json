@@ -44,5 +44,72 @@
         "Comparaciones de múltiples estándares de crecimiento"
       ]
     }
+  },
+  "GrowthForm": {
+    "title": "Calculadora de Percentiles de Crecimiento",
+    "gender": {
+      "male": "Niño",
+      "female": "Niña"
+    },
+    "growthStandard": {
+      "label": "Estándar de Crecimiento",
+      "placeholder": "Seleccione un estándar de crecimiento"
+    },
+    "measurements": {
+      "weight": "Peso (kg)",
+      "height": "Altura (cm)",
+      "headCircumference": "Circunferencia de la Cabeza (cm)",
+      "gestationalAge": "Edad Gestacional (semanas)"
+    },
+    "standardTypes": {
+      "who": {
+        "name": "Estándar de Crecimiento OMS",
+        "description": "Estándares internacionales para crecimiento óptimo (niños amamantados de múltiples países)",
+        "ageRange": "0-24 meses",
+        "details": "Recomendado por la OMS para uso internacional"
+      },
+      "cdc_infant": {
+        "name": "Crecimiento CDC (Infantil)",
+        "description": "Gráficas de referencia de EE.UU. para seguimiento del crecimiento y desarrollo infantil",
+        "ageRange": "0-36 meses",
+        "details": "Basado en datos de encuestas nacionales de EE.UU."
+      },
+      "cdc_child": {
+        "name": "Crecimiento CDC (Niño)",
+        "description": "Gráficas pediátricas estándar de EE.UU. para niños y adolescentes",
+        "ageRange": "2-20 años",
+        "details": "El más utilizado en la práctica clínica de EE.UU."
+      },
+      "intergrowth": {
+        "name": "INTERGROWTH-21st",
+        "description": "Estándares internacionales para evaluación del crecimiento neonatal",
+        "ageRange": "0-7 días",
+        "details": "Óptimo para monitoreo del crecimiento postnatal temprano"
+      }
+    },
+    "buttons": {
+      "calculate": "Graficar",
+      "calculating": "Calculando...",
+      "saveAndView": "Guardar y Ver Gráfico",
+      "justView": "Solo Ver Gráfico"
+    },
+    "alerts": {
+      "standardChange": {
+        "title": "Cambio de Estándar Recomendado",
+        "description": "Basado en la edad del paciente, recomendamos usar el estándar {standard}."
+      },
+      "savePrompt": {
+        "title": "¿Guardar Mediciones?",
+        "description": "¿Desea guardar estas mediciones en los registros de {name}?"
+      }
+    },
+    "validation": {
+      "required": {
+        "dob": "La fecha de nacimiento es requerida para estándares que no son Intergrowth",
+        "measurement": "La fecha de medición es requerida para estándares que no son Intergrowth",
+        "gestWeeks": "Las semanas gestacionales son requeridas para Intergrowth",
+        "gestDays": "Los días gestacionales son requeridos para Intergrowth"
+      }
+    }
   }
 }

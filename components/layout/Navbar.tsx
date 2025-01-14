@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePremiumStore } from "@/stores/premiumStore";
 import UserMenu from "./UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Image from "next/image";
 
 const navigationItems = [
   {
@@ -46,23 +47,13 @@ interface NavLeftProps {
 
 const Logo: React.FC = () => {
   return (
-    <svg
-      width="50"
-      height="39"
-      viewBox="0 0 50 39"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <Image
+      src="/pedimathLogo.svg"
+      width={50}
+      height={39}
+      alt="Logo"
       className="fill-gray-800"
-    >
-      <path
-        d="M16.4992 2H37.5808L22.0816 24.9729H1L16.4992 2Z"
-        stopColor="#000000"
-      ></path>
-      <path
-        d="M17.4224 27.102L11.4192 36H33.5008L49 13.0271H32.7024L23.2064 27.102H17.4224Z"
-        stopColor="#000000"
-      ></path>
-    </svg>
+    />
   );
 };
 
@@ -93,19 +84,21 @@ const Navbar: React.FC = () => {
   const { isPremium } = usePremiumStore();
 
   // Updated filtering logic
-  const visibleNavItems = navigationItems.filter(
-    (item) => isPremium ? item.premiumOnly : !item.premiumOnly
+  const visibleNavItems = navigationItems.filter((item) =>
+    isPremium ? item.premiumOnly : !item.premiumOnly
   );
 
   return (
-    <nav className="bg-white p-4 border-b-[1px] border-gray-200 flex items-center justify-between relative">
+    <nav className="bg-white border-b-[1px] border-gray-200 p-4">
+      <div className="container mx-auto flex items-center justify-between relative">
       <NavLeft setIsOpen={setIsOpen} />
       <NavRight />
       <NavMenu
         isOpen={isOpen}
         isPremium={isPremium}
         navigationItems={visibleNavItems}
-      />
+        />
+        </div>
     </nav>
   );
 };
@@ -114,8 +107,8 @@ const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
   const { isPremium } = usePremiumStore();
 
   // Updated filtering logic
-  const visibleNavItems = navigationItems.filter(
-    (item) => isPremium ? item.premiumOnly : !item.premiumOnly
+  const visibleNavItems = navigationItems.filter((item) =>
+    isPremium ? item.premiumOnly : !item.premiumOnly
   );
 
   return (
@@ -132,11 +125,7 @@ const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
         <Logo />
       </Link>
       {visibleNavItems.map((item) => (
-        <NavLink
-          key={item.text}
-          text={item.text}
-          href={item.href}
-        />
+        <NavLink key={item.text} text={item.text} href={item.href} />
       ))}
     </div>
   );
@@ -166,11 +155,7 @@ const NavMenu: React.FC<{
       {navigationItems
         .sort((a, b) => a.mobileOrder - b.mobileOrder)
         .map((item) => (
-          <MenuLink
-            key={item.text}
-            text={item.text}
-            href={item.href}
-          />
+          <MenuLink key={item.text} text={item.text} href={item.href} />
         ))}
     </motion.div>
   );

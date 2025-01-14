@@ -44,5 +44,72 @@
         "Multiple growth standard comparisons"
       ]
     }
+  },
+  "GrowthForm": {
+    "title": "Growth Percentile Calculator",
+    "gender": {
+      "male": "Boy",
+      "female": "Girl"
+    },
+    "growthStandard": {
+      "label": "Growth Standard",
+      "placeholder": "Select a growth standard"
+    },
+    "measurements": {
+      "weight": "Weight (kg)",
+      "height": "Height (cm)",
+      "headCircumference": "Head Circumference (cm)",
+      "gestationalAge": "Gestational Age (weeks)"
+    },
+    "standardTypes": {
+      "who": {
+        "name": "WHO Growth Standard",
+        "description": "International standards for optimal growth (breastfed children from multiple countries)",
+        "ageRange": "0-24 months",
+        "details": "Recommended by WHO for international use"
+      },
+      "cdc_infant": {
+        "name": "CDC Growth (Infant)",
+        "description": "U.S. reference charts for tracking infant growth and development",
+        "ageRange": "0-36 months",
+        "details": "Based on U.S. national survey data"
+      },
+      "cdc_child": {
+        "name": "CDC Growth (Child)",
+        "description": "Standard U.S. pediatric growth charts for children and teens",
+        "ageRange": "2-20 years",
+        "details": "Most widely used in U.S. clinical practice"
+      },
+      "intergrowth": {
+        "name": "INTERGROWTH-21st",
+        "description": "International standards for newborn growth assessment",
+        "ageRange": "0-7 days",
+        "details": "Optimal for early postnatal growth monitoring"
+      }
+    },
+    "buttons": {
+      "calculate": "Graph",
+      "calculating": "Calculating...",
+      "saveAndView": "Save and View Graph",
+      "justView": "Just View Graph"
+    },
+    "alerts": {
+      "standardChange": {
+        "title": "Recommended Standard Change",
+        "description": "Based on the patient's age, we recommend using the {standard} standard."
+      },
+      "savePrompt": {
+        "title": "Save Measurements?",
+        "description": "Would you like to save these measurements to {name}'s records?"
+      }
+    },
+    "validation": {
+      "required": {
+        "dob": "Date of birth is required for non-intergrowth standards",
+        "measurement": "Measurement date is required for non-intergrowth standards",
+        "gestWeeks": "Gestational weeks is required for Intergrowth",
+        "gestDays": "Gestational days is required for Intergrowth"
+      }
+    }
   }
 }
