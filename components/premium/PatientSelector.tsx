@@ -30,6 +30,8 @@ import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "@/app/[locale]/(calculators)/growth-percentiles/GrowthForm";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useToast } from "@/hooks/use-toast";
 
 interface Patient {
   id: string;
@@ -48,6 +50,9 @@ export default function PatientSelector({
   form,
   onPatientSelect = () => {},
 }: PatientSelectorProps) {
+  const t = useTranslations("PatientSelector");
+  const { toast } = useToast();
+
   const { selectedPatient: globalSelectedPatient, setPatient } =
     usePremiumStore();
   const [open, setOpen] = useState(false);
@@ -55,15 +60,12 @@ export default function PatientSelector({
   const [selected, setSelected] = useState<Patient | null>(
     globalSelectedPatient
   );
-
   const router = useRouter();
-
   const debouncedSearch = useDebounce(search, 300);
   const { data: patients = [], isLoading } = useSearchPatients(debouncedSearch);
 
   useEffect(() => {
     if (globalSelectedPatient) {
-      // Update form values when global patient changes
       form.setValue("dateOfBirth", new Date(globalSelectedPatient.dateOfBirth));
       form.setValue("gender", globalSelectedPatient.gender);
     }
@@ -78,24 +80,23 @@ export default function PatientSelector({
             key={patient.id}
             value={`${patient.firstName} ${patient.lastName}`}
             onSelect={() => {
-              // Convert patient to local state
               const selectedPatient = {
                 ...patient,
                 dateOfBirth: new Date(patient.dateOfBirth),
               };
-
               setSelected(selectedPatient);
               onPatientSelect(selectedPatient);
-
-              // Update global state
               setPatient(selectedPatient);
-
-              // Update form values
               form.setValue("dateOfBirth", selectedPatient.dateOfBirth);
               form.setValue("gender", selectedPatient.gender);
-
               setOpen(false);
               setSearch("");
+              toast({
+                title: t("toast.patientSelected.title"),
+                description: t("toast.patientSelected.description", {
+                  name: `${patient.firstName} ${patient.lastName}`,
+                }),
+              });
             }}
             className="flex items-center gap-2 p-2"
           >
@@ -112,7 +113,8 @@ export default function PatientSelector({
                 />
               </div>
               <span className="text-xs text-muted-foreground">
-                Born: {new Date(patient.dateOfBirth).toLocaleDateString()}
+                {t("patient.born")}:{" "}
+                {new Date(patient.dateOfBirth).toLocaleDateString()}
               </span>
             </div>
           </CommandItem>
@@ -141,7 +143,7 @@ export default function PatientSelector({
               ) : (
                 <span className="text-muted-foreground flex items-center gap-2">
                   <Search className="h-4 w-4" />
-                  Search patients...
+                  {t("search.placeholder")}
                 </span>
               )}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -156,7 +158,12 @@ export default function PatientSelector({
                   setSelected(null);
                   form.setValue("dateOfBirth", undefined);
                   form.setValue("gender", "male");
+                  toast({
+                    title: t("toast.patientRemoved.title"),
+                    description: t("toast.patientRemoved.description"),
+                  });
                 }}
+                aria-label={t("actions.removePatient")}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -171,7 +178,7 @@ export default function PatientSelector({
         >
           <Command shouldFilter={false} className="w-full">
             <CommandInput
-              placeholder="Type patient name..."
+              placeholder={t("search.inputPlaceholder")}
               value={search}
               onValueChange={setSearch}
             />
@@ -185,7 +192,7 @@ export default function PatientSelector({
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground text-center">
-                        No patients found.
+                        {t("noResults.empty")}
                       </p>
                       <Button
                         variant="secondary"
@@ -195,13 +202,12 @@ export default function PatientSelector({
                         }}
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        Add New Patient
+                        {t("actions.addPatient")}
                       </Button>
                     </div>
                   )}
                 </CommandEmpty>
               )}
-
               {renderPatients()}
             </CommandList>
           </Command>

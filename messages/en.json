@@ -150,5 +150,33 @@
         "intergrowth": "INTERGROWTH-21st Newborn Growth Standards (0-7 days)"
       }
     }
+  },
+  "PatientSelector": {
+    "search": {
+      "placeholder": "Search patients...",
+      "inputPlaceholder": "Type patient name..."
+    },
+    "noResults": {
+      "empty": "No patients found.",
+      "addNew": "Add New Patient"
+    },
+    "patient": {
+      "born": "Born"
+    },
+    "actions": {
+      "addPatient": "Add New Patient",
+      "searchPatients": "Search patients...",
+      "removePatient": "Remove patient"
+    },
+    "toast": {
+      "patientSelected": {
+        "title": "Patient Selected",
+        "description": "{name} has been selected for the consultation"
+      },
+      "patientRemoved": {
+        "title": "Patient Removed",
+        "description": "Patient has been removed from the consultation"
+      }
+    }
   }
 }

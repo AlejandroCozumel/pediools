@@ -150,5 +150,33 @@
         "intergrowth": "Estándares de Crecimiento Neonatal INTERGROWTH-21st (0-7 días)"
       }
     }
+  },
+  "PatientSelector": {
+    "search": {
+      "placeholder": "Buscar pacientes...",
+      "inputPlaceholder": "Escriba el nombre del paciente..."
+    },
+    "noResults": {
+      "empty": "No se encontraron pacientes.",
+      "addNew": "Agregar Nuevo Paciente"
+    },
+    "patient": {
+      "born": "Nacimiento"
+    },
+    "actions": {
+      "addPatient": "Agregar Nuevo Paciente",
+      "searchPatients": "Buscar pacientes...",
+      "removePatient": "Eliminar paciente"
+    },
+    "toast": {
+      "patientSelected": {
+        "title": "Paciente Seleccionado",
+        "description": "Se ha seleccionado a {name} para la consulta"
+      },
+      "patientRemoved": {
+        "title": "Paciente Eliminado",
+        "description": "El paciente ha sido eliminado de la consulta"
+      }
+    }
   }
 }
