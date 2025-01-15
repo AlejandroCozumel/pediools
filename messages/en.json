@@ -90,6 +90,7 @@
     "buttons": {
       "calculate": "Graph",
       "calculating": "Calculating...",
+      "calculatePremium": "Graph (only premium users)",
       "saveAndView": "Save and View Graph",
       "justView": "Just View Graph"
     },
@@ -132,7 +133,8 @@
       },
       "errors": {
         "measurementBeforeBirth": "Measurement date cannot be before birth date",
-        "measurementAfterBirth": "Measurement date must be after birth date"
+        "measurementAfterBirth": "Measurement date must be after birth date",
+        "maxAgeExceeded": "Patient age cannot exceed 20 years"
       }
     },
     "results": {

@@ -7,10 +7,6 @@ async function Premium() {
   const { userId } = await auth();
   const user = await currentUser();
 
-  if (!userId || !user) {
-    return <div>Please sign in to access premium features.</div>;
-  }
-
   return (
     <div>
       <LandingPage />

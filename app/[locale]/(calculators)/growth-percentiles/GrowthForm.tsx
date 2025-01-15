@@ -894,13 +894,33 @@ export function GrowthForm() {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                !form.formState.isValid ||
+                standardRecommendation !== null ||
+                (selectedStandard !== "intergrowth" &&
+                  (!birthDate || !measurementDate)) ||
+                (selectedStandard === "intergrowth" &&
+                  (!form.watch("gestationalWeeks") ||
+                    !form.watch("gestationalDays"))) ||
+                !form.watch("weight") ||
+                !form.watch("height") ||
+                (selectedStandard === "cdc_infant" &&
+                  !form.watch("headCircumference"))
+              }
               size="lg"
+              onClick={(e) => {
+                if (!isPremium) {
+                  e.preventDefault();
+                  router.push("/premium");
+                }
+              }}
               className={cn(
                 "w-full transition-all duration-300 ease-in-out",
                 selectedGender === "male"
                   ? "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800"
-                  : "bg-gradient-to-r from-medical-pink-600 to-medical-pink-700 hover:from-medical-pink-700 hover:to-medical-pink-800"
+                  : "bg-gradient-to-r from-medical-pink-600 to-medical-pink-700 hover:from-medical-pink-700 hover:to-medical-pink-800",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {isSubmitting ? (
@@ -910,7 +930,9 @@ export function GrowthForm() {
                 </>
               ) : (
                 <>
-                  {t("buttons.calculate")}
+                  {isPremium
+                    ? t("buttons.calculate")
+                    : t("buttons.calculatePremium")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}

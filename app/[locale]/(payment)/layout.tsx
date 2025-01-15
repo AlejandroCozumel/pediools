@@ -1,3 +1,4 @@
+import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import React, { ReactNode } from "react";
 
@@ -9,7 +10,8 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <>
       <Navbar />
-      <main className="px-4 m-auto container">{children}</main>
+      <main>{children}</main>
+      <Footer />
     </>
   );
 };
