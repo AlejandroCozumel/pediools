@@ -9,10 +9,12 @@ type LayoutProps = {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <main>
-      <Navbar />
+    <>
+    <Navbar />
+    <main className="max-w-7xl px-4 mx-auto ">
       {children}
     </main>
+    </>
   );
 };
 

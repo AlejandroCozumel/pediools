@@ -16,7 +16,7 @@ import {
   RulerIcon,
   Sparkles,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import DashboardTitle from "@/components/DashboardTitle";
 import { useTranslations } from "next-intl";
 
@@ -72,7 +72,7 @@ const CalculatorsList = () => {
   ];
 
   return (
-    <div className="container mx-auto my-6 px-4">
+    <div className="my-6">
       <DashboardTitle
         title={t("dashboardTitle")}
         subtitle={t("dashboardSubtitle")}

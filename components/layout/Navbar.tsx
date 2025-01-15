@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { Menu, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { usePremiumStore } from "@/stores/premiumStore";
 import UserMenu from "./UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -91,14 +91,14 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-white border-b-[1px] border-gray-200 p-4">
       <div className="container mx-auto flex items-center justify-between relative">
-      <NavLeft setIsOpen={setIsOpen} />
-      <NavRight />
-      <NavMenu
-        isOpen={isOpen}
-        isPremium={isPremium}
-        navigationItems={visibleNavItems}
+        <NavLeft setIsOpen={setIsOpen} />
+        <NavRight />
+        <NavMenu
+          isOpen={isOpen}
+          isPremium={isPremium}
+          navigationItems={visibleNavItems}
         />
-        </div>
+      </div>
     </nav>
   );
 };
