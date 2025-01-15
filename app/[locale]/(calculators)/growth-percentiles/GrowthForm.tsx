@@ -718,7 +718,7 @@ export function GrowthForm() {
               />
             )}
 
-            {standardRecommendation && (
+            {standardRecommendation ? (
               <Alert className="bg-red-50 border-blue-200">
                 <AlertTitle className="text-blue-800">
                   {t("alerts.standardChange.title")}
@@ -729,143 +729,145 @@ export function GrowthForm() {
                   })}
                 </AlertDescription>
               </Alert>
-            )}
-
-            {selectedStandard !== "intergrowth" &&
-              (birthDate ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="weight"
-                    render={({ field }) => (
-                      <MeasurementInput
-                        label={t("measurementInputs.weight")} // Updated
-                        field={field}
-                        icon={Weight}
-                        gender={selectedGender}
-                        birthDate={birthDate}
-                        measurementDate={measurementDate}
-                        selectedStandard={selectedStandard}
-                        cdcChildWeightData={cdcChildWeightData}
-                        cdcChildHeightData={cdcChildHeightData}
-                        cdcInfantWeightData={cdcInfantWeightData}
-                        cdcInfantHeightData={cdcInfantHeightData}
-                        whoWeightData={whoWeightData}
-                        whoHeightData={whoHeightData}
-                        // intergrowthWeightData={intergrowthWeightData}
-                      />
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="height"
-                    render={({ field }) => (
-                      <MeasurementInput
-                        label={t("measurementInputs.height")}
-                        field={field}
-                        icon={Ruler}
-                        gender={selectedGender}
-                        birthDate={birthDate}
-                        measurementDate={measurementDate}
-                        selectedStandard={selectedStandard}
-                        cdcChildWeightData={cdcChildWeightData}
-                        cdcChildHeightData={cdcChildHeightData}
-                        cdcInfantWeightData={cdcInfantWeightData}
-                        cdcInfantHeightData={cdcInfantHeightData}
-                        whoWeightData={whoWeightData}
-                        whoHeightData={whoHeightData}
-                      />
-                    )}
-                  />
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-xs">
-                  Please select a Date of Birth to enter measurements
-                </p>
-              ))}
-
-            {selectedStandard === "intergrowth" &&
-              form.watch("gestationalWeeks") &&
-              form.watch("gestationalDays") && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="weight"
-                      render={({ field }) => (
-                        <MeasurementInputIntergrowth
-                          label={t("measurementInputs.weight")} // Updated
-                          field={field}
-                          icon={Weight}
-                          gender={selectedGender}
-                          gestationalWeeks={form.watch("gestationalWeeks")}
-                          gestationalDays={form.watch("gestationalDays")}
-                        />
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="height"
-                      render={({ field }) => (
-                        <MeasurementInputIntergrowth
-                          label={t("measurementInputs.height")}
-                          field={field}
-                          icon={Ruler}
-                          gender={selectedGender}
-                          gestationalWeeks={form.watch("gestationalWeeks")}
-                          gestationalDays={form.watch("gestationalDays")}
-                        />
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="headCircumference"
-                    render={({ field }) => (
-                      <MeasurementInputIntergrowth
-                        label={t("measurementInputs.headCircumference")}
-                        field={field}
-                        icon={Baby}
-                        gender={selectedGender}
-                        gestationalWeeks={form.watch("gestationalWeeks")}
-                        gestationalDays={form.watch("gestationalDays")}
-                      />
-                    )}
-                  />
-                </>
-              )}
-
-            {birthDate && (
+            ) : (
               <>
-                {(selectedStandard === "who" ||
-                  selectedStandard === "cdc_infant" ||
-                  selectedStandard === "intergrowth") && (
-                  <FormField
-                    control={form.control}
-                    name="headCircumference"
-                    render={({ field }) => (
-                      <MeasurementInput
-                        label={t("measurementInputs.headCircumference")}
-                        field={field}
-                        icon={Baby}
-                        gender={selectedGender}
-                        birthDate={birthDate}
-                        measurementDate={measurementDate}
-                        selectedStandard={selectedStandard}
-                        cdcChildWeightData={cdcChildWeightData}
-                        cdcChildHeightData={cdcChildHeightData}
-                        cdcInfantWeightData={cdcInfantWeightData}
-                        cdcInfantHeightData={cdcInfantHeightData}
-                        cdcInfantHeightHead={cdcInfantHeightHead}
-                        whoHeadData={whoHeadData}
-                        whoWeightData={whoWeightData}
-                        whoHeightData={whoHeightData}
+                {selectedStandard !== "intergrowth" &&
+                  (birthDate ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="weight"
+                        render={({ field }) => (
+                          <MeasurementInput
+                            label={t("measurementInputs.weight")} // Updated
+                            field={field}
+                            icon={Weight}
+                            gender={selectedGender}
+                            birthDate={birthDate}
+                            measurementDate={measurementDate}
+                            selectedStandard={selectedStandard}
+                            cdcChildWeightData={cdcChildWeightData}
+                            cdcChildHeightData={cdcChildHeightData}
+                            cdcInfantWeightData={cdcInfantWeightData}
+                            cdcInfantHeightData={cdcInfantHeightData}
+                            whoWeightData={whoWeightData}
+                            whoHeightData={whoHeightData}
+                            // intergrowthWeightData={intergrowthWeightData}
+                          />
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="height"
+                        render={({ field }) => (
+                          <MeasurementInput
+                            label={t("measurementInputs.height")}
+                            field={field}
+                            icon={Ruler}
+                            gender={selectedGender}
+                            birthDate={birthDate}
+                            measurementDate={measurementDate}
+                            selectedStandard={selectedStandard}
+                            cdcChildWeightData={cdcChildWeightData}
+                            cdcChildHeightData={cdcChildHeightData}
+                            cdcInfantWeightData={cdcInfantWeightData}
+                            cdcInfantHeightData={cdcInfantHeightData}
+                            whoWeightData={whoWeightData}
+                            whoHeightData={whoHeightData}
+                          />
+                        )}
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-xs">
+                      Please select a Date of Birth to enter measurements
+                    </p>
+                  ))}
+
+                {selectedStandard === "intergrowth" &&
+                  form.watch("gestationalWeeks") &&
+                  form.watch("gestationalDays") && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="weight"
+                          render={({ field }) => (
+                            <MeasurementInputIntergrowth
+                              label={t("measurementInputs.weight")} // Updated
+                              field={field}
+                              icon={Weight}
+                              gender={selectedGender}
+                              gestationalWeeks={form.watch("gestationalWeeks")}
+                              gestationalDays={form.watch("gestationalDays")}
+                            />
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="height"
+                          render={({ field }) => (
+                            <MeasurementInputIntergrowth
+                              label={t("measurementInputs.height")}
+                              field={field}
+                              icon={Ruler}
+                              gender={selectedGender}
+                              gestationalWeeks={form.watch("gestationalWeeks")}
+                              gestationalDays={form.watch("gestationalDays")}
+                            />
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="headCircumference"
+                        render={({ field }) => (
+                          <MeasurementInputIntergrowth
+                            label={t("measurementInputs.headCircumference")}
+                            field={field}
+                            icon={Baby}
+                            gender={selectedGender}
+                            gestationalWeeks={form.watch("gestationalWeeks")}
+                            gestationalDays={form.watch("gestationalDays")}
+                          />
+                        )}
+                      />
+                    </>
+                  )}
+
+                {birthDate && (
+                  <>
+                    {(selectedStandard === "who" ||
+                      selectedStandard === "cdc_infant" ||
+                      selectedStandard === "intergrowth") && (
+                      <FormField
+                        control={form.control}
+                        name="headCircumference"
+                        render={({ field }) => (
+                          <MeasurementInput
+                            label={t("measurementInputs.headCircumference")}
+                            field={field}
+                            icon={Baby}
+                            gender={selectedGender}
+                            birthDate={birthDate}
+                            measurementDate={measurementDate}
+                            selectedStandard={selectedStandard}
+                            cdcChildWeightData={cdcChildWeightData}
+                            cdcChildHeightData={cdcChildHeightData}
+                            cdcInfantWeightData={cdcInfantWeightData}
+                            cdcInfantHeightData={cdcInfantHeightData}
+                            cdcInfantHeightHead={cdcInfantHeightHead}
+                            whoHeadData={whoHeadData}
+                            whoWeightData={whoWeightData}
+                            whoHeightData={whoHeightData}
+                          />
+                        )}
                       />
                     )}
-                  />
+                  </>
                 )}
                 {/* {(selectedStandard === "who" ||
                   selectedStandard === "intergrowth") && (
