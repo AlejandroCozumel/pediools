@@ -6,6 +6,7 @@ import intergrowthWeightData from "@/app/data/intergrowht-weight.json";
 import intergrowthlenghtData from "@/app/data/intergrowht-lenght.json";
 import intergrowthHeadData from "@/app/data/intergrowht-head.json";
 import { differenceInMonths } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface IntergrowthDataPoint {
   sex: number;
@@ -238,6 +239,7 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
   whoHeightData,
   whoHeadData,
 }) => {
+  const t = useTranslations("GrowthForm");
   const results = useMemo<GrowthResultData | null>(() => {
     if (!weight || !height) return null;
 
@@ -249,7 +251,6 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
       const weightVal = parseFloat(weight);
       const heightVal = parseFloat(height);
       const bmi = calculateBMI(weightVal, heightVal);
-
       const weightResults = calculateIntergrowthPercentiles(
         weightVal,
         intergrowthWeightData,
@@ -482,13 +483,13 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
   const getDataSourceText = (standard: string) => {
     switch (standard) {
       case "cdc_child":
-        return "United States CDC Growth Charts (ages 2 to 20)";
+        return t("results.dataSources.cdc_child");
       case "cdc_infant":
-        return "United States CDC Growth Charts (ages 0 to 36 months)";
+        return t("results.dataSources.cdc_infant");
       case "who":
-        return "WHO Growth Standards (ages 0 to 24 months)";
+        return t("results.dataSources.who");
       case "intergrowth":
-        return "INTERGROWTH-21st Newborn Growth Standards (0-7 days)";
+        return t("results.dataSources.intergrowth");
       // case "kromeyer":
       //   return "Kromeyer-Hauschild Growth Reference (ages 0 to 18)";
       default:
@@ -501,30 +502,39 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div className="text-sm">
-            <span className="font-medium">Weight:</span> {results.weight.value}{" "}
-            kg
+            <span className="font-medium">
+              {t("results.measurements.weight")}:
+            </span>{" "}
+            {results.weight.value} kg
             <span className="text-medical-600 ml-2">
               ({results.weight.percentile}P, {results.weight.zScore}z)
               {reference}
             </span>
           </div>
           <div className="text-sm">
-            <span className="font-medium">Height:</span> {results.height.value}{" "}
-            cm
+            <span className="font-medium">
+              {t("results.measurements.height")}:
+            </span>{" "}
+            {results.height.value} cm
             <span className="text-medical-600 ml-2">
               ({results.height.percentile}P, {results.height.zScore}z)
               {reference}
             </span>
           </div>
           <div className="text-sm">
-            <span className="font-medium">BMI:</span> {results.bmi.value} kg/m²
+            <span className="font-medium">
+              {t("results.measurements.bmi")}:
+            </span>{" "}
+            {results.bmi.value} kg/m²
             <span className="text-medical-600 ml-2">
               ({results.bmi.percentile}P, {results.bmi.zScore}z){reference}
             </span>
           </div>
           {results.headCircumference && (
             <div className="text-sm">
-              <span className="font-medium">Head Circumference:</span>{" "}
+              <span className="font-medium">
+                {t("results.measurements.headCircumference")}:
+              </span>{" "}
               {results.headCircumference.value} cm
               <span className="text-medical-600 ml-2">
                 ({results.headCircumference.percentile}P,{" "}
@@ -534,7 +544,8 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
             </div>
           )}
           <div className="text-xs text-muted-foreground mt-2">
-            Data source: {getDataSourceText(selectedStandard)}
+            {t("results.dataSources.title")}:{" "}
+            {getDataSourceText(selectedStandard)}
           </div>
         </div>
       </CardContent>

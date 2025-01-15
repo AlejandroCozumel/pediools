@@ -55,11 +55,11 @@
       "label": "Estándar de Crecimiento",
       "placeholder": "Seleccione un estándar de crecimiento"
     },
-    "measurements": {
+    "measurementInputs": {
       "weight": "Peso (kg)",
       "height": "Altura (cm)",
       "headCircumference": "Circunferencia de la Cabeza (cm)",
-      "gestationalAge": "Edad Gestacional (semanas)"
+      "bmi": "IMC (kg/m²)"
     },
     "standardTypes": {
       "who": {
@@ -109,6 +109,45 @@
         "measurement": "La fecha de medición es requerida para estándares que no son Intergrowth",
         "gestWeeks": "Las semanas gestacionales son requeridas para Intergrowth",
         "gestDays": "Los días gestacionales son requeridos para Intergrowth"
+      }
+    },
+    "dateInputs": {
+      "labels": {
+        "dateOfBirth": "Fecha de Nacimiento",
+        "dateOfMeasurement": "Fecha de Medición"
+      },
+      "placeholders": {
+        "year": "Año",
+        "pickDate": "Seleccionar fecha"
+      },
+      "ageDisplay": {
+        "patientAge": "Edad del Paciente",
+        "year": "año",
+        "years": "años",
+        "month": "mes",
+        "months": "meses",
+        "day": "día",
+        "days": "días",
+        "zeroDays": "0 días"
+      },
+      "errors": {
+        "measurementBeforeBirth": "La fecha de medición no puede ser anterior a la fecha de nacimiento",
+        "measurementAfterBirth": "La fecha de medición debe ser posterior a la fecha de nacimiento"
+      }
+    },
+    "results": {
+      "measurements": {
+        "weight": "Peso",
+        "height": "Altura",
+        "bmi": "IMC",
+        "headCircumference": "Circunferencia de la Cabeza"
+      },
+      "dataSources": {
+        "title": "Fuente de datos",
+        "cdc_child": "Gráficas de Crecimiento CDC EE.UU. (2 a 20 años)",
+        "cdc_infant": "Gráficas de Crecimiento CDC EE.UU. (0 a 36 meses)",
+        "who": "Estándares de Crecimiento OMS (0 a 24 meses)",
+        "intergrowth": "Estándares de Crecimiento Neonatal INTERGROWTH-21st (0-7 días)"
       }
     }
   }

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/form";
 import { RangeIndicator } from "@/components/RangeIndicator";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import intergrowthWeightData from "@/app/data/intergrowht-weight.json";
 import intergrowthlenghtData from "@/app/data/intergrowht-lenght.json";
 import intergrowthHeadData from "@/app/data/intergrowht-head.json";
@@ -48,7 +49,6 @@ function getIntergrowthData(
       ? intergrowthlenghtData
       : intergrowthHeadData;
   const gestationalAge = `${weeks}+${days}`;
-
   return data.find(
     (point) => point.sex === sex && point.age === gestationalAge
   );
@@ -62,11 +62,15 @@ export default function MeasurementInputIntergrowth({
   gestationalWeeks,
   gestationalDays,
 }: MeasurementInputIntergrowthProps) {
-  const type = label.toLowerCase().includes("weight")
-    ? "weight"
-    : label.toLowerCase().includes("head")
-    ? "head"
-    : "length";
+  const t = useTranslations("GrowthForm");
+
+  // Determine type based on translated labels instead of hardcoded strings
+  const type =
+    label === t("measurementInputs.weight")
+      ? "weight"
+      : label === t("measurementInputs.headCircumference")
+      ? "head"
+      : "length";
 
   let range;
   if (gestationalWeeks && gestationalDays) {
@@ -86,7 +90,6 @@ export default function MeasurementInputIntergrowth({
   }
 
   const numericValue = Number(field.value || "0");
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (/^-?\d*\.?\d*$/.test(value)) {

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  format,
-  isAfter,
-} from "date-fns";
+import { format, isAfter } from "date-fns";
 import { CalendarIcon, Info } from "lucide-react";
 import {
   FormField,
@@ -29,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { differenceInDays } from "date-fns";
+import { useTranslations } from 'next-intl';
 
 interface DateInputsProps {
   form: any;
@@ -36,6 +34,8 @@ interface DateInputsProps {
 }
 
 const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
+  const t = useTranslations('GrowthForm.dateInputs');
+
   const [birthDateOpen, setBirthDateOpen] = useState(false);
   const [measurementDateOpen, setMeasurementDateOpen] = useState(false);
   const [ageDisplay, setAgeDisplay] = useState<string>("");
@@ -46,78 +46,62 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
 
   useEffect(() => {
     if (birthDate && measurementDate) {
-
       if (isAfter(birthDate, measurementDate)) {
-        setDateError("Measurement date cannot be before birth date");
+        setDateError(t('errors.measurementBeforeBirth'));
         setAgeDisplay("");
         form.setError("dateOfMeasurement", {
           type: "manual",
-          message: "Measurement date must be after birth date",
+          message: t('errors.measurementAfterBirth'),
         });
       } else {
         setDateError("");
         form.clearErrors("dateOfMeasurement");
 
-        // Precise year calculation
-        const yearDifference =
-          measurementDate.getFullYear() - birthDate.getFullYear();
-        const monthDifference =
-          measurementDate.getMonth() - birthDate.getMonth();
+        const yearDifference = measurementDate.getFullYear() - birthDate.getFullYear();
+        const monthDifference = measurementDate.getMonth() - birthDate.getMonth();
         const dayDifference = measurementDate.getDate() - birthDate.getDate();
 
-        // Determine years and remaining months
         let years = yearDifference;
         let remainingMonths = monthDifference;
 
-        // Adjust years and months if needed
-        if (
-          monthDifference < 0 ||
-          (monthDifference === 0 && dayDifference < 0)
-        ) {
+        if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
           years--;
           remainingMonths = 12 + monthDifference;
         }
 
-        // Calculate remaining days
         const adjustedBirthDate = new Date(
           birthDate.getFullYear() + years,
           birthDate.getMonth() + remainingMonths,
           birthDate.getDate()
         );
-        const remainingDays = differenceInDays(
-          measurementDate,
-          adjustedBirthDate
-        );
+        const remainingDays = differenceInDays(measurementDate, adjustedBirthDate);
 
-        // Create display parts with proper pluralization
         const displayParts = [];
 
         if (years > 0) {
-          displayParts.push(`${years} year${years > 1 ? "s" : ""}`);
+          displayParts.push(`${years} ${years > 1 ? t('ageDisplay.years') : t('ageDisplay.year')}`);
         }
 
         if (remainingMonths > 0) {
           displayParts.push(
-            `${remainingMonths} month${remainingMonths > 1 ? "s" : ""}`
+            `${remainingMonths} ${remainingMonths > 1 ? t('ageDisplay.months') : t('ageDisplay.month')}`
           );
         }
 
         if (remainingDays > 0) {
           displayParts.push(
-            `${remainingDays} day${remainingDays > 1 ? "s" : ""}`
+            `${remainingDays} ${remainingDays > 1 ? t('ageDisplay.days') : t('ageDisplay.day')}`
           );
         }
 
-        const finalDisplay = displayParts.join(", ") || "0 days";
+        const finalDisplay = displayParts.join(", ") || t('ageDisplay.zeroDays');
         setAgeDisplay(finalDisplay);
-
       }
     } else {
       setAgeDisplay("");
     }
-  }, [birthDate, measurementDate]);
+  }, [birthDate, measurementDate, t]);
 
-  // Generate years array...
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 121 }, (_, i) => ({
     value: String(currentYear - i),
@@ -140,18 +124,14 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date of Birth</FormLabel>
+              <FormLabel>{t('labels.dateOfBirth')}</FormLabel>
               <div className="flex gap-2">
                 <Select
-                  onValueChange={(year) =>
-                    handleYearSelect("dateOfBirth", year)
-                  }
-                  value={
-                    field.value ? field.value.getFullYear().toString() : ""
-                  }
+                  onValueChange={(year) => handleYearSelect("dateOfBirth", year)}
+                  value={field.value ? field.value.getFullYear().toString() : ""}
                 >
                   <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder="Year" />
+                    <SelectValue placeholder={t('placeholders.year')} />
                   </SelectTrigger>
                   <SelectContent>
                     {years.map((year) => (
@@ -172,7 +152,7 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                         {field.value ? (
                           format(field.value, "MMM d, yyyy")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>{t('placeholders.pickDate')}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -206,18 +186,14 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
           name="dateOfMeasurement"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date of Measurement</FormLabel>
+              <FormLabel>{t('labels.dateOfMeasurement')}</FormLabel>
               <div className="flex gap-2">
                 <Select
-                  onValueChange={(year) =>
-                    handleYearSelect("dateOfMeasurement", year)
-                  }
-                  value={
-                    field.value ? field.value.getFullYear().toString() : ""
-                  }
+                  onValueChange={(year) => handleYearSelect("dateOfMeasurement", year)}
+                  value={field.value ? field.value.getFullYear().toString() : ""}
                 >
                   <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder="Year" />
+                    <SelectValue placeholder={t('placeholders.year')} />
                   </SelectTrigger>
                   <SelectContent>
                     {years.map((year) => (
@@ -241,7 +217,7 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                         {field.value ? (
                           format(field.value, "MMM d, yyyy")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>{t('placeholders.pickDate')}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -300,7 +276,7 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                       : "text-medical-pink-500"
                   )}
                 />
-                Patient Age:
+                {t('ageDisplay.patientAge')}:
                 <Badge
                   variant="secondary"
                   className={cn(

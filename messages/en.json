@@ -55,11 +55,11 @@
       "label": "Growth Standard",
       "placeholder": "Select a growth standard"
     },
-    "measurements": {
+    "measurementInputs": {
       "weight": "Weight (kg)",
       "height": "Height (cm)",
       "headCircumference": "Head Circumference (cm)",
-      "gestationalAge": "Gestational Age (weeks)"
+      "bmi": "BMI (kg/m²)"
     },
     "standardTypes": {
       "who": {
@@ -109,6 +109,45 @@
         "measurement": "Measurement date is required for non-intergrowth standards",
         "gestWeeks": "Gestational weeks is required for Intergrowth",
         "gestDays": "Gestational days is required for Intergrowth"
+      }
+    },
+    "dateInputs": {
+      "labels": {
+        "dateOfBirth": "Date of Birth",
+        "dateOfMeasurement": "Date of Measurement"
+      },
+      "placeholders": {
+        "year": "Year",
+        "pickDate": "Pick a date"
+      },
+      "ageDisplay": {
+        "patientAge": "Patient Age",
+        "year": "year",
+        "years": "years",
+        "month": "month",
+        "months": "months",
+        "day": "day",
+        "days": "days",
+        "zeroDays": "0 days"
+      },
+      "errors": {
+        "measurementBeforeBirth": "Measurement date cannot be before birth date",
+        "measurementAfterBirth": "Measurement date must be after birth date"
+      }
+    },
+    "results": {
+      "measurements": {
+        "weight": "Weight",
+        "height": "Height",
+        "bmi": "BMI",
+        "headCircumference": "Head Circumference"
+      },
+      "dataSources": {
+        "title": "Data source",
+        "cdc_child": "United States CDC Growth Charts (ages 2 to 20)",
+        "cdc_infant": "United States CDC Growth Charts (ages 0 to 36 months)",
+        "who": "WHO Growth Standards (ages 0 to 24 months)",
+        "intergrowth": "INTERGROWTH-21st Newborn Growth Standards (0-7 days)"
       }
     }
   }

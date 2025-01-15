@@ -733,7 +733,7 @@ export function GrowthForm() {
                     name="weight"
                     render={({ field }) => (
                       <MeasurementInput
-                        label={t("measurements.weight")}
+                        label={t("measurementInputs.weight")} // Updated
                         field={field}
                         icon={Weight}
                         gender={selectedGender}
@@ -756,7 +756,7 @@ export function GrowthForm() {
                     name="height"
                     render={({ field }) => (
                       <MeasurementInput
-                        label="Height (cm)"
+                        label={t("measurementInputs.height")}
                         field={field}
                         icon={Ruler}
                         gender={selectedGender}
@@ -789,7 +789,7 @@ export function GrowthForm() {
                       name="weight"
                       render={({ field }) => (
                         <MeasurementInputIntergrowth
-                          label="Weight (kg)"
+                          label={t("measurementInputs.weight")} // Updated
                           field={field}
                           icon={Weight}
                           gender={selectedGender}
@@ -804,7 +804,7 @@ export function GrowthForm() {
                       name="height"
                       render={({ field }) => (
                         <MeasurementInputIntergrowth
-                          label="Height (cm)"
+                          label={t("measurementInputs.height")}
                           field={field}
                           icon={Ruler}
                           gender={selectedGender}
@@ -820,7 +820,9 @@ export function GrowthForm() {
                     name="headCircumference"
                     render={({ field }) => (
                       <MeasurementInputIntergrowth
-                        label="Head Circumference (cm)"
+                        label={t(
+                          "measurementInputs.headCircumference"
+                        )}
                         field={field}
                         icon={Baby}
                         gender={selectedGender}
@@ -842,7 +844,9 @@ export function GrowthForm() {
                     name="headCircumference"
                     render={({ field }) => (
                       <MeasurementInput
-                        label="Head Circumference (cm)"
+                        label={t(
+                          "measurementInputs.headCircumference"
+                        )}
                         field={field}
                         icon={Baby}
                         gender={selectedGender}

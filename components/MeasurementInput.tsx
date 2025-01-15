@@ -12,6 +12,7 @@ import {
 import { RangeIndicator as RangeIndicatorInput } from "@/components/RangeIndicator";
 import { cn } from "@/lib/utils";
 import { differenceInMonths } from "date-fns";
+import { useTranslations } from "next-intl";
 
 // Raw data type from JSON
 interface RawCDCDataPoint {
@@ -165,6 +166,8 @@ export default function MeasurementInput({
   cdcInfantHeightHead,
   whoHeadData,
 }: MeasurementInputProps) {
+  const t = useTranslations("GrowthForm");
+
   // Ensure consistent date handling
   const safeBirthDate = birthDate
     ? new Date(
@@ -192,45 +195,46 @@ export default function MeasurementInput({
   // Select dataset based on standard and label
   switch (selectedStandard) {
     case "cdc_infant":
-      if (label === "Weight (kg)") {
+      if (label === t("measurementInputs.weight")) {
         rawData = cdcInfantWeightData;
-      } else if (label === "Height (cm)") {
+      } else if (label === t("measurementInputs.height")) {
         rawData = cdcInfantHeightData;
-      } else if (label === "Head Circumference (cm)") {
-        rawData = cdcInfantHeightHead; // Add this condition
+      } else if (label === t("measurementInputs.headCircumference")) {
+        rawData = cdcInfantHeightHead;
       }
       break;
     case "cdc_child":
-      if (label === "Weight (kg)") {
+      if (label === t("measurementInputs.weight")) {
         rawData = cdcChildWeightData;
-      } else if (label === "Height (cm)") {
+      } else if (label === t("measurementInputs.height")) {
         rawData = cdcChildHeightData;
-      } else if (label === "BMI (kg/m²)") {
+      } else if (label === t("measurementInputs.bmi")) {
         rawData = cdcBmiData;
       }
       break;
     case "who":
-      if (label === "Weight (kg)") {
+      if (label === t("measurementInputs.weight")) {
         rawData = whoWeightData;
-      } else if (label === "Height (cm)") {
+      } else if (label === t("measurementInputs.height")) {
         rawData = whoHeightData;
-      } else if (label === "Head Circumference (cm)") {
+      } else if (label === t("measurementInputs.headCircumference")) {
         rawData = whoHeadData;
       }
       break;
     default:
       // Fallback to child data or null
       rawData =
-        label === "Weight (kg)"
+        label === t("measurementInputs.weight")
           ? cdcChildWeightData
-          : label === "Height (cm)"
+          : label === t("measurementInputs.height")
           ? cdcChildHeightData
-          : label === "BMI (kg/m²)"
+          : label === t("measurementInputs.bmi")
           ? cdcBmiData
-          : label === "Head Circumference (cm)" &&
+          : label === t("measurementInputs.headCircumference") &&
             selectedStandard === "cdc_infant"
           ? cdcInfantHeightHead
-          : label === "Head Circumference (cm)" && selectedStandard === "who"
+          : label === t("measurementInputs.headCircumference") &&
+            selectedStandard === "who"
           ? whoHeadData
           : null;
   }
@@ -241,7 +245,7 @@ export default function MeasurementInput({
       if (ageInMonths >= 0 && ageInMonths <= 24) {
         const sex = gender === "male" ? 1 : 2;
         if (rawData) {
-          const data = rawData as WHOWeightDataPoint[] | WHOHeightDataPoint[];
+          const data = rawData as WHOWeightDataPoint[];
           const dataPoints = data.filter((point) => point.Sex === sex);
           const interpolated = interpolateValue(ageInMonths, dataPoints);
           range = {
@@ -252,7 +256,6 @@ export default function MeasurementInput({
         }
       }
       break;
-
     case "cdc_child":
       if (ageInMonths >= 24 && ageInMonths <= 240) {
         const sex = gender === "male" ? 1 : 2;
@@ -268,9 +271,11 @@ export default function MeasurementInput({
         }
       }
       break;
-
     case "cdc_infant":
-      if (label === "Head Circumference (cm)" || ageInMonths <= 36) {
+      if (
+        label === t("measurementInputs.headCircumference") ||
+        ageInMonths <= 36
+      ) {
         const sex = gender === "male" ? 1 : 2;
         if (rawData) {
           const data = parseCDCData(rawData as RawCDCDataPoint[]);
