@@ -132,7 +132,8 @@
       },
       "errors": {
         "measurementBeforeBirth": "La fecha de medición no puede ser anterior a la fecha de nacimiento",
-        "measurementAfterBirth": "La fecha de medición debe ser posterior a la fecha de nacimiento"
+        "measurementAfterBirth": "La fecha de medición debe ser posterior a la fecha de nacimiento",
+        "maxAgeExceeded": "La edad del paciente no puede superar los 20 años"
       }
     },
     "results": {

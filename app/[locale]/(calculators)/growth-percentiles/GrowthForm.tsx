@@ -438,8 +438,8 @@ export function GrowthForm() {
         }
       } catch (error) {
         console.error(error);
-      } finally {
         setIsSubmitting(false);
+      } finally {
         clearTimeout(timeoutId);
       }
     }, 1500);
@@ -592,6 +592,7 @@ export function GrowthForm() {
                           data-[state=active]:text-white
                           data-[state=active]:bg-medical-600
                           data-[state=active]:shadow-sm`}
+                        disabled={!!selectedPatient}
                       >
                         <div className="flex items-center gap-2">
                           <Baby
@@ -614,6 +615,7 @@ export function GrowthForm() {
                           data-[state=active]:text-white
                           data-[state=active]:bg-medical-pink-600
                           data-[state=active]:shadow-sm`}
+                        disabled={!!selectedPatient}
                       >
                         <div className="flex items-center gap-2">
                           <Baby
@@ -709,7 +711,11 @@ export function GrowthForm() {
             {selectedStandard === "intergrowth" ? (
               <GestationalSelects form={form} />
             ) : (
-              <DateInputs form={form} gender={selectedGender} />
+              <DateInputs
+                form={form}
+                gender={selectedGender}
+                hasSelectedPatient={!!selectedPatient}
+              />
             )}
 
             {standardRecommendation && (
@@ -820,9 +826,7 @@ export function GrowthForm() {
                     name="headCircumference"
                     render={({ field }) => (
                       <MeasurementInputIntergrowth
-                        label={t(
-                          "measurementInputs.headCircumference"
-                        )}
+                        label={t("measurementInputs.headCircumference")}
                         field={field}
                         icon={Baby}
                         gender={selectedGender}
@@ -844,9 +848,7 @@ export function GrowthForm() {
                     name="headCircumference"
                     render={({ field }) => (
                       <MeasurementInput
-                        label={t(
-                          "measurementInputs.headCircumference"
-                        )}
+                        label={t("measurementInputs.headCircumference")}
                         field={field}
                         icon={Baby}
                         gender={selectedGender}

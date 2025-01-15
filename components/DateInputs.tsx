@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { format, isAfter } from "date-fns";
+import { format, isAfter, differenceInMonths } from "date-fns";
 import { CalendarIcon, Info } from "lucide-react";
 import {
   FormField,
@@ -26,15 +26,20 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { differenceInDays } from "date-fns";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 interface DateInputsProps {
   form: any;
   gender: "male" | "female";
+  hasSelectedPatient?: boolean;
 }
 
-const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
-  const t = useTranslations('GrowthForm.dateInputs');
+const DateInputs: React.FC<DateInputsProps> = ({
+  form,
+  gender,
+  hasSelectedPatient = false,
+}) => {
+  const t = useTranslations("GrowthForm.dateInputs");
 
   const [birthDateOpen, setBirthDateOpen] = useState(false);
   const [measurementDateOpen, setMeasurementDateOpen] = useState(false);
@@ -46,25 +51,41 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
 
   useEffect(() => {
     if (birthDate && measurementDate) {
-      if (isAfter(birthDate, measurementDate)) {
-        setDateError(t('errors.measurementBeforeBirth'));
+      const ageInMonths = differenceInMonths(measurementDate, birthDate);
+      if (ageInMonths > 240) {
+        // 20 years * 12 months
+        setDateError(t("errors.maxAgeExceeded")); // Add this translation
         setAgeDisplay("");
         form.setError("dateOfMeasurement", {
           type: "manual",
-          message: t('errors.measurementAfterBirth'),
+          message: t("errors.maxAgeExceeded"),
+        });
+        return;
+      }
+      if (isAfter(birthDate, measurementDate)) {
+        setDateError(t("errors.measurementBeforeBirth"));
+        setAgeDisplay("");
+        form.setError("dateOfMeasurement", {
+          type: "manual",
+          message: t("errors.measurementAfterBirth"),
         });
       } else {
         setDateError("");
         form.clearErrors("dateOfMeasurement");
 
-        const yearDifference = measurementDate.getFullYear() - birthDate.getFullYear();
-        const monthDifference = measurementDate.getMonth() - birthDate.getMonth();
+        const yearDifference =
+          measurementDate.getFullYear() - birthDate.getFullYear();
+        const monthDifference =
+          measurementDate.getMonth() - birthDate.getMonth();
         const dayDifference = measurementDate.getDate() - birthDate.getDate();
 
         let years = yearDifference;
         let remainingMonths = monthDifference;
 
-        if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+        if (
+          monthDifference < 0 ||
+          (monthDifference === 0 && dayDifference < 0)
+        ) {
           years--;
           remainingMonths = 12 + monthDifference;
         }
@@ -74,27 +95,41 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
           birthDate.getMonth() + remainingMonths,
           birthDate.getDate()
         );
-        const remainingDays = differenceInDays(measurementDate, adjustedBirthDate);
+        const remainingDays = differenceInDays(
+          measurementDate,
+          adjustedBirthDate
+        );
 
         const displayParts = [];
 
         if (years > 0) {
-          displayParts.push(`${years} ${years > 1 ? t('ageDisplay.years') : t('ageDisplay.year')}`);
+          displayParts.push(
+            `${years} ${
+              years > 1 ? t("ageDisplay.years") : t("ageDisplay.year")
+            }`
+          );
         }
 
         if (remainingMonths > 0) {
           displayParts.push(
-            `${remainingMonths} ${remainingMonths > 1 ? t('ageDisplay.months') : t('ageDisplay.month')}`
+            `${remainingMonths} ${
+              remainingMonths > 1
+                ? t("ageDisplay.months")
+                : t("ageDisplay.month")
+            }`
           );
         }
 
         if (remainingDays > 0) {
           displayParts.push(
-            `${remainingDays} ${remainingDays > 1 ? t('ageDisplay.days') : t('ageDisplay.day')}`
+            `${remainingDays} ${
+              remainingDays > 1 ? t("ageDisplay.days") : t("ageDisplay.day")
+            }`
           );
         }
 
-        const finalDisplay = displayParts.join(", ") || t('ageDisplay.zeroDays');
+        const finalDisplay =
+          displayParts.join(", ") || t("ageDisplay.zeroDays");
         setAgeDisplay(finalDisplay);
       }
     } else {
@@ -103,10 +138,13 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
   }, [birthDate, measurementDate, t]);
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 121 }, (_, i) => ({
+  const years = Array.from({ length: 21 }, (_, i) => ({
     value: String(currentYear - i),
     label: String(currentYear - i),
   }));
+
+  const twentyYearsAgo = new Date();
+  twentyYearsAgo.setFullYear(currentYear - 20);
 
   const handleYearSelect = (fieldName: string, year: string) => {
     const currentDate = form.getValues(fieldName) || new Date();
@@ -124,14 +162,21 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>{t('labels.dateOfBirth')}</FormLabel>
-              <div className="flex gap-2">
+              <FormLabel>{t("labels.dateOfBirth")}</FormLabel>
+              <div
+                className={cn("flex gap-2", hasSelectedPatient && "opacity-50")}
+              >
                 <Select
-                  onValueChange={(year) => handleYearSelect("dateOfBirth", year)}
-                  value={field.value ? field.value.getFullYear().toString() : ""}
+                  onValueChange={(year) =>
+                    handleYearSelect("dateOfBirth", year)
+                  }
+                  value={
+                    field.value ? field.value.getFullYear().toString() : ""
+                  }
+                  disabled={hasSelectedPatient}
                 >
                   <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder={t('placeholders.year')} />
+                    <SelectValue placeholder={t("placeholders.year")} />
                   </SelectTrigger>
                   <SelectContent>
                     {years.map((year) => (
@@ -148,11 +193,12 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                       <Button
                         variant="outline"
                         className="w-full border-medical-100 pl-3 text-left font-normal"
+                        disabled={hasSelectedPatient}
                       >
                         {field.value ? (
                           format(field.value, "MMM d, yyyy")
                         ) : (
-                          <span>{t('placeholders.pickDate')}</span>
+                          <span>{t("placeholders.pickDate")}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -167,7 +213,9 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                         setBirthDateOpen(false);
                       }}
                       disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
+                        date > new Date() ||
+                        date < twentyYearsAgo || // Add this line
+                        date < new Date("1900-01-01")
                       }
                       defaultMonth={field.value || new Date()}
                       initialFocus
@@ -186,14 +234,18 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
           name="dateOfMeasurement"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>{t('labels.dateOfMeasurement')}</FormLabel>
+              <FormLabel>{t("labels.dateOfMeasurement")}</FormLabel>
               <div className="flex gap-2">
                 <Select
-                  onValueChange={(year) => handleYearSelect("dateOfMeasurement", year)}
-                  value={field.value ? field.value.getFullYear().toString() : ""}
+                  onValueChange={(year) =>
+                    handleYearSelect("dateOfMeasurement", year)
+                  }
+                  value={
+                    field.value ? field.value.getFullYear().toString() : ""
+                  }
                 >
                   <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder={t('placeholders.year')} />
+                    <SelectValue placeholder={t("placeholders.year")} />
                   </SelectTrigger>
                   <SelectContent>
                     {years.map((year) => (
@@ -217,7 +269,7 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                         {field.value ? (
                           format(field.value, "MMM d, yyyy")
                         ) : (
-                          <span>{t('placeholders.pickDate')}</span>
+                          <span>{t("placeholders.pickDate")}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -231,7 +283,12 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                         field.onChange(date);
                         setMeasurementDateOpen(false);
                       }}
-                      disabled={(date) => date > new Date()}
+                      disabled={
+                        (date) =>
+                          date > new Date() ||
+                          (birthDate &&
+                            differenceInMonths(date, birthDate) > 240) // Add this line (240 months = 20 years)
+                      }
                       defaultMonth={field.value || new Date()}
                       initialFocus
                     />
@@ -276,7 +333,7 @@ const DateInputs: React.FC<DateInputsProps> = ({ form, gender }) => {
                       : "text-medical-pink-500"
                   )}
                 />
-                {t('ageDisplay.patientAge')}:
+                {t("ageDisplay.patientAge")}:
                 <Badge
                   variant="secondary"
                   className={cn(
