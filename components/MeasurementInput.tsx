@@ -93,7 +93,7 @@ interface MeasurementInputProps {
   field: any;
   icon: LucideIcon;
   gender: "male" | "female";
-  birthDate: Date;
+  birthDate?: Date;
   measurementDate?: Date;
   selectedStandard?: string;
   cdcChildWeightData?: object[];

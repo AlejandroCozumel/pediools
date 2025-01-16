@@ -255,7 +255,7 @@ export function GrowthForm() {
         : undefined,
       dateOfMeasurement: new Date(),
     },
-    mode: "onSubmit",
+    mode: "onChange",
   });
 
   const [standardRecommendation, setStandardRecommendation] = useState<
@@ -449,6 +449,20 @@ export function GrowthForm() {
   // | "kromeyer";
 
   useEffect(() => {
+    // Skip recommendation logic entirely for Intergrowth
+    if (selectedStandard === "intergrowth") {
+      // Reset only measurement-specific fields while keeping other values
+      form.setValue("weight", "");
+      form.setValue("height", "");
+      form.setValue("headCircumference", "");
+      form.setValue("gestationalWeeks", "");
+      form.setValue("gestationalDays", "");
+
+      // Clear any standard recommendation
+      setStandardRecommendation(null);
+      return;
+    }
+
     if (birthDate && measurementDate) {
       // Ensure we're comparing full dates
       const adjustedBirthDate = new Date(
@@ -494,11 +508,6 @@ export function GrowthForm() {
           max: 240,
           validStandards: ["cdc_child"],
         },
-        // kromeyer: {
-        //   min: 0,
-        //   max: 216,
-        //   validStandards: ["cdc_child"],
-        // },
       };
 
       // Precise age checking function
@@ -841,8 +850,7 @@ export function GrowthForm() {
                 {birthDate && (
                   <>
                     {(selectedStandard === "who" ||
-                      selectedStandard === "cdc_infant" ||
-                      selectedStandard === "intergrowth") && (
+                      selectedStandard === "cdc_infant") && (
                       <FormField
                         control={form.control}
                         name="headCircumference"
@@ -904,9 +912,7 @@ export function GrowthForm() {
                   (!form.watch("gestationalWeeks") ||
                     !form.watch("gestationalDays"))) ||
                 !form.watch("weight") ||
-                !form.watch("height") ||
-                (selectedStandard === "cdc_infant" &&
-                  !form.watch("headCircumference"))
+                !form.watch("height")
               }
               size="lg"
               onClick={(e) => {
