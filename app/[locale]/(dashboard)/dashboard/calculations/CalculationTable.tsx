@@ -209,23 +209,23 @@ export default function CalculationTable({
       header: "Height Percentile",
       accessorFn: (row) =>
         row.results?.height?.percentiles?.calculatedPercentile,
-      cell: ({ getValue }) => `${getValue().toFixed(2)}P`,
+      cell: ({ getValue }) => `${getValue()?.toFixed(2)}P` || "N/A",
     },
     {
       header: "Weight Percentile",
       accessorFn: (row) =>
         row.results?.weight?.percentiles?.calculatedPercentile,
-      cell: ({ getValue }) => `${getValue().toFixed(2)}P`,
+      cell: ({ getValue }) => `${getValue()?.toFixed(2)}P` || "N/A",
     },
     {
       header: "Height Z-Score",
       accessorFn: (row) => row.results?.height?.percentiles?.zScore,
-      cell: ({ getValue }) => getValue().toFixed(2),
+      cell: ({ getValue }) => getValue()?.toFixed(2) || "N/A",
     },
     {
       header: "Weight Z-Score",
       accessorFn: (row) => row.results?.weight?.percentiles?.zScore,
-      cell: ({ getValue }) => getValue().toFixed(2),
+      cell: ({ getValue }) => getValue()?.toFixed(2) || "N/A",
     },
     {
       id: "actions",
@@ -253,7 +253,7 @@ export default function CalculationTable({
               onClick={() => {
                 const calculatorType = row.original.results.calculationType;
                 const patientId = row.original.patientId;
-                    const calculationId = row.original.id;
+                const calculationId = row.original.id;
 
                 const weightData = {
                   gender: row.original.patient.gender.toLowerCase(),

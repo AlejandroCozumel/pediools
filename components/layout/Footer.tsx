@@ -32,7 +32,8 @@ export default function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer
-      className="bg-white border-t border-gray-200"
+
+      className="border-t border-gray-200"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
