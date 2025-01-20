@@ -56,16 +56,19 @@ export async function GET(request: NextRequest) {
       where: {
         doctorId: doctor.id,
         calculations: {
-          some: {} // This ensures at least one calculation exists
-        }
+          some: {}, // This ensures at least one calculation exists
+        },
       },
-      orderBy: [{
-        calculations: {
-          _count: "desc"  // Order by number of calculations
-        }
-      }, {
-        createdAt: "desc" // Secondary sort by creation date
-      }],
+      orderBy: [
+        {
+          calculations: {
+            _count: "desc", // Order by number of calculations
+          },
+        },
+        {
+          createdAt: "desc", // Secondary sort by creation date
+        },
+      ],
       take: 5,
       select: {
         id: true,
@@ -76,6 +79,13 @@ export async function GET(request: NextRequest) {
         calculations: {
           orderBy: { date: "desc" },
           take: 1,
+          include: {
+            charts: {
+              select: {
+                type: true,
+              },
+            },
+          },
         },
       },
     });
@@ -90,6 +100,11 @@ export async function GET(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
+          },
+        },
+        charts: {
+          select: {
+            type: true,
           },
         },
       },
@@ -115,9 +130,9 @@ export async function GET(request: NextRequest) {
       recentCalculations: recentCalculations.map((calc) => ({
         id: calc.patient.id,
         type: calc.type,
+        chartType: calc.charts[0]?.type || null,
         patient: `${calc.patient.firstName} ${calc.patient.lastName}`,
         date: calc.date.toISOString(),
-        status: "Completed",
       })),
       // recentActivity: recentCalculations.map((calc) => ({
       //   type: calc.type,

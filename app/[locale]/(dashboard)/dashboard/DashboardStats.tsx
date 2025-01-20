@@ -31,11 +31,11 @@ interface DashboardStatsProps {
     type: string;
     patient: string;
     date: string;
-    status: string;
+    chartType: string;
   }>;
 }
 
-const take = 5
+const take = 5;
 
 const DashboardStats: React.FC<DashboardStatsProps> = ({
   stats,
@@ -65,9 +65,9 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
                 <Link
                   key={patient.id}
                   href={`/dashboard/patients/${patient.id}`}
-                  className="block hover:bg-medical-100 transition-colors duration-200"
+                  className="block bg-medical-10 rounded-lg hover:bg-medical-100 transition-colors duration-200"
                 >
-                  <div className="flex items-center justify-between p-3 bg-medical-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3">
                     <div className="flex items-center gap-3">
                       <Baby
                         className={`h-5 w-5 transition-colors duration-300 ease-in-out
@@ -108,7 +108,9 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
               </CardTitle>
               <BarChart3 className="h-5 w-5 text-medical-500" />
             </div>
-            <CardDescription>Latest {take} calculations and reports</CardDescription>
+            <CardDescription>
+              Latest {take} calculations and reports
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -116,32 +118,19 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
                 <Link
                   key={activity.id}
                   href={`/dashboard/calculations/${activity.id}`}
-                  className="block hover:bg-medical-100 transition-colors duration-200"
+                  className="block bg-medical-10 rounded-lg hover:bg-medical-100 transition-colors duration-200"
                 >
-                  <div className="flex items-center justify-between p-3 bg-medical-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3">
                     <div className="flex items-center gap-3">
                       <CalendarDays className="h-5 w-5 text-medical-500" />
-                      <div>
-                        <p className="font-medium text-medical-900">
-                          {activity.type}
-                        </p>
-                        <p className="text-sm text-medical-600">
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="outline">{activity.type}</Badge>
+                        <p className="text-sm text-medical-900 font-semibold">
                           {activity.patient}
                         </p>
                       </div>
                     </div>
-                    <Badge
-                      variant="outline"
-                      className={`border-medical-200 ${
-                        activity.status === "Completed"
-                          ? "text-green-600"
-                          : activity.status === "In Progress"
-                          ? "text-orange-600"
-                          : "text-medical-700"
-                      }`}
-                    >
-                      {activity.status}
-                    </Badge>
+                    <Badge variant="default">{activity.chartType}</Badge>
                   </div>
                 </Link>
               ))}
