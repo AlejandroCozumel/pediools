@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
     // Send email
     try {
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "care@pedimath.com",
         to: recipientEmail,
         subject: emailSubject,
         html: `

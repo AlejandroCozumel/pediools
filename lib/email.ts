@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendEmail = {
   welcomePremium: async (email: string, name: string, periodEnd: Date) => {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "payments@pedimath.com",
       to: email,
       subject: "Welcome to PedTools Premium!",
       html: `
@@ -19,7 +19,7 @@ export const sendEmail = {
 
   paymentFailed: async (email: string, name: string, gracePeriodEnd: Date) => {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "payments@pedimath.com",
       to: email,
       subject: "Payment Failed - Action Required",
       html: `
@@ -34,7 +34,7 @@ export const sendEmail = {
 
   paymentSucceeded: async (email: string, name: string, nextBillingDate: Date) => {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "payments@pedimath.com",
       to: email,
       subject: "Payment Successful",
       html: `
@@ -48,7 +48,7 @@ export const sendEmail = {
 
   subscriptionCanceled: async (email: string, name: string, endDate: Date) => {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "payments@pedimath.com",
       to: email,
       subject: "Subscription Cancelled",
       html: `
@@ -65,7 +65,7 @@ export const sendEmail = {
 
   subscriptionReactivated: async (email: string, name: string, nextBillingDate: Date) => {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "payments@pedimath.com",
       to: email,
       subject: "Subscription Reactivated",
       html: `
