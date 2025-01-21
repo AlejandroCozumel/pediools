@@ -4,7 +4,7 @@ import { useDashboardHome } from "@/hooks/use-dashboard";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import DashboardStats from "./DashboardStats";
 import PatientQuickActions from "@/components/QuickActions";
-import { Baby, LineChart, MailIcon } from "lucide-react";
+import { Baby, LineChart, Calendar1 } from "lucide-react";
 import DashboardTitle from "@/components/DashboardTitle";
 
 const Dashboard = () => {
@@ -39,18 +39,18 @@ const Dashboard = () => {
               category: "Records",
             },
             {
+              link: `/dashboard/appointments`,
+              icon: <Calendar1 className="h-8 w-8 text-medical-500" />,
+              title: "Appointments",
+              description: "Manage patient appointments",
+              category: "Appointments",
+            },
+            {
               link: `/dashboard/calculations`,
               icon: <LineChart className="h-8 w-8 text-medical-500" />,
               title: "Calculations",
               description: "View patient's growth charts and calculations",
               category: "Graphs",
-            },
-            {
-              link: `/dashboard/notifications`,
-              icon: <MailIcon className="h-8 w-8 text-medical-500" />,
-              title: "Email Notifications",
-              description: "Manage patient email notifications",
-              category: "Notifications",
             },
           ]}
         />

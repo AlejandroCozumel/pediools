@@ -5,14 +5,12 @@ import LoaderSpinnner from "@/components/LoaderSpinnner";
 import PatientsDashboard from "./PatientsDashboard";
 import DashboardTitle from "@/components/DashboardTitle";
 import StatsCard from "@/components/StatsCard";
-import { UsersIcon, CalendarIcon, CalculatorIcon } from "lucide-react";
+import { UsersIcon, CalendarIcon, CalculatorIcon, Plus } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const Patients = () => {
-  const {
-    data,
-    isLoading,
-    error
-  } = usePatients();
+  const { data, isLoading, error } = usePatients();
 
   if (error) {
     return (
@@ -29,10 +27,18 @@ const Patients = () => {
 
   return (
     <div className="my-6">
-      <DashboardTitle
-        title="Patients Dashboard"
-        subtitle="View and manage patient information"
-      />
+      <div className="flex flex-col md:flex-row justify-between mb-4 md:mb-0 ">
+        <DashboardTitle
+          title="Patients Dashboard"
+          subtitle="View and manage patient information"
+        />
+        <Link href="/dashboard/patients/add">
+          <Button className="bg-medical-600 hover:bg-medical-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Patient
+          </Button>
+        </Link>
+      </div>
       <div className="flex flex-col-reverse md:flex-col gap-4 md:gap-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard

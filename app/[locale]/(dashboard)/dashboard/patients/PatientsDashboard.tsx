@@ -280,12 +280,6 @@ export default function PatientsDashboard({
                   className="pl-8 w-[250px] border-medical-200"
                 />
               </div>
-              <Link href="/dashboard/patients/add">
-                <Button className="bg-medical-600 hover:bg-medical-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Patient
-                </Button>
-              </Link>
             </div>
           </div>
         </CardHeader>
