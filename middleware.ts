@@ -6,7 +6,6 @@ const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
-console.log("hola")
   // Check if it's an API route
   if (pathname.startsWith('/api')) {
     if (isProtectedRoute(req)) await auth.protect();
