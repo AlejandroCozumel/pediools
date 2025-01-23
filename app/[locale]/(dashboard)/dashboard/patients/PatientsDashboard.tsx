@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Link from "next/link";
 import {
   Card,
@@ -72,6 +73,7 @@ export default function PatientsDashboard({
   patients: Patient[];
 }) {
   const t = useTranslations("Patients.table");
+  const locale = useLocale();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -139,7 +141,11 @@ export default function PatientsDashboard({
       ),
       cell: ({ row }) =>
         row.original.lastVisit
-          ? new Date(row.original.lastVisit).toLocaleDateString()
+          ? new Intl.DateTimeFormat(locale, {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }).format(new Date(row.original.lastVisit))
           : t("noVisits"),
     },
     {
@@ -150,7 +156,13 @@ export default function PatientsDashboard({
           variant="outline"
           className="border-medical-200 text-medical-700"
         >
-          {row.original.lastCalculation || t("noCalculation")}
+          {row.original.lastCalculation
+            ? new Intl.DateTimeFormat(locale, {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              }).format(new Date(row.original.lastCalculation))
+            : t("noCalculation")}
         </Badge>
       ),
     },
