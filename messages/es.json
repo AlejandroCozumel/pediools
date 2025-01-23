@@ -214,5 +214,52 @@
     },
     "contactTitle": "Contáctenos",
     "copyright": "© {year} PediMath. Todos los derechos reservados."
+  },
+  "Dashboard": {
+    "title": "Panel",
+    "welcome": "Bienvenido de nuevo",
+    "error": "Algo salió mal al cargar su panel.",
+    "quickActions": {
+      "patients": {
+        "title": "Pacientes",
+        "description": "Ver y gestionar documentos de pacientes",
+        "category": "Registros"
+      },
+      "appointments": {
+        "title": "Citas",
+        "description": "Gestionar citas de pacientes",
+        "category": "Citas"
+      },
+      "calculations": {
+        "title": "Cálculos",
+        "description": "Ver gráficas de crecimiento y cálculos de pacientes",
+        "category": "Gráficas"
+      }
+    },
+    "recentPatients": "Pacientes Recientes",
+    "recentPatientsDescription": "Últimos {take} pacientes y actualizaciones",
+    "recentCalculations": "Cálculos Recientes",
+    "recentCalculationsDescription": "Últimos {take} cálculos e informes",
+    "status": {
+      "active": "Activo",
+      "pending": "Pendiente",
+      "completed": "Completado"
+    }
+  },
+  "Types": {
+    "chartTypes": {
+      "GROWTH_CDC": "Crecimiento CDC",
+      "GROWTH_WHO": "Crecimiento OMS",
+      "GROWTH_INTERGROWTH": "INTERGROWTH-21st",
+      "BLOOD_PRESSURE": "Presión Arterial",
+      "HEART_RATE": "Frecuencia Cardíaca",
+      "BILIRUBIN": "Bilirrubina"
+    },
+    "calculationTypes": {
+      "GROWTH_PERCENTILE": "Percentiles de Crecimiento",
+      "BLOOD_PRESSURE": "Presión Arterial",
+      "HEART_RATE": "Frecuencia Cardíaca",
+      "BILIRUBIN": "Bilirrubina"
+    }
   }
 }

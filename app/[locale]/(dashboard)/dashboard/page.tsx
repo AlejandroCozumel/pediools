@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import { useDashboardHome } from "@/hooks/use-dashboard";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import DashboardStats from "./DashboardStats";
@@ -9,48 +10,42 @@ import DashboardTitle from "@/components/DashboardTitle";
 
 const Dashboard = () => {
   const { data, isLoading, error } = useDashboardHome();
+  const d = useTranslations("Dashboard");
 
-  if (error) {
+  if (error)
     return (
       <div className="flex items-center justify-center min-h-screen text-medical-600">
-        Something went wrong loading your dashboard.
+        {d("error")}
       </div>
     );
-  }
-
-  if (isLoading) {
-    return <LoaderSpinnner />;
-  }
+  if (isLoading) return <LoaderSpinnner />;
 
   return (
     <div className="my-6">
-      <DashboardTitle
-        title="Dashboard"
-        subtitle="Welcome back"
-      />
+      <DashboardTitle title={d("title")} subtitle={d("welcome")} />
       <div className="flex flex-col gap-6">
         <PatientQuickActions
           actions={[
             {
               link: `/dashboard/patients`,
               icon: <Baby className="h-8 w-8 text-medical-500" />,
-              title: "Patients",
-              description: "View and manage patient documents",
-              category: "Records",
+              title: d("quickActions.patients.title"),
+              description: d("quickActions.patients.description"),
+              category: d("quickActions.patients.category"),
             },
             {
               link: `/dashboard/appointments`,
               icon: <Calendar1 className="h-8 w-8 text-medical-500" />,
-              title: "Appointments",
-              description: "Manage patient appointments",
-              category: "Appointments",
+              title: d("quickActions.appointments.title"),
+              description: d("quickActions.appointments.description"),
+              category: d("quickActions.appointments.category"),
             },
             {
               link: `/dashboard/calculations`,
               icon: <LineChart className="h-8 w-8 text-medical-500" />,
-              title: "Calculations",
-              description: "View patient's growth charts and calculations",
-              category: "Graphs",
+              title: d("quickActions.calculations.title"),
+              description: d("quickActions.calculations.description"),
+              category: d("quickActions.calculations.category"),
             },
           ]}
         />

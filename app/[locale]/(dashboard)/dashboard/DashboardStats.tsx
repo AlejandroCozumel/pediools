@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   Card,
@@ -9,7 +10,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, CalendarDays, Baby, UserPlus } from "lucide-react";
+import { BarChart3, CalendarDays } from "lucide-react";
 
 interface DashboardStatsProps {
   stats: {
@@ -42,6 +43,9 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   recentPatients,
   recentCalculations,
 }) => {
+  const t = useTranslations("Types");
+  const d = useTranslations("Dashboard");
+
   return (
     <div className="my-6">
       {/* Main Content Grid */}
@@ -51,65 +55,12 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
           <CardHeader className="lg:!pb-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-heading text-medical-900">
-                Recent Patients
-              </CardTitle>
-              <UserPlus className="h-5 w-5 text-medical-500" />
-            </div>
-            <CardDescription>
-              Latest {take} patients activity and updates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentPatients.map((patient) => (
-                <Link
-                  key={patient.id}
-                  href={`/dashboard/patients/${patient.id}`}
-                  className="block bg-medical-10 rounded-lg hover:bg-medical-100 transition-colors duration-200"
-                >
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <Baby
-                        className={`h-5 w-5 transition-colors duration-300 ease-in-out
-                        ${
-                          patient.gender === "FEMALE"
-                            ? "text-medical-pink-500"
-                            : "text-medical-500"
-                        }`}
-                      />
-                      <div>
-                        <p className="font-medium text-medical-900">
-                          {patient.name}
-                        </p>
-                        <p className="text-sm text-medical-600">
-                          {patient.age}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge
-                      variant="outline"
-                      className="border-medical-200 text-medical-700"
-                    >
-                      {patient.status}
-                    </Badge>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Calculations */}
-        <Card className="border-medical-100">
-          <CardHeader className="lg:!pb-0">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-heading text-medical-900">
-                Recent Calculations
+                {d("recentPatients")}
               </CardTitle>
               <BarChart3 className="h-5 w-5 text-medical-500" />
             </div>
             <CardDescription>
-              Latest {take} calculations and reports
+              {d("recentPatientsDescription", { take })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,13 +75,60 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
                     <div className="flex items-center gap-3">
                       <CalendarDays className="h-5 w-5 text-medical-500" />
                       <div className="flex flex-col gap-1">
-                        <Badge variant="outline">{activity.type}</Badge>
+                        <Badge variant="outline">
+                          {t(`calculationTypes.${activity.type}`)}
+                        </Badge>
                         <p className="text-sm text-medical-900 font-semibold">
                           {activity.patient}
                         </p>
                       </div>
                     </div>
-                    <Badge variant="default">{activity.chartType}</Badge>
+                    <Badge variant="default">
+                      {t(`chartTypes.${activity.chartType}`)}
+                    </Badge>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Calculations */}
+        <Card className="border-medical-100">
+          <CardHeader className="lg:!pb-0">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-heading text-medical-900">
+                {d("recentCalculations")}
+              </CardTitle>
+              <BarChart3 className="h-5 w-5 text-medical-500" />
+            </div>
+            <CardDescription>
+              {d("recentCalculationsDescription", { take })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentCalculations.map((activity) => (
+                <Link
+                  key={activity.id}
+                  href={`/dashboard/calculations/${activity.id}`}
+                  className="block bg-medical-10 rounded-lg hover:bg-medical-100 transition-colors duration-200"
+                >
+                  <div className="flex items-center justify-between p-3">
+                    <div className="flex items-center gap-3">
+                      <CalendarDays className="h-5 w-5 text-medical-500" />
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="outline">
+                          {t(`calculationTypes.${activity.type}`)}
+                        </Badge>
+                        <p className="text-sm text-medical-900 font-semibold">
+                          {activity.patient}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="default">
+                      {t(`chartTypes.${activity.chartType}`)}
+                    </Badge>
                   </div>
                 </Link>
               ))}

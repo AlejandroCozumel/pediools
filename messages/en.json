@@ -214,5 +214,52 @@
     },
     "contactTitle": "Contact Us",
     "copyright": "© {year} PediMath. All rights reserved."
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "error": "Something went wrong loading your dashboard.",
+    "quickActions": {
+      "patients": {
+        "title": "Patients",
+        "description": "View and manage patient documents",
+        "category": "Records"
+      },
+      "appointments": {
+        "title": "Appointments",
+        "description": "Manage patient appointments",
+        "category": "Appointments"
+      },
+      "calculations": {
+        "title": "Calculations",
+        "description": "View patient's growth charts and calculations",
+        "category": "Graphs"
+      }
+    },
+    "recentPatients": "Recent Patients",
+    "recentPatientsDescription": "Latest {take} patients activity and updates",
+    "recentCalculations": "Recent Calculations",
+    "recentCalculationsDescription": "Latest {take} calculations and reports",
+    "status": {
+      "active": "Active",
+      "pending": "Pending",
+      "completed": "Completed"
+    }
+  },
+  "Types": {
+    "chartTypes": {
+      "GROWTH_CDC": "CDC Growth",
+      "GROWTH_WHO": "WHO Growth",
+      "GROWTH_INTERGROWTH": "INTERGROWTH-21st",
+      "BLOOD_PRESSURE": "Blood Pressure",
+      "HEART_RATE": "Heart Rate",
+      "BILIRUBIN": "Bilirubin"
+    },
+    "calculationTypes": {
+      "GROWTH_PERCENTILE": "Growth Percentile",
+      "BLOOD_PRESSURE": "Blood Pressure",
+      "HEART_RATE": "Heart Rate",
+      "BILIRUBIN": "Bilirubin"
+    }
   }
 }
