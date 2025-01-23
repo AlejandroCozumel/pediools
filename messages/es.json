@@ -261,5 +261,43 @@
       "HEART_RATE": "Frecuencia Cardíaca",
       "BILIRUBIN": "Bilirrubina"
     }
+  },
+  "Patients": {
+    "title": "Panel de Pacientes",
+    "subtitle": "Ver y gestionar información de pacientes",
+    "error": "Algo salió mal al cargar su perfil.",
+    "addPatient": "Agregar Paciente",
+    "stats": {
+      "totalPatients": "Total de Pacientes",
+      "patientsWithCalculations": "Pacientes con Cálculos",
+      "newPatientsThisMonth": "Nuevos Pacientes Este Mes"
+    },
+    "table": {
+      "title": "Lista de Pacientes",
+      "subtitle": "Gestionar pacientes y sus registros",
+      "searchPlaceholder": "Buscar pacientes...",
+      "noResults": "Sin resultados",
+      "noCalculation": "Sin cálculos",
+      "noVisits": "Sin visitas",
+      "noPatients": "No se encontraron pacientes. Agregue un nuevo paciente para comenzar.",
+      "columns": {
+        "patientName": "Nombre del Paciente",
+        "age": "Edad",
+        "gender": "Género",
+        "lastVisit": "Última Visita",
+        "lastCalculation": "Último Cálculo",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "pagination": {
+        "previous": "Anterior",
+        "next": "Siguiente"
+      },
+      "actions": {
+        "title": "Acciones",
+        "viewDetails": "Ver Detalles",
+        "viewCalculations": "Ver Cálculos"
+      }
+    }
   }
 }

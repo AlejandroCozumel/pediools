@@ -261,5 +261,43 @@
       "HEART_RATE": "Heart Rate",
       "BILIRUBIN": "Bilirubin"
     }
+  },
+  "Patients": {
+    "title": "Patients Dashboard",
+    "subtitle": "View and manage patient information",
+    "error": "Something went wrong loading your profile.",
+    "addPatient": "Add Patient",
+    "stats": {
+      "totalPatients": "Total Patients",
+      "patientsWithCalculations": "Patients with Calculations",
+      "newPatientsThisMonth": "New Patients This Month"
+    },
+    "table": {
+      "title": "Patient List",
+      "subtitle": "Manage your patients and their records",
+      "searchPlaceholder": "Search patients...",
+      "noResults": "No results.",
+      "noCalculation": "No calculations",
+      "noVisits": "No visits",
+      "noPatients": "No patients found. Add a new patient to get started.",
+      "columns": {
+        "patientName": "Patient Name",
+        "age": "Age",
+        "gender": "Gender",
+        "lastVisit": "Last Visit",
+        "lastCalculation": "Last Calculation",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "actions": {
+        "title": "Actions",
+        "viewDetails": "View Details",
+        "viewCalculations": "View Calculations"
+      }
+    }
   }
 }

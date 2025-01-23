@@ -1,6 +1,6 @@
 "use client";
-
 import React from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   Card,
@@ -71,6 +71,7 @@ export default function PatientsDashboard({
 }: {
   patients: Patient[];
 }) {
+  const t = useTranslations("Patients.table");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -91,87 +92,65 @@ export default function PatientsDashboard({
   const columns: ColumnDef<Patient>[] = [
     {
       accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0 hover:bg-transparent text-medical-700"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Patient Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-0 hover:bg-transparent text-medical-700"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          {t("columns.patientName")}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
       cell: ({ row }) => `${row.original.firstName}`,
     },
     {
-      accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0 hover:bg-transparent text-medical-700"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Patient Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => `${row.original.lastName}`,
-    },
-    {
       accessorKey: "age",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0 hover:bg-transparent text-medical-700"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Age
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-0 hover:bg-transparent text-medical-700"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          {t("columns.age")}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
       cell: ({ row }) => calculateAge(row.original.dateOfBirth),
     },
     {
       accessorKey: "gender",
-      header: "Gender",
+      header: t("columns.gender"),
       cell: ({ row }) => (
         <div className="text-medical-600">{row.original.gender}</div>
       ),
     },
     {
       accessorKey: "lastVisit",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            className="p-0 hover:bg-transparent text-medical-700"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Last Visit
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-0 hover:bg-transparent text-medical-700"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          {t("columns.lastVisit")}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
       cell: ({ row }) =>
         row.original.lastVisit
           ? new Date(row.original.lastVisit).toLocaleDateString()
-          : "No visits",
+          : t("noVisits"),
     },
     {
       accessorKey: "lastCalculation",
-      header: "Last Calculation",
+      header: t("columns.lastCalculation"),
       cell: ({ row }) => (
         <Badge
           variant="outline"
           className="border-medical-200 text-medical-700"
         >
-          {row.original.lastCalculation || "No calculation"}
+          {row.original.lastCalculation || t("noCalculation")}
         </Badge>
       ),
     },
@@ -193,7 +172,7 @@ export default function PatientsDashboard({
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t("columns.actions"),
       cell: ({ row }) => {
         const router = useRouter();
         return (
@@ -204,7 +183,7 @@ export default function PatientsDashboard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("actions.title")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() =>
@@ -212,7 +191,7 @@ export default function PatientsDashboard({
                 }
               >
                 <Calendar className="mr-2 h-4 w-4" />
-                View Details
+                {t("actions.viewDetails")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -221,7 +200,7 @@ export default function PatientsDashboard({
                 }
               >
                 <Calculator className="mr-2 h-4 w-4" />
-                View Calculations
+                {t("actions.viewCalculations")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -264,17 +243,15 @@ export default function PatientsDashboard({
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <CardTitle className="text-xl font-heading text-medical-900">
-                Patient List
+                {t("title")}
               </CardTitle>
-              <CardDescription>
-                Manage your patients and their records
-              </CardDescription>
+              <CardDescription>{t("subtitle")}</CardDescription>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                 <Input
-                  placeholder="Search patients..."
+                  placeholder={t("searchPlaceholder")}
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
                   className="pl-8 w-[250px] border-medical-200"
@@ -342,7 +319,7 @@ export default function PatientsDashboard({
                   disabled={!table.getCanPreviousPage()}
                   className="border-medical-200 text-medical-700"
                 >
-                  Previous
+                  {t("pagination.previous")}
                 </Button>
                 <Button
                   variant="outline"
@@ -351,13 +328,13 @@ export default function PatientsDashboard({
                   disabled={!table.getCanNextPage()}
                   className="border-medical-200 text-medical-700"
                 >
-                  Next
+                  {t("pagination.next")}
                 </Button>
               </div>
             </>
           ) : (
             <div className="text-center py-8 text-medical-600">
-              No patients found. Add a new patient to get started.
+              {t("noPatients")}
             </div>
           )}
         </CardContent>
