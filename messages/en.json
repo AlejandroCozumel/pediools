@@ -180,5 +180,39 @@
         "description": "Patient has been removed from the consultation"
       }
     }
+  },
+  "Navigation": {
+    "calculator": "Calculators",
+    "premium": "Premium",
+    "dashboard": "Dashboard",
+    "patients": "Patients",
+    "appointments": "Appointments",
+    "calculations": "Calculations"
+  },
+  "Footer": {
+    "title": "Footer",
+    "mainHeading": "Pediatric Tools",
+    "description": "Making pediatric calculations easier and more accurate for healthcare professionals.",
+    "sections": {
+      "solutions": "Solutions",
+      "support": "Support",
+      "company": "Company"
+    },
+    "links": {
+      "growthCharts": "Growth Charts",
+      "bloodPressure": "Blood Pressure",
+      "bmiCalculator": "BMI Calculator",
+      "heartRate": "Heart Rate",
+      "contact": "Contact",
+      "helpCenter": "Help Center",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "about": "About",
+      "features": "Features",
+      "premium": "Premium",
+      "blog": "Blog"
+    },
+    "contactTitle": "Contact Us",
+    "copyright": "© {year} PediMath. All rights reserved."
   }
 }

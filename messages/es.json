@@ -180,5 +180,39 @@
         "description": "El paciente ha sido eliminado de la consulta"
       }
     }
+  },
+  "Navigation": {
+    "calculator": "Calculadoras",
+    "premium": "Premium",
+    "dashboard": "Panel",
+    "patients": "Pacientes",
+    "appointments": "Citas",
+    "calculations": "Cálculos"
+  },
+  "Footer": {
+    "title": "Pie de página",
+    "mainHeading": "Herramientas Pediátricas",
+    "description": "Haciendo los cálculos pediátricos más fáciles y precisos para profesionales de la salud.",
+    "sections": {
+      "solutions": "Soluciones",
+      "support": "Soporte",
+      "company": "Empresa"
+    },
+    "links": {
+      "growthCharts": "Gráficas de Crecimiento",
+      "bloodPressure": "Presión Arterial",
+      "bmiCalculator": "Calculadora de IMC",
+      "heartRate": "Frecuencia Cardíaca",
+      "contact": "Contacto",
+      "helpCenter": "Centro de Ayuda",
+      "terms": "Términos",
+      "privacy": "Privacidad",
+      "about": "Acerca de",
+      "features": "Características",
+      "premium": "Premium",
+      "blog": "Blog"
+    },
+    "contactTitle": "Contáctenos",
+    "copyright": "© {year} PediMath. Todos los derechos reservados."
   }
 }

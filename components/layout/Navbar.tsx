@@ -1,43 +1,56 @@
-"use client";
-import { motion } from "framer-motion";
-import React, { useState } from "react";
-import { Menu, ChevronRight } from "lucide-react";
-import {Link} from '@/i18n/routing';
-import { usePremiumStore } from "@/stores/premiumStore";
-import UserMenu from "./UserMenu";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import Image from "next/image";
+'use client'
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Menu, ChevronRight } from 'lucide-react';
+import { Link } from '@/i18n/routing';
+import { usePremiumStore } from '@/stores/premiumStore';
+import UserMenu from './UserMenu';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const navigationItems = [
   {
-    text: "Premium",
-    href: "/premium",
+    textKey: "calculator",
+    href: "/",
+    premiumOnly: true,
+    mobileOrder: 1,
+  },
+  {
+    textKey: "calculator",
+    href: "/",
     premiumOnly: false,
     mobileOrder: 1,
   },
   {
-    text: "Dashboard",
-    href: "/dashboard",
-    premiumOnly: true,
+    textKey: "premium",
+    href: "/premium",
+    premiumOnly: false,
     mobileOrder: 2,
   },
   {
-    text: "Patients",
-    href: "/dashboard/patients",
+    textKey: "dashboard",
+    href: "/dashboard",
     premiumOnly: true,
     mobileOrder: 3,
   },
   {
-    text: "Appointments",
-    href: "/dashboard/appointments",
+    textKey: "patients",
+    href: "/dashboard/patients",
     premiumOnly: true,
     mobileOrder: 4,
   },
   {
-    text: "Calculations",
-    href: "/dashboard/calculations",
+    textKey: "appointments",
+    href: "/dashboard/appointments",
     premiumOnly: true,
     mobileOrder: 5,
+  },
+  {
+    textKey: "calculations",
+    href: "/dashboard/calculations",
+    premiumOnly: true,
+    mobileOrder: 6,
   },
 ];
 
@@ -68,10 +81,10 @@ const NavLink: React.FC<{
       className="hidden lg:block h-[30px] overflow-hidden font-medium"
     >
       <motion.div whileHover={{ y: -30 }}>
-        <span className="flex items-center h-[30px] text-gray-500">
+        <span className="flex items-center h-[30px] text-gray-500 font-semibold">
           {isPremium ? `Premium: ${text}` : text}
         </span>
-        <span className="flex items-center h-[30px] text-indigo-600">
+        <span className="flex items-center h-[30px] text-indigo-600 font-semibold">
           {isPremium ? `Premium: ${text}` : text}
         </span>
       </motion.div>
@@ -82,32 +95,46 @@ const NavLink: React.FC<{
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isPremium } = usePremiumStore();
+  const t = useTranslations('Navigation');
 
-  // Updated filtering logic
-  const visibleNavItems = navigationItems.filter((item) =>
+  const getLocalizedItems = () => {
+    return navigationItems.map(item => ({
+      ...item,
+      text: t(item.textKey)
+    }));
+  };
+
+  const visibleNavItems = getLocalizedItems().filter((item) =>
     isPremium ? item.premiumOnly : !item.premiumOnly
   );
 
   return (
     <nav className="bg-white border-b-[1px] border-gray-200 p-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between relative">
-      <NavLeft setIsOpen={setIsOpen} />
-      <NavRight />
-      <NavMenu
-        isOpen={isOpen}
-        isPremium={isPremium}
-        navigationItems={visibleNavItems}
+        <NavLeft setIsOpen={setIsOpen} />
+        <NavRight />
+        <NavMenu
+          isOpen={isOpen}
+          isPremium={isPremium}
+          navigationItems={visibleNavItems}
         />
-        </div>
+      </div>
     </nav>
   );
 };
 
 const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
   const { isPremium } = usePremiumStore();
+  const t = useTranslations('Navigation');
 
-  // Updated filtering logic
-  const visibleNavItems = navigationItems.filter((item) =>
+  const getLocalizedItems = () => {
+    return navigationItems.map(item => ({
+      ...item,
+      text: t(item.textKey)
+    }));
+  };
+
+  const visibleNavItems = getLocalizedItems().filter((item) =>
     isPremium ? item.premiumOnly : !item.premiumOnly
   );
 
@@ -125,7 +152,7 @@ const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
         <Logo />
       </Link>
       {visibleNavItems.map((item) => (
-        <NavLink key={item.text} text={item.text} href={item.href} />
+        <NavLink key={item.textKey} text={item.text} href={item.href} />
       ))}
     </div>
   );
@@ -143,8 +170,8 @@ const NavRight: React.FC = () => {
 const NavMenu: React.FC<{
   isOpen: boolean;
   isPremium: boolean;
-  navigationItems: typeof navigationItems;
-}> = ({ isOpen, isPremium, navigationItems }) => {
+  navigationItems: (typeof navigationItems[0] & { text: string })[];
+}> = ({ isOpen, navigationItems }) => {
   return (
     <motion.div
       variants={menuVariants}
@@ -155,7 +182,7 @@ const NavMenu: React.FC<{
       {navigationItems
         .sort((a, b) => a.mobileOrder - b.mobileOrder)
         .map((item) => (
-          <MenuLink key={item.text} text={item.text} href={item.href} />
+          <MenuLink key={item.textKey} text={item.text} href={item.href} />
         ))}
     </motion.div>
   );
@@ -176,10 +203,10 @@ const MenuLink: React.FC<{
       </span>
       <div className="w-full">
         <span className="flex items-center h-[30px] text-gray-500">
-          {isPremium ? `Premium: ${text}` : text}
+          {isPremium ? `${text}` : text}
         </span>
         <span className="flex items-center h-[30px] text-indigo-600">
-          {isPremium ? `Premium: ${text}` : text}
+          {isPremium ? `${text}` : text}
         </span>
       </div>
     </Link>

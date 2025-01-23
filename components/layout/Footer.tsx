@@ -1,25 +1,26 @@
+'use client';
 import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 const navigation = {
   solutions: [
-    { name: "Growth Charts", href: "/growth-percentiles" },
-    { name: "Blood Pressure", href: "/blood-pressure" },
-    { name: "BMI Calculator", href: "/bmi" },
-    { name: "Heart Rate", href: "/heart-rate" },
+    { nameKey: "growthCharts", href: "/growth-percentiles" },
+    { nameKey: "bloodPressure", href: "/blood-pressure" },
+    { nameKey: "bmiCalculator", href: "/bmi" },
+    { nameKey: "heartRate", href: "/heart-rate" },
   ],
   support: [
-    { name: "Contact", href: "/contact" },
-    { name: "Help Center", href: "/help" },
-    { name: "Terms", href: "/terms" },
-    { name: "Privacy", href: "/privacy" },
+    { nameKey: "contact", href: "/contact" },
+    { nameKey: "helpCenter", href: "/help" },
+    { nameKey: "terms", href: "/terms" },
+    { nameKey: "privacy", href: "/privacy" },
   ],
   company: [
-    { name: "About", href: "/about" },
-    { name: "Features", href: "/features" },
-    { name: "Premium", href: "/premium" },
-    { name: "Blog", href: "/blog" },
+    { nameKey: "about", href: "/about" },
+    { nameKey: "features", href: "/features" },
+    { nameKey: "premium", href: "/premium" },
+    { nameKey: "blog", href: "/blog" },
   ],
   social: [
     { name: "Facebook", href: "#", icon: Facebook },
@@ -29,25 +30,25 @@ const navigation = {
 };
 
 export default function Footer() {
+  const t = useTranslations('Footer');
   const year = new Date().getFullYear();
+
   return (
     <footer
-
       className="border-t border-gray-200"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
-        Footer
+        {t('title')}
       </h2>
       <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">
             <h3 className="text-medical-600 text-xl font-bold">
-              Pediatric Tools
+              {t('mainHeading')}
             </h3>
             <p className="text-base font-medium text-medical-900">
-              Making pediatric calculations easier and more accurate for
-              healthcare professionals.
+              {t('description')}
             </p>
             <div className="flex space-x-4">
               {navigation.social.map((item) => (
@@ -63,60 +64,30 @@ export default function Footer() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div>
-              <h4 className="text-base font-semibold text-medical-900 mb-2">
-                Solutions
-              </h4>
-              <ul className="space-y-1">
-                {navigation.solutions.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className="text-[14px] text-gray-600 hover:text-gray-900"
-                    >
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-base font-semibold text-medical-900 mb-2">
-                Support
-              </h4>
-              <ul className="space-y-1">
-                {navigation.support.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className="text-[14px] text-gray-600 hover:text-gray-900"
-                    >
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-base font-semibold text-medical-900 mb-2">
-                Company
-              </h4>
-              <ul className="space-y-1">
-                {navigation.company.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className="text-[14px] text-gray-600 hover:text-gray-900"
-                    >
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {(['solutions', 'support', 'company'] as const).map((section) => (
+              <div key={section}>
+                <h4 className="text-base font-semibold text-medical-900 mb-2">
+                  {t(`sections.${section}`)}
+                </h4>
+                <ul className="space-y-1">
+                  {navigation[section].map((item) => (
+                    <li key={item.nameKey}>
+                      <Link
+                        href={item.href}
+                        className="text-[14px] text-gray-600 hover:text-gray-900"
+                      >
+                        {t(`links.${item.nameKey}`)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
           <div className="space-y-2">
-            <h4 className="text-base font-semibold text-medical-900">Contact Us</h4>
+            <h4 className="text-base font-semibold text-medical-900">
+              {t('contactTitle')}
+            </h4>
             <Link
               href="mailto:contact@pediatrictools.com"
               className="flex items-center text-[14px] text-gray-600 hover:text-gray-900"
@@ -128,7 +99,7 @@ export default function Footer() {
         </div>
         <div className="mt-6 pt-4 text-center">
           <p className="text-[14px] text-medical-900 font-normal">
-            &copy; {year} Pediatric Tools. All rights reserved.
+            {t('copyright', { year })}
           </p>
         </div>
       </div>
