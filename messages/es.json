@@ -266,6 +266,31 @@
       "BLOOD_PRESSURE": "Presión Arterial",
       "HEART_RATE": "Frecuencia Cardíaca",
       "BILIRUBIN": "Bilirrubina"
+    },
+    "bloodTypes": {
+      "A_POSITIVE": "A+",
+      "A_NEGATIVE": "A-",
+      "B_POSITIVE": "B+",
+      "B_NEGATIVE": "B-",
+      "O_POSITIVE": "O+",
+      "O_NEGATIVE": "O-",
+      "AB_POSITIVE": "AB+",
+      "AB_NEGATIVE": "AB-"
+    },
+    "guardianRelations": {
+      "MOTHER": "Madre",
+      "FATHER": "Padre",
+      "STEPMOTHER": "Madrastra",
+      "STEPFATHER": "Padrastro",
+      "GRANDMOTHER": "Abuela",
+      "GRANDFATHER": "Abuelo",
+      "AUNT": "Tía",
+      "UNCLE": "Tío",
+      "SIBLING": "Hermano/a",
+      "LEGAL_GUARDIAN": "Tutor Legal",
+      "FOSTER_PARENT": "Padre Adoptivo",
+      "CAREGIVER": "Cuidador",
+      "OTHER": "Otro"
     }
   },
   "Patients": {
@@ -304,6 +329,113 @@
         "viewDetails": "Ver Detalles",
         "viewCalculations": "Ver Cálculos"
       }
+    }
+  },
+  "AddPatient": {
+    "navigation": {
+      "backToPatients": "Volver a Pacientes"
+    },
+    "header": {
+      "title": "Agregar Nuevo Paciente",
+      "subtitle": "Ingrese la información del paciente para crear un nuevo registro"
+    },
+    "sections": {
+      "personal": {
+        "title": "Información Personal",
+        "subtitle": "Información básica del paciente",
+        "fields": {
+          "firstName": "Nombre",
+          "firstNamePlaceholder": "Ingrese nombre",
+          "lastName": "Apellido",
+          "lastNamePlaceholder": "Ingrese apellido",
+          "dateOfBirth": "Fecha de Nacimiento",
+          "gender": "Género",
+          "selectGender": "Seleccione género",
+          "yearPlaceholder": "Año",
+          "datePlaceholder": "Seleccione fecha",
+          "genderOptions": {
+            "male": "Masculino",
+            "female": "Femenino"
+          }
+        }
+      },
+      "contact": {
+        "title": "Información de Contacto",
+        "subtitle": "Detalles de contacto del paciente",
+        "fields": {
+          "email": "Correo Electrónico",
+          "emailPlaceholder": "Ingrese correo electrónico",
+          "phone": "Teléfono",
+          "phonePlaceholder": "Ingrese teléfono",
+          "address": "Dirección",
+          "addressPlaceholder": "Ingrese dirección completa",
+          "city": "Ciudad",
+          "cityPlaceholder": "Ingrese ciudad",
+          "state": "Estado/Provincia",
+          "statePlaceholder": "Ingrese estado/provincia",
+          "zipCode": "Código Postal",
+          "zipCodePlaceholder": "Ingrese código postal",
+          "country": "País",
+          "countryPlaceholder": "Ingrese país"
+        }
+      },
+      "medical": {
+        "title": "Información Médica",
+        "subtitle": "Detalles médicos del paciente",
+        "fields": {
+          "bloodType": "Tipo de Sangre",
+          "bloodTypePlaceholder": "Seleccione tipo de sangre",
+          "allergies": "Alergias",
+          "allergiesPlaceholder": "Liste las alergias",
+          "medications": "Medicamentos Actuales",
+          "medicationsPlaceholder": "Liste los medicamentos actuales",
+          "notes": "Notas Médicas",
+          "notesPlaceholder": "Notas médicas adicionales",
+          "insurance": {
+            "provider": "Proveedor de Seguro",
+            "providerPlaceholder": "Ingrese proveedor de seguro",
+            "policyNumber": "Número de Póliza",
+            "policyPlaceholder": "Ingrese número de póliza",
+            "groupNumber": "Número de Grupo",
+            "groupPlaceholder": "Ingrese número de grupo",
+            "expirationDate": "Fecha de Vencimiento"
+          }
+        }
+      },
+      "guardian": {
+        "title": "Información del Tutor",
+        "subtitle": "Detalles del padre o tutor",
+        "fields": {
+          "name": "Nombre del Tutor",
+          "namePlaceholder": "Ingrese nombre del tutor",
+          "relationship": "Parentesco",
+          "relationshipPlaceholder": "Seleccione parentesco",
+          "phone": "Teléfono del Tutor",
+          "phonePlaceholder": "Ingrese teléfono del tutor",
+          "email": "Correo del Tutor",
+          "emailPlaceholder": "Ingrese correo del tutor"
+        },
+        "relationships": {
+          "MOTHER": "Madre",
+          "FATHER": "Padre",
+          "STEPMOTHER": "Madrastra",
+          "STEPFATHER": "Padrastro",
+          "GRANDMOTHER": "Abuela",
+          "GRANDFATHER": "Abuelo",
+          "AUNT": "Tía",
+          "UNCLE": "Tío",
+          "SIBLING": "Hermano/a",
+          "LEGAL_GUARDIAN": "Tutor Legal",
+          "FOSTER_PARENT": "Padre Adoptivo",
+          "CAREGIVER": "Cuidador",
+          "OTHER": "Otro"
+        }
+      }
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Guardar Paciente",
+      "saving": "Guardando..."
     }
   }
 }

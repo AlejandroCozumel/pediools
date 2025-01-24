@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -71,7 +72,6 @@ const patientSchema = z.object({
     required_error: "Please select a gender",
   }),
 
-
   // Contact Information (all optional)
   email: z.union([
     z.string().email(),
@@ -132,7 +132,7 @@ const patientSchema = z.object({
       "OTHER",
     ])
     .optional()
-    .nullable()
+    .nullable(),
 });
 
 interface AddPatientFormProps {
@@ -146,8 +146,10 @@ const AddPatientForm = ({
   isSubmitting,
   savePatient,
 }: AddPatientFormProps) => {
+  const t = useTranslations("AddPatient");
+  const bt = useTranslations("Types.bloodTypes");
+  const gr = useTranslations("Types.guardianRelations");
   const [dateOpen, setDateOpen] = useState(false);
-
   const { toast } = useToast();
 
   const form = useForm({
@@ -208,7 +210,6 @@ const AddPatientForm = ({
 
   return (
     <div className="max-w-4xl m-auto w-full my-6 px-4">
-      {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center gap-2 text-medical-600 mb-6">
           <Link
@@ -216,14 +217,14 @@ const AddPatientForm = ({
             className="inline-flex items-center gap-2 text-sm hover:text-medical-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Patients
+            {t("navigation.backToPatients")}
           </Link>
         </div>
         <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
-          Add New Patient
+          {t("header.title")}
         </h1>
         <p className="text-medical-600 text-lg leading-relaxed mt-2">
-          Enter the patient's information to create a new record
+          {t("header.subtitle")}
         </p>
       </div>
 
@@ -235,13 +236,14 @@ const AddPatientForm = ({
               <div className="flex items-center gap-2">
                 <Baby className="h-5 w-5 text-medical-500" />
                 <CardTitle className="text-xl font-heading text-medical-900">
-                  Personal Information
+                  {t("sections.personal.title")}
                 </CardTitle>
               </div>
-              <CardDescription>Basic patient information</CardDescription>
+              <CardDescription>
+                {t("sections.personal.subtitle")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Names Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -249,11 +251,13 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        First Name
+                        {t("sections.personal.fields.firstName")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter first name"
+                          placeholder={t(
+                            "sections.personal.fields.firstNamePlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -268,11 +272,13 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Last Name
+                        {t("sections.personal.fields.lastName")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Last name"
+                          placeholder={t(
+                            "sections.personal.fields.lastNamePlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -282,7 +288,7 @@ const AddPatientForm = ({
                   )}
                 />
               </div>
-              {/* Date of Birth and Gender */}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -290,7 +296,7 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Date of Birth
+                        {t("sections.personal.fields.dateOfBirth")}
                       </FormLabel>
                       <div className="flex gap-2">
                         <Select
@@ -302,7 +308,11 @@ const AddPatientForm = ({
                           }
                         >
                           <SelectTrigger className="w-[110px] border-medical-200">
-                            <SelectValue placeholder="Year" />
+                            <SelectValue
+                              placeholder={t(
+                                "sections.personal.fields.yearPlaceholder"
+                              )}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {years.map((year) => (
@@ -312,7 +322,6 @@ const AddPatientForm = ({
                             ))}
                           </SelectContent>
                         </Select>
-
                         <Popover open={dateOpen} onOpenChange={setDateOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -323,7 +332,11 @@ const AddPatientForm = ({
                                 {field.value ? (
                                   format(field.value, "MMM d, yyyy")
                                 ) : (
-                                  <span>Pick a date</span>
+                                  <span>
+                                    {t(
+                                      "sections.personal.fields.datePlaceholder"
+                                    )}
+                                  </span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -341,7 +354,6 @@ const AddPatientForm = ({
                                 date > new Date() ||
                                 date < new Date("1900-01-01")
                               }
-                              defaultMonth={field.value || new Date()}
                               initialFocus
                             />
                           </PopoverContent>
@@ -351,25 +363,34 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="gender"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-medical-700">Gender</FormLabel>
+                      <FormLabel className="text-medical-700">
+                        {t("sections.personal.fields.gender")}
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="border-medical-200">
-                            <SelectValue placeholder="Select gender" />
+                            <SelectValue
+                              placeholder={t(
+                                "sections.personal.fields.selectGender"
+                              )}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="MALE">Male</SelectItem>
-                          <SelectItem value="FEMALE">Female</SelectItem>
+                          <SelectItem value="MALE">
+                            {t("sections.personal.fields.genderOptions.male")}
+                          </SelectItem>
+                          <SelectItem value="FEMALE">
+                            {t("sections.personal.fields.genderOptions.female")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -386,10 +407,12 @@ const AddPatientForm = ({
               <div className="flex items-center gap-2">
                 <Contact className="h-5 w-5 text-medical-500" />
                 <CardTitle className="text-xl font-heading text-medical-900">
-                  Contact Information
+                  {t("sections.contact.title")}
                 </CardTitle>
               </div>
-              <CardDescription>Patient's contact details</CardDescription>
+              <CardDescription>
+                {t("sections.contact.subtitle")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -398,11 +421,15 @@ const AddPatientForm = ({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-medical-700">Email</FormLabel>
+                      <FormLabel className="text-medical-700">
+                        {t("sections.contact.fields.email")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter email"
+                          placeholder={t(
+                            "sections.contact.fields.emailPlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -417,11 +444,13 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Phone Number
+                        {t("sections.contact.fields.phone")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter phone number"
+                          placeholder={t(
+                            "sections.contact.fields.phonePlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -431,9 +460,7 @@ const AddPatientForm = ({
                   )}
                 />
               </div>
-
               <Separator className="my-4" />
-
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -441,11 +468,13 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Address
+                        {t("sections.contact.fields.address")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter full address"
+                          placeholder={t(
+                            "sections.contact.fields.addressPlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -454,17 +483,20 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-medical-700">City</FormLabel>
+                        <FormLabel className="text-medical-700">
+                          {t("sections.contact.fields.city")}
+                        </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter city"
+                            placeholder={t(
+                              "sections.contact.fields.cityPlaceholder"
+                            )}
                             className="border-medical-200"
                             {...field}
                           />
@@ -479,11 +511,13 @@ const AddPatientForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-medical-700">
-                          State
+                          {t("sections.contact.fields.state")}
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter state"
+                            placeholder={t(
+                              "sections.contact.fields.statePlaceholder"
+                            )}
                             className="border-medical-200"
                             {...field}
                           />
@@ -498,11 +532,13 @@ const AddPatientForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-medical-700">
-                          Zip Code
+                          {t("sections.contact.fields.zipCode")}
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter zip code"
+                            placeholder={t(
+                              "sections.contact.fields.zipCodePlaceholder"
+                            )}
                             className="border-medical-200"
                             {...field}
                           />
@@ -511,18 +547,19 @@ const AddPatientForm = ({
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="country"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-medical-700">
-                          Country
+                          {t("sections.contact.fields.country")}
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter country"
+                            placeholder={t(
+                              "sections.contact.fields.countryPlaceholder"
+                            )}
                             className="border-medical-200"
                             {...field}
                           />
@@ -542,10 +579,12 @@ const AddPatientForm = ({
               <div className="flex items-center gap-2">
                 <Heart className="h-5 w-5 text-medical-500" />
                 <CardTitle className="text-xl font-heading text-medical-900">
-                  Medical Information
+                  {t("sections.medical.title")}
                 </CardTitle>
               </div>
-              <CardDescription>Patient's medical details</CardDescription>
+              <CardDescription>
+                {t("sections.medical.subtitle")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -555,7 +594,7 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Blood Type
+                        {t("sections.medical.fields.bloodType")}
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -563,7 +602,11 @@ const AddPatientForm = ({
                       >
                         <FormControl>
                           <SelectTrigger className="border-medical-200">
-                            <SelectValue placeholder="Select blood type" />
+                            <SelectValue
+                              placeholder={t(
+                                "sections.medical.fields.bloodTypePlaceholder"
+                              )}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -578,7 +621,7 @@ const AddPatientForm = ({
                             "AB_NEGATIVE",
                           ].map((type) => (
                             <SelectItem key={type} value={type}>
-                              {type.replace("_", " ")}
+                              {bt(type)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -587,18 +630,19 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="allergies"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Allergies
+                        {t("sections.medical.fields.allergies")}
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="List any allergies"
+                          placeholder={t(
+                            "sections.medical.fields.allergiesPlaceholder"
+                          )}
                           className="border-medical-200 resize-none"
                           {...field}
                         />
@@ -607,18 +651,19 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="medications"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Current Medications
+                        {t("sections.medical.fields.medications")}
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="List current medications"
+                          placeholder={t(
+                            "sections.medical.fields.medicationsPlaceholder"
+                          )}
                           className="border-medical-200 resize-none"
                           {...field}
                         />
@@ -627,18 +672,19 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="medicalNotes"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Medical Notes
+                        {t("sections.medical.fields.notes")}
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Additional medical notes"
+                          placeholder={t(
+                            "sections.medical.fields.notesPlaceholder"
+                          )}
                           className="border-medical-200 resize-none"
                           {...field}
                         />
@@ -654,11 +700,13 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Insurance Provider
+                        {t("sections.medical.fields.insurance.provider")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter insurance provider"
+                          placeholder={t(
+                            "sections.medical.fields.insurance.providerPlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -667,18 +715,19 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="insuranceInfo.policyNumber"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Policy Number
+                        {t("sections.medical.fields.insurance.policyNumber")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter policy number"
+                          placeholder={t(
+                            "sections.medical.fields.insurance.policyPlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -687,18 +736,19 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="insuranceInfo.groupNumber"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Group Number
+                        {t("sections.medical.fields.insurance.groupNumber")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter group number"
+                          placeholder={t(
+                            "sections.medical.fields.insurance.groupPlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -707,14 +757,13 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="insuranceInfo.expirationDate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Expiration Date
+                        {t("sections.medical.fields.insurance.expirationDate")}
                       </FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -726,7 +775,11 @@ const AddPatientForm = ({
                               {field.value ? (
                                 format(new Date(field.value), "MMM d, yyyy")
                               ) : (
-                                <span>Pick a date</span>
+                                <span>
+                                  {t(
+                                    "sections.personal.fields.datePlaceholder"
+                                  )}
+                                </span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -742,7 +795,6 @@ const AddPatientForm = ({
                               field.onChange(date);
                             }}
                             disabled={(date) =>
-                              // Only disable dates in the past
                               date < new Date(new Date().setHours(0, 0, 0, 0))
                             }
                             initialFocus
@@ -763,10 +815,12 @@ const AddPatientForm = ({
               <div className="flex items-center gap-2">
                 <UserPlus className="h-5 w-5 text-medical-500" />
                 <CardTitle className="text-xl font-heading text-medical-900">
-                  Guardian Information
+                  {t("sections.guardian.title")}
                 </CardTitle>
               </div>
-              <CardDescription>Parent or guardian details</CardDescription>
+              <CardDescription>
+                {t("sections.guardian.subtitle")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -776,11 +830,13 @@ const AddPatientForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Guardian Name
+                        {t("sections.guardian.fields.name")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter guardian's name"
+                          placeholder={t(
+                            "sections.guardian.fields.namePlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -789,14 +845,13 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="guardianRelation"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Relationship
+                        {t("sections.guardian.fields.relationship")}
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -804,56 +859,52 @@ const AddPatientForm = ({
                       >
                         <FormControl>
                           <SelectTrigger className="border-medical-200">
-                            <SelectValue placeholder="Select relationship" />
+                            <SelectValue
+                              placeholder={t(
+                                "sections.guardian.fields.relationshipPlaceholder"
+                              )}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {/* Immediate Family */}
-                          <SelectItem value="MOTHER">Mother</SelectItem>
-                          <SelectItem value="FATHER">Father</SelectItem>
-                          <SelectItem value="STEPMOTHER">Stepmother</SelectItem>
-                          <SelectItem value="STEPFATHER">Stepfather</SelectItem>
-                          <SelectItem value="GRANDMOTHER">
-                            Grandmother
-                          </SelectItem>
-                          <SelectItem value="GRANDFATHER">
-                            Grandfather
-                          </SelectItem>
-
-                          {/* Extended Family */}
-                          <SelectItem value="AUNT">Aunt</SelectItem>
-                          <SelectItem value="UNCLE">Uncle</SelectItem>
-                          <SelectItem value="SIBLING">Sibling</SelectItem>
-
-                          {/* Legal Guardians */}
-                          <SelectItem value="LEGAL_GUARDIAN">
-                            Legal Guardian
-                          </SelectItem>
-                          <SelectItem value="FOSTER_PARENT">
-                            Foster Parent
-                          </SelectItem>
-
-                          {/* Other */}
-                          <SelectItem value="CAREGIVER">Caregiver</SelectItem>
-                          <SelectItem value="OTHER">Other</SelectItem>
+                          {[
+                            "MOTHER",
+                            "FATHER",
+                            "STEPMOTHER",
+                            "STEPFATHER",
+                            "GRANDMOTHER",
+                            "GRANDFATHER",
+                            "AUNT",
+                            "UNCLE",
+                            "SIBLING",
+                            "LEGAL_GUARDIAN",
+                            "FOSTER_PARENT",
+                            "CAREGIVER",
+                            "OTHER",
+                          ].map((relation) => (
+                            <SelectItem key={relation} value={relation}>
+                              {gr(relation)}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="guardianPhone"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Guardian Phone
+                        {t("sections.guardian.fields.phone")}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Enter guardian's phone"
+                          placeholder={t(
+                            "sections.guardian.fields.phonePlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -862,19 +913,20 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="guardianEmail"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-medical-700">
-                        Guardian Email
+                        {t("sections.guardian.fields.email")}
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter guardian's email"
+                          placeholder={t(
+                            "sections.guardian.fields.emailPlaceholder"
+                          )}
                           className="border-medical-200"
                           {...field}
                         />
@@ -895,7 +947,7 @@ const AddPatientForm = ({
                 variant="outline"
                 className="border-medical-200 text-medical-700 hover:bg-medical-50"
               >
-                Cancel
+                {t("actions.cancel")}
               </Button>
             </Link>
             <Button
@@ -906,12 +958,12 @@ const AddPatientForm = ({
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  {t("actions.saving")}
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Patient
+                  {t("actions.save")}
                 </>
               )}
             </Button>
