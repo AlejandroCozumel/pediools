@@ -7,17 +7,13 @@ import DashboardStats from "./DashboardStats";
 import PatientQuickActions from "@/components/QuickActions";
 import { Baby, LineChart, Calendar1 } from "lucide-react";
 import DashboardTitle from "@/components/DashboardTitle";
+import ErrorMessage from "@/components/Error";
 
 const Dashboard = () => {
   const { data, isLoading, error } = useDashboardHome();
   const d = useTranslations("Dashboard");
 
-  if (error)
-    return (
-      <div className="flex items-center justify-center min-h-screen text-medical-600">
-        {d("error")}
-      </div>
-    );
+  if (error) return <ErrorMessage message={error?.message} />;
   if (isLoading) return <LoaderSpinnner />;
 
   return (

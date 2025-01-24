@@ -1,4 +1,10 @@
 {
+  "Common": {
+    "error": {
+      "title": "Something went wrong",
+      "default": "An error occurred. Please try again later."
+    }
+  },
   "CalculatorsList": {
     "dashboardTitle": "Pediatric Calculators",
     "dashboardSubtitle": "Professional tools for pediatric assessment and monitoring",

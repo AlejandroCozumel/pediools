@@ -1,4 +1,10 @@
 {
+  "Common": {
+    "error": {
+      "title": "Algo salió mal",
+      "default": "Ocurrió un error. Por favor, inténtelo más tarde."
+    }
+  },
   "CalculatorsList": {
     "dashboardTitle": "Calculadoras Pediátricas",
     "dashboardSubtitle": "Herramientas profesionales para evaluación y seguimiento pediátrico",

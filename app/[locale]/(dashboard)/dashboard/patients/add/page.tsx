@@ -3,17 +3,14 @@ import React from "react";
 import { usePatient } from "@/hooks/use-patient";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import AddPatientForm from "./AddPatientForm";
+import ErrorMessage from "@/components/Error";
 
 const AddPatient = () => {
   const { patient, isLoading, error, savePatient } = usePatient();
 
   // Add error handling
   if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-medical-600">
-        Something went wrong loading your profile.
-      </div>
-    );
+    return <ErrorMessage message={error?.message} />;
   }
 
   // Loading state
