@@ -66,25 +66,17 @@ const UserMenu = () => {
   const menuItems = [
     {
       label: "My Profile",
-      path: "/dashboard/profile",
+      path: "/dashboard/profile/myprofile",
       onClick: () => {
-        router.push("/dashboard/profile");
+        router.push("/dashboard/profile/myprofile");
         setIsOpen(false);
       },
     },
     {
-      label: "My Patients",
-      path: "/dashboard/patients",
+      label: "My Account",
+      path: "/dashboard/profile/account",
       onClick: () => {
-        router.push("/dashboard/patients");
-        setIsOpen(false);
-      },
-    },
-    {
-      label: "My Calculations",
-      path: "/dashboard/calculations",
-      onClick: () => {
-        router.push("/dashboard/calculations");
+        router.push("/dashboard/profile/account");
         setIsOpen(false);
       },
     },
@@ -103,7 +95,6 @@ const UserMenu = () => {
       <div
         onClick={() => setIsOpen(!isOpen)}
         className="
-          p-2
           border
           border-neutral-200
           flex
@@ -114,21 +105,22 @@ const UserMenu = () => {
           cursor-pointer
           hover:shadow-[0_2px_4px_rgba(0,0,0,0.18)]
           transition
+          h-[40px]
+          w-[40px]
         "
       >
-        <Menu size={18} className="ml-1" />
         <div className="hidden md:block">
           {user ? (
-            <Avatar className="h-[30px] w-[30px]">
+            <Avatar className="h-[40px] w-[40px]">
               <AvatarImage src={user?.imageUrl ?? undefined} />
               <AvatarFallback className="bg-medical-100 text-medical-700">
                 {getInitials(user?.fullName)}
               </AvatarFallback>
             </Avatar>
           ) : (
-            <Avatar className="h-[30px] w-[30px] bg-gray-100">
+            <Avatar className="h-[40px] w-[40px] bg-gray-100">
               <AvatarFallback>
-                <CircleUserRound className="h-[30px] w-[30px] text-slate-300" />
+                <CircleUserRound className="h-[40px] w-[40px] text-slate-300" />
               </AvatarFallback>
             </Avatar>
           )}

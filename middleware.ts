@@ -2,12 +2,15 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "!/dashboard/profile/account/(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
   // Check if it's an API route
-  if (pathname.startsWith('/api')) {
+  if (pathname.startsWith("/api")) {
     if (isProtectedRoute(req)) await auth.protect();
     return;
   }

@@ -11,46 +11,34 @@ import { useTranslations } from 'next-intl';
 
 const navigationItems = [
   {
-    textKey: "calculator",
-    href: "/",
-    premiumOnly: true,
-    mobileOrder: 1,
-  },
-  {
-    textKey: "calculator",
-    href: "/",
-    premiumOnly: false,
-    mobileOrder: 1,
-  },
-  {
     textKey: "premium",
     href: "/premium",
     premiumOnly: false,
-    mobileOrder: 2,
+    mobileOrder: 1,
   },
   {
     textKey: "dashboard",
     href: "/dashboard",
     premiumOnly: true,
-    mobileOrder: 3,
+    mobileOrder: 2,
   },
   {
     textKey: "patients",
     href: "/dashboard/patients",
     premiumOnly: true,
-    mobileOrder: 4,
+    mobileOrder: 3,
   },
   {
     textKey: "appointments",
     href: "/dashboard/appointments",
     premiumOnly: true,
-    mobileOrder: 5,
+    mobileOrder: 4,
   },
   {
     textKey: "calculations",
     href: "/dashboard/calculations",
     premiumOnly: true,
-    mobileOrder: 6,
+    mobileOrder: 5,
   },
 ];
 
