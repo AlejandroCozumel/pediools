@@ -41,7 +41,7 @@ export default function Footer() {
       <h2 id="footer-heading" className="sr-only">
         {t('title')}
       </h2>
-      <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
+      <div className="max-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">
             <h3 className="text-medical-600 text-xl font-bold">

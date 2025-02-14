@@ -1,3 +1,4 @@
+// app/api/create-doctor/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prismadb";
 import { auth, currentUser } from '@clerk/nextjs/server';
@@ -34,7 +35,6 @@ export async function POST(req: NextRequest) {
       message: "Doctor created successfully",
       doctor: newDoctor
     }, { status: 201 });
-
   } catch (error) {
     console.error("Error creating doctor:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

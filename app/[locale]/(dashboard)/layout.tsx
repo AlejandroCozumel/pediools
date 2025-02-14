@@ -43,7 +43,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <>
       <Navbar />
-      <main className="max-w-7xl px-4 m-auto container">{children}</main>
+      <main className="max-container">{children}</main>
     </>
   );
 };

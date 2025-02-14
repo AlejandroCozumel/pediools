@@ -98,7 +98,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white border-b-[1px] border-gray-200 p-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between relative">
+      <div className="max-container flex items-center justify-between relative">
         <NavLeft setIsOpen={setIsOpen} />
         <NavRight />
         <NavMenu

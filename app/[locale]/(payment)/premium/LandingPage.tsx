@@ -19,7 +19,7 @@ export default function LandingPage() {
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-blue-50 to-white">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-container">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
@@ -58,7 +58,7 @@ export default function LandingPage() {
           </div>
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32" id="features">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-container">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm">
@@ -73,7 +73,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-7xl items-center gap-6 py-12 lg:grid-cols-3">
+            <div className="max-container grid items-center gap-6 py-12 lg:grid-cols-3">
               <Card>
                 <CardContent className="flex flex-col items-center space-y-4 p-6">
                   <Calculator className="h-12 w-12 text-blue-600" />
@@ -108,7 +108,7 @@ export default function LandingPage() {
           </div>
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-container">
             <div className="grid gap-10 md:gap-16 lg:grid-cols-2">
               <div className="space-y-4">
                 <div className="inline-block rounded-lg bg-blue-600 px-3 py-1 text-sm text-white">
@@ -155,7 +155,7 @@ export default function LandingPage() {
           </div>
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32" id="testimonials">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-container">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
@@ -167,7 +167,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-7xl items-center gap-6 py-12 lg:grid-cols-2">
+            <div className="max-container grid items-center gap-6 py-12 lg:grid-cols-2">
               <Card>
                 <CardContent className="flex flex-col space-y-4 p-6">
                   <p className="text-gray-500">
