@@ -47,6 +47,8 @@ import {
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { DoctorProfileData } from "@/hooks/use-doctor-profile";
+import ImageUploader from "@/components/uploader/ImageUploader";
+import { useUploadFile } from "@/hooks/use-upload-file";
 
 const doctorProfileSchema = z.object({
   // Professional Information
@@ -69,12 +71,6 @@ const doctorProfileSchema = z.object({
   // Branding
   logoUrl: z.string().optional().nullable(),
   signatureUrl: z.string().optional().nullable(),
-  primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {
-    message: "Must be a valid hex color code",
-  }),
-  secondaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {
-    message: "Must be a valid hex color code",
-  }),
   headerText: z.string().optional().nullable(),
   footerText: z.string().optional().nullable(),
 
@@ -173,6 +169,14 @@ const DoctorProfileForm = ({
       });
     }
   };
+
+  const {
+    uploadFiles,
+    uploadedFiles,
+    progresses,
+    isUploading,
+    deleteUploadedFile,
+  } = useUploadFile();
 
   return (
     <div className="max-w-4xl m-auto w-full my-6 px-4">
@@ -548,64 +552,6 @@ const DoctorProfileForm = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="primaryColor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-medical-700">
-                        Primary Color
-                      </FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            className="w-12 h-10 p-1 border-medical-200"
-                            {...field}
-                          />
-                          <Input
-                            type="text"
-                            placeholder="#000000"
-                            className="border-medical-200"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="secondaryColor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-medical-700">
-                        Secondary Color
-                      </FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            className="w-12 h-10 p-1 border-medical-200"
-                            {...field}
-                          />
-                          <Input
-                            type="text"
-                            placeholder="#000000"
-                            className="border-medical-200"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
                   name="headerText"
                   render={({ field }) => (
                     <FormItem>
@@ -653,26 +599,30 @@ const DoctorProfileForm = ({
                     <FormItem>
                       <FormLabel className="text-medical-700">Logo</FormLabel>
                       <FormControl>
-                        <div className="flex gap-2 items-center">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            className="border-medical-200"
-                            onChange={(e) => {
-                              // Handle file upload logic here
-                              console.log(e.target.files?.[0]);
-                            }}
-                          />
-                          {field.value && (
-                            <Image className="h-5 w-5 text-medical-500" />
-                          )}
-                        </div>
+                        <ImageUploader
+                          onUpload={async (files) => {
+                            await uploadFiles(files);
+                            // Update the form field with the uploaded URL
+                            if (uploadedFiles.length > 0) {
+                              field.onChange(uploadedFiles[0].url);
+                            }
+                          }}
+                          maxSize={1024 * 1024 * 4} // 4MB
+                          maxFiles={1}
+                          disabled={isUploading}
+                          uploadedFiles={
+                            field.value
+                              ? [{ url: field.value, name: "logo" }]
+                              : []
+                          }
+                          progresses={progresses}
+                          deleteUploadedFile={deleteUploadedFile}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="signatureUrl"
@@ -682,20 +632,25 @@ const DoctorProfileForm = ({
                         Digital Signature
                       </FormLabel>
                       <FormControl>
-                        <div className="flex gap-2 items-center">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            className="border-medical-200"
-                            onChange={(e) => {
-                              // Handle file upload logic here
-                              console.log(e.target.files?.[0]);
-                            }}
-                          />
-                          {field.value && (
-                            <FileSignature className="h-5 w-5 text-medical-500" />
-                          )}
-                        </div>
+                        <ImageUploader
+                          onUpload={async (files) => {
+                            await uploadFiles(files);
+                            // Update the form field with the uploaded URL
+                            if (uploadedFiles.length > 0) {
+                              field.onChange(uploadedFiles[0].url);
+                            }
+                          }}
+                          maxSize={1024 * 1024 * 4} // 4MB
+                          maxFiles={1}
+                          disabled={isUploading}
+                          uploadedFiles={
+                            field.value
+                              ? [{ url: field.value, name: "signature" }]
+                              : []
+                          }
+                          progresses={progresses}
+                          deleteUploadedFile={deleteUploadedFile}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
