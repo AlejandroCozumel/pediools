@@ -49,6 +49,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DoctorProfileData } from "@/hooks/use-doctor-profile";
 import ImageUploader from "@/components/uploader/ImageUploader";
 import { useUploadFile } from "@/hooks/use-upload-file";
+import { FileUploader } from "@/components/uploader/FileUploader";
 
 const doctorProfileSchema = z.object({
   // Professional Information
@@ -156,6 +157,7 @@ const DoctorProfileForm = ({
 
   const onSubmit = async (data: DoctorProfileData) => {
     try {
+      console.log("Submitting profile data:", data); // Debug log
       await saveProfile.mutateAsync(data);
       toast({
         title: "Profile updated successfully",
@@ -177,6 +179,11 @@ const DoctorProfileForm = ({
     isUploading,
     deleteUploadedFile,
   } = useUploadFile();
+  const formValues = form.watch();
+
+  useEffect(() => {
+    console.log("Form values:", formValues);
+  }, [formValues]);
 
   return (
     <div className="max-w-4xl m-auto w-full my-6 px-4">
@@ -599,30 +606,51 @@ const DoctorProfileForm = ({
                     <FormItem>
                       <FormLabel className="text-medical-700">Logo</FormLabel>
                       <FormControl>
-                        <ImageUploader
-                          onUpload={async (files) => {
-                            await uploadFiles(files);
-                            // Update the form field with the uploaded URL
-                            if (uploadedFiles.length > 0) {
-                              field.onChange(uploadedFiles[0].url);
-                            }
-                          }}
-                          maxSize={1024 * 1024 * 4} // 4MB
-                          maxFiles={1}
-                          disabled={isUploading}
-                          uploadedFiles={
+                        <FileUploader
+                          value={
                             field.value
                               ? [{ url: field.value, name: "logo" }]
                               : []
                           }
-                          progresses={progresses}
-                          deleteUploadedFile={deleteUploadedFile}
+                          onValueChange={(files) => {
+                            console.log("File value changed:", files);
+                          }}
+                          onUpload={async (files) => {
+                            try {
+                              const uploadedFiles = await uploadFiles(files);
+                              console.log("Files uploaded:", uploadedFiles);
+                              const newUrl = uploadedFiles[0]?.url || null;
+                              console.log("Setting URL after upload:", newUrl);
+                              field.onChange(newUrl);
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to upload file",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          accept={{
+                            "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+                          }}
+                          maxSize={1024 * 1024 * 4}
+                          maxFiles={1}
+                          disabled={isUploading}
+                          initialFiles={
+                            field.value
+                              ? [{ url: field.value, name: "logo" }]
+                              : []
+                          }
+                          deleteUploadedFile={(fileUrl) => {
+                            field.onChange(null); // Simply clear the URL reference
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="signatureUrl"

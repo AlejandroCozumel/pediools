@@ -48,30 +48,32 @@ export function useUploadFile() {
         clearInterval(interval);
         setProgresses((prev) => ({ ...prev, [file.name]: 100 }));
 
-        // Store the full file name (including UUID)
-        const fullFileName = response.data.url.split('/').pop();
-
+        // Create full URL for the file
+        const fullUrl = `https://pedimath-hipaa-bucket.s3.us-east-2.amazonaws.com/${response.data.key}`;
         return {
-          url: response.data.url,
+          url: fullUrl, // Use full URL here
           name: file.name,
-          fullFileName: fullFileName // Add this
+          key: response.data.key,
         };
       });
 
       const newUploadedFiles = await Promise.all(uploadPromises);
-      setUploadedFiles((prevUploadedFiles) => [...prevUploadedFiles, ...newUploadedFiles]);
+      setUploadedFiles((prev) => [...prev, ...newUploadedFiles]);
 
       toast({
         title: "Success",
-        description: "Images uploaded successfully",
+        description: "File uploaded successfully",
       });
-    } catch (err) {
-      console.error("Failed to upload files", err);
+
+      return newUploadedFiles;
+    } catch (error) {
+      console.error("Upload error:", error);
       toast({
         title: "Error",
-        description: "Failed to upload files, try again later",
+        description: "Failed to upload file",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsUploading(false);
     }
@@ -79,46 +81,33 @@ export function useUploadFile() {
 
   async function deleteUploadedFile(fileUrl: string) {
     try {
-      // Find the file with the matching URL
-      const fileToDelete = uploadedFiles.find(file => file.url === fileUrl);
-
-      if (!fileToDelete) {
-        throw new Error("File not found");
-      }
-
-      // Decode the URL and extract the full file name
-      const decodedUrl = decodeURIComponent(fileUrl);
-      const fileName = decodedUrl.split('/').pop();
+      const fileName = fileUrl.split("/").pop();
 
       await axios.delete("/api/upload", {
-        data: {
-          fileName: fileName,
-          originalFileName: fileToDelete.name
-        }
+        data: { key: fileUrl },
       });
 
-      setUploadedFiles((prevUploadedFiles) =>
-        prevUploadedFiles.filter((file) => file.url !== fileUrl)
-      );
+      setUploadedFiles((prev) => prev.filter((file) => file.url !== fileUrl));
 
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
-    } catch (err) {
-      console.error("Failed to delete file", err);
+    } catch (error) {
+      console.error("Delete error:", error);
       toast({
         title: "Error",
-        description: "Failed to delete file, try again later",
+        description: "Failed to delete file",
         variant: "destructive",
       });
+      throw error;
     }
   }
 
   return {
+    uploadFiles,
     uploadedFiles,
     progresses,
-    uploadFiles,
     isUploading,
     deleteUploadedFile,
   };

@@ -1,6 +1,12 @@
-import { NextResponse } from "next/server";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
+import { getAuth } from "@clerk/nextjs/server";
+import prisma from "@/lib/prismadb";
 
 // Initialize S3 client with KMS encryption
 const s3Client = new S3Client({
@@ -12,14 +18,30 @@ const s3Client = new S3Client({
 });
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME!;
-const KMS_KEY_ARN = process.env.AWS_KMS_KEY_ARN!; // Add this to your .env
+const KMS_KEY_ARN = process.env.AWS_KMS_KEY_ARN!;
 
-export async function POST(request: Request): Promise<Response> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { base64Content, fileName, fileType, patientId } = await request.json();
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
-    // Enhanced validation
-    if (!base64Content || !fileName || !fileType || !patientId) {
+    // Fetch doctor from Prisma using Clerk user ID
+    const doctor = await prisma.doctor.findUnique({
+      where: { clerkUserId: userId },
+      select: { id: true },
+    });
+
+    if (!doctor) {
+      return new NextResponse("Doctor not found", { status: 404 });
+    }
+
+    const { base64Content, fileName, fileType, patientId } =
+      await request.json();
+
+    // Validation to ensure required fields are present
+    if (!base64Content || !fileName || !fileType) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -28,8 +50,10 @@ export async function POST(request: Request): Promise<Response> {
 
     const buffer = Buffer.from(base64Content, "base64");
 
-    // More structured key with patient context
-    const key = `patients/${patientId}/${uuidv4()}-${fileName}`;
+    // Generate key based on doctor and optional patient
+    const key = patientId
+      ? `doctors/${doctor.id}/patients/${patientId}/${uuidv4()}-${fileName}`
+      : `doctors/${doctor.id}/documents/${uuidv4()}-${fileName}`;
 
     // Upload to S3 with enhanced security
     const command = new PutObjectCommand({
@@ -37,24 +61,22 @@ export async function POST(request: Request): Promise<Response> {
       Key: key,
       Body: buffer,
       ContentType: fileType,
-      ServerSideEncryption: "aws:kms", // Use KMS instead of AES256
-      SSEKMSKeyId: KMS_KEY_ARN, // Specify the KMS key
+      ServerSideEncryption: "aws:kms",
+      SSEKMSKeyId: KMS_KEY_ARN,
       Metadata: {
-        'x-amz-meta-uploaded-by': 'system',
-        'x-amz-meta-original-name': fileName,
-        'x-amz-meta-patient-id': patientId,
-        'x-amz-meta-upload-timestamp': new Date().toISOString()
-      }
+        "x-amz-meta-uploaded-by": "system",
+        "x-amz-meta-original-name": fileName,
+        "x-amz-meta-doctor-id": doctor.id,
+        ...(patientId && { "x-amz-meta-patient-id": patientId }),
+        "x-amz-meta-upload-timestamp": new Date().toISOString(),
+      },
     });
 
     await s3Client.send(command);
 
-    // Generate a secure, temporary URL if needed
-    const url = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
-
     return NextResponse.json({
       message: "File uploaded successfully",
-      key: key
+      key: key,
     });
   } catch (error) {
     console.error("Upload error:", error);
@@ -65,19 +87,35 @@ export async function POST(request: Request): Promise<Response> {
   }
 }
 
-export async function DELETE(request: Request): Promise<Response> {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const { key, patientId } = await request.json();
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
-    if (!key || !patientId) {
+    // Fetch doctor from Prisma using Clerk user ID
+    const doctor = await prisma.doctor.findUnique({
+      where: { clerkUserId: userId },
+      select: { id: true },
+    });
+
+    if (!doctor) {
+      return new NextResponse("Doctor not found", { status: 404 });
+    }
+
+    const { key } = await request.json();
+
+    // Validate key
+    if (!key) {
       return NextResponse.json(
-        { error: "Missing required key or patient ID" },
+        { error: "Missing required file key" },
         { status: 400 }
       );
     }
 
-    // Verify the deletion request matches the patient context
-    if (!key.startsWith(`patients/${patientId}/`)) {
+    // Additional security: Verify the key belongs to the authenticated doctor
+    if (!key.startsWith(`doctors/${doctor.id}/`)) {
       return NextResponse.json(
         { error: "Unauthorized file deletion" },
         { status: 403 }
@@ -93,7 +131,7 @@ export async function DELETE(request: Request): Promise<Response> {
 
     return NextResponse.json({
       message: "File deleted successfully",
-      key: key
+      key: key,
     });
   } catch (error) {
     console.error("Delete error:", error);

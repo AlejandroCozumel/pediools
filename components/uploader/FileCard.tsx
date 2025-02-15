@@ -1,13 +1,24 @@
+"use client";
+
 import React from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { formatBytes } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+
+interface UploadedFile {
+  url: string;
+  name: string;
+  key?: string;
+}
+
+interface FileWithPreview extends File {
+  preview: string;
+}
 
 interface FileCardProps {
-  file: File & { preview?: string };
+  file: FileWithPreview | UploadedFile;
   disabled?: boolean;
   onRemove: () => void;
   progress?: number;
@@ -19,14 +30,22 @@ export function FileCard({
   progress,
   disabled,
 }: FileCardProps) {
+  const isUploadedFile = (file: any): file is UploadedFile => {
+    return 'url' in file;
+  };
+
+  const preview = isUploadedFile(file) ? file.url : file.preview;
+  const fileName = isUploadedFile(file) ? file.name : file.name;
+  const fileSize = !isUploadedFile(file) ? formatBytes(file.size) : null;
+
   return (
     <Card className="p-4">
       <div className="flex items-center space-x-4">
-        {file.preview && (
+        {preview && (
           <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md">
             <Image
-              src={file.preview}
-              alt={file.name}
+              src={preview}
+              alt={fileName}
               fill
               style={{ objectFit: "cover" }}
               className="rounded-md"
@@ -35,11 +54,11 @@ export function FileCard({
         )}
         <div className="flex-1">
           <p className="text-sm font-medium truncate max-w-[300px]">
-            {file.name}
+            {fileName}
           </p>
-          <p className="text-xs text-muted-foreground">
-            {formatBytes(file.size)}
-          </p>
+          {fileSize && (
+            <p className="text-xs text-muted-foreground">{fileSize}</p>
+          )}
           {progress !== undefined && (
             <Progress value={progress} className="mt-1 h-1" />
           )}

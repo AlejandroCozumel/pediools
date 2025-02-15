@@ -170,12 +170,12 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
-
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const body = await req.json();
+    console.log('Received profile update:', body); // Debug log
 
     const doctor = await prisma.doctor.findUnique({
       where: {
@@ -196,9 +196,14 @@ export async function PATCH(req: NextRequest) {
         doctorId: doctor.id,
         ...body
       },
-      update: body,
+      update: {
+        ...body,
+        logoUrl: body.logoUrl || "", // Explicitly handle logoUrl
+        signatureUrl: body.signatureUrl || "", // Explicitly handle signatureUrl
+      },
     });
 
+    console.log('Updated profile:', profile); // Debug log
     return NextResponse.json(profile);
   } catch (error) {
     console.error("[DOCTOR_PROFILE_PATCH]", error);
