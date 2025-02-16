@@ -61,9 +61,8 @@ export function FileUploader({
   ...dropzoneProps
 }: FileUploaderProps) {
   const [files, setFiles] = useControllableState({
-    prop: valueProp,
+    prop: valueProp || initialFiles,
     onChange: onValueChange,
-    defaultValue: initialFiles,
   });
 
   const onDrop = React.useCallback(

@@ -641,8 +641,11 @@ const DoctorProfileForm = ({
                               ? [{ url: field.value, name: "logo" }]
                               : []
                           }
-                          deleteUploadedFile={(fileUrl) => {
-                            field.onChange(null); // Simply clear the URL reference
+                          deleteUploadedFile={async (fileUrl) => {
+                            field.onChange(null); // Clear the URL reference
+                            // If you need to perform any asynchronous operation when deleting, do it here
+                            // For example:
+                            // await someAsyncDeleteOperation(fileUrl);
                           }}
                         />
                       </FormControl>

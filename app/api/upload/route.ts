@@ -7,6 +7,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
+import { ListBucketsCommand } from "@aws-sdk/client-s3";
 
 // Initialize S3 client with KMS encryption
 const s3Client = new S3Client({
@@ -18,13 +19,24 @@ const s3Client = new S3Client({
 });
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME!;
-const KMS_KEY_ARN = process.env.AWS_KMS_KEY_ARN!;
+const KMS_KEY_ARN = process.env.AWS_KMS_KEY_ID!;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    try {
+      const data = await s3Client.send(new ListBucketsCommand({}));
+      console.log("S3 Connection Test Success", data.Buckets);
+    } catch (err) {
+      console.error("S3 Connection Test Error", err);
+      return NextResponse.json(
+        { error: "Failed to connect to S3" },
+        { status: 500 }
+      );
     }
 
     // Fetch doctor from Prisma using Clerk user ID
