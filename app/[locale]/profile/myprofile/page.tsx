@@ -3,9 +3,12 @@ import React from "react";
 import DoctorProfileForm from "./ProfileForm";
 import { useDoctorProfile } from "@/hooks/use-doctor-profile";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
+import { usePremiumStore } from "@/stores/premiumStore";
+import UnauthorizedAccess from "@/components/UnauthorizedAccess";
 
 const Profile = () => {
   const { profile, isLoading, error, saveProfile } = useDoctorProfile();
+  const { isPremium } = usePremiumStore();
 
   // Add error handling
   if (error) {
@@ -20,6 +23,12 @@ const Profile = () => {
 
   if (isLoading) {
     return <LoaderSpinnner />;
+  }
+
+  if (!isPremium) {
+    return (
+        <UnauthorizedAccess />
+    );
   }
 
   return (

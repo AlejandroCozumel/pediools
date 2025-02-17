@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card'
 
 const UnauthorizedAccess = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-medical-50 to-medical-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="max-w-md w-full space-y-6">
         <CardHeader className="space-y-6">
           <div className="flex justify-center">

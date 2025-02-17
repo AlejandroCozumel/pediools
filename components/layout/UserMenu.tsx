@@ -66,25 +66,25 @@ const UserMenu = () => {
   const menuItems = [
     {
       label: "My Profile",
-      path: "/dashboard/profile/myprofile",
+      path: "/profile/myprofile",
       onClick: () => {
-        router.push("/dashboard/profile/myprofile");
+        router.push("/profile/myprofile");
         setIsOpen(false);
       },
     },
     {
       label: "My Account",
-      path: "/dashboard/profile/account",
+      path: "/profile/account",
       onClick: () => {
-        router.push("/dashboard/profile/account");
+        router.push("/profile/account");
         setIsOpen(false);
       },
     },
     {
       label: "My Subscription",
-      path: "/dashboard/profile/billing",
+      path: "/profile/billing",
       onClick: () => {
-        router.push("/dashboard/profile/billing");
+        router.push("/profile/billing");
         setIsOpen(false);
       },
     },

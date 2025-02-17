@@ -51,7 +51,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6">
         {/* Recent Patients */}
-        <Card className="border-medical-100">
+        {/* <Card className="border-medical-100">
           <CardHeader className="lg:!pb-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-heading text-medical-900">
@@ -91,7 +91,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
               ))}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Recent Calculations */}
         <Card className="border-medical-100">

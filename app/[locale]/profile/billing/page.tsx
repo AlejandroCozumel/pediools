@@ -3,7 +3,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCustomerPortal } from "@/hooks/use-customer-portal";
-import { SubscriptionStatus } from "@/app/[locale]/(dashboard)/dashboard/profile/billing/SubscriptionStatus";
+import { SubscriptionStatus } from "@/app/[locale]/profile/billing/SubscriptionStatus";
 import { Button } from "@/components/ui/button";
 import {
   Card,
