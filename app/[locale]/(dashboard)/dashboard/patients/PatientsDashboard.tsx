@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Table,
@@ -47,10 +49,32 @@ import {
   Calendar,
   ArrowUpDown,
   Calculator,
+  AlertTriangle,
+  Users,
+  Clock,
+  Filter,
+  LayoutGrid,
+  LayoutList,
+  ChevronUp,
+  ChevronDown,
+  PlusCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Avatar } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Define a type for patients to improve type safety
+// Define age groups
+const AGE_GROUPS = {
+  INFANT: { label: "Infant", range: "0-1y" },
+  TODDLER: { label: "Toddler", range: "1-3y" },
+  PRESCHOOL: { label: "Preschool", range: "3-5y" },
+  CHILD: { label: "Child", range: "5-12y" },
+  ADOLESCENT: { label: "Adolescent", range: "12-18y" },
+  YOUNG_ADULT: { label: "Young Adult", range: "18-21y" },
+};
+
+// Enhanced Patient interface with additional fields
 interface Patient {
   id: string;
   firstName: string;
@@ -60,6 +84,22 @@ interface Patient {
   lastCalculation?: string | null;
   lastVisit?: string | null;
   status: string;
+
+  // Additional fields
+  familyId?: string | null;
+  familyMembers?: { id: string; name: string }[] | null;
+  growthAlert?: boolean;
+  followUpAlert?: boolean;
+  appointmentStatus?: {
+    upcoming: boolean;
+    date?: string;
+    type?: string;
+  } | null;
+  calculationMetrics?: {
+    type: string;
+    percentile?: number;
+    status?: "normal" | "monitor" | "concern";
+  } | null;
 }
 
 type ColumnDef<TData> = ReactTableColumnDef<TData, any> & {
@@ -73,25 +113,168 @@ export default function PatientsDashboard({
   patients: Patient[];
 }) {
   const t = useTranslations("Patients.table");
+  const typesT = useTranslations("Types");
   const locale = useLocale();
+  const router = useRouter();
+
+  // State
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [selectedAgeGroups, setSelectedAgeGroups] = useState<string[]>([]);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [showUpcomingAppointments, setShowUpcomingAppointments] =
+    useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
+  const [showFAB, setShowFAB] = useState(false);
 
+  // Age calculation function with age group determination
   const calculateAge = (birthDate: string) => {
     const birth = new Date(birthDate);
     const today = new Date();
     const years = today.getFullYear() - birth.getFullYear();
     const months = today.getMonth() - birth.getMonth();
+
     if (years === 0) {
       return `${months}m`;
     }
     return `${years}y ${months >= 0 ? months : 12 + months}m`;
   };
 
+  // Function to determine age group
+  const getAgeGroup = (birthDate: string): string => {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    const years = today.getFullYear() - birth.getFullYear();
+
+    if (years < 1) return "INFANT";
+    if (years >= 1 && years < 3) return "TODDLER";
+    if (years >= 3 && years < 5) return "PRESCHOOL";
+    if (years >= 5 && years < 12) return "CHILD";
+    if (years >= 12 && years < 18) return "ADOLESCENT";
+    return "YOUNG_ADULT";
+  };
+
+  // Helper to get initials from name
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`;
+  };
+
+  // Apply additional filters
+  const filterPatients = (patients: Patient[]) => {
+    let filteredPatients = [...patients];
+
+    // Apply age group filter
+    if (selectedAgeGroups.length > 0) {
+      filteredPatients = filteredPatients.filter((patient) =>
+        selectedAgeGroups.includes(getAgeGroup(patient.dateOfBirth))
+      );
+    }
+
+    // Apply alert filter
+    if (showAlerts) {
+      filteredPatients = filteredPatients.filter(
+        (patient) => patient.growthAlert || patient.followUpAlert
+      );
+    }
+
+    // Apply upcoming appointments filter
+    if (showUpcomingAppointments) {
+      filteredPatients = filteredPatients.filter(
+        (patient) => patient.appointmentStatus?.upcoming
+      );
+    }
+
+    return filteredPatients;
+  };
+
+  // Helper to render growth percentile visualization
+  const renderPercentileIndicator = (patient: Patient) => {
+    if (!patient.calculationMetrics?.percentile) return null;
+
+    const percentile = patient.calculationMetrics.percentile;
+    const status = patient.calculationMetrics.status;
+
+    // Determine the color based on status
+    const barColor =
+      status === "concern"
+        ? "bg-red-500"
+        : status === "monitor"
+        ? "bg-amber-500"
+        : "bg-green-500";
+
+    return (
+      <div className="mt-2">
+        <div className="flex justify-between text-xs text-medical-500 mb-1">
+          <span>0%</span>
+          <span>50%</span>
+          <span>100%</span>
+        </div>
+        <div className="relative">
+          {/* Use a custom progress bar instead of the Progress component */}
+          <div className="h-2 w-full bg-gray-200 rounded-full">
+            <div
+              className={`h-full rounded-full ${barColor}`}
+              style={{ width: `${percentile}%` }}
+            />
+          </div>
+          <div
+            className="absolute top-0 h-3 w-0.5 bg-medical-400"
+            style={{ left: "50%" }}
+          />
+        </div>
+        <div className="flex justify-between items-center mt-1">
+          <span
+            className={`text-xs font-medium ${
+              status === "concern"
+                ? "text-red-600"
+                : status === "monitor"
+                ? "text-amber-600"
+                : "text-green-600"
+            }`}
+          >
+            {percentile.toFixed(1)}%
+          </span>
+          <span className="text-xs text-medical-500">
+            {patient.calculationMetrics.type}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  // Define table columns
   const columns: ColumnDef<Patient>[] = [
+    // Age group indicator
+    {
+      accessorKey: "ageGroup",
+      header: t("columns.ageGroup"),
+      cell: ({ row }) => {
+        const ageGroup = getAgeGroup(row.original.dateOfBirth);
+        return (
+          <Badge
+            variant="outline"
+            className={`border-medical-100 text-medical-700 ${
+              ageGroup === "INFANT"
+                ? "bg-blue-50"
+                : ageGroup === "TODDLER"
+                ? "bg-green-50"
+                : ageGroup === "PRESCHOOL"
+                ? "bg-yellow-50"
+                : ageGroup === "CHILD"
+                ? "bg-orange-50"
+                : ageGroup === "ADOLESCENT"
+                ? "bg-purple-50"
+                : "bg-gray-50"
+            }`}
+          >
+            {AGE_GROUPS[ageGroup as keyof typeof AGE_GROUPS].label}
+          </Badge>
+        );
+      },
+    },
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -104,7 +287,41 @@ export default function PatientsDashboard({
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => `${row.original.firstName}`,
+      cell: ({ row }) => (
+        <div className="flex items-center">
+          {/* Alert indicators */}
+          {(row.original.growthAlert || row.original.followUpAlert) && (
+            <AlertTriangle
+              className={`mr-2 h-4 w-4 ${
+                row.original.growthAlert ? "text-red-500" : "text-amber-500"
+              }`}
+            />
+          )}
+          <span>
+            {row.original.firstName} {row.original.lastName}
+          </span>
+
+          {/* Family indicator */}
+          {row.original.familyId && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="ml-2 h-6 w-6 p-0">
+                  <Users className="h-3 w-3 text-medical-500" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuLabel>Family Members</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {row.original.familyMembers?.map((member) => (
+                  <DropdownMenuItem key={member.id}>
+                    {member.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: "age",
@@ -152,18 +369,55 @@ export default function PatientsDashboard({
       accessorKey: "lastCalculation",
       header: t("columns.lastCalculation"),
       cell: ({ row }) => (
-        <Badge
-          variant="outline"
-          className="border-medical-200 text-medical-700"
-        >
-          {row.original.lastCalculation
-            ? new Intl.DateTimeFormat(locale, {
+        <div className="flex items-center">
+          <Badge
+            variant="outline"
+            className={`border-medical-200 text-medical-700 ${
+              row.original.calculationMetrics?.status === "concern"
+                ? "bg-red-50"
+                : row.original.calculationMetrics?.status === "monitor"
+                ? "bg-amber-50"
+                : "bg-transparent"
+            }`}
+          >
+            {row.original.lastCalculation
+              ? new Intl.DateTimeFormat(locale, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                }).format(new Date(row.original.lastCalculation))
+              : t("noCalculation")}
+          </Badge>
+          {row.original.calculationMetrics && (
+            <span className="ml-2 text-xs text-medical-500">
+              {typesT(`calculationTypes.${row.original.calculationMetrics.type}`)}
+              {row.original.calculationMetrics.percentile !== undefined &&
+                ` (${row.original.calculationMetrics.percentile.toFixed(1)}%)`}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    // Appointment status column
+    {
+      accessorKey: "appointmentStatus",
+      header: t("columns.appointment"),
+      cell: ({ row }) => (
+        <div>
+          {row.original.appointmentStatus?.upcoming ? (
+            <Badge className="bg-green-100 text-green-800 border-0">
+              <Clock className="mr-1 h-3 w-3" />
+              {new Intl.DateTimeFormat(locale, {
                 day: "2-digit",
                 month: "2-digit",
-                year: "numeric",
-              }).format(new Date(row.original.lastCalculation))
-            : t("noCalculation")}
-        </Badge>
+              }).format(
+                new Date(row.original.appointmentStatus.date as string)
+              )}
+            </Badge>
+          ) : (
+            <span className="text-sm text-medical-400">No upcoming</span>
+          )}
+        </div>
       ),
     },
     {
@@ -186,7 +440,6 @@ export default function PatientsDashboard({
       id: "actions",
       header: t("columns.actions"),
       cell: ({ row }) => {
-        const router = useRouter();
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -205,7 +458,6 @@ export default function PatientsDashboard({
                 <Calendar className="mr-2 h-4 w-4" />
                 {t("actions.viewDetails")}
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() =>
                   router.push(`/dashboard/calculations/${row.original.id}`)
@@ -214,6 +466,37 @@ export default function PatientsDashboard({
                 <Calculator className="mr-2 h-4 w-4" />
                 {t("actions.viewCalculations")}
               </DropdownMenuItem>
+              {row.original.familyId && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(`/dashboard/family/${row.original.familyId}`)
+                  }
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  {t("actions.viewFamily")}
+                </DropdownMenuItem>
+              )}
+              {row.original.appointmentStatus?.upcoming && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(`/dashboard/appointments/${row.original.id}`)
+                  }
+                >
+                  <Clock className="mr-2 h-4 w-4" />
+                  {t("actions.viewAppointment")}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() =>
+                  router.push(
+                    `/dashboard/calculations/new?patientId=${row.original.id}`
+                  )
+                }
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                New Calculation
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -221,8 +504,9 @@ export default function PatientsDashboard({
     },
   ];
 
+  const filteredPatients = filterPatients(patients);
   const table = useReactTable({
-    data: patients,
+    data: filteredPatients,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -238,17 +522,70 @@ export default function PatientsDashboard({
     },
   });
 
+  // Show/hide FAB on scroll
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 200) {
+        setShowFAB(true);
+      } else {
+        setShowFAB(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Calculate statistics
   const totalPatients = patients.length;
   const activePatients = patients.filter((p) => p.status === "Active").length;
-  const recentUpdates = patients.filter(
-    (p) =>
-      p.lastVisit &&
-      new Date(p.lastVisit) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const alertPatients = patients.filter(
+    (p) => p.growthAlert || p.followUpAlert
+  ).length;
+  const upcomingAppointments = patients.filter(
+    (p) => p.appointmentStatus?.upcoming
   ).length;
 
   return (
     <div>
+      {/* Floating Action Button for quick actions */}
+      {showFAB && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="lg"
+                className="rounded-full h-14 w-14 shadow-lg bg-medical-600 hover:bg-medical-700"
+              >
+                <PlusCircle className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/calculations/new")}
+              >
+                <Calculator className="mr-2 h-4 w-4" />
+                New Calculation
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/appointments/new")}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                Schedule Appointment
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push("/dashboard/patients/add")}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Add New Patient
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {/* Main Content Card */}
       <Card className="border-medical-100">
         <CardHeader>
@@ -259,7 +596,93 @@ export default function PatientsDashboard({
               </CardTitle>
               <CardDescription>{t("subtitle")}</CardDescription>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              {/* View toggle */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Tabs
+                    defaultValue="table"
+                    value={viewMode}
+                    onValueChange={(value) =>
+                      setViewMode(value as "table" | "cards")
+                    }
+                  >
+                    <TabsList className="grid grid-cols-2 h-9 w-[160px]">
+                      <TabsTrigger value="table">
+                        <LayoutList className="h-4 w-4 mr-2" />
+                        Table
+                      </TabsTrigger>
+                      <TabsTrigger value="cards">
+                        <LayoutGrid className="h-4 w-4 mr-2" />
+                        Cards
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              </div>
+
+              {/* Filter controls */}
+              <div className="flex items-center space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-medical-200"
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filters
+                      {(selectedAgeGroups.length > 0 ||
+                        showAlerts ||
+                        showUpcomingAppointments) && (
+                        <Badge className="ml-2 bg-medical-600">
+                          {selectedAgeGroups.length +
+                            (showAlerts ? 1 : 0) +
+                            (showUpcomingAppointments ? 1 : 0)}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>Age Group</DropdownMenuLabel>
+                    {Object.entries(AGE_GROUPS).map(([key, value]) => (
+                      <DropdownMenuCheckboxItem
+                        key={key}
+                        checked={selectedAgeGroups.includes(key)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedAgeGroups([...selectedAgeGroups, key]);
+                          } else {
+                            setSelectedAgeGroups(
+                              selectedAgeGroups.filter((group) => group !== key)
+                            );
+                          }
+                        }}
+                      >
+                        {value.label} ({value.range})
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Other Filters</DropdownMenuLabel>
+                    <DropdownMenuCheckboxItem
+                      checked={showAlerts}
+                      onCheckedChange={(checked) => setShowAlerts(checked)}
+                    >
+                      <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
+                      Show Alerts Only
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={showUpcomingAppointments}
+                      onCheckedChange={(checked) =>
+                        setShowUpcomingAppointments(checked)
+                      }
+                    >
+                      <Calendar className="h-4 w-4 mr-2 text-medical-500" />
+                      Upcoming Appointments
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                 <Input
@@ -271,82 +694,361 @@ export default function PatientsDashboard({
               </div>
             </div>
           </div>
+
+          {/* Key Indicators Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+            <div className="bg-medical-50 p-3 rounded-md text-center">
+              <div className="text-sm font-medium text-medical-600">Total</div>
+              <div className="text-xl font-bold text-medical-800">
+                {totalPatients}
+              </div>
+            </div>
+            <div className="bg-green-50 p-3 rounded-md text-center">
+              <div className="text-sm font-medium text-green-600">Active</div>
+              <div className="text-xl font-bold text-green-800">
+                {activePatients}
+              </div>
+            </div>
+            <div className="bg-amber-50 p-3 rounded-md text-center">
+              <div className="text-sm font-medium text-amber-600">Alerts</div>
+              <div className="text-xl font-bold text-amber-800">
+                {alertPatients}
+              </div>
+            </div>
+            <div className="bg-blue-50 p-3 rounded-md text-center">
+              <div className="text-sm font-medium text-blue-600">
+                Appointments
+              </div>
+              <div className="text-xl font-bold text-blue-800">
+                {upcomingAppointments}
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {patients.length > 0 ? (
-            <>
-              <div className="rounded-md border border-medical-100">
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow
-                        key={headerGroup.id}
-                        className="bg-medical-50 hover:bg-medical-100"
-                      >
-                        {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id} className="hover:bg-medical-50">
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
+          {filteredPatients.length > 0 ? (
+            viewMode === "table" ? (
+              // Table View
+              <>
+                <div className="rounded-md border border-medical-100">
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow
+                          key={headerGroup.id}
+                          className="bg-medical-50 hover:bg-medical-100"
+                        >
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                            </TableHead>
                           ))}
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className="h-24 text-center"
-                        >
-                          No results.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-              <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="border-medical-200 text-medical-700"
-                >
-                  {t("pagination.previous")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="border-medical-200 text-medical-700"
-                >
-                  {t("pagination.next")}
-                </Button>
-              </div>
-            </>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <TableRow
+                            key={row.id}
+                            className={`
+                              hover:bg-medical-50
+                              ${
+                                row.original.growthAlert
+                                  ? "bg-red-50 hover:bg-red-100"
+                                  : ""
+                              }
+                              ${
+                                !row.original.growthAlert &&
+                                row.original.followUpAlert
+                                  ? "bg-amber-50 hover:bg-amber-100"
+                                  : ""
+                              }
+                              ${
+                                row.original.appointmentStatus?.upcoming &&
+                                !row.original.growthAlert &&
+                                !row.original.followUpAlert
+                                  ? "bg-blue-50 hover:bg-blue-100"
+                                  : ""
+                              }
+                            `}
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell key={cell.id}>
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className="h-24 text-center"
+                          >
+                            No results.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="flex items-center justify-between space-x-2 py-4">
+                  <div className="text-sm text-medical-500">
+                    Showing {table.getRowModel().rows.length} of{" "}
+                    {patients.length} patients
+                    {(selectedAgeGroups.length > 0 ||
+                      showAlerts ||
+                      showUpcomingAppointments) &&
+                      " (filtered)"}
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
+                      className="border-medical-200 text-medical-700"
+                    >
+                      {t("pagination.previous")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
+                      className="border-medical-200 text-medical-700"
+                    >
+                      {t("pagination.next")}
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Cards View
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredPatients.map((patient) => {
+                    const ageGroup = getAgeGroup(patient.dateOfBirth);
+                    const ageText = calculateAge(patient.dateOfBirth);
+
+                    return (
+                      <Card
+                        key={patient.id}
+                        className={`
+                          hover:shadow-md transition-shadow cursor-pointer border
+                          ${patient.growthAlert ? "border-red-200" : ""}
+                          ${
+                            !patient.growthAlert && patient.followUpAlert
+                              ? "border-amber-200"
+                              : ""
+                          }
+                          ${
+                            patient.appointmentStatus?.upcoming &&
+                            !patient.growthAlert &&
+                            !patient.followUpAlert
+                              ? "border-blue-200"
+                              : ""
+                          }
+                        `}
+                        onClick={() =>
+                          router.push(`/dashboard/patients/${patient.id}`)
+                        }
+                      >
+                        <CardHeader className="pb-0">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center">
+                              <Avatar
+                                className={`
+                               h-12 w-12 mr-3
+                                ${
+                                  ageGroup === "INFANT"
+                                    ? "bg-blue-100"
+                                    : ageGroup === "TODDLER"
+                                    ? "bg-green-100"
+                                    : ageGroup === "PRESCHOOL"
+                                    ? "bg-yellow-100"
+                                    : ageGroup === "CHILD"
+                                    ? "bg-orange-100"
+                                    : ageGroup === "ADOLESCENT"
+                                    ? "bg-purple-100"
+                                    : "bg-gray-100"
+                                }
+                              `}
+                              >
+                                <span className="text-sm font-medium">
+                                  {getInitials(
+                                    patient.firstName,
+                                    patient.lastName
+                                  )}
+                                </span>
+                              </Avatar>
+                              <div>
+                                <h3 className="font-medium">
+                                  {patient.firstName} {patient.lastName}
+                                </h3>
+                                <p className="text-sm text-medical-500">
+                                  {ageText}, {patient.gender}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              {patient.growthAlert && (
+                                <span
+                                  className="mr-2 p-1 rounded-full bg-red-100"
+                                  title="Growth alert"
+                                >
+                                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                                </span>
+                              )}
+                              {!patient.growthAlert &&
+                                patient.followUpAlert && (
+                                  <span
+                                    className="mr-2 p-1 rounded-full bg-amber-100"
+                                    title="Follow-up needed"
+                                  >
+                                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                                  </span>
+                                )}
+                              {patient.familyId && (
+                                <span
+                                  className="p-1 rounded-full bg-medical-100"
+                                  title="Family members"
+                                >
+                                  <Users className="h-4 w-4 text-medical-600" />
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {/* Growth percentile visualization */}
+                          {renderPercentileIndicator(patient)}
+
+                          <div className="grid grid-cols-2 gap-2 mt-4">
+                            <div className="text-sm">
+                              <p className="text-medical-500 text-xs">
+                                Last Visit
+                              </p>
+                              <p className="font-medium">
+                                {patient.lastVisit
+                                  ? new Intl.DateTimeFormat(locale, {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                    }).format(new Date(patient.lastVisit))
+                                  : "None"}
+                              </p>
+                            </div>
+                            <div className="text-sm">
+                              <p className="text-medical-500 text-xs">Status</p>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  patient.status === "Active"
+                                    ? "border-green-200 text-green-700 bg-green-50"
+                                    : "border-medical-pink-200 text-medical-pink-700 bg-medical-pink-50"
+                                }
+                              >
+                                {patient.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                        <CardFooter className="flex justify-between border-t pt-4">
+                          {patient.appointmentStatus?.upcoming ? (
+                            <Badge className="bg-green-100 text-green-800 border-0 flex items-center">
+                              <Clock className="mr-1 h-3 w-3" />
+                              {new Intl.DateTimeFormat(locale, {
+                                day: "2-digit",
+                                month: "2-digit",
+                              }).format(
+                                new Date(
+                                  patient.appointmentStatus.date as string
+                                )
+                              )}
+                            </Badge>
+                          ) : (
+                            <span className="text-sm text-medical-400">
+                              No upcoming appt.
+                            </span>
+                          )}
+
+                          <div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(
+                                  `/dashboard/calculations/new?patientId=${patient.id}`
+                                );
+                              }}
+                              className="h-8 mr-1 text-medical-600"
+                            >
+                              <Calculator className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(
+                                  `/dashboard/appointments/new?patientId=${patient.id}`
+                                );
+                              }}
+                              className="h-8 text-medical-600"
+                            >
+                              <Calendar className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center justify-center mt-6">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    className="mx-2"
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-medical-500 mx-4">
+                    Page {table.getState().pagination.pageIndex + 1} of{" "}
+                    {table.getPageCount()}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    className="mx-2"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </>
+            )
           ) : (
             <div className="text-center py-8 text-medical-600">
-              {t("noPatients")}
+              {selectedAgeGroups.length > 0 ||
+              showAlerts ||
+              showUpcomingAppointments
+                ? "No patients match the selected filters."
+                : t("noPatients")}
             </div>
           )}
         </CardContent>
