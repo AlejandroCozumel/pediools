@@ -58,16 +58,16 @@ interface Calculation {
   date: string;
   results: {
     calculationType: string;
-    weight: {
+    weight?: {
       value: number;
-      percentiles: {
+      percentiles?: {
         calculatedPercentile: number;
         zScore: number;
       };
     };
-    height: {
+    height?: {
       value: number;
-      percentiles: {
+      percentiles?: {
         calculatedPercentile: number;
         zScore: number;
       };
@@ -86,36 +86,6 @@ type ColumnDef<TData> = ReactTableColumnDef<TData, any> & {
   accessorKey?: string;
   id?: string;
 };
-
-interface Calculation {
-  id: string;
-  type: string;
-  date: string;
-  results: {
-    calculationType: string;
-    weight: {
-      value: number;
-      percentiles: {
-        calculatedPercentile: number;
-        zScore: number;
-      };
-    };
-    height: {
-      value: number;
-      percentiles: {
-        calculatedPercentile: number;
-        zScore: number;
-      };
-    };
-  };
-  patientId: string;
-  patient: {
-    firstName: string;
-    lastName: string;
-    gender: "male" | "female";
-    dateOfBirth: string;
-  };
-}
 
 export default function CalculationTable({
   calculations,
@@ -254,40 +224,39 @@ export default function CalculationTable({
                 const calculatorType = row.original.results.calculationType;
                 const patientId = row.original.patientId;
                 const calculationId = row.original.id;
-
                 const weightData = {
                   gender: row.original.patient.gender.toLowerCase(),
                   dateOfBirth: row.original.patient.dateOfBirth,
-                  measurements: [
-                    {
-                      date: row.original.date,
-                      weight: row.original.results.weight.value,
-                    },
-                  ],
+                  measurements: row.original.results.weight
+                    ? [
+                        {
+                          date: row.original.date,
+                          weight: row.original.results.weight.value,
+                        },
+                      ]
+                    : [],
                   type: "weight",
                 };
-
                 const heightData = {
                   gender: row.original.patient.gender.toLowerCase(),
                   dateOfBirth: row.original.patient.dateOfBirth,
-                  measurements: [
-                    {
-                      date: row.original.date,
-                      height: row.original.results.height.value,
-                    },
-                  ],
+                  measurements: row.original.results.height
+                    ? [
+                        {
+                          date: row.original.date,
+                          height: row.original.results.height.value,
+                        },
+                      ]
+                    : [],
                   type: "height",
                 };
-
                 const encodedWeightData = encodeURIComponent(
                   JSON.stringify(weightData)
                 );
                 const encodedHeightData = encodeURIComponent(
                   JSON.stringify(heightData)
                 );
-
                 let chartUrl: string;
-
                 switch (calculatorType) {
                   case "cdc_child":
                     chartUrl = `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}&patientId=${row.original.patientId}`;
@@ -305,7 +274,6 @@ export default function CalculationTable({
                     console.error("Unknown chart type");
                     return; // Exit the function if chartUrl is not set
                 }
-
                 if (chartUrl) {
                   router.push(chartUrl);
                 }

@@ -8,7 +8,7 @@ import StatsCard from "@/components/StatsCard";
 import { CalculatorIcon, CalendarIcon, UsersIcon } from "lucide-react";
 
 const Calculations = () => {
-  const { calculations, isLoading, error } = useCalculations();
+  const { calculations, pagination, isLoading, error } = useCalculations();
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen text-medical-600">
@@ -18,7 +18,6 @@ const Calculations = () => {
   }
 
   // Loading state
-
   if (isLoading) {
     return <LoaderSpinnner />;
   }
@@ -33,22 +32,21 @@ const Calculations = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard
             title="Total Calculations"
-            value={calculations.totalCalculations}
+            value={pagination?.totalCalculations || 0}
             icon={<CalculatorIcon className="h-4 w-4 text-muted-foreground" />}
           />
           <StatsCard
             title="Unique Patients"
-            value={calculations.uniquePatients}
+            value={Object.keys(calculations || {}).length}
             icon={<UsersIcon className="h-4 w-4 text-muted-foreground" />}
           />
           <StatsCard
             title="Calculations This Month"
-            value={calculations.calculationsThisMonth}
-            previousValue={calculations.calculationsLastMonth}
+            value={Object.values(calculations || {}).flat().length}
             icon={<CalendarIcon className="h-4 w-4 text-muted-foreground" />}
           />
         </div>
-        <CalculationTable calculations={calculations.calculations} />
+        <CalculationTable calculations={Object.values(calculations || {}).flat()} />
       </div>
     </div>
   );
