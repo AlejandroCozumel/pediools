@@ -1,5 +1,3 @@
-// components/SendEmailReportDialog.tsx
-
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +33,7 @@ interface ChartData {
     email: string | null;
     guardianEmail: string | null;
   } | null;
+  calculationIds?: string[]; // Add support for multiple calculation IDs
 }
 
 // Props interface
@@ -43,7 +42,8 @@ interface SendEmailReportDialogProps {
   onClose: () => void;
   chartData: ChartData | null;
   patientId: string;
-  pdfUrl: string;
+  pdfUrls: string[]; // Changed from pdfUrl to pdfUrls array
+  multiple?: boolean; // Flag for multiple reports
 }
 
 // Zod schema for form validation
@@ -69,19 +69,15 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
   onClose,
   chartData,
   patientId,
-  pdfUrl,
+  pdfUrls,
+  multiple = false,
 }) => {
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (isOpen) {
-    }
-  }, [isOpen]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(emailNotificationSchema),
     defaultValues: {
-      emailSubject: `Growth Chart Report for ${
+      emailSubject: `Growth Chart Report${multiple ? 's' : ''} for ${
         chartData?.patientDetails?.name || ""
       }`,
       additionalMessage: "",
@@ -93,6 +89,24 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
     },
   });
 
+  // Update form values when chartData changes
+  useEffect(() => {
+    if (isOpen && chartData) {
+      form.setValue(
+        "emailSubject",
+        `Growth Chart Report${multiple ? 's' : ''} for ${
+          chartData?.patientDetails?.name || ""
+        }`
+      );
+
+      if (chartData.patientDetails?.email) {
+        form.setValue("recipientEmail", chartData.patientDetails.email);
+      } else if (chartData.patientDetails?.guardianEmail) {
+        form.setValue("recipientEmail", chartData.patientDetails.guardianEmail);
+      }
+    }
+  }, [isOpen, chartData, form, multiple]);
+
   // Mutation for sending email report
   const sendEmailReport = useMutation({
     mutationFn: async (values: FormData) => {
@@ -101,8 +115,13 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
         {
           ...values,
           patientId,
-          chartData,
-          pdfUrl,
+          chartData: {
+            ...chartData,
+            // Ensure calculationIds is available
+            calculationIds: chartData?.calculationIds || [chartData?.calculationId || ""]
+          },
+          pdfUrls, // Send all PDF URLs
+          multiple, // Indicate if this is a multiple report email
           preview: false,
         }
       );
@@ -111,7 +130,7 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
     onSuccess: () => {
       toast({
         title: "Email sent successfully!",
-        description: "Email report has been sent to the patient.",
+        description: `Email report${multiple ? 's have' : ' has'} been sent to the recipient.`,
         variant: "default",
       });
       form.reset();
@@ -132,17 +151,16 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] rounded-lg border-medical-100">
         <DialogHeader>
           <DialogTitle className="text-medical-900 font-heading">
-            Send Email Report
+            Send Email Report{multiple ? 's' : ''}
           </DialogTitle>
           <DialogDescription className="text-medical-600">
-            Send the growth chart report via email
+            Send {multiple ? 'the selected growth chart reports' : 'the growth chart report'} via email
           </DialogDescription>
         </DialogHeader>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Recipient Email */}
@@ -211,6 +229,14 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
 
             <DialogFooter>
               <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={sendEmailReport.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
                 type="submit"
                 disabled={sendEmailReport.isPending}
                 variant="default"
@@ -221,7 +247,7 @@ export const SendEmailReportDialog: React.FC<SendEmailReportDialogProps> = ({
                     Sending...
                   </>
                 ) : (
-                  "Send Email"
+                  `Send Email${multiple ? 's' : ''}`
                 )}
               </Button>
             </DialogFooter>

@@ -11,6 +11,7 @@ import {
   ColumnDef,
   SortingState,
   ColumnFiltersState,
+  RowSelectionState,
 } from "@tanstack/react-table";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DeleteModal } from "@/components/DeleteModal";
@@ -24,6 +25,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +41,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Table,
@@ -42,6 +53,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   Search,
   MoreHorizontal,
   LineChart,
@@ -50,6 +68,13 @@ import {
   Send,
   FileText,
   NotebookPen,
+  ChevronDown,
+  Info,
+  AlertTriangle,
+  Check,
+  ArrowUpRightFromSquare,
+  CheckSquare,
+  Loader2,
 } from "lucide-react";
 import SendEmailReportDialog from "@/components/SendEmailReportDialog";
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +84,7 @@ interface Calculation {
   id: string;
   type: string;
   date: string;
+  notes?: string;
   results: {
     calculationType: string;
     weight?: {
@@ -88,11 +114,35 @@ interface Calculation {
     email: string | null | undefined;
     guardianEmail: string | null | undefined;
   };
+  trends?: {
+    weight: string | null;
+    height: string | null;
+  };
 }
 
-// Define DeleteCalculation Mutation Type
+// Define pagination type
+interface PaginationInfo {
+  totalCalculations: number;
+  totalPages: number;
+  currentPage: number;
+  calculationsPerPage: number;
+}
+
+// Define mutation types
 interface DeleteCalculationMutation {
   mutate: (variables: { patientId: string; calculationId: string }) => void;
+}
+
+interface BatchDeleteCalculationsMutation {
+  mutate: (variables: { patientId: string; calculationIds: string[] }) => void;
+}
+
+interface UpdateCalculationNotesMutation {
+  mutate: (variables: {
+    patientId: string;
+    calculationId: string;
+    notes: string;
+  }) => void;
 }
 
 // Props interface for PatientCalculationTable
@@ -101,6 +151,10 @@ interface PatientCalculationTableProps {
   type: string;
   calculations: Calculation[];
   onDeleteCalculation: DeleteCalculationMutation;
+  onBatchDeleteCalculations: BatchDeleteCalculationsMutation;
+  onUpdateNotes: UpdateCalculationNotesMutation;
+  pagination?: PaginationInfo;
+  onPageChange?: (page: number) => void;
 }
 
 export default function PatientCalculationTable({
@@ -108,6 +162,10 @@ export default function PatientCalculationTable({
   type,
   calculations,
   onDeleteCalculation,
+  onBatchDeleteCalculations,
+  onUpdateNotes,
+  pagination,
+  onPageChange,
 }: PatientCalculationTableProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -116,20 +174,38 @@ export default function PatientCalculationTable({
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  // State for modals and dialogs
   const [deleteModalState, setDeleteModalState] = useState<{
     open: boolean;
     calculationId: string | null;
   }>({ open: false, calculationId: null });
+
+  const [batchDeleteModalOpen, setBatchDeleteModalOpen] = useState(false);
+
   const [emailReportDialogOpen, setEmailReportDialogOpen] = useState(false);
-  const [selectedCalculation, setSelectedCalculation] =
-    useState<Calculation | null>(null);
+  const [selectedCalculations, setSelectedCalculations] = useState<
+    Calculation[]
+  >([]);
+
+  const [notesDialogState, setNotesDialogState] = useState<{
+    open: boolean;
+    calculationId: string | null;
+    notes: string;
+  }>({ open: false, calculationId: null, notes: "" });
+
+  // State for actions in progress
+  const [actionInProgress, setActionInProgress] = useState(false);
 
   useEffect(() => {
     setGlobalFilter(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
 
+  // Handle single item deletion
   const handleDeleteConfirm = () => {
     if (deleteModalState.calculationId) {
+      setActionInProgress(true);
       try {
         onDeleteCalculation.mutate({
           patientId,
@@ -149,11 +225,110 @@ export default function PatientCalculationTable({
           description: "Unable to delete the calculation. Please try again.",
           variant: "destructive",
         });
+      } finally {
+        setActionInProgress(false);
       }
     }
   };
 
+  // Handle batch deletion
+  const handleBatchDeleteConfirm = () => {
+    const selectedIds = Object.keys(rowSelection);
+    if (selectedIds.length > 0) {
+      setActionInProgress(true);
+      try {
+        onBatchDeleteCalculations.mutate({
+          patientId,
+          calculationIds: selectedIds,
+        });
+
+        toast({
+          title: `${selectedIds.length} Calculations Deleted`,
+          description:
+            "The selected calculations have been successfully removed.",
+          variant: "default",
+        });
+
+        setBatchDeleteModalOpen(false);
+        setRowSelection({});
+      } catch (error) {
+        toast({
+          title: "Delete Failed",
+          description: "Unable to delete the calculations. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setActionInProgress(false);
+      }
+    }
+  };
+
+  // Handle notes save
+  const handleSaveNotes = () => {
+    if (notesDialogState.calculationId) {
+      setActionInProgress(true);
+      try {
+        onUpdateNotes.mutate({
+          patientId,
+          calculationId: notesDialogState.calculationId,
+          notes: notesDialogState.notes,
+        });
+
+        toast({
+          title: "Notes Updated",
+          description: "The calculation notes have been successfully saved.",
+          variant: "default",
+        });
+
+        setNotesDialogState({ open: false, calculationId: null, notes: "" });
+      } catch (error) {
+        toast({
+          title: "Save Failed",
+          description: "Unable to save the notes. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setActionInProgress(false);
+      }
+    }
+  };
+
+  // Generate sparkline data for weight/height trends
+  const generateSparklineData = (field: "weight" | "height") => {
+    const data = calculations
+      .filter((calc) => calc.results && calc.results[field]?.value)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map((calc) => ({
+        date: new Date(calc.date),
+        value: calc.results[field]?.value || 0,
+      }));
+
+    return data;
+  };
+
+  // Set up columns
   const columns: ColumnDef<Calculation>[] = [
+    // Selection checkbox
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    // Calculation type
     {
       accessorKey: "type",
       header: ({ column }) => (
@@ -175,6 +350,7 @@ export default function PatientCalculationTable({
         </Badge>
       ),
     },
+    // Calculation standard
     {
       header: "Standard",
       accessorFn: (row) => row.results?.calculationType ?? "N/A",
@@ -187,6 +363,7 @@ export default function PatientCalculationTable({
         </Badge>
       ),
     },
+    // Date
     {
       accessorKey: "date",
       header: ({ column }) => (
@@ -201,38 +378,249 @@ export default function PatientCalculationTable({
       ),
       cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
     },
+    // Height with trend
     {
+      id: "height",
       header: "Height",
       accessorFn: (row) => row.results?.height?.value ?? "N/A",
-      cell: ({ getValue }) => String(getValue()),
+      cell: ({ row, getValue }) => {
+        const value = getValue();
+        const trend = row.original.trends?.height;
+
+        return (
+          <div className="flex items-center">
+            <span>
+              {typeof value === "number" ? `${value} cm` : String(value)}
+            </span>
+            {trend && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className={`ml-2 text-xs ${
+                        trend.startsWith("↑")
+                          ? "text-green-600 bg-green-50"
+                          : trend.startsWith("↓")
+                          ? "text-red-600 bg-red-50"
+                          : ""
+                      }`}
+                    >
+                      {trend}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Change since previous measurement</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
+      },
     },
+    // Weight with trend
     {
+      id: "weight",
       header: "Weight",
       accessorFn: (row) => row.results?.weight?.value ?? "N/A",
-      cell: ({ getValue }) => String(getValue()),
+      cell: ({ row, getValue }) => {
+        const value = getValue();
+        const trend = row.original.trends?.weight;
+
+        return (
+          <div className="flex items-center">
+            <span>
+              {typeof value === "number" ? `${value} kg` : String(value)}
+            </span>
+            {trend && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className={`ml-2 text-xs ${
+                        trend.startsWith("↑")
+                          ? "text-green-600 bg-green-50"
+                          : trend.startsWith("↓")
+                          ? "text-red-600 bg-red-50"
+                          : ""
+                      }`}
+                    >
+                      {trend}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Change since previous measurement</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
+      },
     },
+    // Height percentile
     {
       header: "Height Percentile",
       accessorFn: (row) =>
         row.results?.height?.percentiles?.calculatedPercentile ?? "N/A",
       cell: ({ getValue }) => {
         const value = getValue();
-        return typeof value === "number"
-          ? `${value.toFixed(2)}P`
-          : String(value);
+        const numberValue = typeof value === "number" ? value : null;
+
+        return (
+          <div className="flex items-center">
+            <span className="mr-2">
+              {numberValue !== null
+                ? `${numberValue.toFixed(1)}P`
+                : String(value)}
+            </span>
+            {numberValue !== null && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-16 h-4 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          numberValue < 3 || numberValue > 97
+                            ? "bg-red-500"
+                            : numberValue < 10 || numberValue > 90
+                            ? "bg-amber-500"
+                            : "bg-green-500"
+                        }`}
+                        style={{ width: `${Math.min(100, numberValue)}%` }}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {numberValue < 3 || numberValue > 97
+                        ? "Requires attention"
+                        : numberValue < 10 || numberValue > 90
+                        ? "Monitor closely"
+                        : "Normal range"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
       },
     },
+    // Weight percentile
     {
       header: "Weight Percentile",
       accessorFn: (row) =>
         row.results?.weight?.percentiles?.calculatedPercentile ?? "N/A",
       cell: ({ getValue }) => {
         const value = getValue();
-        return typeof value === "number"
-          ? `${value.toFixed(2)}P`
-          : String(value);
+        const numberValue = typeof value === "number" ? value : null;
+
+        return (
+          <div className="flex items-center">
+            <span className="mr-2">
+              {numberValue !== null
+                ? `${numberValue.toFixed(1)}P`
+                : String(value)}
+            </span>
+            {numberValue !== null && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-16 h-4 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          numberValue < 3 || numberValue > 97
+                            ? "bg-red-500"
+                            : numberValue < 10 || numberValue > 90
+                            ? "bg-amber-500"
+                            : "bg-green-500"
+                        }`}
+                        style={{ width: `${Math.min(100, numberValue)}%` }}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {numberValue < 3 || numberValue > 97
+                        ? "Requires attention"
+                        : numberValue < 10 || numberValue > 90
+                        ? "Monitor closely"
+                        : "Normal range"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
       },
     },
+    // Notes indicator
+    {
+      id: "notes",
+      header: "Notes",
+      cell: ({ row }) => {
+        const hasNotes = !!row.original.notes && row.original.notes.length > 0;
+
+        return (
+          <div className="flex justify-center">
+            {hasNotes ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() =>
+                        setNotesDialogState({
+                          open: true,
+                          calculationId: row.original.id,
+                          notes: row.original.notes || "",
+                        })
+                      }
+                    >
+                      <NotebookPen className="h-4 w-4 text-medical-600" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View/Edit Notes</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-medical-400"
+                      onClick={() =>
+                        setNotesDialogState({
+                          open: true,
+                          calculationId: row.original.id,
+                          notes: "",
+                        })
+                      }
+                    >
+                      <NotebookPen className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add Notes</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
+      },
+    },
+    // Actions column
     {
       id: "actions",
       header: "Actions",
@@ -261,11 +649,11 @@ export default function PatientCalculationTable({
                   ] || chartTypeMap.DEFAULT;
 
                 const weightData = JSON.stringify({
-                  gender: row.original.patient.gender.toLowerCase(), // Convert to lowercase
-                  dateOfBirth: row.original.patient.dateOfBirth, // Use original date
+                  gender: row.original.patient.gender.toLowerCase(),
+                  dateOfBirth: row.original.patient.dateOfBirth,
                   measurements: [
                     {
-                      date: row.original.date, // Use original date
+                      date: row.original.date,
                       weight: row.original.results.weight?.value,
                     },
                   ],
@@ -273,11 +661,11 @@ export default function PatientCalculationTable({
                 });
 
                 const heightData = JSON.stringify({
-                  gender: row.original.patient.gender.toLowerCase(), // Convert to lowercase
-                  dateOfBirth: row.original.patient.dateOfBirth, // Use original date
+                  gender: row.original.patient.gender.toLowerCase(),
+                  dateOfBirth: row.original.patient.dateOfBirth,
                   measurements: [
                     {
-                      date: row.original.date, // Use original date
+                      date: row.original.date,
                       height: row.original.results.height?.value,
                     },
                   ],
@@ -302,30 +690,14 @@ export default function PatientCalculationTable({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
-            {/* Add/Edit Notes */}
-            <DropdownMenuItem
-              onClick={() => {
-                console.log("Add/Edit Notes", row.original);
-                // TODO: Implement add/edit notes functionality
-              }}
-            >
-              <NotebookPen className="mr-2 h-4 w-4" />
-              Add/Edit Notes
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-
             {/* Email Report */}
             <DropdownMenuItem
               onClick={() => {
                 const pdfUrl = row.original.charts?.[0]?.pdfUrl;
                 if (pdfUrl) {
-                  // Ensure the calculation is set BEFORE opening the dialog
-                  setSelectedCalculation(row.original);
-
-                  // Use a slight delay to ensure state is updated
-                  setTimeout(() => {
-                    setEmailReportDialogOpen(true);
-                  }, 0);
+                  // Set up single calculation for email
+                  setSelectedCalculations([row.original]);
+                  setEmailReportDialogOpen(true);
                 } else {
                   toast({
                     title: "There is no PDF created for this calculation.",
@@ -400,12 +772,45 @@ export default function PatientCalculationTable({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       globalFilter,
+      rowSelection,
     },
   });
+
+  // Prepare data for multi-calculation email
+  const handleSendMultipleReports = () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    if (selectedRows.length === 0) {
+      toast({
+        title: "No calculations selected",
+        description: "Please select at least one calculation to email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const selectedCalcs = selectedRows.map((row) => row.original);
+    const hasPdfs = selectedCalcs.every(
+      (calc) => calc.charts && calc.charts.some((chart) => chart.pdfUrl)
+    );
+
+    if (!hasPdfs) {
+      toast({
+        title: "Missing PDF reports",
+        description:
+          "One or more selected calculations don't have PDFs. Please generate charts first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedCalculations(selectedCalcs);
+    setEmailReportDialogOpen(true);
+  };
 
   return (
     <>
@@ -420,7 +825,37 @@ export default function PatientCalculationTable({
                 View and manage this patient's calculations
               </CardDescription>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Batch Actions (Visible when rows are selected) */}
+              {Object.keys(rowSelection).length > 0 && (
+                <div className="flex items-center gap-2 mr-2 bg-medical-50 px-3 py-1 rounded-lg">
+                  <span className="text-sm text-medical-700">
+                    {Object.keys(rowSelection).length} selected
+                  </span>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-medical-700 hover:text-medical-900"
+                      onClick={handleSendMultipleReports}
+                    >
+                      <Send className="h-4 w-4 mr-1" />
+                      Email
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-red-600 hover:text-red-700"
+                      onClick={() => setBatchDeleteModalOpen(true)}
+                    >
+                      <Trash className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Search Box */}
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                 <Input
@@ -485,25 +920,75 @@ export default function PatientCalculationTable({
                   </TableBody>
                 </Table>
               </div>
-              <div className="flex items-center justify-end space-x-2 pt-4 lg:pt-6">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="border-medical-200 text-medical-700"
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="border-medical-200 text-medical-700"
-                >
-                  Next
-                </Button>
+              <div className="flex items-center justify-between space-x-2 pt-4 lg:pt-6">
+                {pagination ? (
+                  <div className="flex items-center gap-2 text-sm text-medical-500">
+                    Showing {calculations.length} of{" "}
+                    {pagination.totalCalculations} calculations
+                  </div>
+                ) : (
+                  <div />
+                )}
+                <div className="flex gap-2">
+                  {pagination && onPageChange ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          onPageChange(
+                            Math.min(
+                              pagination.currentPage + 1,
+                              pagination.totalPages
+                            )
+                          )
+                        }
+                        disabled={
+                          pagination.currentPage >= pagination.totalPages ||
+                          actionInProgress
+                        }
+                        className="border-medical-200 text-medical-700"
+                      >
+                        {actionInProgress ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Next"
+                        )}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={
+                          !table.getCanPreviousPage() || actionInProgress
+                        }
+                        className="border-medical-200 text-medical-700"
+                      >
+                        {actionInProgress ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Previous"
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage() || actionInProgress}
+                        className="border-medical-200 text-medical-700"
+                      >
+                        {actionInProgress ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Next"
+                        )}
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </>
           ) : (
@@ -513,6 +998,8 @@ export default function PatientCalculationTable({
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Single Calculation Modal */}
       <DeleteModal
         isOpen={deleteModalState.open}
         onOpenChange={(open) => {
@@ -527,25 +1014,113 @@ export default function PatientCalculationTable({
         title="Delete Calculation"
         description="Are you sure you want to delete this calculation? This action cannot be undone."
         onConfirmDelete={handleDeleteConfirm}
+        isLoading={actionInProgress}
       />
+
+      {/* Batch Delete Modal */}
+      <DeleteModal
+        isOpen={batchDeleteModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setBatchDeleteModalOpen(false);
+          }
+        }}
+        title={`Delete ${Object.keys(rowSelection).length} Calculations`}
+        description="Are you sure you want to delete the selected calculations? This action cannot be undone."
+        onConfirmDelete={handleBatchDeleteConfirm}
+        isLoading={actionInProgress}
+      />
+
+      {/* Notes Dialog */}
+      <Dialog
+        open={notesDialogState.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setNotesDialogState({
+              open: false,
+              calculationId: null,
+              notes: "",
+            });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Calculation Notes</DialogTitle>
+            <DialogDescription>
+              Add or edit notes for this calculation.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2">
+            <Textarea
+              value={notesDialogState.notes}
+              onChange={(e) =>
+                setNotesDialogState((prev) => ({
+                  ...prev,
+                  notes: e.target.value,
+                }))
+              }
+              placeholder="Enter notes about this calculation..."
+              className="min-h-[120px]"
+            />
+          </div>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() =>
+                setNotesDialogState({
+                  open: false,
+                  calculationId: null,
+                  notes: "",
+                })
+              }
+              disabled={actionInProgress}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSaveNotes} disabled={actionInProgress}>
+              {actionInProgress ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Save Notes
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Report Dialog */}
       <SendEmailReportDialog
         isOpen={emailReportDialogOpen}
-        onClose={() => setEmailReportDialogOpen(false)}
+        onClose={() => {
+          setEmailReportDialogOpen(false);
+          setSelectedCalculations([]);
+        }}
         chartData={
-          selectedCalculation
+          selectedCalculations.length > 0
             ? {
-                calculationId: selectedCalculation.id,
+                calculationId: selectedCalculations[0].id,
                 patientDetails: {
-                  name: `${selectedCalculation.patient.firstName} ${selectedCalculation.patient.lastName}`,
-                  email: selectedCalculation.patient.email ?? null,
+                  name: `${selectedCalculations[0].patient.firstName} ${selectedCalculations[0].patient.lastName}`,
+                  email: selectedCalculations[0].patient.email ?? null,
                   guardianEmail:
-                    selectedCalculation.patient.guardianEmail ?? null,
+                    selectedCalculations[0].patient.guardianEmail ?? null,
                 },
+                calculationIds: selectedCalculations.map((calc) => calc.id),
               }
             : null
         }
         patientId={patientId}
-        pdfUrl={selectedCalculation?.charts?.[0]?.pdfUrl || ""}
+        pdfUrls={selectedCalculations.map(
+          (calc) => calc.charts?.[0]?.pdfUrl || ""
+        )}
+        multiple={selectedCalculations.length > 1}
       />
     </>
   );

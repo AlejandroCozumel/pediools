@@ -218,6 +218,7 @@ model Calculation {
   date      DateTime        @default(now())
   inputData Json
   results   Json
+  notes     String?
   createdAt DateTime        @default(now())
   charts    Chart[]
 }

@@ -10,8 +10,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface DeleteModalProps {
   triggerElement?: React.ReactNode;
@@ -20,6 +19,7 @@ interface DeleteModalProps {
   onConfirmDelete: () => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  isLoading?: boolean;
 }
 
 export function DeleteModal({
@@ -29,6 +29,7 @@ export function DeleteModal({
   onConfirmDelete,
   isOpen,
   onOpenChange,
+  isLoading = false,
 }: DeleteModalProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
@@ -41,12 +42,20 @@ export function DeleteModal({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirmDelete}
             className="bg-red-600 hover:bg-red-700"
+            disabled={isLoading}
           >
-            Delete
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              "Delete"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
