@@ -598,7 +598,7 @@ export default function PatientCalculationTable({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 text-medical-400"
+                      className="h-8 w-8 p-0 text-medical-100"
                       onClick={() =>
                         setNotesDialogState({
                           open: true,
