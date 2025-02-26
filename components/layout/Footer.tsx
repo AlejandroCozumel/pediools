@@ -35,7 +35,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="pt-6 border-t border-gray-200"
+      className="pt-6 pb-4 border-t border-gray-200"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">

@@ -6,15 +6,12 @@ import {
   UseCalculationsOptions,
 } from "@/hooks/use-calculations";
 import PatientCalculationTable from "./PatientCalculationTable";
+import { CalculationTableSkeleton } from "./CalculationTableSkeleton";
 
 const PatientCalculations = () => {
   const params = useParams();
   const patientId = params.patientId as string;
-
-  // State for pagination (only needed state since filtering is handled by child)
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Prepare query options with minimal defaults
   const options: UseCalculationsOptions = {
     pagination: {
       page: currentPage,
@@ -23,7 +20,6 @@ const PatientCalculations = () => {
     includeCharts: true,
   };
 
-  // Use the hook with minimal options
   const {
     calculations,
     pagination,
@@ -31,6 +27,7 @@ const PatientCalculations = () => {
     deleteCalculation,
     batchDeleteCalculations,
     updateCalculationNotes,
+    isLoading, // Make sure your hook returns an isLoading state
   } = useCalculations(patientId, options);
 
   // Error handling
@@ -42,15 +39,29 @@ const PatientCalculations = () => {
     );
   }
 
+  // Show skeleton during loading
+  if (isLoading) {
+    return (
+      <div className="my-6">
+        <CalculationTableSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="my-6">
-      {/* Map through each calculation type and render a table for it */}
-      {calculations && Object.entries(calculations).map(([type, typeCalculations]) => (
-        <div key={type} className="mt-6">
-          <PatientCalculationTable
-          />
-        </div>
-      ))}
+      <PatientCalculationTable
+        patientId={patientId}
+        calculations={calculations || {}}
+        onDeleteCalculation={(variables) => deleteCalculation.mutate(variables)}
+        onBatchDeleteCalculations={(variables) =>
+          batchDeleteCalculations.mutate(variables)
+        }
+        onUpdateNotes={(variables) => updateCalculationNotes.mutate(variables)}
+        pagination={pagination}
+        onPageChange={setCurrentPage}
+        error={error}
+      />
     </div>
   );
 };
