@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, CircleUserRound } from "lucide-react";
+import { CircleUserRound } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -68,9 +68,8 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Avatar } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Define age groups
@@ -317,60 +316,6 @@ const PatientsDashboard = React.memo(
       setIsFilterSheetOpen(false);
     }, []);
 
-    // Helper to render growth percentile visualization
-    const renderPercentileIndicator = (patient: Patient) => {
-      if (!patient.calculationMetrics?.percentile) return null;
-      const percentile = patient.calculationMetrics.percentile;
-      const status = patient.calculationMetrics.status;
-
-      // Determine the color based on status
-      const barColor =
-        status === "concern"
-          ? "bg-red-500"
-          : status === "monitor"
-          ? "bg-amber-500"
-          : "bg-green-500";
-
-      return (
-        <div className="mt-2">
-          <div className="flex justify-between text-xs text-medical-500 mb-1">
-            <span>0%</span>
-            <span>50%</span>
-            <span>100%</span>
-          </div>
-          <div className="relative">
-            {/* Use a custom progress bar instead of the Progress component */}
-            <div className="h-2 w-full bg-gray-200 rounded-full">
-              <div
-                className={`h-full rounded-full ${barColor}`}
-                style={{ width: `${percentile}%` }}
-              />
-            </div>
-            <div
-              className="absolute top-0 h-3 w-0.5 bg-medical-400"
-              style={{ left: "50%" }}
-            />
-          </div>
-          <div className="flex justify-between items-center mt-1">
-            <span
-              className={`text-xs font-medium ${
-                status === "concern"
-                  ? "text-red-600"
-                  : status === "monitor"
-                  ? "text-amber-600"
-                  : "text-green-600"
-              }`}
-            >
-              {percentile.toFixed(1)}%
-            </span>
-            <span className="text-xs text-medical-500">
-              {patient.calculationMetrics.type}
-            </span>
-          </div>
-        </div>
-      );
-    };
-
     // Define table columns
     const columns: ColumnDef<Patient>[] = useMemo(
       () => [
@@ -524,17 +469,6 @@ const PatientsDashboard = React.memo(
                     }).format(new Date(row.original.lastCalculation))
                   : t("noCalculation")}
               </Badge>
-              {row.original.calculationMetrics && (
-                <span className="ml-2 text-xs text-medical-500">
-                  {typesT(
-                    `calculationTypes.${row.original.calculationMetrics.type}`
-                  )}
-                  {row.original.calculationMetrics.percentile !== undefined &&
-                    ` (${row.original.calculationMetrics.percentile.toFixed(
-                      1
-                    )}%)`}
-                </span>
-              )}
             </div>
           ),
         },
@@ -832,9 +766,7 @@ const PatientsDashboard = React.memo(
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent
-                    onPointerDownOutside={(e) => e.preventDefault()}
-                  >
+                  <SheetContent>
                     <SheetHeader>
                       <SheetTitle>Filter Patients</SheetTitle>
                       <SheetDescription>
@@ -1167,37 +1099,58 @@ const PatientsDashboard = React.memo(
                               : ""
                           }
                         `}
-                          onClick={() =>
-                            router.push(`/dashboard/patients/${patient.id}`)
-                          }
                         >
-                          <CardHeader className="pb-0">
+                          <CardHeader
+                            className="lg:pb-0"
+                            onClick={() =>
+                              router.push(`/dashboard/patients/${patient.id}`)
+                            }
+                          >
                             <div className="flex justify-between items-start">
                               <div className="flex items-center">
                                 <Avatar
                                   className={`
-                                 h-12 w-12 mr-3
-                                  ${
-                                    ageGroup === "INFANT"
-                                      ? "bg-blue-100"
-                                      : ageGroup === "TODDLER"
-                                      ? "bg-green-100"
-                                      : ageGroup === "PRESCHOOL"
-                                      ? "bg-yellow-100"
-                                      : ageGroup === "CHILD"
-                                      ? "bg-orange-100"
-                                      : ageGroup === "ADOLESCENT"
-                                      ? "bg-purple-100"
-                                      : "bg-gray-100"
-                                  }
-                                `}
+          h-12 w-12 mr-3
+          ${
+            ageGroup === "INFANT"
+              ? "bg-blue-100"
+              : ageGroup === "TODDLER"
+              ? "bg-green-100"
+              : ageGroup === "PRESCHOOL"
+              ? "bg-yellow-100"
+              : ageGroup === "CHILD"
+              ? "bg-orange-100"
+              : ageGroup === "ADOLESCENT"
+              ? "bg-purple-100"
+              : "bg-gray-100"
+          }
+        `}
                                 >
-                                  <span className="text-sm font-medium">
+                                  <AvatarImage
+                                    src={undefined}
+                                  />
+                                  <AvatarFallback
+                                    className={`
+          ${
+            ageGroup === "INFANT"
+              ? "text-blue-700"
+              : ageGroup === "TODDLER"
+              ? "text-green-700"
+              : ageGroup === "PRESCHOOL"
+              ? "text-yellow-700"
+              : ageGroup === "CHILD"
+              ? "text-orange-700"
+              : ageGroup === "ADOLESCENT"
+              ? "text-purple-700"
+              : "text-gray-700"
+          }
+        `}
+                                  >
                                     {getInitials(
                                       patient.firstName,
                                       patient.lastName
                                     )}
-                                  </span>
+                                  </AvatarFallback>
                                 </Avatar>
                                 <div>
                                   <h3 className="font-medium">
@@ -1237,9 +1190,8 @@ const PatientsDashboard = React.memo(
                               </div>
                             </div>
                           </CardHeader>
-                          <CardContent>
+                          <CardContent className="lg:pt-0">
                             {/* Growth percentile visualization */}
-                            {renderPercentileIndicator(patient)}
                             <div className="grid grid-cols-2 gap-2 mt-4">
                               <div className="text-sm">
                                 <p className="text-medical-500 text-xs">
