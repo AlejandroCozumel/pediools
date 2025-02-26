@@ -318,7 +318,9 @@
         "lastVisit": "Last Visit",
         "lastCalculation": "Last Calculation",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Actions",
+        "ageGroup": "Age Group",
+        "appointment": "Appointment"
       },
       "pagination": {
         "previous": "Previous",

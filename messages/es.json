@@ -318,7 +318,9 @@
         "lastVisit": "Última Visita",
         "lastCalculation": "Último Cálculo",
         "status": "Estado",
-        "actions": "Acciones"
+        "actions": "Acciones",
+        "ageGroup": "Grupo de edad",
+        "appointment": "Citas"
       },
       "pagination": {
         "previous": "Anterior",
