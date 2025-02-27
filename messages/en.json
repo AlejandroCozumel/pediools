@@ -449,5 +449,70 @@
       "save": "Save Patient",
       "saving": "Saving..."
     }
+  },
+  "Appointments": {
+    "title": "Appointments",
+    "subtitle": "Manage patient appointments and schedule",
+    "newAppointment": "New Appointment",
+    "newAppointmentDescription": "Schedule a new appointment with a patient",
+    "manageAvailability": "Manage Availability",
+    "viewingAppointments": "View and manage appointments for the selected period",
+    "calendar": "Calendar",
+    "list": "List",
+    "settings": {
+      "title": "Manage Availability",
+      "subtitle": "Configure your availability and appointment slots",
+      "availabilitySettings": "Availability Settings",
+      "availabilityDescription": "Set your recurring availability and schedule exceptions",
+      "weeklySchedule": "Weekly Schedule",
+      "weeklyScheduleDescription": "Configure your regular working hours for each day of the week",
+      "exceptions": "Exceptions",
+      "exceptionsDescription": "Configure specific dates where your availability differs from the normal schedule",
+      "defaultAppointmentDuration": "Default Appointment Duration"
+    },
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No Show"
+    },
+    "types": {
+      "Check-up": "Check-up",
+      "Consultation": "Consultation",
+      "Follow-up": "Follow-up",
+      "Lab Review": "Lab Review",
+      "Urgent Care": "Urgent Care",
+      "Other": "Other"
+    },
+    "alerts": {
+      "cancel": {
+        "title": "Cancel Appointment",
+        "description": "Are you sure you want to cancel this appointment? This action cannot be undone."
+      },
+      "updateStatus": {
+        "title": "Update Appointment Status",
+        "description": "Choose the new status for this appointment."
+      }
+    },
+    "actions": {
+      "schedule": "Schedule Appointment",
+      "cancel": "Cancel Appointment",
+      "update": "Update Appointment",
+      "delete": "Delete",
+      "view": "View Details",
+      "edit": "Edit Appointment"
+    },
+    "form": {
+      "selectPatient": "Select Patient",
+      "patientInfo": "Patient Information",
+      "appointmentDate": "Appointment Date",
+      "appointmentTime": "Appointment Time",
+      "availableSlots": "Available Time Slots",
+      "appointmentType": "Appointment Type",
+      "notes": "Notes",
+      "selectDate": "Select a date",
+      "scheduling": "Scheduling..."
+    },
+    "noAppointments": "No appointments scheduled for this day"
   }
 }

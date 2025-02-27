@@ -439,5 +439,70 @@
       "save": "Guardar Paciente",
       "saving": "Guardando..."
     }
+  },
+  "Appointments": {
+    "title": "Citas",
+    "subtitle": "Gestionar citas de pacientes y agenda",
+    "newAppointment": "Nueva Cita",
+    "newAppointmentDescription": "Programar una nueva cita con un paciente",
+    "manageAvailability": "Gestionar Disponibilidad",
+    "viewingAppointments": "Ver y gestionar citas para el período seleccionado",
+    "calendar": "Calendario",
+    "list": "Lista",
+    "settings": {
+      "title": "Gestionar Disponibilidad",
+      "subtitle": "Configurar su disponibilidad y horarios para citas",
+      "availabilitySettings": "Configuración de Disponibilidad",
+      "availabilityDescription": "Establezca su disponibilidad recurrente y excepciones de agenda",
+      "weeklySchedule": "Horario Semanal",
+      "weeklyScheduleDescription": "Configure sus horas de trabajo regulares para cada día de la semana",
+      "exceptions": "Excepciones",
+      "exceptionsDescription": "Configure fechas específicas donde su disponibilidad difiere del horario normal",
+      "defaultAppointmentDuration": "Duración Predeterminada de Citas"
+    },
+    "status": {
+      "SCHEDULED": "Programada",
+      "COMPLETED": "Completada",
+      "CANCELLED": "Cancelada",
+      "NO_SHOW": "No Asistió"
+    },
+    "types": {
+      "Check-up": "Revisión",
+      "Consultation": "Consulta",
+      "Follow-up": "Seguimiento",
+      "Lab Review": "Revisión de Laboratorio",
+      "Urgent Care": "Atención Urgente",
+      "Other": "Otro"
+    },
+    "alerts": {
+      "cancel": {
+        "title": "Cancelar Cita",
+        "description": "¿Está seguro que desea cancelar esta cita? Esta acción no se puede deshacer."
+      },
+      "updateStatus": {
+        "title": "Actualizar Estado de la Cita",
+        "description": "Elija el nuevo estado para esta cita."
+      }
+    },
+    "actions": {
+      "schedule": "Programar Cita",
+      "cancel": "Cancelar Cita",
+      "update": "Actualizar Cita",
+      "delete": "Eliminar",
+      "view": "Ver Detalles",
+      "edit": "Editar Cita"
+    },
+    "form": {
+      "selectPatient": "Seleccionar Paciente",
+      "patientInfo": "Información del Paciente",
+      "appointmentDate": "Fecha de la Cita",
+      "appointmentTime": "Hora de la Cita",
+      "availableSlots": "Horarios Disponibles",
+      "appointmentType": "Tipo de Cita",
+      "notes": "Notas",
+      "selectDate": "Seleccione una fecha",
+      "scheduling": "Programando..."
+    },
+    "noAppointments": "No hay citas programadas para este día"
   }
 }
