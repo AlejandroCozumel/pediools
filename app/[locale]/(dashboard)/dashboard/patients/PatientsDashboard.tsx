@@ -721,7 +721,105 @@ const PatientsDashboard = React.memo(
                 </CardTitle>
                 <CardDescription>{t("subtitle")}</CardDescription>
               </div>
-              <div className="flex flex-col md:flex-row items-center gap-4">
+            </div>
+
+            {/* Active Filter Indicators */}
+            {(selectedAgeGroups.length > 0 ||
+              showAlerts ||
+              showUpcomingAppointments) && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {selectedAgeGroups.map((group) => (
+                  <Badge
+                    key={group}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    Age: {AGE_GROUPS[group as keyof typeof AGE_GROUPS].label}
+                    <button
+                      className="ml-1 hover:text-medical-600"
+                      onClick={() =>
+                        setSelectedAgeGroups(
+                          selectedAgeGroups.filter((g) => g !== group)
+                        )
+                      }
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+                {showAlerts && (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    Alerts Only
+                    <button
+                      className="ml-1 hover:text-medical-600"
+                      onClick={() => setShowAlerts(false)}
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                )}
+                {showUpcomingAppointments && (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    Upcoming Appointments
+                    <button
+                      className="ml-1 hover:text-medical-600"
+                      onClick={() => setShowUpcomingAppointments(false)}
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="text-xs h-6 text-medical-600"
+                >
+                  Clear All
+                </Button>
+              </div>
+            )}
+
+            {/* Key Indicators Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+              <div className="bg-medical-50 p-3 rounded-md text-center">
+                <div className="text-sm font-medium text-medical-600">
+                  Total
+                </div>
+                <div className="text-xl font-bold text-medical-800">
+                  {totalPatients}
+                </div>
+              </div>
+              <div className="bg-green-50 p-3 rounded-md text-center">
+                <div className="text-sm font-medium text-green-600">Active</div>
+                <div className="text-xl font-bold text-green-800">
+                  {activePatients}
+                </div>
+              </div>
+              <div className="bg-amber-50 p-3 rounded-md text-center">
+                <div className="text-sm font-medium text-amber-600">Alerts</div>
+                <div className="text-xl font-bold text-amber-800">
+                  {alertPatients}
+                </div>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-md text-center">
+                <div className="text-sm font-medium text-blue-600">
+                  Appointments
+                </div>
+                <div className="text-xl font-bold text-blue-800">
+                  {upcomingAppointments}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex w-full items-center justify-between pt-4 gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
                 {/* View toggle */}
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2">
@@ -858,115 +956,19 @@ const PatientsDashboard = React.memo(
                     </SheetFooter>
                   </SheetContent>
                 </Sheet>
-
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
-                  <Input
-                    placeholder={t("searchPlaceholder")}
-                    value={globalFilter}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    className="pl-8 w-[250px] border-medical-200"
-                  />
-                </div>
               </div>
-            </div>
-
-            {/* Active Filter Indicators */}
-            {(selectedAgeGroups.length > 0 ||
-              showAlerts ||
-              showUpcomingAppointments) && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {selectedAgeGroups.map((group) => (
-                  <Badge
-                    key={group}
-                    variant="secondary"
-                    className="flex items-center gap-1"
-                  >
-                    Age: {AGE_GROUPS[group as keyof typeof AGE_GROUPS].label}
-                    <button
-                      className="ml-1 hover:text-medical-600"
-                      onClick={() =>
-                        setSelectedAgeGroups(
-                          selectedAgeGroups.filter((g) => g !== group)
-                        )
-                      }
-                    >
-                      ×
-                    </button>
-                  </Badge>
-                ))}
-                {showAlerts && (
-                  <Badge
-                    variant="secondary"
-                    className="flex items-center gap-1"
-                  >
-                    Alerts Only
-                    <button
-                      className="ml-1 hover:text-medical-600"
-                      onClick={() => setShowAlerts(false)}
-                    >
-                      ×
-                    </button>
-                  </Badge>
-                )}
-                {showUpcomingAppointments && (
-                  <Badge
-                    variant="secondary"
-                    className="flex items-center gap-1"
-                  >
-                    Upcoming Appointments
-                    <button
-                      className="ml-1 hover:text-medical-600"
-                      onClick={() => setShowUpcomingAppointments(false)}
-                    >
-                      ×
-                    </button>
-                  </Badge>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={resetFilters}
-                  className="text-xs h-6 text-medical-600"
-                >
-                  Clear All
-                </Button>
-              </div>
-            )}
-
-            {/* Key Indicators Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-              <div className="bg-medical-50 p-3 rounded-md text-center">
-                <div className="text-sm font-medium text-medical-600">
-                  Total
-                </div>
-                <div className="text-xl font-bold text-medical-800">
-                  {totalPatients}
-                </div>
-              </div>
-              <div className="bg-green-50 p-3 rounded-md text-center">
-                <div className="text-sm font-medium text-green-600">Active</div>
-                <div className="text-xl font-bold text-green-800">
-                  {activePatients}
-                </div>
-              </div>
-              <div className="bg-amber-50 p-3 rounded-md text-center">
-                <div className="text-sm font-medium text-amber-600">Alerts</div>
-                <div className="text-xl font-bold text-amber-800">
-                  {alertPatients}
-                </div>
-              </div>
-              <div className="bg-blue-50 p-3 rounded-md text-center">
-                <div className="text-sm font-medium text-blue-600">
-                  Appointments
-                </div>
-                <div className="text-xl font-bold text-blue-800">
-                  {upcomingAppointments}
-                </div>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                <Input
+                  placeholder={t("searchPlaceholder")}
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className="pl-8 w-[250px] border-medical-200"
+                />
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="lg:pt-0">
             {filteredPatients.length > 0 ? (
               viewMode === "table" ? (
                 // Table View
@@ -1126,9 +1128,7 @@ const PatientsDashboard = React.memo(
           }
         `}
                                 >
-                                  <AvatarImage
-                                    src={undefined}
-                                  />
+                                  <AvatarImage src={undefined} />
                                   <AvatarFallback
                                     className={`
           ${
