@@ -58,7 +58,9 @@ export function useAppointments(filters?: {
       if (filters?.status) params.append("status", filters.status);
       if (filters?.patientId) params.append("patientId", filters.patientId);
 
-      const { data } = await axios.get(`/api/dashboard/appointments?${params.toString()}`);
+      const { data } = await axios.get(
+        `/api/dashboard/appointments?${params.toString()}`
+      );
       return data;
     },
   });
@@ -72,7 +74,9 @@ export function useAppointment(appointmentId?: string) {
     queryKey: ["appointment", appointmentId],
     queryFn: async () => {
       if (!appointmentId) return null;
-      const { data } = await axios.get(`/api/dashboard/appointments/${appointmentId}`);
+      const { data } = await axios.get(
+        `/api/dashboard/appointments/${appointmentId}`
+      );
       return data;
     },
     enabled: !!appointmentId,
@@ -87,19 +91,25 @@ export function useAppointment(appointmentId?: string) {
         );
         return data;
       } else {
-        const { data } = await axios.post("/api/dashboard/appointments", appointmentData);
+        const { data } = await axios.post(
+          "/api/dashboard/appointments",
+          appointmentData
+        );
         return data;
       }
     },
     onSuccess: (newAppointment) => {
-      queryClient.invalidateQueries({ queryKey: ["appointment", newAppointment.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["appointment", newAppointment.id],
+      });
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
     },
   });
 
   const deleteAppointment = useMutation({
     mutationFn: async () => {
-      if (!appointmentId) throw new Error("Appointment ID is required for deletion");
+      if (!appointmentId)
+        throw new Error("Appointment ID is required for deletion");
       await axios.delete(`/api/dashboard/appointments/${appointmentId}`);
     },
     onSuccess: () => {
@@ -118,20 +128,32 @@ export function useAppointment(appointmentId?: string) {
 }
 
 // Hook for doctor availability
+// Hook for doctor availability
 export function useDoctorAvailability() {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["doctorAvailability"],
     queryFn: async () => {
-      const { data } = await axios.get("/api/dashboard/appointments/availability");
+      const { data } = await axios.get(
+        "/api/dashboard/appointments/availability"
+      );
       return data;
     },
   });
 
   const saveAvailability = useMutation({
     mutationFn: async (availabilityData: any) => {
-      const { data } = await axios.post("/api/dashboard/appointments/availability", availabilityData);
+      const { data } = await axios.post(
+        "/api/dashboard/appointments/availability",
+        {
+          weeklySchedule: availabilityData.weeklySchedule,
+          daysOfOperation: availabilityData.daysOfOperation,
+          defaultStartTime: availabilityData.defaultStartTime,
+          defaultEndTime: availabilityData.defaultEndTime,
+          minSlotsRequired: availabilityData.minSlotsRequired,
+        }
+      );
       return data;
     },
     onSuccess: () => {
@@ -142,7 +164,10 @@ export function useDoctorAvailability() {
 
   const saveAvailabilityOverride = useMutation({
     mutationFn: async (overrideData: any) => {
-      const { data } = await axios.post("/api/dashboard/appointments/availability/override", overrideData);
+      const { data } = await axios.post(
+        "/api/dashboard/appointments/availability/override",
+        overrideData
+      );
       return data;
     },
     onSuccess: () => {
@@ -174,7 +199,9 @@ export function useAppointmentSlots(filters?: {
       if (filters?.endDate) params.append("endDate", filters.endDate);
       if (filters?.status) params.append("status", filters.status);
 
-      const { data } = await axios.get(`/api/dashboard/appointments/slots?${params.toString()}`);
+      const { data } = await axios.get(
+        `/api/dashboard/appointments/slots?${params.toString()}`
+      );
       return data;
     },
   });

@@ -4,6 +4,15 @@ import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import { z } from "zod";
 
+const DAYS_OF_WEEK = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 // Get doctor availability
 export async function GET(req: NextRequest) {
   try {
@@ -20,14 +29,37 @@ export async function GET(req: NextRequest) {
     const doctorId = doctor.id;
 
     // Get regular weekly schedule
-    const weeklySchedule = await prisma.doctorAvailability.findMany({
+    const apiSchedule = await prisma.doctorAvailability.findMany({
       where: {
         doctorId,
-        isActive: true,
       },
       orderBy: {
         dayOfWeek: "asc",
       },
+    });
+
+    // Map the API schedule to the format expected by the component
+    const weeklySchedule = DAYS_OF_WEEK.map((_, index) => {
+      const scheduleForDay = apiSchedule.find(
+        (schedule) => schedule.dayOfWeek === index
+      );
+      return scheduleForDay
+        ? {
+            dayOfWeek: index,
+            isActive: scheduleForDay.isActive,
+            startTime: scheduleForDay.startTime,
+            endTime: scheduleForDay.endTime,
+            slotDuration: scheduleForDay.slotDuration,
+            breakStartTime: scheduleForDay.breakStartTime || undefined,
+            breakEndTime: scheduleForDay.breakEndTime || undefined,
+          }
+        : {
+            dayOfWeek: index,
+            isActive: false,
+            startTime: "09:00",
+            endTime: "17:00",
+            slotDuration: 30,
+          };
     });
 
     // Get date overrides
@@ -98,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     // Create new schedule entries
     const availabilityEntries = await Promise.all(
-      validatedData.weeklySchedule.map(schedule =>
+      validatedData.weeklySchedule.map((schedule) =>
         prisma.doctorAvailability.create({
           data: {
             doctorId,
@@ -138,13 +170,6 @@ export async function POST(req: NextRequest) {
 
 // Helper function to generate appointment slots based on availability
 async function generateAppointmentSlots(doctorId: string) {
-  // Implementation logic for generating slots
-  // This would create future slots based on weekly availability
-  // and take into account date overrides
-
-  // Note: This is a simplified implementation - you'd want to
-  // add more robust logic for a production environment
-
   // Clear future slots that haven't been booked
   await prisma.appointmentSlot.deleteMany({
     where: {
@@ -156,8 +181,115 @@ async function generateAppointmentSlots(doctorId: string) {
     },
   });
 
-  // For each day in the next 4 weeks, generate slots based on availability
-  // This would be where you implement the slot generation logic
+  // Get the doctor's availability
+  const availability = await prisma.doctorAvailability.findMany({
+    where: { doctorId, isActive: true },
+  });
 
-  return true;
+  let totalSlotsGenerated = 0;
+
+  // Generate slots for each active day
+  // Generate slots for each active day
+  for (const schedule of availability) {
+    // Parse start and end times
+    const [startHour, startMinute] = schedule.startTime.split(":").map(Number);
+    const [endHour, endMinute] = schedule.endTime.split(":").map(Number);
+
+    // Calculate break times if they exist
+    let breakStartMinutes = -1;
+    let breakEndMinutes = -1;
+
+    if (schedule.breakStartTime && schedule.breakEndTime) {
+      const [breakStartHour, breakStartMin] = schedule.breakStartTime
+        .split(":")
+        .map(Number);
+      const [breakEndHour, breakEndMin] = schedule.breakEndTime
+        .split(":")
+        .map(Number);
+
+      breakStartMinutes = breakStartHour * 60 + breakStartMin;
+      breakEndMinutes = breakEndHour * 60 + breakEndMin;
+    }
+
+    // Calculate start and end minutes of the day
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+
+    // Generate slots for the next 4 weeks
+    for (let week = 0; week < 4; week++) {
+      // Calculate the date for this schedule's day of the week
+      const currentDate = new Date();
+      currentDate.setDate(
+        currentDate.getDate() +
+          week * 7 +
+          ((schedule.dayOfWeek - currentDate.getDay() + 7) % 7)
+      );
+
+      // Skip dates that have overrides
+      const dateString = currentDate.toISOString().split("T")[0];
+      const hasOverride = await prisma.doctorAvailabilityOverride.findFirst({
+        where: {
+          doctorId,
+          date: {
+            gte: new Date(`${dateString}T00:00:00Z`),
+            lt: new Date(`${dateString}T23:59:59Z`),
+          },
+        },
+      });
+
+      if (hasOverride) continue;
+
+      // Generate slots for this day
+      let slotMinute = startMinutes;
+      let slotsForDay = 0;
+
+      while (slotMinute + schedule.slotDuration <= endMinutes) {
+        // Skip slots during break time
+        if (
+          breakStartMinutes !== -1 &&
+          slotMinute >= breakStartMinutes &&
+          slotMinute < breakEndMinutes
+        ) {
+          slotMinute = breakEndMinutes;
+          continue;
+        }
+
+        // Create the slot
+        const slotHour = Math.floor(slotMinute / 60);
+        const slotMin = slotMinute % 60;
+
+        const startTime = new Date(currentDate);
+        startTime.setHours(slotHour, slotMin, 0, 0);
+
+        const endTime = new Date(startTime);
+        endTime.setMinutes(endTime.getMinutes() + schedule.slotDuration);
+
+        // Only create slots that are in the future
+        if (startTime > new Date()) {
+          await prisma.appointmentSlot.create({
+            data: {
+              doctorId,
+              startTime,
+              endTime,
+              status: "AVAILABLE",
+            },
+          });
+
+          slotsForDay++;
+        }
+
+        // Move to the next slot
+        slotMinute += schedule.slotDuration;
+      }
+
+      totalSlotsGenerated += slotsForDay;
+    }
+  }
+
+  // Optional: Log or validate slot generation
+  console.log(
+    `Generated ${totalSlotsGenerated} appointment slots for doctor ${doctorId}`
+  );
+
+  return totalSlotsGenerated;
 }
