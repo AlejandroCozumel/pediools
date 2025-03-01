@@ -17,7 +17,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useDoctorAvailability } from "@/hooks/use-appointments";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardTitle from "@/components/DashboardTitle";
-import { Calendar, Clock, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  ArrowLeft,
+  Loader2,
+  AlertCircle,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -30,14 +37,19 @@ import {
 } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
+type BreakPeriod = {
+  id: string;
+  startTime: string;
+  endTime: string;
+};
+
 type DaySchedule = {
   dayOfWeek: number;
   isActive: boolean;
   startTime: string;
   endTime: string;
   slotDuration: number;
-  breakStartTime?: string;
-  breakEndTime?: string;
+  breaks: BreakPeriod[];
 };
 
 // Array of days
@@ -96,16 +108,6 @@ const isEndTimeAfterStartTime = (
   return end > start;
 };
 
-// Validate if slot duration fits within time window
-const isDurationValid = (
-  startTime: string,
-  endTime: string,
-  slotDuration: number
-): boolean => {
-  const minutesBetween = calculateMinutesBetween(startTime, endTime);
-  return minutesBetween >= slotDuration;
-};
-
 // Minimum availability requirements
 const MIN_HOURS_PER_WEEK = 8; // Minimum total hours of availability per week
 const MIN_HOURS_PER_DAY = 2; // Minimum hours per active day
@@ -139,6 +141,7 @@ const AppointmentSettings = () => {
       slotDuration: number;
       breakStartTime?: string;
       breakEndTime?: string;
+      breaks: BreakPeriod[];
     }>
   >(
     DAYS_OF_WEEK.map((_, index) => ({
@@ -147,6 +150,7 @@ const AppointmentSettings = () => {
       startTime: "09:00",
       endTime: "17:00",
       slotDuration: 30,
+      breaks: [],
     }))
   );
 
@@ -178,13 +182,13 @@ const AppointmentSettings = () => {
     if (availability) {
       // Only update if there's actual availability data with active days
       const hasActiveAvailability = availability.weeklySchedule?.some(
-        (day: DaySchedule) => day.isActive
+        (day: any) => day.isActive
       );
 
       if (hasActiveAvailability) {
-        setWeeklySchedule(availability.weeklySchedule);
+        // Use ensureBreaksExist here
+        setWeeklySchedule(ensureBreaksExist(availability.weeklySchedule));
       }
-
       if (availability.dateOverrides) {
         setDateOverrides(availability.dateOverrides);
       }
@@ -306,6 +310,7 @@ const AppointmentSettings = () => {
     updatedSchedule[index] = {
       ...updatedSchedule[index],
       [field]: value,
+      breaks: updatedSchedule[index].breaks || [], // Ensure breaks always exists
     };
 
     // Special handling for break times
@@ -313,7 +318,6 @@ const AppointmentSettings = () => {
       // If break start time is removed, also remove break end time
       updatedSchedule[index].breakEndTime = undefined;
     }
-
     if (field === "isActive" && !value) {
       // If a day is deactivated, remove it from daysOfOperation
       setDaysOfOperation((prevDays) => prevDays.filter((day) => day !== index));
@@ -398,6 +402,9 @@ const AppointmentSettings = () => {
   // Save the availability settings
   const handleSaveAvailability = async () => {
     try {
+      // Ensure all days have a breaks array before saving
+      const validSchedule = ensureBreaksExist(weeklySchedule);
+
       // Perform validation - but allow saving with warnings
       if (validationErrors.length > 0) {
         const proceed = window.confirm(
@@ -407,7 +414,7 @@ const AppointmentSettings = () => {
       }
 
       await saveAvailability.mutateAsync({
-        weeklySchedule,
+        weeklySchedule: validSchedule, // Use the validated schedule
         daysOfOperation,
         defaultStartTime,
         defaultEndTime,
@@ -425,6 +432,36 @@ const AppointmentSettings = () => {
         description: "Failed to save availability settings.",
       });
     }
+  };
+
+  const calculateAvailableMinutes = (day: any): number => {
+    const dayMinutes = calculateMinutesBetween(day.startTime, day.endTime);
+
+    // Handle legacy breaks if present
+    if (day.breakStartTime && day.breakEndTime) {
+      const breakMinutes = calculateMinutesBetween(
+        day.breakStartTime,
+        day.breakEndTime
+      );
+      return dayMinutes - breakMinutes;
+    }
+
+    // Handle new breaks array
+    const breaks = day.breaks || [];
+    const breakMinutes = breaks.reduce((total: number, break_: BreakPeriod) => {
+      if (
+        isEndTimeAfterStartTime(break_.startTime, break_.endTime) &&
+        isEndTimeAfterStartTime(day.startTime, break_.startTime) &&
+        isEndTimeAfterStartTime(break_.endTime, day.endTime)
+      ) {
+        return (
+          total + calculateMinutesBetween(break_.startTime, break_.endTime)
+        );
+      }
+      return total;
+    }, 0);
+
+    return dayMinutes - breakMinutes;
   };
 
   // Save date exceptions/overrides
@@ -445,6 +482,383 @@ const AppointmentSettings = () => {
         description: "Failed to save date exceptions.",
       });
     }
+  };
+
+  const ensureBreaksExist = (schedule: any[]) => {
+    return schedule.map((day) => ({
+      ...day,
+      breaks: day.breaks || [],
+    }));
+  };
+
+  const addBreakPeriod = (dayIndex: number) => {
+    const day = weeklySchedule[dayIndex];
+    if (!day.isActive) return;
+
+    // Find a default 1-hour slot for the break
+    // Try to place it at noon, or find another available time
+    const defaultBreakStart = "12:00";
+    const defaultBreakEnd = "13:00";
+
+    // Check if the default break time conflicts with existing breaks
+    const hasConflict = day.breaks.some(
+      (break_) =>
+        (isEndTimeAfterStartTime(break_.startTime, defaultBreakStart) &&
+          isEndTimeAfterStartTime(defaultBreakStart, break_.endTime)) ||
+        (isEndTimeAfterStartTime(break_.startTime, defaultBreakEnd) &&
+          isEndTimeAfterStartTime(defaultBreakEnd, break_.endTime))
+    );
+
+    if (
+      !hasConflict &&
+      isEndTimeAfterStartTime(day.startTime, defaultBreakStart) &&
+      isEndTimeAfterStartTime(defaultBreakEnd, day.endTime)
+    ) {
+      // Default noon break works
+      const updatedSchedule = [...weeklySchedule];
+      updatedSchedule[dayIndex].breaks.push({
+        id: crypto.randomUUID(), // Generate a unique ID
+        startTime: defaultBreakStart,
+        endTime: defaultBreakEnd,
+      });
+      setWeeklySchedule(updatedSchedule);
+    } else {
+      // Find another available slot
+      // For simplicity, just add a 30-minute break at the start of the day
+      const breakStart = day.startTime;
+
+      // Add 30 minutes to get the break end time
+      const startDate = parseISO(`2000-01-01T${breakStart}`);
+      const endDate = new Date(startDate.getTime() + 30 * 60000);
+      const breakEnd = format(endDate, "HH:mm");
+
+      const updatedSchedule = [...weeklySchedule];
+      updatedSchedule[dayIndex].breaks.push({
+        id: crypto.randomUUID(),
+        startTime: breakStart,
+        endTime: breakEnd,
+      });
+      setWeeklySchedule(updatedSchedule);
+    }
+  };
+
+  const removeBreakPeriod = (dayIndex: number, breakId: string) => {
+    const updatedSchedule = [...weeklySchedule];
+    updatedSchedule[dayIndex].breaks = updatedSchedule[dayIndex].breaks.filter(
+      (break_) => break_.id !== breakId
+    );
+    setWeeklySchedule(updatedSchedule);
+  };
+
+  const updateBreakTime = (
+    dayIndex: number,
+    breakId: string,
+    field: "startTime" | "endTime",
+    value: string
+  ) => {
+    const updatedSchedule = [...weeklySchedule];
+    const breakIndex = updatedSchedule[dayIndex].breaks.findIndex(
+      (break_) => break_.id === breakId
+    );
+
+    if (breakIndex === -1) return;
+
+    const currentBreak = updatedSchedule[dayIndex].breaks[breakIndex];
+    const day = updatedSchedule[dayIndex];
+
+    // Check if the new time is valid
+    if (field === "startTime") {
+      // Check if start time is after day start and before break end
+      if (
+        isEndTimeAfterStartTime(day.startTime, value) &&
+        isEndTimeAfterStartTime(value, currentBreak.endTime)
+      ) {
+        updatedSchedule[dayIndex].breaks[breakIndex].startTime = value;
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Invalid Break Time",
+          description:
+            "Break start time must be within working hours and before break end time.",
+        });
+        return;
+      }
+    } else if (field === "endTime") {
+      // Check if end time is after break start and before day end
+      if (
+        isEndTimeAfterStartTime(currentBreak.startTime, value) &&
+        isEndTimeAfterStartTime(value, day.endTime)
+      ) {
+        updatedSchedule[dayIndex].breaks[breakIndex].endTime = value;
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Invalid Break Time",
+          description:
+            "Break end time must be after break start time and within working hours.",
+        });
+        return;
+      }
+    }
+
+    // Check for conflicts with other breaks
+    const otherBreaks = updatedSchedule[dayIndex].breaks.filter(
+      (_, i) => i !== breakIndex
+    );
+
+    const hasConflict = otherBreaks.some((break_) => {
+      const newBreak = updatedSchedule[dayIndex].breaks[breakIndex];
+
+      return (
+        (isEndTimeAfterStartTime(break_.startTime, newBreak.startTime) &&
+          isEndTimeAfterStartTime(newBreak.startTime, break_.endTime)) ||
+        (isEndTimeAfterStartTime(break_.startTime, newBreak.endTime) &&
+          isEndTimeAfterStartTime(newBreak.endTime, break_.endTime)) ||
+        (isEndTimeAfterStartTime(newBreak.startTime, break_.startTime) &&
+          isEndTimeAfterStartTime(break_.endTime, newBreak.endTime))
+      );
+    });
+
+    if (hasConflict) {
+      toast({
+        variant: "destructive",
+        title: "Break Time Conflict",
+        description: "Break times cannot overlap with other breaks.",
+      });
+      return;
+    }
+
+    setWeeklySchedule(updatedSchedule);
+  };
+
+  // In the validation effect, update to handle multiple breaks
+  useEffect(() => {
+    const errors: string[] = [];
+
+    // Calculate total available hours per week
+    let totalMinutes = 0;
+    let activeDays = 0;
+
+    weeklySchedule.forEach((day) => {
+      if (day.isActive) {
+        activeDays++;
+
+        // Check if end time is after start time
+        if (!isEndTimeAfterStartTime(day.startTime, day.endTime)) {
+          errors.push(
+            `${DAYS_OF_WEEK[day.dayOfWeek]}: End time (${
+              day.endTime
+            }) must be after start time (${day.startTime}).`
+          );
+        }
+
+        // Check if slot duration fits in the time window
+        const dayMinutes = calculateMinutesBetween(day.startTime, day.endTime);
+        if (dayMinutes < day.slotDuration) {
+          errors.push(
+            `${DAYS_OF_WEEK[day.dayOfWeek]}: Slot duration (${
+              day.slotDuration
+            } min) exceeds available time (${dayMinutes} min).`
+          );
+        }
+
+        // Validate breaks and calculate total break time
+        let breakMinutes = 0;
+        const breakErrors: string[] = [];
+
+        day.breaks.forEach((break_, index) => {
+          // Check if break times are valid
+          if (!isEndTimeAfterStartTime(break_.startTime, break_.endTime)) {
+            breakErrors.push(
+              `Break ${index + 1}: End time must be after start time.`
+            );
+          }
+
+          // Check if break is within working hours
+          if (
+            !isEndTimeAfterStartTime(day.startTime, break_.startTime) ||
+            !isEndTimeAfterStartTime(break_.endTime, day.endTime)
+          ) {
+            breakErrors.push(
+              `Break ${index + 1}: Must be within working hours.`
+            );
+          }
+
+          // Add the break duration to total break minutes
+          if (
+            isEndTimeAfterStartTime(break_.startTime, break_.endTime) &&
+            isEndTimeAfterStartTime(day.startTime, break_.startTime) &&
+            isEndTimeAfterStartTime(break_.endTime, day.endTime)
+          ) {
+            breakMinutes += calculateMinutesBetween(
+              break_.startTime,
+              break_.endTime
+            );
+          }
+        });
+
+        // Check for overlapping breaks
+        for (let i = 0; i < day.breaks.length; i++) {
+          for (let j = i + 1; j < day.breaks.length; j++) {
+            const breakA = day.breaks[i];
+            const breakB = day.breaks[j];
+
+            if (
+              (isEndTimeAfterStartTime(breakA.startTime, breakB.startTime) &&
+                isEndTimeAfterStartTime(breakB.startTime, breakA.endTime)) ||
+              (isEndTimeAfterStartTime(breakA.startTime, breakB.endTime) &&
+                isEndTimeAfterStartTime(breakB.endTime, breakA.endTime)) ||
+              (isEndTimeAfterStartTime(breakB.startTime, breakA.startTime) &&
+                isEndTimeAfterStartTime(breakA.endTime, breakB.endTime))
+            ) {
+              breakErrors.push(`Breaks ${i + 1} and ${j + 1} overlap.`);
+            }
+          }
+        }
+
+        // Add break errors to main errors if any
+        if (breakErrors.length > 0) {
+          errors.push(`${DAYS_OF_WEEK[day.dayOfWeek]} breaks have issues:`);
+          breakErrors.forEach((error) => {
+            errors.push(`  - ${error}`);
+          });
+        }
+
+        const availableMinutes = dayMinutes - breakMinutes;
+        totalMinutes += availableMinutes;
+
+        // Check minimum hours per day
+        if (availableMinutes < MIN_HOURS_PER_DAY * 60) {
+          errors.push(
+            `${
+              DAYS_OF_WEEK[day.dayOfWeek]
+            } has less than ${MIN_HOURS_PER_DAY} hours of availability.`
+          );
+        }
+      }
+    });
+
+    // Rest of validation remains the same...
+  }, [weeklySchedule]);
+
+  const renderBreakTimeUI = (day: any, dayIndex: number) => {
+    // Ensure breaks is always an array
+    const breaks = day.breaks || [];
+
+    return (
+      <div className="col-span-1 md:col-span-3 mt-4 border-t pt-4">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium text-medical-700">
+            Unavailable Time Periods
+          </label>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => addBreakPeriod(dayIndex)}
+          >
+            Add Break
+          </Button>
+        </div>
+        {breaks.length === 0 ? (
+          <p className="text-sm text-medical-500 italic">
+            No breaks added. You are available all day.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {breaks.map((break_: BreakPeriod) => (
+              // Rest of your code stays the same
+              <div
+                key={break_.id}
+                className="flex items-end space-x-2 p-3 bg-gray-50 rounded-md"
+              >
+                <div className="flex-1">
+                  <label className="text-xs text-medical-500 mb-1 block">
+                    Start Time
+                  </label>
+                  <Select
+                    value={break_.startTime}
+                    onValueChange={(value) =>
+                      updateBreakTime(dayIndex, break_.id, "startTime", value)
+                    }
+                  >
+                    <SelectTrigger className="border-medical-200">
+                      <SelectValue placeholder="Break start" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeOptions
+                        .filter(
+                          (option) =>
+                            isEndTimeAfterStartTime(
+                              day.startTime,
+                              option.value
+                            ) &&
+                            isEndTimeAfterStartTime(
+                              option.value,
+                              day.endTime
+                            ) &&
+                            (!break_.endTime ||
+                              isEndTimeAfterStartTime(
+                                option.value,
+                                break_.endTime
+                              ))
+                        )
+                        .map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex-1">
+                  <label className="text-xs text-medical-500 mb-1 block">
+                    End Time
+                  </label>
+                  <Select
+                    value={break_.endTime}
+                    onValueChange={(value) =>
+                      updateBreakTime(dayIndex, break_.id, "endTime", value)
+                    }
+                  >
+                    <SelectTrigger className="border-medical-200">
+                      <SelectValue placeholder="Break end" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeOptions
+                        .filter(
+                          (option) =>
+                            break_.startTime &&
+                            isEndTimeAfterStartTime(
+                              break_.startTime,
+                              option.value
+                            ) &&
+                            isEndTimeAfterStartTime(option.value, day.endTime)
+                        )
+                        .map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 rounded-full p-1.5 mb-1 ml-2 transition-colors duration-200"
+                  onClick={() => removeBreakPeriod(dayIndex, break_.id)}
+                  title="Remove break"
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -596,7 +1010,6 @@ const AppointmentSettings = () => {
                         {DAYS_OF_WEEK[day.dayOfWeek]}
                       </label>
                     </div>
-
                     {day.isActive && (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
@@ -624,7 +1037,6 @@ const AppointmentSettings = () => {
                             </SelectContent>
                           </Select>
                         </div>
-
                         <div>
                           <label className="text-xs text-medical-500 mb-1 block">
                             End Time
@@ -650,7 +1062,6 @@ const AppointmentSettings = () => {
                             </SelectContent>
                           </Select>
                         </div>
-
                         <div>
                           <label className="text-xs text-medical-500 mb-1 block">
                             Appointment Duration
@@ -680,200 +1091,147 @@ const AppointmentSettings = () => {
                             </SelectContent>
                           </Select>
                         </div>
-
-                        {/* Optional: Break time */}
-                        <div className="col-span-1 md:col-span-3">
-                          <label className="text-xs text-medical-500 mb-1 block">
-                            Break Time
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-medical-700">
-                              {day.breakStartTime || "None"} -{" "}
-                              {day.breakEndTime || "None"}
-                            </span>
+                        {/* Breaks/Unavailable Periods */}
+                        <div className="col-span-1 md:col-span-3 mt-4 border-t pt-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-sm font-medium text-medical-700">
+                              Unavailable Time Periods
+                            </label>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                // If no break exists, set a default break
-                                if (!day.breakStartTime) {
-                                  // Set a default 1-hour break from 12:00 to 13:00
-                                  handleScheduleChange(
-                                    index,
-                                    "breakStartTime",
-                                    "12:00"
-                                  );
-                                  handleScheduleChange(
-                                    index,
-                                    "breakEndTime",
-                                    "13:00"
-                                  );
-                                } else {
-                                  // If break exists, remove it completely
-                                  handleScheduleChange(
-                                    index,
-                                    "breakStartTime",
-                                    undefined
-                                  );
-                                  handleScheduleChange(
-                                    index,
-                                    "breakEndTime",
-                                    undefined
-                                  );
-                                }
-                              }}
+                              onClick={() => addBreakPeriod(index)}
                             >
-                              {day.breakStartTime
-                                ? "Remove Break"
-                                : "Add Break"}
+                              Add Break
                             </Button>
                           </div>
-
-                          {day.breakStartTime && (
-                            <div className="grid grid-cols-2 gap-4 mt-2">
-                              <Select
-                                value={day.breakStartTime}
-                                onValueChange={(value) => {
-                                  // Validate break start time is after work start and before work end
-                                  if (
-                                    isEndTimeAfterStartTime(
-                                      day.startTime,
-                                      value
-                                    ) &&
-                                    isEndTimeAfterStartTime(value, day.endTime)
-                                  ) {
-                                    handleScheduleChange(
-                                      index,
-                                      "breakStartTime",
-                                      value
-                                    );
-
-                                    // If break end time is before new break start time, reset it
-                                    if (
-                                      day.breakEndTime &&
-                                      !isEndTimeAfterStartTime(
-                                        value,
-                                        day.breakEndTime
-                                      )
-                                    ) {
-                                      handleScheduleChange(
-                                        index,
-                                        "breakEndTime",
-                                        undefined
-                                      );
-                                    }
-                                  } else {
-                                    toast({
-                                      variant: "destructive",
-                                      title: "Invalid Break Time",
-                                      description:
-                                        "Break must be within working hours.",
-                                    });
-                                  }
-                                }}
-                              >
-                                <SelectTrigger className="border-medical-200">
-                                  <SelectValue placeholder="Break start" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {timeOptions
-                                    .filter(
-                                      (option) =>
-                                        isEndTimeAfterStartTime(
-                                          day.startTime,
-                                          option.value
-                                        ) &&
-                                        isEndTimeAfterStartTime(
-                                          option.value,
-                                          day.endTime
-                                        )
-                                    )
-                                    .map((option) => (
-                                      <SelectItem
-                                        key={option.value}
-                                        value={option.value}
+                          {day.breaks && day.breaks.length > 0 ? (
+                            <div className="space-y-3">
+                              {day.breaks.map(
+                                (break_: BreakPeriod, breakIndex: number) => (
+                                  <div
+                                    key={break_.id}
+                                    className="flex items-end space-x-2 p-3 bg-gray-50 rounded-md"
+                                  >
+                                    <div className="flex-1">
+                                      <label className="text-xs text-medical-500 mb-1 block">
+                                        Start Time
+                                      </label>
+                                      <Select
+                                        value={break_.startTime}
+                                        onValueChange={(value) =>
+                                          updateBreakTime(
+                                            index,
+                                            break_.id,
+                                            "startTime",
+                                            value
+                                          )
+                                        }
                                       >
-                                        {option.label}
-                                      </SelectItem>
-                                    ))}
-                                </SelectContent>
-                              </Select>
-                              <Select
-                                value={day.breakEndTime}
-                                onValueChange={(value) => {
-                                  // Validate break end time is after break start and before work end
-                                  if (
-                                    day.breakStartTime && // Ensure break start time exists
-                                    isEndTimeAfterStartTime(
-                                      day.breakStartTime,
-                                      value
-                                    ) &&
-                                    isEndTimeAfterStartTime(value, day.endTime)
-                                  ) {
-                                    handleScheduleChange(
-                                      index,
-                                      "breakEndTime",
-                                      value
-                                    );
-                                  } else {
-                                    toast({
-                                      variant: "destructive",
-                                      title: "Invalid Break Time",
-                                      description:
-                                        "Break end time must be after break start and before work end.",
-                                    });
-                                  }
-                                }}
-                              >
-                                <SelectTrigger className="border-medical-200">
-                                  <SelectValue placeholder="Break end" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {timeOptions
-                                    .filter(
-                                      (option) =>
-                                        day.breakStartTime && // Ensure break start time exists
-                                        isEndTimeAfterStartTime(
-                                          day.breakStartTime,
-                                          option.value
-                                        ) &&
-                                        isEndTimeAfterStartTime(
-                                          option.value,
-                                          day.endTime
-                                        )
-                                    )
-                                    .map((option) => (
-                                      <SelectItem
-                                        key={option.value}
-                                        value={option.value}
+                                        <SelectTrigger className="border-medical-200">
+                                          <SelectValue placeholder="Break start" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {timeOptions
+                                            .filter(
+                                              (option) =>
+                                                isEndTimeAfterStartTime(
+                                                  day.startTime,
+                                                  option.value
+                                                ) &&
+                                                isEndTimeAfterStartTime(
+                                                  option.value,
+                                                  day.endTime
+                                                ) &&
+                                                (!break_.endTime ||
+                                                  isEndTimeAfterStartTime(
+                                                    option.value,
+                                                    break_.endTime
+                                                  ))
+                                            )
+                                            .map((option) => (
+                                              <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                              >
+                                                {option.label}
+                                              </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="flex-1">
+                                      <label className="text-xs text-medical-500 mb-1 block">
+                                        End Time
+                                      </label>
+                                      <Select
+                                        value={break_.endTime}
+                                        onValueChange={(value) =>
+                                          updateBreakTime(
+                                            index,
+                                            break_.id,
+                                            "endTime",
+                                            value
+                                          )
+                                        }
                                       >
-                                        {option.label}
-                                      </SelectItem>
-                                    ))}
-                                </SelectContent>
-                              </Select>
+                                        <SelectTrigger className="border-medical-200">
+                                          <SelectValue placeholder="Break end" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {timeOptions
+                                            .filter(
+                                              (option) =>
+                                                break_.startTime &&
+                                                isEndTimeAfterStartTime(
+                                                  break_.startTime,
+                                                  option.value
+                                                ) &&
+                                                isEndTimeAfterStartTime(
+                                                  option.value,
+                                                  day.endTime
+                                                )
+                                            )
+                                            .map((option) => (
+                                              <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                              >
+                                                {option.label}
+                                              </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 rounded-full p-1.5 mb-1 ml-2 transition-colors duration-200"
+                                      onClick={() =>
+                                        removeBreakPeriod(index, break_.id)
+                                      }
+                                      title="Remove break"
+                                    >
+                                      <Trash className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )
+                              )}
                             </div>
+                          ) : (
+                            <p className="text-sm text-medical-500 italic">
+                              No breaks added. You are available all day.
+                            </p>
                           )}
                         </div>
                       </div>
                     )}
-
                     {/* Show availability calculations for the day */}
                     {day.isActive && (
                       <div className="mt-4 text-sm text-medical-600">
                         {(() => {
-                          const dayMinutes = calculateMinutesBetween(
-                            day.startTime,
-                            day.endTime
-                          );
-                          let breakMinutes = 0;
-                          if (day.breakStartTime && day.breakEndTime) {
-                            breakMinutes = calculateMinutesBetween(
-                              day.breakStartTime,
-                              day.breakEndTime
-                            );
-                          }
-                          const availableMinutes = dayMinutes - breakMinutes;
+                          const availableMinutes =
+                            calculateAvailableMinutes(day);
                           const hours = Math.floor(availableMinutes / 60);
                           const minutes = availableMinutes % 60;
                           const slots = Math.floor(
@@ -884,7 +1242,7 @@ const AppointmentSettings = () => {
                               <span>
                                 Total availability: {hours}h {minutes}m
                               </span>
-                              Available slots: {slots}
+                              <span>Available slots: {slots}</span>
                             </div>
                           );
                         })()}

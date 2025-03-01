@@ -451,18 +451,27 @@ model DoctorProfile {
 }
 
 model DoctorAvailability {
-  id       String @id @default(cuid())
-  doctorId String
-  doctor   Doctor @relation(fields: [doctorId], references: [id])
+  id           String                    @id @default(cuid())
+  doctorId     String
+  doctor       Doctor                    @relation(fields: [doctorId], references: [id])
+  dayOfWeek    Int // 0-6 representing days of the week
+  startTime    String // e.g., "09:00"
+  endTime      String // e.g., "17:00"
+  slotDuration Int                       @default(60) // slot duration in minutes
+  isActive     Boolean                   @default(true)
+  breaks       DoctorAvailabilityBreak[] // New relation field
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+}
 
-  dayOfWeek      Int // 0-6 representing days of the week
-  startTime      String // e.g., "09:00"
-  endTime        String // e.g., "17:00"
-  slotDuration   Int     @default(60) // slot duration in minutes
-  breakStartTime String?
-  breakEndTime   String?
+model DoctorAvailabilityBreak {
+  id                   String             @id @default(cuid())
+  doctorAvailability   DoctorAvailability @relation(fields: [doctorAvailabilityId], references: [id], onDelete: Cascade)
+  doctorAvailabilityId String
 
-  isActive  Boolean  @default(true)
+  startTime String
+  endTime   String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

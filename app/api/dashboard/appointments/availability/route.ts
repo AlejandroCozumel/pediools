@@ -13,6 +13,7 @@ const DAYS_OF_WEEK = [
   "Friday",
   "Saturday",
 ];
+
 // Get doctor availability
 export async function GET(req: NextRequest) {
   try {
@@ -28,10 +29,13 @@ export async function GET(req: NextRequest) {
 
     const doctorId = doctor.id;
 
-    // Get regular weekly schedule
+    // Get regular weekly schedule WITH BREAKS
     const apiSchedule = await prisma.doctorAvailability.findMany({
       where: {
         doctorId,
+      },
+      include: {
+        breaks: true, // Include the breaks relationship
       },
       orderBy: {
         dayOfWeek: "asc",
@@ -50,8 +54,7 @@ export async function GET(req: NextRequest) {
             startTime: scheduleForDay.startTime,
             endTime: scheduleForDay.endTime,
             slotDuration: scheduleForDay.slotDuration,
-            breakStartTime: scheduleForDay.breakStartTime || undefined,
-            breakEndTime: scheduleForDay.breakEndTime || undefined,
+            breaks: scheduleForDay.breaks || [], // Return the breaks array
           }
         : {
             dayOfWeek: index,
@@ -59,6 +62,7 @@ export async function GET(req: NextRequest) {
             startTime: "09:00",
             endTime: "17:00",
             slotDuration: 30,
+            breaks: [], // Initialize with empty breaks array
           };
     });
 
@@ -104,65 +108,88 @@ export async function POST(req: NextRequest) {
     const doctorId = doctor.id;
     const body = await req.json();
 
-    // Validate input data
-    const availabilitySchema = z.object({
-      weeklySchedule: z.array(
-        z.object({
-          dayOfWeek: z.number().min(0).max(6),
-          isActive: z.boolean(),
-          startTime: z.string(),
-          endTime: z.string(),
-          slotDuration: z.number().min(15).max(120),
-          breakStartTime: z.string().optional().nullable(),
-          breakEndTime: z.string().optional().nullable(),
-        })
-      ),
-    });
+    // Use transaction to handle all database operations
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete existing availability entries
+      await tx.doctorAvailability.deleteMany({
+        where: {
+          doctorId,
+        },
+      });
 
-    const validatedData = availabilitySchema.parse(body);
-
-    // Delete existing schedule
-    await prisma.doctorAvailability.deleteMany({
-      where: {
-        doctorId,
-      },
-    });
-
-    // Create new schedule entries
-    const availabilityEntries = await Promise.all(
-      validatedData.weeklySchedule.map((schedule) =>
-        prisma.doctorAvailability.create({
-          data: {
+      // Delete existing break periods
+      await tx.doctorAvailabilityBreak.deleteMany({
+        where: {
+          doctorAvailability: {
             doctorId,
-            dayOfWeek: schedule.dayOfWeek,
-            isActive: schedule.isActive,
-            startTime: schedule.startTime,
-            endTime: schedule.endTime,
-            slotDuration: schedule.slotDuration,
-            breakStartTime: schedule.breakStartTime,
-            breakEndTime: schedule.breakEndTime,
           },
-        })
-      )
-    );
+        },
+      });
+
+      // 2. Create new schedule entries with their breaks
+      for (const schedule of body.weeklySchedule) {
+        // Only create availability for active days
+        if (schedule.isActive) {
+          // Create the doctor availability entry
+          const availability = await tx.doctorAvailability.create({
+            data: {
+              doctorId,
+              dayOfWeek: schedule.dayOfWeek,
+              isActive: schedule.isActive,
+              startTime: schedule.startTime,
+              endTime: schedule.endTime,
+              slotDuration: schedule.slotDuration,
+            },
+          });
+
+          // Handle breaks
+          const breaks = schedule.breaks || [];
+
+          // Create break periods for this day
+          for (const breakPeriod of breaks) {
+            try {
+              const createdBreak = await tx.doctorAvailabilityBreak.create({
+                data: {
+                  doctorAvailabilityId: availability.id,
+                  startTime: breakPeriod.startTime,
+                  endTime: breakPeriod.endTime,
+                },
+              });
+            } catch (breakError) {
+              console.error(
+                `Error creating break for day ${schedule.dayOfWeek}:`,
+                breakError
+              );
+            }
+          }
+        }
+      }
+    });
 
     // Generate appointment slots based on the updated availability
     await generateAppointmentSlots(doctorId);
 
+    // Get the updated schedule to return
+    const updatedSchedule = await prisma.doctorAvailability.findMany({
+      where: {
+        doctorId,
+      },
+      include: {
+        breaks: true,
+      },
+      orderBy: {
+        dayOfWeek: "asc",
+      },
+    });
+
     return NextResponse.json({
       message: "Availability schedule updated successfully",
-      weeklySchedule: availabilityEntries,
+      weeklySchedule: updatedSchedule,
     });
   } catch (error) {
     console.error("[AVAILABILITY_POST]", error);
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid availability data", details: error.errors },
-        { status: 400 }
-      );
-    }
     return NextResponse.json(
-      { error: "Failed to update availability" },
+      { error: "Failed to update availability", details: error },
       { status: 500 }
     );
   }
@@ -181,39 +208,39 @@ async function generateAppointmentSlots(doctorId: string) {
     },
   });
 
-  // Get the doctor's availability
+  // Get the doctor's availability WITH BREAKS
   const availability = await prisma.doctorAvailability.findMany({
     where: { doctorId, isActive: true },
+    include: {
+      breaks: true,
+    },
   });
 
   let totalSlotsGenerated = 0;
 
-  // Generate slots for each active day
   // Generate slots for each active day
   for (const schedule of availability) {
     // Parse start and end times
     const [startHour, startMinute] = schedule.startTime.split(":").map(Number);
     const [endHour, endMinute] = schedule.endTime.split(":").map(Number);
 
-    // Calculate break times if they exist
-    let breakStartMinutes = -1;
-    let breakEndMinutes = -1;
-
-    if (schedule.breakStartTime && schedule.breakEndTime) {
-      const [breakStartHour, breakStartMin] = schedule.breakStartTime
-        .split(":")
-        .map(Number);
-      const [breakEndHour, breakEndMin] = schedule.breakEndTime
-        .split(":")
-        .map(Number);
-
-      breakStartMinutes = breakStartHour * 60 + breakStartMin;
-      breakEndMinutes = breakEndHour * 60 + breakEndMin;
-    }
-
     // Calculate start and end minutes of the day
     const startMinutes = startHour * 60 + startMinute;
     const endMinutes = endHour * 60 + endMinute;
+
+    // Convert breaks to minutes for easier processing
+    const breakPeriods = schedule.breaks.map((breakPeriod) => {
+      const [breakStartHour, breakStartMin] = breakPeriod.startTime
+        .split(":")
+        .map(Number);
+      const [breakEndHour, breakEndMin] = breakPeriod.endTime
+        .split(":")
+        .map(Number);
+      return {
+        start: breakStartHour * 60 + breakStartMin,
+        end: breakEndHour * 60 + breakEndMin,
+      };
+    });
 
     // Generate slots for the next 4 weeks
     for (let week = 0; week < 4; week++) {
@@ -244,14 +271,30 @@ async function generateAppointmentSlots(doctorId: string) {
       let slotsForDay = 0;
 
       while (slotMinute + schedule.slotDuration <= endMinutes) {
-        // Skip slots during break time
-        if (
-          breakStartMinutes !== -1 &&
-          slotMinute >= breakStartMinutes &&
-          slotMinute < breakEndMinutes
-        ) {
-          slotMinute = breakEndMinutes;
-          continue;
+        // Check if the current slot overlaps with any break
+        const isBreakTime = breakPeriods.some(
+          (breakPeriod) =>
+            (slotMinute >= breakPeriod.start && slotMinute < breakPeriod.end) ||
+            (slotMinute + schedule.slotDuration > breakPeriod.start &&
+              slotMinute + schedule.slotDuration <= breakPeriod.end) ||
+            (slotMinute <= breakPeriod.start &&
+              slotMinute + schedule.slotDuration >= breakPeriod.end)
+        );
+
+        if (isBreakTime) {
+          // Find the next available slot after all breaks
+          // that overlap with the current time
+          const relevantBreaks = breakPeriods.filter(
+            (breakPeriod) => slotMinute < breakPeriod.end
+          );
+
+          if (relevantBreaks.length > 0) {
+            const latestBreakEnd = Math.max(
+              ...relevantBreaks.map((b) => b.end)
+            );
+            slotMinute = latestBreakEnd;
+            continue;
+          }
         }
 
         // Create the slot
