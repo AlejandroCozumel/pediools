@@ -16,7 +16,7 @@ import {
   isEndTimeAfterStartTime,
   generateTimeOptions,
 } from "@/lib/appointments/timeUtils";
-import { wouldBreakOverlap, calculateAvailableMinutes } from "@/lib/appointments/validation";
+import { wouldBreakOverlap } from "@/lib/appointments/validation";
 
 interface BreakManagerProps {
   day: DaySchedule;
@@ -64,6 +64,7 @@ const BreakManager: React.FC<BreakManagerProps> = ({
         new Date(currentTime.getTime() + duration * 60 * 1000),
         "HH:mm"
       );
+
       availableTimeSlots.push({
         startTime: slotStart,
         endTime: slotEnd,
@@ -84,41 +85,11 @@ const BreakManager: React.FC<BreakManagerProps> = ({
       // Take the first available slot (earliest in the day)
       const newBreak = nonOverlappingSlots[0];
 
-      // Log before adding the break
-      console.log("Before adding break - Day breaks:", [...day.breaks]);
-      console.log(
-        "Before adding break - Available minutes:",
-        calculateAvailableMinutes(day)
-      );
-
       onBreakAdded(dayIndex, {
         id: crypto.randomUUID(),
         startTime: newBreak.startTime,
         endTime: newBreak.endTime,
       });
-
-      // Force a re-render after state update
-      setTimeout(() => {
-        // This will run after the state has been updated
-        console.log("After adding break - Day breaks:", [
-          ...day.breaks,
-          newBreak,
-        ]);
-
-        // Calculate what the new available minutes should be
-        const updatedDay = {
-          ...day,
-          breaks: [...day.breaks, { id: "temp", ...newBreak }],
-        };
-        console.log(
-          "After adding break - Available minutes:",
-          calculateAvailableMinutes(updatedDay)
-        );
-        console.log(
-          "After adding break - Available slots:",
-          Math.floor(calculateAvailableMinutes(updatedDay) / day.slotDuration)
-        );
-      }, 10);
     } else {
       // If no slot found, notify the user
       toast({

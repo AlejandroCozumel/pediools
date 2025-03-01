@@ -105,22 +105,39 @@ export const calculateAvailableMinutes = (day: DaySchedule): number => {
 
   // Calculate total break time
   const breaks = day.breaks || [];
-  const breakMinutes = breaks.reduce(
-    (total: number, breakPeriod: BreakPeriod) => {
-      if (
-        isEndTimeAfterStartTime(breakPeriod.startTime, breakPeriod.endTime) &&
-        isEndTimeAfterStartTime(day.startTime, breakPeriod.startTime) &&
-        isEndTimeAfterStartTime(breakPeriod.endTime, day.endTime)
-      ) {
-        return (
-          total +
-          calculateMinutesBetween(breakPeriod.startTime, breakPeriod.endTime)
-        );
-      }
-      return total;
-    },
-    0
-  );
+  let breakMinutes = 0;
+
+  breaks.forEach((breakPeriod: BreakPeriod) => {
+    // For debugging, let's log each condition separately
+    const condition1 = breakPeriod.startTime >= day.startTime;
+    const condition2 = isEndTimeAfterStartTime(
+      day.startTime,
+      breakPeriod.endTime
+    );
+    const condition3 = isEndTimeAfterStartTime(
+      breakPeriod.startTime,
+      day.endTime
+    );
+    const condition4 = breakPeriod.endTime <= day.endTime;
+    const condition5 = isEndTimeAfterStartTime(
+      breakPeriod.startTime,
+      breakPeriod.endTime
+    );
+
+    // Use the updated logic for break validation
+    const startTimeValid = condition1 && condition2;
+    const endTimeValid = condition3 && condition4;
+
+    if (startTimeValid && endTimeValid && condition5) {
+      const breakDuration = calculateMinutesBetween(
+        breakPeriod.startTime,
+        breakPeriod.endTime
+      );
+      breakMinutes += breakDuration;
+    } else {
+      console.log(`- INVALID: Not counting this break in the calculation`);
+    }
+  });
 
   return dayMinutes - breakMinutes;
 };
