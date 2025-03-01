@@ -84,7 +84,6 @@ export async function GET(req: NextRequest) {
       dateOverrides,
     });
   } catch (error) {
-    console.error("[AVAILABILITY_GET]", error);
     return NextResponse.json(
       { error: "Failed to fetch availability" },
       { status: 500 }

@@ -3,6 +3,28 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { z } from "zod";
 
+type BreakPeriod = {
+  id: string;
+  startTime: string;
+  endTime: string;
+};
+
+type DaySchedule = {
+  dayOfWeek: number;
+  isActive: boolean;
+  startTime: string;
+  endTime: string;
+  slotDuration: number;
+  breaks: BreakPeriod[];
+};
+
+type AvailabilityData = {
+  weeklySchedule: DaySchedule[];
+  daysOfOperation: number[];
+  defaultStartTime: string;
+  defaultEndTime: string;
+};
+
 // Zod schema for appointment validation
 export const appointmentSchema = z.object({
   id: z.string().optional(),
@@ -143,13 +165,16 @@ export function useDoctorAvailability() {
 
   const saveAvailability = useMutation({
     mutationFn: async (availabilityData: any) => {
-      console.log("SENDING AVAILABILITY DATA:",
+      console.log(
+        "SENDING AVAILABILITY DATA:",
         JSON.stringify(
           {
-            weeklySchedule: availabilityData.weeklySchedule.map(day => ({
-              ...day,
-              breaks: day.breaks || [], // Ensure breaks is always an array
-            })),
+            weeklySchedule: availabilityData.weeklySchedule.map(
+              (day: DaySchedule) => ({
+                ...day,
+                breaks: day.breaks || [], // Ensure breaks is always an array
+              })
+            ),
             daysOfOperation: availabilityData.daysOfOperation,
             defaultStartTime: availabilityData.defaultStartTime,
             defaultEndTime: availabilityData.defaultEndTime,
@@ -162,10 +187,12 @@ export function useDoctorAvailability() {
       const { data } = await axios.post(
         "/api/dashboard/appointments/availability",
         {
-          weeklySchedule: availabilityData.weeklySchedule.map(day => ({
-            ...day,
-            breaks: day.breaks || [], // Ensure breaks is always an array
-          })),
+          weeklySchedule: availabilityData.weeklySchedule.map(
+            (day: DaySchedule) => ({
+              ...day,
+              breaks: day.breaks || [], // Ensure breaks is always an array
+            })
+          ),
           daysOfOperation: availabilityData.daysOfOperation,
           defaultStartTime: availabilityData.defaultStartTime,
           defaultEndTime: availabilityData.defaultEndTime,

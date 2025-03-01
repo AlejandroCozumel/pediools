@@ -149,8 +149,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("UPDATED SCHEDULE:", JSON.stringify(updatedSchedule, null, 2));
-
     return NextResponse.json({
       message: "Availability schedule updated successfully",
       weeklySchedule: updatedSchedule,
