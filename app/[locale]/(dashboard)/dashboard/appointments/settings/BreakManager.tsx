@@ -1,24 +1,22 @@
 // components/appointments/settings/BreakManager.tsx
-import React, { useMemo, useCallback } from 'react';
-import { Trash } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useMemo, useCallback } from "react";
+import { Trash } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { DaySchedule, BreakPeriod, TimeOption } from '@/types/appointments';
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { DaySchedule, BreakPeriod, TimeOption } from "@/types/appointments";
 import {
   isEndTimeAfterStartTime,
-  generateTimeOptions
-} from '@/lib/appointments/timeUtils';
-import {
-  findNonOverlappingBreakSlot,
-  wouldBreakOverlap
-} from '@/lib/appointments/validation';
+  generateTimeOptions,
+} from "@/lib/appointments/timeUtils";
+import { wouldBreakOverlap, calculateAvailableMinutes } from "@/lib/appointments/validation";
 
 interface BreakManagerProps {
   day: DaySchedule;
@@ -43,46 +41,92 @@ const BreakManager: React.FC<BreakManagerProps> = ({
   const { toast } = useToast();
   const timeOptions = useMemo(() => generateTimeOptions(), []);
 
-  // Add a break period
+  // Add a break period sequentially
   const addBreakPeriod = useCallback(() => {
     if (!day.isActive) return;
 
-    // Try to use noon (12-1pm) as default if available
-    const defaultBreak = {
-      startTime: "12:00",
-      endTime: "13:00"
-    };
+    // Get all 30-minute increments within the day's working hours
+    const availableTimeSlots: { startTime: string; endTime: string }[] = [];
+    const duration = 60; // 1-hour break duration
 
-    // Check if the default break would overlap
-    const hasConflict = wouldBreakOverlap(defaultBreak, day.breaks);
+    // Parse start and end times
+    const startDate = parseISO(`2000-01-01T${day.startTime}`);
+    const endDate = parseISO(`2000-01-01T${day.endTime}`);
 
-    if (
-      !hasConflict &&
-      isEndTimeAfterStartTime(day.startTime, defaultBreak.startTime) &&
-      isEndTimeAfterStartTime(defaultBreak.endTime, day.endTime)
+    // Generate all possible 30-minute increment start times
+    for (
+      let currentTime = new Date(startDate);
+      currentTime < new Date(endDate.getTime() - duration * 60 * 1000);
+      currentTime = new Date(currentTime.getTime() + 30 * 60 * 1000)
     ) {
-      // Default noon break works
+      const slotStart = format(currentTime, "HH:mm");
+      const slotEnd = format(
+        new Date(currentTime.getTime() + duration * 60 * 1000),
+        "HH:mm"
+      );
+      availableTimeSlots.push({
+        startTime: slotStart,
+        endTime: slotEnd,
+      });
+    }
+
+    // Filter out time slots that overlap with existing breaks
+    const nonOverlappingSlots = availableTimeSlots.filter(
+      (slot) => !wouldBreakOverlap(slot, day.breaks)
+    );
+
+    // Sort slots by start time
+    nonOverlappingSlots.sort((a, b) => {
+      return a.startTime.localeCompare(b.startTime);
+    });
+
+    if (nonOverlappingSlots.length > 0) {
+      // Take the first available slot (earliest in the day)
+      const newBreak = nonOverlappingSlots[0];
+
+      // Log before adding the break
+      console.log("Before adding break - Day breaks:", [...day.breaks]);
+      console.log(
+        "Before adding break - Available minutes:",
+        calculateAvailableMinutes(day)
+      );
+
       onBreakAdded(dayIndex, {
         id: crypto.randomUUID(),
-        ...defaultBreak
+        startTime: newBreak.startTime,
+        endTime: newBreak.endTime,
       });
-    } else {
-      // Find a non-overlapping slot
-      const nonOverlappingSlot = findNonOverlappingBreakSlot(day);
 
-      if (nonOverlappingSlot) {
-        onBreakAdded(dayIndex, {
-          id: crypto.randomUUID(),
-          ...nonOverlappingSlot
-        });
-      } else {
-        // If no slot found, notify the user
-        toast({
-          variant: "destructive",
-          title: "Cannot Add Break",
-          description: "No available time slot for a break. Please adjust existing breaks.",
-        });
-      }
+      // Force a re-render after state update
+      setTimeout(() => {
+        // This will run after the state has been updated
+        console.log("After adding break - Day breaks:", [
+          ...day.breaks,
+          newBreak,
+        ]);
+
+        // Calculate what the new available minutes should be
+        const updatedDay = {
+          ...day,
+          breaks: [...day.breaks, { id: "temp", ...newBreak }],
+        };
+        console.log(
+          "After adding break - Available minutes:",
+          calculateAvailableMinutes(updatedDay)
+        );
+        console.log(
+          "After adding break - Available slots:",
+          Math.floor(calculateAvailableMinutes(updatedDay) / day.slotDuration)
+        );
+      }, 10);
+    } else {
+      // If no slot found, notify the user
+      toast({
+        variant: "destructive",
+        title: "Cannot Add Break",
+        description:
+          "No available time slot for a break. All possible time slots are already taken.",
+      });
     }
   }, [day, dayIndex, onBreakAdded, toast]);
 
@@ -92,11 +136,7 @@ const BreakManager: React.FC<BreakManagerProps> = ({
         <label className="text-sm font-medium text-medical-700">
           Unavailable Time Periods
         </label>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={addBreakPeriod}
-        >
+        <Button size="sm" variant="outline" onClick={addBreakPeriod}>
           Add Break
         </Button>
       </div>
@@ -139,114 +179,143 @@ interface BreakItemProps {
 }
 
 // Separate component for each break item, to prevent unnecessary rerenders
-const BreakItem = React.memo(({
-  breakPeriod,
-  day,
-  dayIndex,
-  timeOptions,
-  onBreakUpdated,
-  onBreakRemoved
-}: BreakItemProps) => {
-  const { toast } = useToast();
+const BreakItem = React.memo(
+  ({
+    breakPeriod,
+    day,
+    dayIndex,
+    timeOptions,
+    onBreakUpdated,
+    onBreakRemoved,
+  }: BreakItemProps) => {
+    const { toast } = useToast();
 
-  const handleTimeChange = useCallback((
-    field: "startTime" | "endTime",
-    value: string
-  ) => {
-    // Basic validation to prevent duplicate errors in parent component
-    if (field === "startTime" && !isEndTimeAfterStartTime(value, breakPeriod.endTime)) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Break Time",
-        description: "Start time must be before end time.",
-      });
-      return;
-    }
+    const handleTimeChange = useCallback(
+      (field: "startTime" | "endTime", value: string) => {
+        // Basic validation to prevent duplicate errors in parent component
+        if (
+          field === "startTime" &&
+          !isEndTimeAfterStartTime(value, breakPeriod.endTime)
+        ) {
+          toast({
+            variant: "destructive",
+            title: "Invalid Break Time",
+            description: "Start time must be before end time.",
+          });
+          return;
+        }
 
-    if (field === "endTime" && !isEndTimeAfterStartTime(breakPeriod.startTime, value)) {
-      toast({
-        variant: "destructive",
-        title: "Invalid Break Time",
-        description: "End time must be after start time.",
-      });
-      return;
-    }
+        if (
+          field === "endTime" &&
+          !isEndTimeAfterStartTime(breakPeriod.startTime, value)
+        ) {
+          toast({
+            variant: "destructive",
+            title: "Invalid Break Time",
+            description: "End time must be after start time.",
+          });
+          return;
+        }
 
-    onBreakUpdated(dayIndex, breakPeriod.id, field, value);
-  }, [breakPeriod, dayIndex, onBreakUpdated, toast]);
+        onBreakUpdated(dayIndex, breakPeriod.id, field, value);
+      },
+      [breakPeriod, dayIndex, onBreakUpdated, toast]
+    );
 
-  return (
-    <div className="flex items-end space-x-2 p-3 bg-gray-50 rounded-md">
-      <div className="flex-1">
-        <label className="text-xs text-medical-500 mb-1 block">
-          Start Time
-        </label>
-        <Select
-          value={breakPeriod.startTime}
-          onValueChange={(value) => handleTimeChange("startTime", value)}
+    return (
+      <div className="flex items-end space-x-2 p-3 bg-gray-50 rounded-md">
+        <div className="flex-1">
+          <label className="text-xs text-medical-500 mb-1 block">
+            Start Time
+          </label>
+          <Select
+            value={breakPeriod.startTime || day.startTime} // Ensure we always have a value
+            onValueChange={(value) => handleTimeChange("startTime", value)}
+          >
+            <SelectTrigger className="border-medical-200">
+              <SelectValue>
+                {timeOptions.find(
+                  (option) => option.value === breakPeriod.startTime
+                )?.label || "Select time"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {timeOptions
+                .filter(
+                  (option) =>
+                    isEndTimeAfterStartTime(day.startTime, option.value) &&
+                    isEndTimeAfterStartTime(option.value, day.endTime) &&
+                    (!breakPeriod.endTime ||
+                      isEndTimeAfterStartTime(
+                        option.value,
+                        breakPeriod.endTime
+                      ))
+                )
+                .map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex-1">
+          <label className="text-xs text-medical-500 mb-1 block">
+            End Time
+          </label>
+          <Select
+            value={
+              breakPeriod.endTime ||
+              (breakPeriod.startTime
+                ? format(
+                    parseISO(`2000-01-01T${breakPeriod.startTime}`).getTime() +
+                      60 * 60 * 1000,
+                    "HH:mm"
+                  )
+                : day.endTime)
+            }
+            onValueChange={(value) => handleTimeChange("endTime", value)}
+          >
+            <SelectTrigger className="border-medical-200">
+              <SelectValue>
+                {timeOptions.find(
+                  (option) => option.value === breakPeriod.endTime
+                )?.label || "Select time"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {timeOptions
+                .filter(
+                  (option) =>
+                    breakPeriod.startTime &&
+                    isEndTimeAfterStartTime(
+                      breakPeriod.startTime,
+                      option.value
+                    ) &&
+                    isEndTimeAfterStartTime(option.value, day.endTime)
+                )
+                .map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 rounded-full p-1.5 mb-1 ml-2 transition-colors duration-200"
+          onClick={() => onBreakRemoved(dayIndex, breakPeriod.id)}
+          title="Remove break"
         >
-          <SelectTrigger className="border-medical-200">
-            <SelectValue placeholder="Break start" />
-          </SelectTrigger>
-          <SelectContent>
-            {timeOptions
-              .filter(
-                (option) =>
-                  isEndTimeAfterStartTime(day.startTime, option.value) &&
-                  isEndTimeAfterStartTime(option.value, day.endTime) &&
-                  (!breakPeriod.endTime ||
-                    isEndTimeAfterStartTime(option.value, breakPeriod.endTime))
-              )
-              .map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+          <Trash className="h-4 w-4" />
+        </Button>
       </div>
+    );
+  }
+);
 
-      <div className="flex-1">
-        <label className="text-xs text-medical-500 mb-1 block">
-          End Time
-        </label>
-        <Select
-          value={breakPeriod.endTime}
-          onValueChange={(value) => handleTimeChange("endTime", value)}
-        >
-          <SelectTrigger className="border-medical-200">
-            <SelectValue placeholder="Break end" />
-          </SelectTrigger>
-          <SelectContent>
-            {timeOptions
-              .filter(
-                (option) =>
-                  breakPeriod.startTime &&
-                  isEndTimeAfterStartTime(breakPeriod.startTime, option.value) &&
-                  isEndTimeAfterStartTime(option.value, day.endTime)
-              )
-              .map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Button
-        size="sm"
-        variant="outline"
-        className="bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 rounded-full p-1.5 mb-1 ml-2 transition-colors duration-200"
-        onClick={() => onBreakRemoved(dayIndex, breakPeriod.id)}
-        title="Remove break"
-      >
-        <Trash className="h-4 w-4" />
-      </Button>
-    </div>
-  );
-});
-
-BreakItem.displayName = 'BreakItem';
+BreakItem.displayName = "BreakItem";
 
 export default React.memo(BreakManager);

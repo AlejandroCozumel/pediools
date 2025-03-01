@@ -165,25 +165,6 @@ export function useDoctorAvailability() {
 
   const saveAvailability = useMutation({
     mutationFn: async (availabilityData: any) => {
-      console.log(
-        "SENDING AVAILABILITY DATA:",
-        JSON.stringify(
-          {
-            weeklySchedule: availabilityData.weeklySchedule.map(
-              (day: DaySchedule) => ({
-                ...day,
-                breaks: day.breaks || [], // Ensure breaks is always an array
-              })
-            ),
-            daysOfOperation: availabilityData.daysOfOperation,
-            defaultStartTime: availabilityData.defaultStartTime,
-            defaultEndTime: availabilityData.defaultEndTime,
-          },
-          null,
-          2
-        )
-      );
-
       const { data } = await axios.post(
         "/api/dashboard/appointments/availability",
         {

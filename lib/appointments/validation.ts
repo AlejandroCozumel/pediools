@@ -1,5 +1,5 @@
 // lib/appointments/validation.ts
-import { parseISO } from 'date-fns';
+import { parseISO } from "date-fns";
 import { DaySchedule, BreakPeriod, WeeklySchedule } from "@/types/appointments";
 import { calculateMinutesBetween, isEndTimeAfterStartTime } from "./timeUtils";
 
@@ -42,11 +42,15 @@ export const validateBreaks = (day: DaySchedule): ValidationError[] => {
       });
     }
 
-    // Check if break is within working hours
-    if (
-      !isEndTimeAfterStartTime(day.startTime, breakPeriod.startTime) ||
-      !isEndTimeAfterStartTime(breakPeriod.endTime, day.endTime)
-    ) {
+    // Check if break is within working hours - allow break to start exactly at day start time
+    const startTimeValid =
+      breakPeriod.startTime >= day.startTime &&
+      isEndTimeAfterStartTime(day.startTime, breakPeriod.endTime);
+    const endTimeValid =
+      isEndTimeAfterStartTime(breakPeriod.startTime, day.endTime) &&
+      breakPeriod.endTime <= day.endTime;
+
+    if (!startTimeValid || !endTimeValid) {
       errors.push({
         dayOfWeek: day.dayOfWeek,
         message: `Break ${index + 1}: Must be within working hours.`,
@@ -225,105 +229,4 @@ export const wouldBreakOverlap = (
         isEndTimeAfterStartTime(existingBreak.endTime, newBreak.endTime))
     );
   });
-};
-
-/**
- * Find a non-overlapping time slot for a break
- */
-export const findNonOverlappingBreakSlot = (
-  day: DaySchedule
-): { startTime: string; endTime: string } | null => {
-  const dayStartMinutes =
-    parseISO(`2000-01-01T${day.startTime}`).getHours() * 60 +
-    parseISO(`2000-01-01T${day.startTime}`).getMinutes();
-  const dayEndMinutes =
-    parseISO(`2000-01-01T${day.endTime}`).getHours() * 60 +
-    parseISO(`2000-01-01T${day.endTime}`).getMinutes();
-
-  // Try to find a 1-hour slot
-  const slotDuration = 60; // 1 hour
-
-  // Create a list of all break periods in minutes
-  const breakPeriods = day.breaks.map((break_) => {
-    const startMinutes =
-      parseISO(`2000-01-01T${break_.startTime}`).getHours() * 60 +
-      parseISO(`2000-01-01T${break_.startTime}`).getMinutes();
-    const endMinutes =
-      parseISO(`2000-01-01T${break_.endTime}`).getHours() * 60 +
-      parseISO(`2000-01-01T${break_.endTime}`).getMinutes();
-    return { start: startMinutes, end: endMinutes };
-  });
-
-  // Try different start times
-  for (
-    let startMinute = dayStartMinutes;
-    startMinute <= dayEndMinutes - slotDuration;
-    startMinute += 30
-  ) {
-    const endMinute = startMinute + slotDuration;
-
-    // Check if this slot overlaps with any existing break
-    const overlaps = breakPeriods.some(
-      (period) =>
-        (startMinute >= period.start && startMinute < period.end) ||
-        (endMinute > period.start && endMinute <= period.end) ||
-        (startMinute <= period.start && endMinute >= period.end)
-    );
-
-    if (!overlaps) {
-      // Found a non-overlapping slot
-      const startHour = Math.floor(startMinute / 60);
-      const startMin = startMinute % 60;
-      const endHour = Math.floor(endMinute / 60);
-      const endMin = endMinute % 60;
-
-      return {
-        startTime: `${startHour.toString().padStart(2, "0")}:${startMin
-          .toString()
-          .padStart(2, "0")}`,
-        endTime: `${endHour.toString().padStart(2, "0")}:${endMin
-          .toString()
-          .padStart(2, "0")}`,
-      };
-    }
-  }
-
-  // If we couldn't find a 1-hour slot, try a 30-minute slot
-  if (slotDuration === 60) {
-    const halfSlotDuration = 30;
-
-    for (
-      let startMinute = dayStartMinutes;
-      startMinute <= dayEndMinutes - halfSlotDuration;
-      startMinute += 30
-    ) {
-      const endMinute = startMinute + halfSlotDuration;
-
-      const overlaps = breakPeriods.some(
-        (period) =>
-          (startMinute >= period.start && startMinute < period.end) ||
-          (endMinute > period.start && endMinute <= period.end) ||
-          (startMinute <= period.start && endMinute >= period.end)
-      );
-
-      if (!overlaps) {
-        const startHour = Math.floor(startMinute / 60);
-        const startMin = startMinute % 60;
-        const endHour = Math.floor(endMinute / 60);
-        const endMin = endMinute % 60;
-
-        return {
-          startTime: `${startHour.toString().padStart(2, "0")}:${startMin
-            .toString()
-            .padStart(2, "0")}`,
-          endTime: `${endHour.toString().padStart(2, "0")}:${endMin
-            .toString()
-            .padStart(2, "0")}`,
-        };
-      }
-    }
-  }
-
-  // Couldn't find any non-overlapping slot
-  return null;
 };

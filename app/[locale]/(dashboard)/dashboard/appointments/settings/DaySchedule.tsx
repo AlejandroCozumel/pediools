@@ -1,24 +1,28 @@
 // components/appointments/settings/DaySchedule.tsx
-import React, { useCallback, useMemo } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
+import React, { useCallback, useMemo } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { BreakPeriod, DaySchedule as DayScheduleType, TimeOption } from '@/types/appointments';
+} from "@/components/ui/select";
+import {
+  BreakPeriod,
+  DaySchedule as DayScheduleType,
+  TimeOption,
+} from "@/types/appointments";
 import {
   calculateAvailableMinutes,
-  ValidationError
-} from '@/lib/appointments/validation';
+  ValidationError,
+} from "@/lib/appointments/validation";
 import {
   generateTimeOptions,
   slotDurationOptions,
-  formatMinutesAsHoursAndMinutes
-} from '@/lib/appointments/timeUtils';
-import BreakManager from './BreakManager';
+  formatMinutesAsHoursAndMinutes,
+} from "@/lib/appointments/timeUtils";
+import BreakManager from "./BreakManager";
 
 interface DayScheduleProps {
   day: DayScheduleType;
@@ -48,22 +52,23 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
   onScheduleChange,
   onBreakAdded,
   onBreakRemoved,
-  onBreakUpdated
+  onBreakUpdated,
 }) => {
   const timeOptions = useMemo<TimeOption[]>(() => generateTimeOptions(), []);
 
   // Errors specific to this day
-  const dayErrors = useMemo(() =>
-    errors.filter(error => error.dayOfWeek === day.dayOfWeek),
-  [errors, day.dayOfWeek]);
+  const dayErrors = useMemo(
+    () => errors.filter((error) => error.dayOfWeek === day.dayOfWeek),
+    [errors, day.dayOfWeek]
+  );
 
   // Handle change for any field in the day schedule
-  const handleChange = useCallback((
-    field: string,
-    value: string | number | boolean | undefined
-  ) => {
-    onScheduleChange(index, field, value);
-  }, [index, onScheduleChange]);
+  const handleChange = useCallback(
+    (field: string, value: string | number | boolean | undefined) => {
+      onScheduleChange(index, field, value);
+    },
+    [index, onScheduleChange]
+  );
 
   // Calculate availability statistics
   const availabilityStats = useMemo(() => {
@@ -78,19 +83,21 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
       availableMinutes,
       hours,
       minutes,
-      slots
+      slots,
     };
-  }, [day]);
+  }, [day]); // Ensure this recalculates whenever day changes, including breaks
 
   // Determine if this day has any validation errors
-  const hasErrors = useMemo(() =>
-    dayErrors.some(error => error.type === 'error'),
-  [dayErrors]);
+  const hasErrors = useMemo(
+    () => dayErrors.some((error) => error.type === "error"),
+    [dayErrors]
+  );
 
   // Determine if this day has any validation warnings
-  const hasWarnings = useMemo(() =>
-    dayErrors.some(error => error.type === 'warning'),
-  [dayErrors]);
+  const hasWarnings = useMemo(
+    () => dayErrors.some((error) => error.type === "warning"),
+    [dayErrors]
+  );
 
   // Determine the border color based on errors/warnings
   const borderClass = useMemo(() => {
@@ -105,9 +112,7 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
         <Checkbox
           id={`day-${index}`}
           checked={day.isActive}
-          onCheckedChange={(checked) =>
-            handleChange("isActive", checked)
-          }
+          onCheckedChange={(checked) => handleChange("isActive", checked)}
         />
         <label
           htmlFor={`day-${index}`}
@@ -123,7 +128,9 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
             {dayErrors.map((error, errorIndex) => (
               <li
                 key={errorIndex}
-                className={error.type === 'error' ? "text-red-600" : "text-amber-600"}
+                className={
+                  error.type === "error" ? "text-red-600" : "text-amber-600"
+                }
               >
                 {error.message}
               </li>
@@ -140,19 +147,14 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
             </label>
             <Select
               value={day.startTime}
-              onValueChange={(value) =>
-                handleChange("startTime", value)
-              }
+              onValueChange={(value) => handleChange("startTime", value)}
             >
               <SelectTrigger className="border-medical-200">
                 <SelectValue placeholder="Start time" />
               </SelectTrigger>
               <SelectContent>
                 {timeOptions.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                  >
+                  <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
                 ))}
@@ -166,19 +168,14 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
             </label>
             <Select
               value={day.endTime}
-              onValueChange={(value) =>
-                handleChange("endTime", value)
-              }
+              onValueChange={(value) => handleChange("endTime", value)}
             >
               <SelectTrigger className="border-medical-200">
                 <SelectValue placeholder="End time" />
               </SelectTrigger>
               <SelectContent>
                 {timeOptions.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                  >
+                  <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
                 ))}
@@ -228,7 +225,10 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
         <div className="mt-4 text-sm text-medical-600">
           <div className="flex justify-between">
             <span>
-              Total availability: {formatMinutesAsHoursAndMinutes(availabilityStats.availableMinutes)}
+              Total availability:{" "}
+              {formatMinutesAsHoursAndMinutes(
+                availabilityStats.availableMinutes
+              )}
             </span>
             <span>Available slots: {availabilityStats.slots}</span>
           </div>
