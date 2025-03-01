@@ -4,7 +4,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Clock, ArrowLeft } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -112,7 +118,8 @@ const AppointmentSettings = () => {
 
       toast({
         title: "Availability Updated",
-        description: "Your weekly availability schedule has been saved successfully.",
+        description:
+          "Your weekly availability schedule has been saved successfully.",
       });
     } catch (error) {
       toast({
@@ -128,16 +135,22 @@ const AppointmentSettings = () => {
     defaultStartTime,
     defaultEndTime,
     saveAvailability,
-    toast
+    toast,
   ]);
 
   // Save date exceptions
   const handleSaveDateOverrides = useCallback(async () => {
     try {
       await saveAvailabilityOverride.mutateAsync({
-        dateOverrides,
+        dateOverrides: dateOverrides.map((override) => ({
+          date: override.date,
+          type: override.type,
+          status: override.status,
+          slotId: override.slotId,
+          startTime: override.startTime,
+          endTime: override.endTime,
+        })),
       });
-
       toast({
         title: "Exceptions Updated",
         description: "Your date exceptions have been saved successfully.",
@@ -148,7 +161,7 @@ const AppointmentSettings = () => {
         title: "Error",
         description: "Failed to save date exceptions.",
       });
-      throw error; // Re-throw to handle in the component
+      throw error;
     }
   }, [dateOverrides, saveAvailabilityOverride, toast]);
 
@@ -215,6 +228,7 @@ const AppointmentSettings = () => {
             />
           ) : (
             <DateExceptionsComponent
+              weeklySchedule={weeklySchedule}
               dateOverrides={dateOverrides}
               onDateOverridesChange={setDateOverrides}
               onSave={handleSaveDateOverrides}

@@ -18,11 +18,12 @@ export type WeeklySchedule = DaySchedule[];
 
 export type DateOverride = {
   date: Date;
-  isAvailable: boolean;
+  type: 'day' | 'slot';
+  status: 'available' | 'blocked';
   startTime?: string;
   endTime?: string;
-  reason?: string;
-};
+  slotId?: string;
+}
 
 export type TimeOption = {
   value: string;
