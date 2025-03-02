@@ -101,6 +101,7 @@ interface Patient {
     upcoming: boolean;
     date?: string;
     type?: string;
+    appointmentId?: string;
   } | null;
   calculationMetrics?: {
     type: string;
@@ -552,18 +553,21 @@ const PatientsDashboard = React.memo(
                       {t("actions.viewFamily")}
                     </DropdownMenuItem>
                   )}
-                  {row.original.appointmentStatus?.upcoming && (
-                    <DropdownMenuItem
-                      onClick={() =>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      // Only navigate if appointmentStatus exists and has an appointmentId
+                      if (row.original.appointmentStatus?.appointmentId) {
                         router.push(
-                          `/dashboard/appointments/${row.original.id}`
-                        )
+                          `/dashboard/appointments/${row.original.appointmentStatus.appointmentId}`
+                        );
                       }
-                    >
-                      <Clock className="mr-2 h-4 w-4" />
-                      {t("actions.viewAppointment")}
-                    </DropdownMenuItem>
-                  )}
+                    }}
+                    // Disable the menu item if there's no appointment ID
+                    disabled={!row.original.appointmentStatus?.appointmentId}
+                  >
+                    <Clock className="mr-2 h-4 w-4" />
+                    {t("actions.viewAppointment")}
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() =>

@@ -189,6 +189,7 @@ export async function GET(request: NextRequest) {
               upcoming: true,
               date: upcomingAppointment.datetime.toISOString(),
               type: upcomingAppointment.type || "General",
+              appointmentId: upcomingAppointment.id
             }
           : {
               upcoming: false,

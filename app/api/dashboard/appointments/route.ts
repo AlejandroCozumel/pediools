@@ -1,10 +1,10 @@
-// app/api/dashboard/appointments/availability/route.ts
+// app/api/dashboard/appointments/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
 import { z } from "zod";
 
-// Get doctor availability
+// Get all appointments with optional filtering
 export async function GET(req: NextRequest) {
   try {
     const { userId } = getAuth(req);
@@ -19,51 +19,72 @@ export async function GET(req: NextRequest) {
 
     const doctorId = doctor.id;
 
-    // Get regular weekly schedule with breaks
-    const weeklySchedule = await prisma.doctorAvailability.findMany({
-      where: {
-        doctorId,
-        isActive: true,
-      },
+    // Get query parameters
+    const searchParams = req.nextUrl.searchParams;
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+    const status = searchParams.get("status");
+    const patientId = searchParams.get("patientId");
+
+    // Build filters
+    const filters: any = {
+      doctorId,
+    };
+
+    if (startDate || endDate) {
+      filters.datetime = {};
+      if (startDate) {
+        filters.datetime.gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Set to end of day for the end date
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        filters.datetime.lte = endDateTime;
+      }
+    }
+
+    if (status) {
+      filters.status = status;
+    }
+
+    if (patientId) {
+      filters.patientId = patientId;
+    }
+
+    // Get appointments with patient info
+    const appointments = await prisma.appointment.findMany({
+      where: filters,
       include: {
-        breaks: true, // Include the breaks relationship
-      },
-      orderBy: {
-        dayOfWeek: "asc",
-      },
-    });
-
-    // Get date overrides
-    const dateOverrides = await prisma.doctorAvailabilityOverride.findMany({
-      where: {
-        doctorId,
-        date: {
-          gte: new Date(),
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            dateOfBirth: true,
+            gender: true,
+          },
         },
+        appointmentSlot: true,
       },
       orderBy: {
-        date: "asc",
+        datetime: "asc",
       },
     });
 
-    return NextResponse.json({
-      weeklySchedule,
-      dateOverrides,
-    });
+    return NextResponse.json({ appointments });
   } catch (error) {
-    console.error("[AVAILABILITY_GET]", error);
+    console.error("[APPOINTMENTS_GET]", error);
     return NextResponse.json(
-      { error: "Failed to fetch availability" },
+      { error: "Failed to fetch appointments" },
       { status: 500 }
     );
   }
 }
 
-// Update weekly availability
+// Create a new appointment
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-
     const { userId } = getAuth(req);
     if (!userId)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -75,234 +96,65 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
 
     const doctorId = doctor.id;
+    const body = await req.json();
 
-    // Transaction to handle all database operations
-    await prisma.$transaction(async (tx) => {
-      // 1. Delete existing availability entries
-      await tx.doctorAvailability.deleteMany({
-        where: {
-          doctorId,
+    console.log("Creating appointment with data:", JSON.stringify(body, null, 2));
+
+    // Validate input data
+    const appointmentSchema = z.object({
+      patientId: z.string(),
+      datetime: z.string(),
+      status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED", "NO_SHOW"]),
+      type: z.string().optional(),
+      notes: z.any().optional(),
+      appointmentSlotId: z.string().optional(),
+      // Other optional fields
+      consultationMotive: z.string().optional(),
+      presentedSymptoms: z.any().optional(),
+    });
+
+    const validatedData = appointmentSchema.parse(body);
+
+    // Create appointment in a transaction
+    const newAppointment = await prisma.$transaction(async (tx) => {
+      // 1. Create the appointment
+      const appointment = await tx.appointment.create({
+        data: {
+          patientId: validatedData.patientId,
+          doctorId: doctorId,
+          datetime: new Date(validatedData.datetime),
+          status: validatedData.status,
+          type: validatedData.type,
+          notes: validatedData.notes,
+          appointmentSlotId: validatedData.appointmentSlotId,
+          consultationMotive: validatedData.consultationMotive,
+          presentedSymptoms: validatedData.presentedSymptoms,
         },
       });
 
-      // Delete existing break periods
-      await tx.doctorAvailabilityBreak.deleteMany({
-        where: {
-          doctorAvailability: {
-            doctorId,
-          },
-        },
-      });
-
-      // 2. Create new schedule entries with their breaks
-      // Inside the POST transaction
-      for (const schedule of body.weeklySchedule) {
-        // Only create availability for active days
-        if (schedule.isActive) {
-          // Create the doctor availability entry
-          const availability = await tx.doctorAvailability.create({
-            data: {
-              doctorId,
-              dayOfWeek: schedule.dayOfWeek,
-              isActive: schedule.isActive,
-              startTime: schedule.startTime,
-              endTime: schedule.endTime,
-              slotDuration: schedule.slotDuration,
-            },
-          });
-          // Handle breaks
-          const breaks = schedule.breaks || [];
-          // Create break periods for this day
-          for (const breakPeriod of breaks) {
-            try {
-              const createdBreak = await tx.doctorAvailabilityBreak.create({
-                data: {
-                  doctorAvailabilityId: availability.id,
-                  startTime: breakPeriod.startTime,
-                  endTime: breakPeriod.endTime,
-                },
-              });
-            } catch (breakError) {
-              console.error(
-                `Error creating break for day ${schedule.dayOfWeek}:`,
-                breakError
-              );
-            }
-          }
-        }
+      // 2. Update the slot status if an appointmentSlotId is provided
+      if (validatedData.appointmentSlotId) {
+        await tx.appointmentSlot.update({
+          where: { id: validatedData.appointmentSlotId },
+          data: { status: "BOOKED" },
+        });
       }
+
+      return appointment;
     });
 
-    // After successfully updating the schedule, regenerate appointment slots
-    await generateAppointmentSlots(doctorId);
-
-    // Get the updated schedule to return
-    const updatedSchedule = await prisma.doctorAvailability.findMany({
-      where: {
-        doctorId,
-      },
-      include: {
-        breaks: true,
-      },
-      orderBy: {
-        dayOfWeek: "asc",
-      },
-    });
-
-    return NextResponse.json({
-      message: "Availability schedule updated successfully",
-      weeklySchedule: updatedSchedule,
-    });
+    return NextResponse.json(newAppointment);
   } catch (error) {
-    console.error("[AVAILABILITY_POST] Full Error:", error);
+    console.error("[APPOINTMENTS_POST]", error);
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Invalid appointment data", details: error.errors },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
-      { error: "Failed to update availability", details: error },
+      { error: "Failed to create appointment" },
       { status: 500 }
     );
   }
-}
-
-// Helper function to generate appointment slots based on availability
-async function generateAppointmentSlots(doctorId: string) {
-  // Clear future slots that haven't been booked
-  await prisma.appointmentSlot.deleteMany({
-    where: {
-      doctorId,
-      startTime: {
-        gte: new Date(),
-      },
-      status: "AVAILABLE",
-    },
-  });
-
-  // Get the doctor's availability with breaks
-  const availability = await prisma.doctorAvailability.findMany({
-    where: {
-      doctorId,
-      isActive: true,
-    },
-    include: {
-      breaks: true,
-    },
-  });
-
-  let totalSlotsGenerated = 0;
-
-  // Generate slots for each active day
-  for (const schedule of availability) {
-    // Parse start and end times
-    const [startHour, startMinute] = schedule.startTime.split(":").map(Number);
-    const [endHour, endMinute] = schedule.endTime.split(":").map(Number);
-
-    // Calculate start and end minutes of the day
-    const startMinutes = startHour * 60 + startMinute;
-    const endMinutes = endHour * 60 + endMinute;
-
-    // Convert breaks to minutes for easier processing
-    const breakPeriods = schedule.breaks.map((breakPeriod) => {
-      const [breakStartHour, breakStartMin] = breakPeriod.startTime
-        .split(":")
-        .map(Number);
-      const [breakEndHour, breakEndMin] = breakPeriod.endTime
-        .split(":")
-        .map(Number);
-      return {
-        start: breakStartHour * 60 + breakStartMin,
-        end: breakEndHour * 60 + breakEndMin,
-      };
-    });
-
-    // Generate slots for the next 4 weeks
-    for (let week = 0; week < 4; week++) {
-      // Calculate the date for this schedule's day of the week
-      const currentDate = new Date();
-      currentDate.setDate(
-        currentDate.getDate() +
-          week * 7 +
-          ((schedule.dayOfWeek - currentDate.getDay() + 7) % 7)
-      );
-
-      // Skip dates that have overrides
-      const dateString = currentDate.toISOString().split("T")[0];
-      const hasOverride = await prisma.doctorAvailabilityOverride.findFirst({
-        where: {
-          doctorId,
-          date: {
-            gte: new Date(`${dateString}T00:00:00Z`),
-            lt: new Date(`${dateString}T23:59:59Z`),
-          },
-        },
-      });
-
-      if (hasOverride) continue;
-
-      // Generate slots for this day
-      let slotMinute = startMinutes;
-      let slotsForDay = 0;
-
-      while (slotMinute + schedule.slotDuration <= endMinutes) {
-        // Check if the current slot overlaps with any break
-        const isBreakTime = breakPeriods.some(
-          (breakPeriod) =>
-            (slotMinute >= breakPeriod.start && slotMinute < breakPeriod.end) ||
-            (slotMinute + schedule.slotDuration > breakPeriod.start &&
-              slotMinute + schedule.slotDuration <= breakPeriod.end) ||
-            (slotMinute <= breakPeriod.start &&
-              slotMinute + schedule.slotDuration >= breakPeriod.end)
-        );
-
-        if (isBreakTime) {
-          // Find the next available slot after all breaks
-          // that overlap with the current time
-          const relevantBreaks = breakPeriods.filter(
-            (breakPeriod) => slotMinute < breakPeriod.end
-          );
-
-          if (relevantBreaks.length > 0) {
-            const latestBreakEnd = Math.max(
-              ...relevantBreaks.map((b) => b.end)
-            );
-            slotMinute = latestBreakEnd;
-            continue;
-          }
-        }
-
-        // Create the slot
-        const slotHour = Math.floor(slotMinute / 60);
-        const slotMin = slotMinute % 60;
-
-        const startTime = new Date(currentDate);
-        startTime.setHours(slotHour, slotMin, 0, 0);
-
-        const endTime = new Date(startTime);
-        endTime.setMinutes(endTime.getMinutes() + schedule.slotDuration);
-
-        // Only create slots that are in the future
-        if (startTime > new Date()) {
-          await prisma.appointmentSlot.create({
-            data: {
-              doctorId,
-              startTime,
-              endTime,
-              status: "AVAILABLE",
-            },
-          });
-
-          slotsForDay++;
-        }
-
-        // Move to the next slot
-        slotMinute += schedule.slotDuration;
-      }
-
-      totalSlotsGenerated += slotsForDay;
-    }
-  }
-
-  // Optional: Log or validate slot generation
-  console.log(
-    `Generated ${totalSlotsGenerated} appointment slots for doctor ${doctorId}`
-  );
-
-  return totalSlotsGenerated;
 }
