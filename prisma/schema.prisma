@@ -487,6 +487,10 @@ model DoctorAvailabilityOverride {
   endTime     String?
   reason      String?
 
+  // New fields for slot-level overrides
+  slotId          String?   // ID of the specific time slot (format: "09:00-09:30")
+  slotIsAvailable Boolean?  // Whether the specific slot is available
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

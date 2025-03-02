@@ -141,21 +141,28 @@ const AppointmentSettings = () => {
   // Save date exceptions
   const handleSaveDateOverrides = useCallback(async () => {
     try {
+      // Now we need to update this function to handle both
+      // day-level and slot-level overrides
       await saveAvailabilityOverride.mutateAsync({
         dateOverrides: dateOverrides.map((override) => ({
-          date: override.date,
-          type: override.type,
-          status: override.status,
-          slotId: override.slotId,
+          date: new Date(override.date), // Ensure it's a Date object
+          isAvailable: override.isAvailable,
           startTime: override.startTime,
           endTime: override.endTime,
+          reason: override.reason,
+          // Include slot information if present
+          slotId: override.slotId,
+          slotIsAvailable: override.slotIsAvailable,
         })),
       });
+
       toast({
         title: "Exceptions Updated",
-        description: "Your date exceptions have been saved successfully.",
+        description:
+          "Your date and slot exceptions have been saved successfully.",
       });
     } catch (error) {
+      console.error("Failed to save date exceptions:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -164,7 +171,6 @@ const AppointmentSettings = () => {
       throw error;
     }
   }, [dateOverrides, saveAvailabilityOverride, toast]);
-
   return (
     <div className="my-6">
       <div className="flex items-center gap-2 mb-6">

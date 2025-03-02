@@ -16,14 +16,20 @@ export type DaySchedule = {
 
 export type WeeklySchedule = DaySchedule[];
 
+export type DateOverrideType = 'day' | 'slot';
+export type DateOverrideStatus = 'available' | 'blocked';
+
 export type DateOverride = {
   date: Date;
-  type: 'day' | 'slot';
-  status: 'available' | 'blocked';
-  startTime?: string;
-  endTime?: string;
-  slotId?: string;
-}
+  isAvailable: boolean;  // Whether the day is available
+  startTime?: string;    // For available dates with custom hours
+  endTime?: string;      // For available dates with custom hours
+  reason?: string;       // Optional reason for the override
+
+  // Added fields for slot-level availability
+  slotId?: string;       // ID of the specific slot
+  slotIsAvailable?: boolean; // Whether the specific slot is available
+};
 
 export type TimeOption = {
   value: string;
