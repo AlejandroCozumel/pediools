@@ -459,6 +459,9 @@
     "viewingAppointments": "View and manage appointments for the selected period",
     "calendar": "Calendar",
     "list": "List",
+    "noAvailabilityTitle": "No availability settings configured",
+    "noAvailabilityDescription": "You haven't set up your availability schedule yet. Patients won't be able to book appointments until you define your available time slots.",
+    "setupAvailability": "Set Up Availability",
     "settings": {
       "title": "Manage Availability",
       "subtitle": "Configure your availability and appointment slots",

@@ -448,6 +448,9 @@
     "manageAvailability": "Gestionar Disponibilidad",
     "viewingAppointments": "Ver y gestionar citas para el período seleccionado",
     "calendar": "Calendario",
+    "noAvailabilityTitle": "No hay configuración de disponibilidad",
+    "noAvailabilityDescription": "Aún no has configurado tu horario de disponibilidad. Los pacientes no podrán reservar citas hasta que definas tus horarios disponibles.",
+    "setupAvailability": "Configurar Disponibilidad",
     "list": "Lista",
     "settings": {
       "title": "Gestionar Disponibilidad",

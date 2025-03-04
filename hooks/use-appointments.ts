@@ -9,7 +9,7 @@ type BreakPeriod = {
   endTime: string;
 };
 
-type DaySchedule = {
+export type DaySchedule = {
   dayOfWeek: number;
   isActive: boolean;
   startTime: string;

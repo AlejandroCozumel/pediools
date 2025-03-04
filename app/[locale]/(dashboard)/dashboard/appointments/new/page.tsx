@@ -15,7 +15,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import DashboardTitle from "@/components/DashboardTitle";
-import { Calendar, Clock, ArrowLeft, Loader2, Check, Search } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  ArrowLeft,
+  Loader2,
+  Check,
+  Search,
+} from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,7 +30,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,7 +66,8 @@ const CreateAppointment = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
-  const [appointmentType, setAppointmentType] = useState<string>("Consultation");
+  const [appointmentType, setAppointmentType] =
+    useState<string>("Consultation");
   const [notes, setNotes] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -110,8 +118,8 @@ const CreateAppointment = () => {
 
     try {
       // Find the selected slot to get its datetime
-      const slots = slotsData?.slots as Slot[] || [];
-      const slot = slots.find(s => s.id === selectedSlot);
+      const slots = (slotsData?.slots as Slot[]) || [];
+      const slot = slots.find((s) => s.id === selectedSlot);
 
       await saveAppointment.mutateAsync({
         patientId: selectedPatient,
@@ -157,18 +165,10 @@ const CreateAppointment = () => {
 
   return (
     <div className="my-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Link href="/dashboard/appointments">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <DashboardTitle
-          title={t("newAppointment")}
-          subtitle={t("newAppointmentDescription")}
-        />
-      </div>
-
+      <DashboardTitle
+        title={t("newAppointment")}
+        subtitle={t("newAppointmentDescription")}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column - Patient selection */}
         <Card className="lg:col-span-1">
@@ -176,9 +176,7 @@ const CreateAppointment = () => {
             <CardTitle className="text-lg font-heading">
               {t("form.selectPatient")}
             </CardTitle>
-            <CardDescription>
-              {t("form.patientInfo")}
-            </CardDescription>
+            <CardDescription>{t("form.patientInfo")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -194,17 +192,19 @@ const CreateAppointment = () => {
 
               {patientsLoading ? (
                 <div className="space-y-2">
-                  {Array(5).fill(0).map((_, i) => (
-                    <div key={i} className="p-3 border rounded-md">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-medical-100" />
-                        <div className="ml-3">
-                          <div className="h-4 w-24 bg-medical-100 rounded" />
-                          <div className="h-3 w-16 bg-medical-100 rounded mt-2" />
+                  {Array(5)
+                    .fill(0)
+                    .map((_, i) => (
+                      <div key={i} className="p-3 border rounded-md">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 rounded-full bg-medical-100" />
+                          <div className="ml-3">
+                            <div className="h-4 w-24 bg-medical-100 rounded" />
+                            <div className="h-3 w-16 bg-medical-100 rounded mt-2" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               ) : (
                 <div className="max-h-[400px] overflow-y-auto space-y-2">
@@ -213,7 +213,9 @@ const CreateAppointment = () => {
                       <div
                         key={patient.id}
                         className={`p-3 border rounded-md cursor-pointer hover:bg-medical-50 transition-colors ${
-                          selectedPatient === patient.id ? "border-2 border-medical-500 bg-medical-50" : "border-medical-200"
+                          selectedPatient === patient.id
+                            ? "border-2 border-medical-500 bg-medical-50"
+                            : "border-medical-200"
                         }`}
                         onClick={() => setSelectedPatient(patient.id)}
                       >
@@ -221,7 +223,10 @@ const CreateAppointment = () => {
                           <div className="flex items-center">
                             <Avatar className="h-10 w-10 bg-medical-100">
                               <AvatarFallback className="text-medical-700">
-                                {getInitials(patient.firstName, patient.lastName)}
+                                {getInitials(
+                                  patient.firstName,
+                                  patient.lastName
+                                )}
                               </AvatarFallback>
                             </Avatar>
                             <div className="ml-3">
@@ -229,7 +234,10 @@ const CreateAppointment = () => {
                                 {patient.firstName} {patient.lastName}
                               </p>
                               <p className="text-xs text-medical-500">
-                                {format(new Date(patient.dateOfBirth), "MMM d, yyyy")}
+                                {format(
+                                  new Date(patient.dateOfBirth),
+                                  "MMM d, yyyy"
+                                )}
                               </p>
                             </div>
                           </div>
@@ -256,9 +264,7 @@ const CreateAppointment = () => {
             <CardTitle className="text-lg font-heading">
               {t("form.appointmentDate")}
             </CardTitle>
-            <CardDescription>
-              {t("form.appointmentTime")}
-            </CardDescription>
+            <CardDescription>{t("form.appointmentTime")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -278,7 +284,9 @@ const CreateAppointment = () => {
                       }
                     }}
                     className="rounded-md"
-                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0))
+                    }
                   />
                 </div>
               </div>
@@ -296,21 +304,34 @@ const CreateAppointment = () => {
 
                 {slotsLoading ? (
                   <div className="space-y-3">
-                    {Array(4).fill(0).map((_, i) => (
-                      <div key={i} className="border rounded-md border-medical-200 p-3">
-                        <div className="h-4 bg-medical-100 rounded w-20 mb-2" />
-                        <div className="flex flex-wrap gap-2">
-                          {Array(3).fill(0).map((_, j) => (
-                            <div key={j} className="h-8 bg-medical-100 rounded w-16" />
-                          ))}
+                    {Array(4)
+                      .fill(0)
+                      .map((_, i) => (
+                        <div
+                          key={i}
+                          className="border rounded-md border-medical-200 p-3"
+                        >
+                          <div className="h-4 bg-medical-100 rounded w-20 mb-2" />
+                          <div className="flex flex-wrap gap-2">
+                            {Array(3)
+                              .fill(0)
+                              .map((_, j) => (
+                                <div
+                                  key={j}
+                                  className="h-8 bg-medical-100 rounded w-16"
+                                />
+                              ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 ) : Object.keys(groupedSlots).length > 0 ? (
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                     {Object.entries(groupedSlots).map(([hour, slots]) => (
-                      <div key={hour} className="border rounded-md border-medical-200 p-3">
+                      <div
+                        key={hour}
+                        className="border rounded-md border-medical-200 p-3"
+                      >
                         <h4 className="text-sm font-medium text-medical-700 mb-2">
                           {hour}
                         </h4>
@@ -318,9 +339,15 @@ const CreateAppointment = () => {
                           {slots.map((slot: Slot) => (
                             <Button
                               key={slot.id}
-                              variant={selectedSlot === slot.id ? "default" : "outline"}
+                              variant={
+                                selectedSlot === slot.id ? "default" : "outline"
+                              }
                               size="sm"
-                              className={selectedSlot === slot.id ? "bg-medical-600" : "border-medical-200"}
+                              className={
+                                selectedSlot === slot.id
+                                  ? "bg-medical-600"
+                                  : "border-medical-200"
+                              }
                               onClick={() => handleSelectSlot(slot.id)}
                             >
                               {format(new Date(slot.startTime), "h:mm a")}

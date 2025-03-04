@@ -19,6 +19,12 @@ h6 {
   color: #2563eb;
 }
 
+.required-field::after {
+  content: "*";
+  color: #ef4444;
+  margin-left: 4px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

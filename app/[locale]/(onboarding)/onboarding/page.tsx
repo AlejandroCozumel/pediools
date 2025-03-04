@@ -15,7 +15,7 @@ export default function OnboardingPage() {
       const result = await createDoctor();
 
       if (result.success) {
-        router.push("/");
+        router.push("/profile/myprofile");
       } else {
         setError(result.error || "Failed to setup your account");
       }
