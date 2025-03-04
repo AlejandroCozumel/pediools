@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { Clock, ArrowLeft } from "lucide-react";
+import { Clock } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,8 +12,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 import DashboardTitle from "@/components/DashboardTitle";
 import { useToast } from "@/hooks/use-toast";
@@ -115,17 +113,15 @@ const AppointmentSettings = () => {
         defaultStartTime,
         defaultEndTime,
       });
-
       toast({
-        title: "Availability Updated",
-        description:
-          "Your weekly availability schedule has been saved successfully.",
+        title: t("toasts.availabilityUpdated.title"),
+        description: t("toasts.availabilityUpdated.description"),
       });
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to save availability settings.",
+        title: t("toasts.error.title"),
+        description: t("toasts.error.description"),
       });
       throw error; // Re-throw to handle in the component
     }
@@ -136,13 +132,12 @@ const AppointmentSettings = () => {
     defaultEndTime,
     saveAvailability,
     toast,
+    t,
   ]);
 
   // Save date exceptions
   const handleSaveDateOverrides = useCallback(async () => {
     try {
-      // Now we need to update this function to handle both
-      // day-level and slot-level overrides
       await saveAvailabilityOverride.mutateAsync({
         dateOverrides: dateOverrides.map((override) => ({
           date: new Date(override.date), // Ensure it's a Date object
@@ -155,22 +150,21 @@ const AppointmentSettings = () => {
           slotIsAvailable: override.slotIsAvailable,
         })),
       });
-
       toast({
-        title: "Exceptions Updated",
-        description:
-          "Your date and slot exceptions have been saved successfully.",
+        title: t("toasts.exceptionsUpdated.title"),
+        description: t("toasts.exceptionsUpdated.description"),
       });
     } catch (error) {
       console.error("Failed to save date exceptions:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to save date exceptions.",
+        title: t("toasts.error.title"),
+        description: t("toasts.exceptionsError.description"),
       });
       throw error;
     }
-  }, [dateOverrides, saveAvailabilityOverride, toast]);
+  }, [dateOverrides, saveAvailabilityOverride, toast, t]);
+
   return (
     <div className="my-6">
       <DashboardTitle title={t("title")} subtitle={t("subtitle")} />
@@ -202,7 +196,7 @@ const AppointmentSettings = () => {
                   className="flex items-center gap-2"
                 >
                   <Clock className="h-4 w-4" />
-                  {t("exceptions")}
+                  {t("exceptionsTab")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -212,7 +206,7 @@ const AppointmentSettings = () => {
         <CardContent>
           {isLoading ? (
             <div className="py-8 text-center text-medical-500">
-              Loading availability settings...
+              {t("loading")}
             </div>
           ) : activeTab === "weekly" ? (
             <WeeklyScheduleComponent

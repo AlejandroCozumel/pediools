@@ -7,7 +7,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
 
 interface AppointmentListViewProps {
   appointments: AppointmentWithPatient[];
@@ -29,22 +30,24 @@ interface AppointmentListViewProps {
 
 const AppointmentListView = ({
   appointments,
-  currentDate
+  currentDate,
 }: AppointmentListViewProps) => {
-  const sortedAppointments = [...appointments].sort((a, b) =>
-    new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
+  const sortedAppointments = [...appointments].sort(
+    (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
   );
+
+  const t = useTranslations("Appointments");
 
   return (
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-medical-50">
-            <TableHead className="w-[180px]">Date & Time</TableHead>
-            <TableHead>Patient</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="w-[180px]">{t("list.dateTime")}</TableHead>
+            <TableHead>{t("list.patient")}</TableHead>
+            <TableHead>{t("list.type")}</TableHead>
+            <TableHead>{t("list.status")}</TableHead>
+            <TableHead className="text-right">{t("list.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -65,22 +68,28 @@ const AppointmentListView = ({
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">
-                    {appointment.patient.firstName} {appointment.patient.lastName}
+                    {appointment.patient.firstName}{" "}
+                    {appointment.patient.lastName}
                   </div>
                   <div className="text-xs text-medical-500">
-                    {format(parseISO(appointment.patient.dateOfBirth), "MMM d, yyyy")} • {appointment.patient.gender}
+                    {format(
+                      parseISO(appointment.patient.dateOfBirth),
+                      "MMM d, yyyy"
+                    )}{" "}
+                    • {appointment.patient.gender}
                   </div>
                 </TableCell>
-                <TableCell>
-                  {appointment.type || "General"}
-                </TableCell>
+                <TableCell>{appointment.type || t("list.general")}</TableCell>
                 <TableCell>
                   <Badge
                     className={
-                      appointment.status === "SCHEDULED" ? "bg-blue-100 text-blue-800 border-blue-200" :
-                      appointment.status === "COMPLETED" ? "bg-green-100 text-green-800 border-green-200" :
-                      appointment.status === "CANCELLED" ? "bg-red-100 text-red-800 border-red-200" :
-                      "bg-amber-100 text-amber-800 border-amber-200"
+                      appointment.status === "SCHEDULED"
+                        ? "bg-blue-100 text-blue-800 border-blue-200"
+                        : appointment.status === "COMPLETED"
+                        ? "bg-green-100 text-green-800 border-green-200"
+                        : appointment.status === "CANCELLED"
+                        ? "bg-red-100 text-red-800 border-red-200"
+                        : "bg-amber-100 text-amber-800 border-amber-200"
                     }
                   >
                     {appointment.status}
@@ -98,13 +107,15 @@ const AppointmentListView = ({
                       <Link href={`/dashboard/appointments/${appointment.id}`}>
                         <DropdownMenuItem>
                           <FileText className="mr-2 h-4 w-4" />
-                          View Details
+                          {t("list.viewDetails")}
                         </DropdownMenuItem>
                       </Link>
-                      <Link href={`/dashboard/appointments/${appointment.id}/edit`}>
+                      <Link
+                        href={`/dashboard/appointments/${appointment.id}/edit`}
+                      >
                         <DropdownMenuItem>
                           <Calendar className="mr-2 h-4 w-4" />
-                          Edit Appointment
+                          {t("list.editAppointment")}
                         </DropdownMenuItem>
                       </Link>
                     </DropdownMenuContent>
@@ -115,7 +126,7 @@ const AppointmentListView = ({
           ) : (
             <TableRow>
               <TableCell colSpan={5} className="h-24 text-center">
-                No appointments found.
+                {t("list.noAppointmentsFound")}
               </TableCell>
             </TableRow>
           )}

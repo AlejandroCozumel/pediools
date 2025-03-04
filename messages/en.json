@@ -458,10 +458,20 @@
     "manageAvailability": "Manage Availability",
     "viewingAppointments": "View and manage appointments for the selected period",
     "calendar": "Calendar",
-    "list": "List",
     "noAvailabilityTitle": "No availability settings configured",
     "noAvailabilityDescription": "You haven't set up your availability schedule yet. Patients won't be able to book appointments until you define your available time slots.",
     "setupAvailability": "Set Up Availability",
+    "list": {
+      "dateTime": "Date & Time",
+      "patient": "Patient",
+      "type": "Type",
+      "status": "Status",
+      "actions": "Actions",
+      "general": "General",
+      "viewDetails": "View Details",
+      "editAppointment": "Edit Appointment",
+      "noAppointmentsFound": "No appointments found."
+    },
     "settings": {
       "title": "Manage Availability",
       "subtitle": "Configure your availability and appointment slots",
@@ -469,9 +479,78 @@
       "availabilityDescription": "Set your recurring availability and schedule exceptions",
       "weeklySchedule": "Weekly Schedule",
       "weeklyScheduleDescription": "Configure your regular working hours for each day of the week",
-      "exceptions": "Exceptions",
       "exceptionsDescription": "Configure specific dates where your availability differs from the normal schedule",
-      "defaultAppointmentDuration": "Default Appointment Duration"
+      "defaultAppointmentDuration": "Default Appointment Duration",
+      "exceptionsTab": "Exceptions",
+      "loading": "Loading availability settings...",
+      "weekly": {
+        "description": "Set your regular weekly availability schedule. This will be used to generate appointment slots for patients to book.",
+        "validationErrors": "Validation Errors",
+        "availabilityWarnings": "Availability Warnings",
+        "defaultAppointmentDuration": "Default Appointment Duration",
+        "saveWeeklySchedule": "Save Weekly Schedule",
+        "saving": "Saving...",
+        "noBreaks": "No breaks added. You are available all day.",
+        "unavailablePeriods": "Unavailable Time Periods",
+        "addBreak": "Add Break",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "invalidBreakTime": "Invalid Break Time",
+        "startBeforeEnd": "Start time must be before end time.",
+        "endAfterStart": "End time must be after start time.",
+        "cannotAddBreak": "Cannot Add Break",
+        "noAvailableTimeSlot": "No available time slot for a break. All possible time slots are already taken."
+      },
+      "exceptions": {
+        "description": "Manage your availability by blocking specific dates, setting custom hours, or blocking individual time slots.",
+        "selectDate": "Select Date",
+        "available": "Available",
+        "exception": "Exception",
+        "manage": "Manage",
+        "noAvailability": "No availability on this day",
+        "notWorkingDay": "This day is not part of your regular working schedule",
+        "dayBlocked": "Day is completely blocked",
+        "noAppointmentsAvailable": "No appointments are available",
+        "unblockDay": "Unblock Day",
+        "customHoursSet": "Custom Hours Set",
+        "start": "Start",
+        "end": "End",
+        "resetToDefault": "Reset to Default",
+        "blockDay": "Block Day",
+        "noTimeSlots": "No available time slots",
+        "checkSettings": "Check your scheduling settings",
+        "blockEntireDay": "Block Entire Day",
+        "setCustomHours": "Set Custom Hours",
+        "availableTimeSlots": "Available Time Slots",
+        "clickToToggle": "Click on a slot to toggle its availability",
+        "currentExceptions": "Current Exceptions",
+        "noExceptions": "No exceptions added yet",
+        "customHours": "Custom Hours",
+        "availableOverride": "Available (Override)",
+        "blockedDay": "Blocked Day",
+        "reason": "Reason",
+        "blockedSlot": "Blocked Slot",
+        "remove": "Remove",
+        "saveExceptions": "Save Exceptions"
+      },
+      "toasts": {
+        "availabilityUpdated": {
+          "title": "Availability Updated",
+          "description": "Your weekly availability schedule has been saved correctly."
+        },
+        "exceptionsUpdated": {
+          "title": "Exceptions Updated",
+          "description": "Your date and time exceptions have been saved correctly."
+        },
+        "error": {
+          "title": "Error",
+          "description": "Could not save availability settings."
+        },
+        "exceptionsError": {
+          "title": "Error",
+          "description": "Could not save date exceptions."
+        }
+      }
     },
     "status": {
       "SCHEDULED": "Scheduled",

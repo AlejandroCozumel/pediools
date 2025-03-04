@@ -451,7 +451,17 @@
     "noAvailabilityTitle": "No hay configuración de disponibilidad",
     "noAvailabilityDescription": "Aún no has configurado tu horario de disponibilidad. Los pacientes no podrán reservar citas hasta que definas tus horarios disponibles.",
     "setupAvailability": "Configurar Disponibilidad",
-    "list": "Lista",
+    "list": {
+      "dateTime": "Fecha y Hora",
+      "patient": "Paciente",
+      "type": "Tipo",
+      "status": "Estado",
+      "actions": "Acciones",
+      "general": "General",
+      "viewDetails": "Ver Detalles",
+      "editAppointment": "Editar Cita",
+      "noAppointmentsFound": "No se encontraron citas."
+    },
     "settings": {
       "title": "Gestionar Disponibilidad",
       "subtitle": "Configurar su disponibilidad y horarios para citas",
@@ -459,9 +469,78 @@
       "availabilityDescription": "Establezca su disponibilidad recurrente y excepciones de agenda",
       "weeklySchedule": "Horario Semanal",
       "weeklyScheduleDescription": "Configure sus horas de trabajo regulares para cada día de la semana",
-      "exceptions": "Excepciones",
       "exceptionsDescription": "Configure fechas específicas donde su disponibilidad difiere del horario normal",
-      "defaultAppointmentDuration": "Duración Predeterminada de Citas"
+      "defaultAppointmentDuration": "Duración Predeterminada de Citas",
+      "exceptionsTab": "Excepciónes",
+      "loading": "Cargando configuración de disponibilidad...",
+      "weekly": {
+        "description": "Establezca su horario semanal de disponibilidad. Esto se utilizará para generar horarios de citas para que los pacientes reserven.",
+        "validationErrors": "Errores de Validación",
+        "availabilityWarnings": "Advertencias de Disponibilidad",
+        "defaultAppointmentDuration": "Duración Predeterminada de Citas",
+        "saveWeeklySchedule": "Guardar Horario Semanal",
+        "saving": "Guardando...",
+        "noBreaks": "No se han añadido descansos. Está disponible todo el día.",
+        "unavailablePeriods": "Periodos No Disponibles",
+        "addBreak": "Añadir Descanso",
+        "startTime": "Hora de Inicio",
+        "endTime": "Hora de Fin",
+        "invalidBreakTime": "Tiempo de Descanso Inválido",
+        "startBeforeEnd": "La hora de inicio debe ser anterior a la hora de fin.",
+        "endAfterStart": "La hora de fin debe ser posterior a la hora de inicio.",
+        "cannotAddBreak": "No se Puede Añadir Descanso",
+        "noAvailableTimeSlot": "No hay horarios disponibles para un descanso. Todos los posibles horarios ya están ocupados."
+      },
+      "exceptions": {
+        "description": "Gestione su disponibilidad bloqueando fechas específicas, estableciendo horarios personalizados o bloqueando franjas horarias individuales.",
+        "selectDate": "Seleccionar Fecha",
+        "available": "Disponible",
+        "exception": "Excepción",
+        "manage": "Gestionar",
+        "noAvailability": "No hay disponibilidad en este día",
+        "notWorkingDay": "Este día no forma parte de su horario laboral habitual",
+        "dayBlocked": "Día completamente bloqueado",
+        "noAppointmentsAvailable": "No hay citas disponibles",
+        "unblockDay": "Desbloquear Día",
+        "customHoursSet": "Horario Personalizado Establecido",
+        "start": "Inicio",
+        "end": "Fin",
+        "resetToDefault": "Restablecer Predeterminado",
+        "blockDay": "Bloquear Día",
+        "noTimeSlots": "No hay franjas horarias disponibles",
+        "checkSettings": "Verifique su configuración de horarios",
+        "blockEntireDay": "Bloquear Día Completo",
+        "setCustomHours": "Establecer Horario Personalizado",
+        "availableTimeSlots": "Franjas Horarias Disponibles",
+        "clickToToggle": "Haga clic en una franja para cambiar su disponibilidad",
+        "currentExceptions": "Excepciones Actuales",
+        "noExceptions": "Aún no se han añadido excepciones",
+        "customHours": "Horario Personalizado",
+        "availableOverride": "Disponible (Modificado)",
+        "blockedDay": "Día Bloqueado",
+        "reason": "Motivo",
+        "blockedSlot": "Franja Bloqueada",
+        "remove": "Eliminar",
+        "saveExceptions": "Guardar Excepciones"
+      },
+      "toasts": {
+        "availabilityUpdated": {
+          "title": "Disponibilidad Actualizada",
+          "description": "Su horario semanal de disponibilidad se ha guardado correctamente."
+        },
+        "exceptionsUpdated": {
+          "title": "Excepciones Actualizadas",
+          "description": "Sus excepciones de fecha y horarios se han guardado correctamente."
+        },
+        "error": {
+          "title": "Error",
+          "description": "No se pudo guardar la configuración de disponibilidad."
+        },
+        "exceptionsError": {
+          "title": "Error",
+          "description": "No se pudieron guardar las excepciones de fecha."
+        }
+      }
     },
     "status": {
       "SCHEDULED": "Programada",
