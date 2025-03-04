@@ -54,7 +54,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         subscriptionStatus: status,
         subscriptionPlan: plan,
         staffCount,
-        isPremium: plan === 'PRO' || plan === 'ENTERPRISE',
+        isPremium: plan === 'STARTER' || plan === 'PRO' || plan === 'ENTERPRISE', // All plans are premium
         isEnterprise: plan === 'ENTERPRISE'
       }),
     }),
