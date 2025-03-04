@@ -1,5 +1,6 @@
 // components/appointments/settings/WeeklySchedule.tsx
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -62,6 +63,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
     []
   );
+  const t = useTranslations("Appointments.settings.weekly");
 
   // Filter only errors to display at the top
   const criticalErrors = useMemo(
@@ -216,25 +218,21 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       if (criticalErrors.length > 0) {
         toast({
           variant: "destructive",
-          title: "Cannot Save Schedule",
-          description: "Please fix the validation errors before saving.",
+          title: t("alerts.validationErrors.cannotSave"),
+          description: t("alerts.validationErrors.fixErrorsBeforeSaving"),
         });
         return;
       }
-
       if (generalWarnings.length > 0) {
-        const proceed = window.confirm(
-          "There are warnings with your availability settings. Are you sure you want to proceed?"
-        );
+        const proceed = window.confirm(t("alerts.warnings.confirmProceed"));
         if (!proceed) return;
       }
-
       await onSave();
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save availability settings.",
+        description: t("errors.failedToSave"),
       });
     }
   }, [
@@ -248,16 +246,13 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-medical-600">
-        Set your regular weekly availability schedule. This will be used to
-        generate appointment slots for patients to book.
-      </p>
+      <p className="text-sm text-medical-600">{t("description")}</p>
 
       {/* Critical Errors */}
       {criticalErrors.length > 0 && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Validation Errors</AlertTitle>
+          <AlertTitle>{t("validationErrors")}</AlertTitle>
           <AlertDescription>
             <ul className="list-disc pl-5 mt-2">
               {criticalErrors.map((error, index) => (
@@ -274,7 +269,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       {generalWarnings.length > 0 && (
         <Alert variant="default" className="bg-amber-50 border-amber-300">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Availability Warnings</AlertTitle>
+          <AlertTitle>{t("availabilityWarnings")}</AlertTitle>
           <AlertDescription>
             <ul className="list-disc pl-5 mt-2">
               {generalWarnings.map((warning, index) => (
@@ -290,7 +285,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
       {/* Default slot duration selector */}
       <div className="max-w-xs">
         <label className="text-sm font-medium text-medical-700 mb-1 block">
-          Default Appointment Duration
+        {t("defaultAppointmentDuration")}
         </label>
         <Select
           value={defaultSlotDuration.toString()}
@@ -345,10 +340,10 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t("saving")}
             </>
           ) : (
-            "Save Weekly Schedule"
+            t("saveWeeklySchedule")
           )}
         </Button>
       </div>

@@ -489,7 +489,52 @@
         "startBeforeEnd": "La hora de inicio debe ser anterior a la hora de fin.",
         "endAfterStart": "La hora de fin debe ser posterior a la hora de inicio.",
         "cannotAddBreak": "No se Puede Añadir Descanso",
-        "noAvailableTimeSlot": "No hay horarios disponibles para un descanso. Todos los posibles horarios ya están ocupados."
+        "noAvailableTimeSlot": "No hay horarios disponibles para un descanso. Todos los posibles horarios ya están ocupados.",
+        "daySchedule": {
+          "startTime": "Hora de Inicio:",
+          "endTime": "Hora de Fin:",
+          "appointmentDuration": "Duración de la Cita:",
+          "noBreaks": "No se han añadido descansos. Disponible todo el día.",
+          "totalAvailability": "Disponibilidad total:",
+          "availableSlots": "Espacios disponibles:"
+        },
+        "breakManager": {
+          "unavailableTimePeriods": "Periodos No Disponibles",
+          "addBreak": "Añadir Descanso",
+          "noBreaksAdded": "No se han añadido descansos. Está disponible todo el día.",
+          "cannotAddBreak": {
+            "title": "No se puede añadir descanso",
+            "description": "No hay franjas horarias disponibles para un descanso. Todos los posibles horarios ya están ocupados."
+          },
+          "breakItem": {
+            "startTime": "Hora de Inicio",
+            "endTime": "Hora de Fin",
+            "invalidBreakTime": {
+              "title": "Tiempo de Descanso Inválido",
+              "startBeforeEnd": "La hora de inicio debe ser anterior a la hora de fin.",
+              "endAfterStart": "La hora de fin debe ser posterior a la hora de inicio."
+            },
+            "removeBreak": "Eliminar Descanso"
+          }
+        },
+        "alerts": {
+          "validationErrors": {
+            "title": "Errores de Validación",
+            "cannotSave": "No se puede guardar el horario",
+            "fixErrorsBeforeSaving": "Por favor, corrija los errores de validación antes de guardar."
+          },
+          "warnings": {
+            "title": "Advertencias de Disponibilidad",
+            "confirmProceed": "Hay advertencias en su configuración de disponibilidad. ¿Está seguro que desea continuar?"
+          }
+        },
+        "errors": {
+          "failedToSave": "No se pudieron guardar los ajustes de disponibilidad."
+        },
+        "saveButton": {
+          "save": "Guardar Horario Semanal",
+          "saving": "Guardando..."
+        }
       },
       "exceptions": {
         "description": "Gestione su disponibilidad bloqueando fechas específicas, estableciendo horarios personalizados o bloqueando franjas horarias individuales.",

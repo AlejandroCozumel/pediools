@@ -499,7 +499,52 @@
         "startBeforeEnd": "Start time must be before end time.",
         "endAfterStart": "End time must be after start time.",
         "cannotAddBreak": "Cannot Add Break",
-        "noAvailableTimeSlot": "No available time slot for a break. All possible time slots are already taken."
+        "noAvailableTimeSlot": "No available time slot for a break. All possible time slots are already taken.",
+        "daySchedule": {
+          "startTime": "Start Time:",
+          "endTime": "End Time:",
+          "appointmentDuration": "Appointment Duration:",
+          "noBreaks": "No breaks added. Available all day.",
+          "totalAvailability": "Total availability:",
+          "availableSlots": "Available slots:"
+        },
+        "breakManager": {
+          "unavailableTimePeriods": "Unavailable Time Periods",
+          "addBreak": "Add Break",
+          "noBreaksAdded": "No breaks added. You are available all day.",
+          "cannotAddBreak": {
+            "title": "Cannot Add Break",
+            "description": "No available time slot for a break. All possible time slots are already taken."
+          },
+          "breakItem": {
+            "startTime": "Start Time",
+            "endTime": "End Time",
+            "invalidBreakTime": {
+              "title": "Invalid Break Time",
+              "startBeforeEnd": "Start time must be before end time.",
+              "endAfterStart": "End time must be after start time."
+            },
+            "removeBreak": "Remove Break"
+          }
+        },
+        "alerts": {
+          "validationErrors": {
+            "title": "Validation Errors",
+            "cannotSave": "Cannot Save Schedule",
+            "fixErrorsBeforeSaving": "Please fix the validation errors before saving."
+          },
+          "warnings": {
+            "title": "Availability Warnings",
+            "confirmProceed": "There are warnings with your availability settings. Are you sure you want to proceed?"
+          }
+        },
+        "errors": {
+          "failedToSave": "Failed to save availability settings."
+        },
+        "saveButton": {
+          "save": "Save Weekly Schedule",
+          "saving": "Saving..."
+        }
       },
       "exceptions": {
         "description": "Manage your availability by blocking specific dates, setting custom hours, or blocking individual time slots.",

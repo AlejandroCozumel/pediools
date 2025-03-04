@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { format, parseISO, addMonths, isSameDay, startOfMonth } from "date-fns";
 import { Loader2, Calendar as CalendarIcon, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -119,46 +119,6 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
             date: normalizedDate,
             isAvailable: false,
             reason: "Manually blocked"
-          },
-        ]);
-      }
-    },
-    [dateOverrides, onDateOverridesChange]
-  );
-
-  // Add custom hours for a day
-  const addCustomHours = useCallback(
-    (date: Date, startTime: string, endTime: string) => {
-      // Ensure we're working with a Date object
-      const normalizedDate = new Date(date);
-
-      // Find existing day-level override
-      const existingDayOverrideIndex = dateOverrides.findIndex(
-        (override) => {
-          const overrideDate = new Date(override.date);
-          return isSameDay(overrideDate, normalizedDate) && !override.slotId;
-        }
-      );
-
-      if (existingDayOverrideIndex !== -1) {
-        // Update existing override
-        const updatedOverrides = [...dateOverrides];
-        updatedOverrides[existingDayOverrideIndex] = {
-          ...updatedOverrides[existingDayOverrideIndex],
-          isAvailable: true,
-          startTime,
-          endTime
-        };
-        onDateOverridesChange(updatedOverrides);
-      } else {
-        // Add new custom hours override
-        onDateOverridesChange([
-          ...dateOverrides,
-          {
-            date: normalizedDate,
-            isAvailable: true,
-            startTime,
-            endTime
           },
         ]);
       }
@@ -476,17 +436,6 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                         onClick={() => toggleDayAvailability(selectedDate)}
                       >
                         Block Entire Day
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          // Example of setting custom hours - you'd typically use a modal or form here
-                          const customStart = "10:00";
-                          const customEnd = "16:00";
-                          addCustomHours(selectedDate, customStart, customEnd);
-                        }}
-                      >
-                        Set Custom Hours
                       </Button>
                     </div>
 

@@ -53,7 +53,7 @@ const AppointmentSettings = () => {
   const [weeklySchedule, setWeeklySchedule] = useState<WeeklySchedule>(
     DAYS_OF_WEEK.map((_, index) => ({
       dayOfWeek: index,
-      isActive: index < 5, // Monday to Friday active by default
+      isActive: index >= 1 && index <= 5,
       startTime: "09:00",
       endTime: "17:00",
       slotDuration: 30,
@@ -63,7 +63,7 @@ const AppointmentSettings = () => {
 
   // State for days of operation
   const [daysOfOperation, setDaysOfOperation] = useState<number[]>(
-    [0, 1, 2, 3, 4] // Default to Monday to Friday
+    [1, 2, 3, 4, 5] // Explicitly set to Monday through Friday indices
   );
 
   // State for default times
