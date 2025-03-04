@@ -6,7 +6,7 @@ import LoaderSpinnner from "@/components/LoaderSpinnner";
 import CDCChart from "./CDCChart";
 import CDCChartHeight from "./CDCChartHeight";
 import ProgressionTable from "@/components/ProgressionTable";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
 import SendChartNotification from "@/components/SendChartNotification ";
 
@@ -33,7 +33,7 @@ const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
 };
 
 const Charts = () => {
-  const { isFullCurveView } = usePremiumStore();
+  const { isFullCurveView } = useSubscriptionStore();
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );

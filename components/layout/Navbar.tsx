@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { usePremiumStore } from '@/stores/premiumStore';
+import { useSubscriptionStore } from '@/stores/premiumStore';
 import UserMenu from './UserMenu';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Image from 'next/image';
@@ -82,7 +82,7 @@ const NavLink: React.FC<{
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isPremium } = usePremiumStore();
+  const { isPremium } = useSubscriptionStore();
   const t = useTranslations('Navigation');
 
   const getLocalizedItems = () => {
@@ -112,7 +112,7 @@ const Navbar: React.FC = () => {
 };
 
 const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
-  const { isPremium } = usePremiumStore();
+  const { isPremium } = useSubscriptionStore();
   const t = useTranslations('Navigation');
 
   const getLocalizedItems = () => {

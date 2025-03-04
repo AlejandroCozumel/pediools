@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 import PatientSelectorConsultation from "@/components/premium/PatientSelectorConsultation";
 
 // Consultation Status Enum
@@ -158,7 +158,7 @@ const AddMedicalConsultationForm = ({
 }: {
   initialPatientId?: string;
 }) => {
-  const { isPremium, selectedPatient } = usePremiumStore();
+  const { isPremium, selectedPatient } = useSubscriptionStore();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 

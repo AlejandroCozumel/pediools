@@ -58,7 +58,7 @@ import cdcInfantHeightHead from "@/app/data/cdc-data-infant-head.json";
 import whoHeadData from "@/app/data/who-data-head.json";
 
 import MeasurementInputIntergrowth from "@/components/MeasurementInputIntergrowth";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 import PatientSelector from "@/components/premium/PatientSelector";
 import { useTranslations } from "next-intl";
 
@@ -208,7 +208,7 @@ export const formSchema = z
   );
 
 export function GrowthForm() {
-  const { isPremium, selectedPatient } = usePremiumStore();
+  const { isPremium, selectedPatient } = useSubscriptionStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const router = useRouter();

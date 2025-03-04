@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { useSearchPatients } from "@/hooks/useSearchPatients";
 import { useDebounce } from "@/hooks/useDebounce";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "@/app/[locale]/(calculators)/growth-percentiles/GrowthForm";
@@ -54,7 +54,7 @@ export default function PatientSelector({
   const { toast } = useToast();
 
   const { selectedPatient: globalSelectedPatient, setPatient } =
-    usePremiumStore();
+    useSubscriptionStore();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Patient | null>(
