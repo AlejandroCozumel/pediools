@@ -28,13 +28,13 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
   // Instead of keeping slot overrides in separate state, we'll extract them from dateOverrides
-  const dayLevelOverrides = useMemo(() =>
-    dateOverrides.filter(override => !override.slotId),
+  const dayLevelOverrides = useMemo(
+    () => dateOverrides.filter((override) => !override.slotId),
     [dateOverrides]
   );
 
-  const slotLevelOverrides = useMemo(() =>
-    dateOverrides.filter(override => !!override.slotId),
+  const slotLevelOverrides = useMemo(
+    () => dateOverrides.filter((override) => !!override.slotId),
     [dateOverrides]
   );
 
@@ -46,7 +46,11 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
     const endDate = addMonths(startDate, 2); // Include current and next month
 
     // For each day in range
-    for (let day = new Date(startDate); day < endDate; day.setDate(day.getDate() + 1)) {
+    for (
+      let day = new Date(startDate);
+      day < endDate;
+      day.setDate(day.getDate() + 1)
+    ) {
       // Skip past days
       if (day < today) continue;
 
@@ -55,13 +59,13 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
       const daySchedule = weeklySchedule[dayOfWeek];
 
       // Check if day has an override (day-level only)
-      const dayOverride = dayLevelOverrides.find(override => {
+      const dayOverride = dayLevelOverrides.find((override) => {
         const overrideDate = new Date(override.date);
         return isSameDay(overrideDate, currentDate);
       });
 
       // Check if day has any slot-level overrides
-      const hasSlotOverrides = slotLevelOverrides.some(override => {
+      const hasSlotOverrides = slotLevelOverrides.some((override) => {
         const overrideDate = new Date(override.date);
         return isSameDay(overrideDate, currentDate);
       });
@@ -69,7 +73,7 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
       // Determine availability status based on day-level override
       const isAvailable = dayOverride
         ? dayOverride.isAvailable
-        : (daySchedule && daySchedule.isActive);
+        : daySchedule && daySchedule.isActive;
 
       data.push({
         date: currentDate,
@@ -89,12 +93,10 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
       const normalizedDate = new Date(date);
 
       // Find existing day-level override
-      const existingDayOverrideIndex = dateOverrides.findIndex(
-        (override) => {
-          const overrideDate = new Date(override.date);
-          return isSameDay(overrideDate, normalizedDate) && !override.slotId;
-        }
-      );
+      const existingDayOverrideIndex = dateOverrides.findIndex((override) => {
+        const overrideDate = new Date(override.date);
+        return isSameDay(overrideDate, normalizedDate) && !override.slotId;
+      });
 
       if (existingDayOverrideIndex !== -1) {
         // Remove existing day override
@@ -102,7 +104,7 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
         updatedOverrides.splice(existingDayOverrideIndex, 1);
 
         // Also remove any slot overrides for this date
-        const filteredOverrides = updatedOverrides.filter(override => {
+        const filteredOverrides = updatedOverrides.filter((override) => {
           const overrideDate = new Date(override.date);
           return !isSameDay(overrideDate, normalizedDate);
         });
@@ -111,14 +113,14 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
       } else {
         // Add new day override - by default blocking the day (isAvailable: false)
         onDateOverridesChange([
-          ...dateOverrides.filter(override => {
+          ...dateOverrides.filter((override) => {
             const overrideDate = new Date(override.date);
             return !isSameDay(overrideDate, normalizedDate);
           }),
           {
             date: normalizedDate,
             isAvailable: false,
-            reason: "Manually blocked"
+            reason: "Manually blocked",
           },
         ]);
       }
@@ -133,13 +135,12 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
       const normalizedDate = new Date(date);
 
       // Find if this slot is already blocked
-      const existingSlotOverrideIndex = dateOverrides.findIndex(
-        override => {
-          const overrideDate = new Date(override.date);
-          return isSameDay(overrideDate, normalizedDate) &&
-                 override.slotId === slotId;
-        }
-      );
+      const existingSlotOverrideIndex = dateOverrides.findIndex((override) => {
+        const overrideDate = new Date(override.date);
+        return (
+          isSameDay(overrideDate, normalizedDate) && override.slotId === slotId
+        );
+      });
 
       if (existingSlotOverrideIndex !== -1) {
         // Remove the slot override
@@ -153,9 +154,9 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
           {
             date: normalizedDate,
             isAvailable: true, // Day is available
-            slotId,            // But this specific slot is blocked
+            slotId, // But this specific slot is blocked
             slotIsAvailable: false,
-            reason: `Blocked slot: ${slotId}`
+            reason: `Blocked slot: ${slotId}`,
           },
         ]);
       }
@@ -166,14 +167,14 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
   // Check if a slot is blocked
   const isSlotBlocked = useCallback(
     (date: Date, slotId: string) => {
-      return dateOverrides.some(
-        override => {
-          const overrideDate = new Date(override.date);
-          return isSameDay(overrideDate, date) &&
-                 override.slotId === slotId &&
-                 override.slotIsAvailable === false;
-        }
-      );
+      return dateOverrides.some((override) => {
+        const overrideDate = new Date(override.date);
+        return (
+          isSameDay(overrideDate, date) &&
+          override.slotId === slotId &&
+          override.slotIsAvailable === false
+        );
+      });
     },
     [dateOverrides]
   );
@@ -190,7 +191,7 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
       if (!daySchedule || !daySchedule.isActive) return [];
 
       // Check if date has a day-level override
-      const dateOverride = dayLevelOverrides.find(override => {
+      const dateOverride = dayLevelOverrides.find((override) => {
         const overrideDate = new Date(override.date);
         return isSameDay(overrideDate, normalizedDate);
       });
@@ -221,10 +222,13 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
         const slotEnd = new Date(currentTime.getTime() + slotDuration * 60000);
         if (slotEnd > endTime) break;
 
-        const slotId = `${format(currentTime, "HH:mm")}-${format(slotEnd, "HH:mm")}`;
+        const slotId = `${format(currentTime, "HH:mm")}-${format(
+          slotEnd,
+          "HH:mm"
+        )}`;
 
         // Check if this slot is during a break
-        const isDuringBreak = breaks.some(breakPeriod => {
+        const isDuringBreak = breaks.some((breakPeriod) => {
           const breakStart = parseISO(`2000-01-01T${breakPeriod.startTime}`);
           const breakEnd = parseISO(`2000-01-01T${breakPeriod.endTime}`);
           return (
@@ -247,7 +251,7 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
           id: slotId,
           startTime: format(currentTime, "HH:mm"),
           endTime: format(slotEnd, "HH:mm"),
-          isBlocked: slotIsBlocked
+          isBlocked: slotIsBlocked,
         });
 
         currentTime = slotEnd;
@@ -271,7 +275,8 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
 
       toast({
         title: "Exceptions Saved",
-        description: "Your date and slot exceptions have been updated successfully.",
+        description:
+          "Your date and slot exceptions have been updated successfully.",
       });
     } catch (error) {
       console.error("Error saving exceptions:", error);
@@ -286,7 +291,8 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
   return (
     <div className="space-y-6">
       <p className="text-sm text-medical-600">
-        Manage your availability by blocking specific dates, setting custom hours, or blocking individual time slots.
+        Manage your availability by blocking specific dates, setting custom
+        hours, or blocking individual time slots.
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -300,12 +306,12 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
           </CardHeader>
           <CardContent>
             <div className="p-2 bg-gray-50 rounded-lg">
-              <div className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
-                <span className="flex items-center gap-1">
+              <div className="text-xs text-gray-500 mb-2 px-2 flex items-center gap-2">
+                <span className="flex items-center gap-1.5">
                   <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
                   Available
                 </span>
-                <span className="flex items-center gap-1 ml-3">
+                <span className="flex items-center gap-1.5">
                   <span className="inline-block h-2 w-2 bg-red-500 rounded-full"></span>
                   Exception
                 </span>
@@ -338,8 +344,8 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                 const daySchedule = weeklySchedule[dayOfWeek];
 
                 // Find existing day override if any
-                const dateOverride = dayLevelOverrides.find(
-                  override => isSameDay(override.date, selectedDate)
+                const dateOverride = dayLevelOverrides.find((override) =>
+                  isSameDay(override.date, selectedDate)
                 );
 
                 // If no active schedule for this day
@@ -361,7 +367,9 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                     <div className="flex flex-col items-center justify-center text-red-500 space-y-2">
                       <XCircle className="h-12 w-12 text-red-300" />
                       <p>Day is completely blocked</p>
-                      <p className="text-xs mb-4">No appointments are available</p>
+                      <p className="text-xs mb-4">
+                        No appointments are available
+                      </p>
                       <Button
                         variant="outline"
                         onClick={() => toggleDayAvailability(selectedDate)}
@@ -373,13 +381,20 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                 }
 
                 // If date has custom hours
-                if (dateOverride && dateOverride.isAvailable && (dateOverride.startTime || dateOverride.endTime)) {
+                if (
+                  dateOverride &&
+                  dateOverride.isAvailable &&
+                  (dateOverride.startTime || dateOverride.endTime)
+                ) {
                   return (
                     <div className="space-y-4">
                       <div className="p-4 border rounded-md bg-blue-50">
-                        <h3 className="font-medium text-blue-700 mb-2">Custom Hours Set</h3>
+                        <h3 className="font-medium text-blue-700 mb-2">
+                          Custom Hours Set
+                        </h3>
                         <p className="text-sm">
-                          Start: {dateOverride.startTime || daySchedule.startTime}
+                          Start:{" "}
+                          {dateOverride.startTime || daySchedule.startTime}
                         </p>
                         <p className="text-sm">
                           End: {dateOverride.endTime || daySchedule.endTime}
@@ -390,10 +405,12 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                             size="sm"
                             onClick={() => {
                               const updatedOverrides = dateOverrides.filter(
-                                override => {
+                                (override) => {
                                   const overrideDate = new Date(override.date);
-                                  return !isSameDay(overrideDate, selectedDate) ||
-                                         !!override.slotId;
+                                  return (
+                                    !isSameDay(overrideDate, selectedDate) ||
+                                    !!override.slotId
+                                  );
                                 }
                               );
                               onDateOverridesChange(updatedOverrides);
@@ -440,15 +457,21 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-medium mb-2">Available Time Slots</h3>
-                      <p className="text-xs text-gray-500 mb-2">Click on a slot to toggle its availability</p>
+                      <h3 className="text-sm font-medium mb-2">
+                        Available Time Slots
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-2">
+                        Click on a slot to toggle its availability
+                      </p>
                       <div className="grid grid-cols-3 gap-2">
                         {slots.map((slot) => (
                           <Button
                             key={slot.id}
                             variant={slot.isBlocked ? "destructive" : "outline"}
                             className="text-sm p-2 h-auto"
-                            onClick={() => toggleSlotAvailability(selectedDate, slot.id)}
+                            onClick={() =>
+                              toggleSlotAvailability(selectedDate, slot.id)
+                            }
                           >
                             {slot.startTime} - {slot.endTime}
                           </Button>
@@ -478,9 +501,10 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
               {/* Day level overrides */}
               {dayLevelOverrides.map((override, index) => {
                 // Ensure we have a proper Date object
-                const overrideDate = override.date instanceof Date
-                  ? override.date
-                  : new Date(override.date);
+                const overrideDate =
+                  override.date instanceof Date
+                    ? override.date
+                    : new Date(override.date);
 
                 return (
                   <div
@@ -497,16 +521,17 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                         }
                       >
                         {override.isAvailable
-                          ? (override.startTime || override.endTime
-                              ? "Custom Hours"
-                              : "Available (Override)")
+                          ? override.startTime || override.endTime
+                            ? "Custom Hours"
+                            : "Available (Override)"
                           : "Blocked Day"}
                       </Badge>
-                      {override.isAvailable && (override.startTime || override.endTime) && (
-                        <p className="text-xs mt-1 text-gray-500">
-                          {override.startTime} - {override.endTime}
-                        </p>
-                      )}
+                      {override.isAvailable &&
+                        (override.startTime || override.endTime) && (
+                          <p className="text-xs mt-1 text-gray-500">
+                            {override.startTime} - {override.endTime}
+                          </p>
+                        )}
                       {override.reason && (
                         <p className="text-xs mt-1 text-gray-500">
                           Reason: {override.reason}
@@ -517,16 +542,14 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        const updatedOverrides = dateOverrides.filter(
-                          (o) => {
-                            if (!o.slotId) {
-                              // For day-level overrides, filter out this one
-                              const oDate = new Date(o.date);
-                              return !isSameDay(oDate, overrideDate);
-                            }
-                            return true; // Keep all slot-level overrides
+                        const updatedOverrides = dateOverrides.filter((o) => {
+                          if (!o.slotId) {
+                            // For day-level overrides, filter out this one
+                            const oDate = new Date(o.date);
+                            return !isSameDay(oDate, overrideDate);
                           }
-                        );
+                          return true; // Keep all slot-level overrides
+                        });
                         onDateOverridesChange(updatedOverrides);
                       }}
                     >
@@ -539,9 +562,10 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
               {/* Slot level overrides */}
               {slotLevelOverrides.map((override, index) => {
                 // Ensure we have a proper Date object
-                const overrideDate = override.date instanceof Date
-                  ? override.date
-                  : new Date(override.date);
+                const overrideDate =
+                  override.date instanceof Date
+                    ? override.date
+                    : new Date(override.date);
 
                 return (
                   <div
@@ -561,7 +585,11 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
                       size="sm"
                       onClick={() => {
                         const updatedOverrides = dateOverrides.filter(
-                          (o, i) => !(o.slotId === override.slotId && isSameDay(new Date(o.date), overrideDate))
+                          (o, i) =>
+                            !(
+                              o.slotId === override.slotId &&
+                              isSameDay(new Date(o.date), overrideDate)
+                            )
                         );
                         onDateOverridesChange(updatedOverrides);
                       }}

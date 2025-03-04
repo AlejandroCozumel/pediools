@@ -1,8 +1,7 @@
-// app/dashboard/appointments/settings/page.tsx
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Clock } from "lucide-react";
 import {
   Card,
@@ -36,10 +35,15 @@ const DAYS_OF_WEEK = [
 const AppointmentSettings = () => {
   const t = useTranslations("Appointments.settings");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<"weekly" | "exceptions">("weekly");
+  // Determine initial tab based on URL parameter
+  const initialTab =
+    searchParams?.get("tab") === "exceptions" ? "exceptions" : "weekly";
+  const [activeTab, setActiveTab] = useState<"weekly" | "exceptions">(
+    initialTab
+  );
 
   // Get availability data from API
   const {
@@ -73,38 +77,35 @@ const AppointmentSettings = () => {
   // State for date exceptions
   const [dateOverrides, setDateOverrides] = useState<DateOverride[]>([]);
 
-  // Update state when data loads from API
-  useEffect(() => {
-    if (availability) {
-      // Only update if there's actual availability data with active days
-      const hasActiveAvailability = availability.weeklySchedule?.some(
-        (day: any) => day.isActive
+  // Update URL when tab changes
+  const updateTabUrl = useCallback(
+    (tab: "weekly" | "exceptions") => {
+      const current = new URLSearchParams(
+        Array.from(searchParams?.entries() || [])
       );
 
-      if (hasActiveAvailability) {
-        // Ensure breaks exist on all days
-        setWeeklySchedule(ensureBreaksExist(availability.weeklySchedule));
+      if (tab === "exceptions") {
+        current.set("tab", "exceptions");
+      } else {
+        current.delete("tab");
       }
 
-      if (availability.dateOverrides) {
-        setDateOverrides(availability.dateOverrides);
-      }
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
 
-      if (availability.daysOfOperation) {
-        setDaysOfOperation(availability.daysOfOperation);
-      }
+      router.replace(`/dashboard/appointments/settings${query}`, {
+        scroll: false,
+      });
+    },
+    [router, searchParams]
+  );
 
-      if (availability.defaultStartTime) {
-        setDefaultStartTime(availability.defaultStartTime);
-      }
+  // Handle tab change with URL update
+  const handleTabChange = (value: "weekly" | "exceptions") => {
+    setActiveTab(value);
+    updateTabUrl(value);
+  };
 
-      if (availability.defaultEndTime) {
-        setDefaultEndTime(availability.defaultEndTime);
-      }
-    }
-  }, [availability]);
-
-  // Save weekly schedule
   const handleSaveWeeklySchedule = useCallback(async () => {
     try {
       await saveAvailability.mutateAsync({
@@ -140,7 +141,7 @@ const AppointmentSettings = () => {
     try {
       await saveAvailabilityOverride.mutateAsync({
         dateOverrides: dateOverrides.map((override) => ({
-          date: new Date(override.date), // Ensure it's a Date object
+          date: new Date(override.date),
           isAvailable: override.isAvailable,
           startTime: override.startTime,
           endTime: override.endTime,
@@ -165,6 +166,42 @@ const AppointmentSettings = () => {
     }
   }, [dateOverrides, saveAvailabilityOverride, toast, t]);
 
+  useEffect(() => {
+    if (availability) {
+      // Only update if there's actual availability data with active days
+      const hasActiveAvailability = availability.weeklySchedule?.some(
+        (day: any) => day.isActive
+      );
+
+      if (hasActiveAvailability) {
+        // Ensure breaks exist on all days and map the breaks correctly
+        const scheduleWithBreaks = ensureBreaksExist(
+          availability.weeklySchedule.map((day: any) => ({
+            ...day,
+            breaks: day.breaks || [], // Explicitly ensure breaks exist
+          }))
+        );
+        setWeeklySchedule(scheduleWithBreaks);
+      }
+
+      if (availability.dateOverrides) {
+        setDateOverrides(availability.dateOverrides);
+      }
+
+      if (availability.daysOfOperation) {
+        setDaysOfOperation(availability.daysOfOperation);
+      }
+
+      if (availability.defaultStartTime) {
+        setDefaultStartTime(availability.defaultStartTime);
+      }
+
+      if (availability.defaultEndTime) {
+        setDefaultEndTime(availability.defaultEndTime);
+      }
+    }
+  }, [availability]);
+
   return (
     <div className="my-6">
       <DashboardTitle title={t("title")} subtitle={t("subtitle")} />
@@ -183,7 +220,7 @@ const AppointmentSettings = () => {
             <Tabs
               value={activeTab}
               onValueChange={(value) =>
-                setActiveTab(value as "weekly" | "exceptions")
+                handleTabChange(value as "weekly" | "exceptions")
               }
             >
               <TabsList>

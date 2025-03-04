@@ -36,13 +36,13 @@ function Calendar({
   const modifiersClassNames = React.useMemo(() => {
     return {
       has_slots: "relative after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-green-500 after:rounded-full",
-      has_exceptions: "relative before:absolute before:bottom-1 before:left-1/2 before:ml-1 before:-translate-x-1/2 before:w-1 before:h-1 before:bg-red-500 before:rounded-full",
+      has_exceptions: "relative before:absolute before:bottom-1 before:left-1/2 before:-translate-x-1/2 before:w-1 before:h-1 before:bg-red-500 before:rounded-full",
       available: "text-green-600",
-      exception: "text-red-500"
+      exception: "text-red-500 line-through"
     };
   }, []);
 
-  // Compute day modifiers based on availability data
+  // Modify the modifiers computation to handle completely blocked days
   const modifiers = React.useMemo(() => {
     const result: Record<string, Date[]> = {
       has_slots: [],
@@ -56,6 +56,8 @@ function Calendar({
         result.has_slots.push(data.date);
         result.available.push(data.date);
       }
+
+      // Add condition to show exception for both partially and fully blocked days
       if (data.hasExceptions) {
         result.has_exceptions.push(data.date);
         result.exception.push(data.date);
