@@ -720,6 +720,7 @@ enum EmailStatus {
 
 // CHANGED: Updated plan types to match the three tiers
 enum PlanType {
+  FREE
   STARTER
   PRO
   ENTERPRISE
