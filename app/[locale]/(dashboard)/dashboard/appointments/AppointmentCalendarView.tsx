@@ -47,11 +47,19 @@ const AppointmentCalendarView = ({
     const dateOverrides = availability.dateOverrides || [];
 
     // Get day-level overrides
-    const dayLevelOverrides = dateOverrides.filter((override: any) => !override.slotId);
-    const slotLevelOverrides = dateOverrides.filter((override: any) => !!override.slotId);
+    const dayLevelOverrides = dateOverrides.filter(
+      (override: any) => !override.slotId
+    );
+    const slotLevelOverrides = dateOverrides.filter(
+      (override: any) => !!override.slotId
+    );
 
     // For each day in range
-    for (let day = new Date(startDate); day < endDate; day.setDate(day.getDate() + 1)) {
+    for (
+      let day = new Date(startDate);
+      day < endDate;
+      day.setDate(day.getDate() + 1)
+    ) {
       // Skip past days that are before today
       if (day < new Date(today.setHours(0, 0, 0, 0))) continue;
 
@@ -78,7 +86,8 @@ const AppointmentCalendarView = ({
 
       // Determine if the day has exceptions (overrides that affect availability)
       const hasExceptions =
-        (dayOverride && dayOverride.isAvailable !== (daySchedule && daySchedule.isActive)) ||
+        (dayOverride &&
+          dayOverride.isAvailable !== (daySchedule && daySchedule.isActive)) ||
         hasSlotOverrides;
 
       data.push({
@@ -113,7 +122,7 @@ const AppointmentCalendarView = ({
                 <span>Exception</span>
               </span>
               <span className="flex items-center gap-1 ml-3">
-                <CalendarIcon className="h-3 w-3 text-medical-600" />
+                <span className="inline-block h-2 w-2 bg-medical-200 rounded-full"></span>
                 <span>Has Appointments</span>
               </span>
             </div>
@@ -127,23 +136,28 @@ const AppointmentCalendarView = ({
               availabilityData={availabilityData}
               classNames={{
                 month: "w-full space-y-4",
-                caption: "flex justify-center pt-1 relative items-center w-full",
+                caption:
+                  "flex justify-center pt-1 relative items-center w-full",
                 caption_label: "text-sm font-medium",
                 nav: "space-x-1 flex items-center",
-                nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                nav_button:
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
                 nav_button_previous: "absolute left-1",
                 nav_button_next: "absolute right-1",
                 table: "w-full border-collapse space-y-1",
                 head_row: "flex w-full justify-between",
-                head_cell: "text-muted-foreground rounded-md font-normal text-[0.8rem] flex-1 text-center",
+                head_cell:
+                  "text-muted-foreground rounded-md font-normal text-[0.8rem] flex-1 text-center",
                 row: "flex w-full mt-2 justify-between",
                 cell: "relative flex-1 text-center text-sm p-0 focus-within:relative focus-within:z-20",
                 day: "h-10 w-10 p-0 mx-auto flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors",
-                day_selected: "bg-medical-600 text-medical-50 hover:bg-medical-600 hover:text-medical-50 focus:bg-medical-600 focus:text-medical-50",
+                day_selected:
+                  "bg-medical-600 text-medical-50 hover:bg-medical-600 hover:text-medical-50 focus:bg-medical-600 focus:text-medical-50",
                 day_today: "border border-medical-500",
                 day_outside: "text-muted-foreground opacity-50",
                 day_disabled: "text-muted-foreground opacity-50",
-                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_range_middle:
+                  "aria-selected:bg-accent aria-selected:text-accent-foreground",
                 day_hidden: "invisible",
               }}
               components={{
@@ -164,7 +178,7 @@ const AppointmentCalendarView = ({
                           <div className="absolute bottom-0 left-0 right-0 flex justify-center z-10">
                             <Badge
                               variant="secondary"
-                              className="text-[9px] h-3 px-1 py-0 min-w-5 flex items-center justify-center bg-medical-100 text-medical-800 border-medical-200"
+                              className="text-[9px] h-3 px-1 py-0 min-w-5 flex items-center justify-center bg-medical-200 text-medical-800 border-medical-200"
                             >
                               {dayAppointments.length}
                             </Badge>
@@ -194,7 +208,7 @@ const AppointmentCalendarView = ({
                   key={appointment.id}
                   className="block"
                 >
-                  <div className="p-3 rounded-md border border-medical-200 hover:border-medical-300 hover:shadow-sm transition-all">
+                  <div className="p-3 rounded-md border border-medical-200 hover:border-medical-300 hover:bg-medical-50 hover:shadow transition-all duration-200">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-medium text-medical-800">
