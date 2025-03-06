@@ -1,9 +1,8 @@
-// app/dashboard/appointments/new/page.tsx
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { format, addMonths, startOfMonth, isSameDay } from "date-fns";
 import {
   Card,
   CardContent,
@@ -32,9 +31,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Calendar as CalendarComponent,
+  DateAvailability,
+} from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { useAppointmentSlots, useAppointment } from "@/hooks/use-appointments";
+import {
+  useAppointmentSlots,
+  useAppointment,
+  useDoctorAvailability,
+} from "@/hooks/use-appointments";
 import { usePatients } from "@/hooks/use-patient";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -61,6 +67,7 @@ const CreateAppointment = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
 
   // State for form
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -78,11 +85,15 @@ const CreateAppointment = () => {
     status: "AVAILABLE",
   });
 
+  // Fetch doctor's availability to determine available days
+  const { availability, isLoading: availabilityLoading } =
+    useDoctorAvailability();
+
   // Fetch patients
   const { data: patientsData, isLoading: patientsLoading } = usePatients();
 
   // Filtered patients based on search
-  const filteredPatients = React.useMemo(() => {
+  const filteredPatients = useMemo(() => {
     return (patientsData?.patients || []).filter((patient: PatientData) => {
       if (!searchQuery) return true;
       const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
@@ -92,6 +103,77 @@ const CreateAppointment = () => {
 
   // Create appointment mutation
   const { saveAppointment } = useAppointment();
+
+  // Generate date availability data for current and next month
+  const availabilityData = useMemo(() => {
+    if (!availability) return [];
+
+    const data: DateAvailability[] = [];
+    const today = new Date();
+    const startDate = startOfMonth(calendarMonth);
+    const endDate = addMonths(startDate, 2); // Include current and next month
+    const weeklySchedule = availability.weeklySchedule || [];
+    const dateOverrides = availability.dateOverrides || [];
+
+    // Get day-level overrides
+    const dayLevelOverrides = dateOverrides.filter(
+      (override: any) => !override.slotId
+    );
+    const slotLevelOverrides = dateOverrides.filter(
+      (override: any) => !!override.slotId
+    );
+
+    // For each day in range
+    for (
+      let day = new Date(startDate);
+      day < endDate;
+      day.setDate(day.getDate() + 1)
+    ) {
+      // Skip past days
+      if (day < today) continue;
+
+      const currentDate = new Date(day);
+      const dayOfWeek = currentDate.getDay(); // 0-6, Sunday to Saturday
+      const daySchedule = weeklySchedule[dayOfWeek];
+
+      // Check if day has an override (day-level only)
+      const dayOverride = dayLevelOverrides.find((override: any) => {
+        const overrideDate = new Date(override.date);
+        return isSameDay(overrideDate, currentDate);
+      });
+
+      // Check if day has any slot-level overrides
+      const hasSlotOverrides = slotLevelOverrides.some((override: any) => {
+        const overrideDate = new Date(override.date);
+        return isSameDay(overrideDate, currentDate);
+      });
+
+      // Determine availability status based on day-level override and regular schedule
+      const isAvailable = dayOverride
+        ? dayOverride.isAvailable
+        : daySchedule && daySchedule.isActive;
+
+      // Determine if the day has exceptions (overrides that affect availability)
+      const hasExceptions =
+        (dayOverride &&
+          dayOverride.isAvailable !== (daySchedule && daySchedule.isActive)) ||
+        hasSlotOverrides;
+
+      data.push({
+        date: currentDate,
+        hasSlots: isAvailable,
+        hasExceptions,
+        isDisabled: !isAvailable,
+      });
+    }
+
+    return data;
+  }, [availability, calendarMonth]);
+
+  // Handle calendar month change
+  const handleMonthChange = (month: Date) => {
+    setCalendarMonth(month);
+  };
 
   // Handle slot selection
   const handleSelectSlot = (slotId: string) => {
@@ -115,7 +197,6 @@ const CreateAppointment = () => {
     }
 
     setIsSubmitting(true);
-
     try {
       // Find the selected slot to get its datetime
       const slots = (slotsData?.slots as Slot[]) || [];
@@ -149,7 +230,7 @@ const CreateAppointment = () => {
   };
 
   // Group time slots by hour for better UI
-  const groupedSlots = React.useMemo(() => {
+  const groupedSlots = useMemo(() => {
     if (!slotsData?.slots) return {};
 
     const slots = slotsData.slots as Slot[];
@@ -189,7 +270,6 @@ const CreateAppointment = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-
               {patientsLoading ? (
                 <div className="space-y-2">
                   {Array(5)
@@ -257,7 +337,6 @@ const CreateAppointment = () => {
             </div>
           </CardContent>
         </Card>
-
         {/* Right column - Date & Time selection + Appointment details */}
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -274,23 +353,36 @@ const CreateAppointment = () => {
                   {t("form.appointmentDate")}
                 </label>
                 <div className="border rounded-md border-medical-200">
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setSelectedSlot(null);
+                  <div className="p-2 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
+                      <span className="flex items-center gap-1">
+                        <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
+                        Available
+                      </span>
+                      <span className="flex items-center gap-1 ml-3">
+                        <span className="inline-block h-2 w-2 bg-red-500 rounded-full"></span>
+                        Exception
+                      </span>
+                    </div>
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date);
+                          setSelectedSlot(null);
+                        }
+                      }}
+                      onMonthChange={handleMonthChange}
+                      className="rounded-md"
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
                       }
-                    }}
-                    className="rounded-md"
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
-                  />
+                      availabilityData={availabilityData}
+                    />
+                  </div>
                 </div>
               </div>
-
               {/* Time slots */}
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -301,7 +393,6 @@ const CreateAppointment = () => {
                     {format(selectedDate, "EEEE, MMMM d")}
                   </p>
                 </div>
-
                 {slotsLoading ? (
                   <div className="space-y-3">
                     {Array(4)
@@ -364,7 +455,6 @@ const CreateAppointment = () => {
                 )}
               </div>
             </div>
-
             {/* Appointment details */}
             <div className="mt-6 space-y-4">
               <div>
@@ -387,7 +477,6 @@ const CreateAppointment = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               <div>
                 <label className="text-sm font-medium text-medical-700 mb-2 block">
                   {t("form.notes")}
@@ -401,7 +490,6 @@ const CreateAppointment = () => {
               </div>
             </div>
           </CardContent>
-
           <CardFooter className="flex justify-end border-t pt-4">
             <Button
               onClick={handleSubmit}
