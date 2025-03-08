@@ -76,6 +76,7 @@ const CalculatorsList = () => {
       <DashboardTitle
         title={t("dashboardTitle")}
         subtitle={t("dashboardSubtitle")}
+        showBackButton={false}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {calculators.map((calc, index) => (

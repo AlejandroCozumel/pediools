@@ -7,6 +7,7 @@ type DashboardTitleProps = {
   subtitle: string;
   align?: "left" | "center" | "right";
   backButtonText?: string;
+  showBackButton?: boolean;
 };
 
 const DashboardTitle: React.FC<DashboardTitleProps> = ({
@@ -14,6 +15,7 @@ const DashboardTitle: React.FC<DashboardTitleProps> = ({
   subtitle,
   align = "left",
   backButtonText = "Back",
+  showBackButton = true,
 }) => {
   const alignmentClasses = {
     left: "items-start text-left",
@@ -23,15 +25,17 @@ const DashboardTitle: React.FC<DashboardTitleProps> = ({
 
   return (
     <div className="mb-8">
-      <div className="flex items-center gap-2 text-medical-600 mb-2">
-        <button
-          onClick={() => window.history.back()}
-          className="inline-flex items-center gap-2 text-sm hover:text-medical-700 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {backButtonText}
-        </button>
-      </div>
+      {showBackButton && (
+        <div className="flex items-center gap-2 text-medical-600 mb-2">
+          <button
+            onClick={() => window.history.back()}
+            className="inline-flex items-center gap-2 text-sm hover:text-medical-700 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {backButtonText}
+          </button>
+        </div>
+      )}
 
       <div className={`flex flex-col gap-1 ${alignmentClasses[align]}`}>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight font-heading">
