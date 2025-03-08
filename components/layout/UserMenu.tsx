@@ -7,6 +7,7 @@ import { CircleUserRound } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 
 interface MenuItemProps {
   onClick: () => void;
@@ -37,8 +38,12 @@ const UserMenu = () => {
   const { signOut } = useClerk();
   const router = useRouter();
   const pathname = usePathname();
+  // Add the subscription store to reset premium status on logout
+  const { resetSubscription } = useSubscriptionStore();
 
   const handleSignOut = async () => {
+    // Reset subscription info when signing out
+    resetSubscription();
     await signOut();
     router.push("/");
   };
