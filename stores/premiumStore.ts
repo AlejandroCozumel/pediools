@@ -1,6 +1,8 @@
+// stores/premiumStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// Define the Patient interface
 interface Patient {
   id: string;
   firstName: string;
@@ -9,40 +11,37 @@ interface Patient {
   gender: "male" | "female";
 }
 
-type SubscriptionStatus =
-  | "ACTIVE"
-  | "PAST_DUE"
-  | "CANCELED"
-  | "UNPAID"
-  | "TRIALING"
-  | null;
-type PlanType = "STARTER" | "PRO" | "ENTERPRISE" | null;
+// Types for subscription state
+type SubscriptionStatus = "ACTIVE" | "PAST_DUE" | "CANCELED" | "UNPAID" | "TRIALING" | null;
+type PlanType = "FREE" | "STARTER" | "PRO" | "ENTERPRISE" | null;
 
 interface SubscriptionState {
-  // Properties reflecting subscription status
+  // Core subscription data
   isPremium: boolean;
   isEnterprise: boolean;
-  selectedPatient: Patient | null;
-  isFullCurveView: boolean;
   subscriptionStatus: SubscriptionStatus;
   subscriptionPlan: PlanType;
   staffCount: number | null;
 
-  // Actions to update state
+  // Additional states
+  isFullCurveView: boolean;
+  selectedPatient: Patient | null;
+  lastSyncTime: number; // Track when we last synced with the database
+
+  // Actions
   setPatient: (patient: Patient | null) => void;
   toggleFullCurveView: () => void;
   setFullCurveView: (isFullCurve: boolean) => void;
-  setSubscriptionInfo: (
-    status: SubscriptionStatus,
-    plan: PlanType,
-    staffCount?: number | null
-  ) => void;
+  setSubscriptionInfo: (status: SubscriptionStatus, plan: PlanType, staffCount?: number | null) => void;
   resetSubscription: () => void;
+
+  // New method to check if we need to sync
+  needsSync: () => boolean;
 }
 
 export const useSubscriptionStore = create<SubscriptionState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isPremium: false,
       isEnterprise: false,
       selectedPatient: null,
@@ -50,40 +49,54 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       subscriptionStatus: null,
       subscriptionPlan: null,
       staffCount: null,
+      lastSyncTime: 0, // Initialize to 0 to force first sync
 
       setPatient: (patient) => set({ selectedPatient: patient }),
 
-      toggleFullCurveView: () =>
-        set((state) => ({
-          isFullCurveView: !state.isFullCurveView,
-        })),
+      toggleFullCurveView: () => set((state) => ({
+        isFullCurveView: !state.isFullCurveView,
+      })),
 
-      setFullCurveView: (isFullCurve) =>
-        set({
-          isFullCurveView: isFullCurve,
-        }),
+      setFullCurveView: (isFullCurve) => set({
+        isFullCurveView: isFullCurve,
+      }),
 
-      setSubscriptionInfo: (status, plan, staffCount = null) =>
-        set({
-          subscriptionStatus: status,
-          subscriptionPlan: plan,
-          staffCount,
-          isPremium:
-            status === "ACTIVE" &&
-            (plan === "STARTER" || plan === "PRO" || plan === "ENTERPRISE"),
-          isEnterprise: status === "ACTIVE" && plan === "ENTERPRISE",
-        }),
+      setSubscriptionInfo: (status, plan, staffCount = null) => set({
+        subscriptionStatus: status,
+        subscriptionPlan: plan,
+        staffCount,
+        lastSyncTime: Date.now(), // Update sync time when setting info
+        isPremium:
+          status === "ACTIVE" &&
+          plan !== "FREE" &&
+          (plan === "STARTER" || plan === "PRO" || plan === "ENTERPRISE"),
+        isEnterprise: status === "ACTIVE" && plan === "ENTERPRISE",
+      }),
 
-      // New method to completely reset subscription state
-      resetSubscription: () =>
-        set({
-          isPremium: false,
-          isEnterprise: false,
-          subscriptionStatus: null,
-          subscriptionPlan: null,
-          staffCount: null,
-          selectedPatient: null,
-        }),
+      resetSubscription: () => set({
+        isPremium: false,
+        isEnterprise: false,
+        subscriptionStatus: null,
+        subscriptionPlan: null,
+        staffCount: null,
+        selectedPatient: null,
+        lastSyncTime: Date.now(), // Update sync time when resetting
+      }),
+
+      // New method to check if we need to sync
+      needsSync: () => {
+        const state = get();
+        const now = Date.now();
+        // Sync if:
+        // 1. Never synced before (lastSyncTime is 0)
+        // 2. Last sync was more than 15 minutes ago
+        // 3. We have no subscription plan but sync time is recent (error case)
+        return (
+          state.lastSyncTime === 0 ||
+          now - state.lastSyncTime > 15 * 60 * 1000 || // 15 minutes
+          (state.subscriptionPlan === null && now - state.lastSyncTime < 5000) // Recent error case
+        );
+      }
     }),
     {
       name: "subscription-storage",
@@ -94,65 +107,8 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         subscriptionStatus: state.subscriptionStatus,
         subscriptionPlan: state.subscriptionPlan,
         staffCount: state.staffCount,
+        lastSyncTime: state.lastSyncTime,
       }),
     }
   )
 );
-
-// Utility function to check feature access based on plan
-export function hasFeatureAccess(
-  feature:
-    | "GROWTH_CHARTS"
-    | "PDF_REPORTS"
-    | "EMAIL_REPORTS"
-    | "PATIENT_TRACKING"
-    | "DATA_EXPORT"
-    | "CUSTOM_BRANDING"
-    | "STAFF_MANAGEMENT"
-    | "MULTI_LOCATION"
-    | "CUSTOM_INTEGRATIONS",
-  plan: PlanType
-): boolean {
-  if (!plan) return false;
-
-  // Features available to all plans
-  const baseFeatures = ["GROWTH_CHARTS", "PATIENT_TRACKING"];
-  if (baseFeatures.includes(feature)) return true;
-
-  // Features available to PRO and ENTERPRISE
-  const proFeatures = [
-    "PDF_REPORTS",
-    "EMAIL_REPORTS",
-    "DATA_EXPORT",
-    "CUSTOM_BRANDING",
-    "STAFF_MANAGEMENT",
-  ];
-  if (
-    (plan === "PRO" || plan === "ENTERPRISE") &&
-    proFeatures.includes(feature)
-  )
-    return true;
-
-  // Features only available to ENTERPRISE
-  const enterpriseFeatures = ["MULTI_LOCATION", "CUSTOM_INTEGRATIONS"];
-  if (plan === "ENTERPRISE" && enterpriseFeatures.includes(feature))
-    return true;
-
-  return false;
-}
-
-// Utility function to get staff limit based on plan
-export function getStaffLimit(plan: PlanType): number {
-  if (!plan) return 0;
-
-  switch (plan) {
-    case "STARTER":
-      return 0;
-    case "PRO":
-      return 5;
-    case "ENTERPRISE":
-      return Infinity; // No limit for enterprise
-    default:
-      return 0;
-  }
-}

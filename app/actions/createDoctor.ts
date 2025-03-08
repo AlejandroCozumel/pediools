@@ -1,16 +1,11 @@
 'use server';
-
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prismadb";
+import { initializeSubscription } from "./initializeSubscription";
 
-/**
- * Server action to create a Doctor record for the currently authenticated Clerk user
- * This should be called after a successful Clerk signup
- */
 export async function createDoctor() {
   try {
     const user = await currentUser();
-
     if (!user) {
       return { success: false, error: "Not authenticated" };
     }
@@ -23,7 +18,8 @@ export async function createDoctor() {
     });
 
     if (existingDoctor) {
-      // Doctor already exists, return the existing record
+      // Doctor already exists, check if they have a subscription
+      await initializeSubscription(existingDoctor.id);
       return { success: true, doctor: existingDoctor };
     }
 
@@ -43,6 +39,9 @@ export async function createDoctor() {
         defaultChartView: "FOCUSED",
       }
     });
+
+    // Initialize with FREE subscription
+    await initializeSubscription(doctor.id);
 
     return { success: true, doctor };
   } catch (error) {

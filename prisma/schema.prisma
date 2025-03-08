@@ -35,7 +35,7 @@ model Doctor {
   doctorAvailability          DoctorAvailability[]
   doctorAvailabilityOverrides DoctorAvailabilityOverride[]
   appointmentSlots            AppointmentSlot[]
-  auditLogs                   AuditLog[]                   // NEW: Track who made changes
+  auditLogs                   AuditLog[] // NEW: Track who made changes
 }
 
 model Patient {
@@ -85,20 +85,20 @@ model Patient {
 
 // Staff and Clinic Management
 model Staff {
-  id             String       @id @default(cuid())
-  doctorId       String
-  doctor         Doctor       @relation(fields: [doctorId], references: [id])
-  email          String       @unique
-  firstName      String
-  lastName       String
-  role           StaffRole
-  status         StaffStatus  @default(ACTIVE)
-  permissions    Json?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  createdById    String       // NEW: Track who created this staff member
-  lastLoginAt    DateTime?    // NEW: Track last login time
-  loginCount     Int          @default(0) // NEW: Track login count
+  id               String            @id @default(cuid())
+  doctorId         String
+  doctor           Doctor            @relation(fields: [doctorId], references: [id])
+  email            String            @unique
+  firstName        String
+  lastName         String
+  role             StaffRole
+  status           StaffStatus       @default(ACTIVE)
+  permissions      Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  createdById      String // NEW: Track who created this staff member
+  lastLoginAt      DateTime? // NEW: Track last login time
+  loginCount       Int               @default(0) // NEW: Track login count
   staffPermissions StaffPermission[] // NEW: Many-to-many relation for granular permissions
 }
 
@@ -106,27 +106,27 @@ model Staff {
 model StaffPermission {
   id          String   @id @default(cuid())
   name        String   @unique // e.g. "patients.view", "appointments.create"
-  description String   // Description of what this permission allows
+  description String // Description of what this permission allows
   createdAt   DateTime @default(now())
-  staff       Staff[]  // Many-to-many relationship with staff
+  staff       Staff[] // Many-to-many relationship with staff
 }
 
 // NEW: Model for tracking all changes (audit trail)
 model AuditLog {
-  id            String       @id @default(cuid())
-  timestamp     DateTime     @default(now())
-  entityType    EntityType   // What kind of data was modified
-  entityId      String       // ID of the entity that was modified
-  action        ActionType   // Create, Update, Delete
-  doctorId      String       // Doctor who owns the entity
-  doctor        Doctor       @relation(fields: [doctorId], references: [id])
-  performedBy   String       // ID of user who performed the action (could be doctor or staff)
-  performedByType UserType   // Type of user who performed the action
-  oldData       Json?        // Previous state (for updates)
-  newData       Json?        // New state
-  ipAddress     String?      // IP address of the user
-  userAgent     String?      // Browser/device info
-  changedFields String[]     // Which fields were changed
+  id              String     @id @default(cuid())
+  timestamp       DateTime   @default(now())
+  entityType      EntityType // What kind of data was modified
+  entityId        String // ID of the entity that was modified
+  action          ActionType // Create, Update, Delete
+  doctorId        String // Doctor who owns the entity
+  doctor          Doctor     @relation(fields: [doctorId], references: [id])
+  performedBy     String // ID of user who performed the action (could be doctor or staff)
+  performedByType UserType // Type of user who performed the action
+  oldData         Json? // Previous state (for updates)
+  newData         Json? // New state
+  ipAddress       String? // IP address of the user
+  userAgent       String? // Browser/device info
+  changedFields   String[] // Which fields were changed
 }
 
 // Medical Records
@@ -431,7 +431,7 @@ model Subscription {
   stripePriceId        String
   stripeSubscriptionId String                @unique
   status               SubscriptionStatus
-  plan                 PlanType              @default(STARTER) // Changed from FREE to STARTER
+  plan                 PlanType              @default(FREE)
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime
   gracePeriodEnd       DateTime?
@@ -441,9 +441,9 @@ model Subscription {
   lastPaymentStatus    PaymentStatus?
   features             SubscriptionFeature[]
   staffCount           Int                   @default(0) // NEW: Track current staff count
-  customPriceAmount    Float?                // NEW: For enterprise custom pricing
-  customPriceInterval  String?               // NEW: 'month' or 'year'
-  enterpriseDetails    Json?                 // NEW: Store enterprise-specific details
+  customPriceAmount    Float? // NEW: For enterprise custom pricing
+  customPriceInterval  String? // NEW: 'month' or 'year'
+  enterpriseDetails    Json? // NEW: Store enterprise-specific details
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
 }
@@ -524,8 +524,8 @@ model DoctorAvailabilityOverride {
   reason      String?
 
   // New fields for slot-level overrides
-  slotId          String?   // ID of the specific time slot (format: "09:00-09:30")
-  slotIsAvailable Boolean?  // Whether the specific slot is available
+  slotId          String? // ID of the specific time slot (format: "09:00-09:30")
+  slotIsAvailable Boolean? // Whether the specific slot is available
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -733,8 +733,8 @@ enum Feature {
   PATIENT_TRACKING
   DATA_EXPORT
   CUSTOM_BRANDING
-  STAFF_MANAGEMENT   // NEW: Feature for staff management
-  MULTI_LOCATION     // NEW: Feature for enterprise multi-location
+  STAFF_MANAGEMENT // NEW: Feature for staff management
+  MULTI_LOCATION // NEW: Feature for enterprise multi-location
   CUSTOM_INTEGRATIONS // NEW: Feature for enterprise integrations
 }
 

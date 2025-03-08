@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Menu, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -45,6 +45,7 @@ const navigationItems = [
 
 interface NavLeftProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  navItems: (typeof navigationItems[0] & { text: string })[];
 }
 
 const Logo: React.FC = () => {
@@ -83,31 +84,25 @@ const NavLink: React.FC<{
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isPremium } = useSubscriptionStore();
-  const { user, isLoaded } = useUser();
+  const { isPremium } = useSubscriptionStore(); // Just get isPremium from store
+  const { user } = useUser();
   const t = useTranslations("Navigation");
 
-  // Initialize a state to track if the user has premium access
-  const [hasAccess, setHasAccess] = useState(false);
-
-  // Update the access state whenever the user or isPremium changes
-  useEffect(() => {
-    // Only show premium features if the user is logged in AND has premium subscription
-    const userHasPremiumAccess = !!user && isPremium;
-    setHasAccess(userHasPremiumAccess);
-  }, [user, isPremium, isLoaded]);
-
-  const getLocalizedItems = () => {
+  // Memoize the translations to prevent excessive requests
+  const localizedItems = useMemo(() => {
     return navigationItems.map((item) => ({
       ...item,
       text: t(item.textKey),
     }));
-  };
+  }, [t]);
 
-  // Only show premium items if the user is logged in AND has premium subscription
-  const visibleNavItems = getLocalizedItems().filter((item) =>
-    hasAccess ? true : !item.premiumOnly
-  );
+  // Memoize the filtered items to prevent recalculations
+  const visibleNavItems = useMemo(() => {
+    return localizedItems.filter((item) => {
+      if (!item.premiumOnly) return true;
+      return !!user && isPremium;
+    });
+  }, [localizedItems, user, isPremium]);
 
   return (
     <nav className="bg-white border-b-[1px] border-gray-200 p-4">
@@ -120,11 +115,7 @@ const Navbar: React.FC = () => {
   );
 };
 
-const NavLeft: React.FC<
-  NavLeftProps & {
-    navItems: ((typeof navigationItems)[0] & { text: string })[];
-  }
-> = ({ setIsOpen, navItems }) => {
+const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen, navItems }) => {
   return (
     <div className="flex items-center gap-6">
       <motion.button
@@ -156,7 +147,7 @@ const NavRight: React.FC = () => {
 
 const NavMenu: React.FC<{
   isOpen: boolean;
-  navItems: ((typeof navigationItems)[0] & { text: string })[];
+  navItems: (typeof navigationItems[0] & { text: string })[];
 }> = ({ isOpen, navItems }) => {
   return (
     <motion.div
