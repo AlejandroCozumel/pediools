@@ -149,11 +149,6 @@ const AppointmentDetails = () => {
     return (
       <div className="my-6">
         <div className="flex items-center gap-2 mb-6">
-          <Link href="/dashboard/appointments">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
           <DashboardTitle
             title="Appointment Not Found"
             subtitle="The requested appointment could not be found."
@@ -181,11 +176,6 @@ const AppointmentDetails = () => {
   return (
     <div className="my-6">
       <div className="flex items-center gap-2 mb-6">
-        <Link href="/dashboard/appointments">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <DashboardTitle
           title={`Appointment Details`}
           subtitle={`View and manage appointment information`}

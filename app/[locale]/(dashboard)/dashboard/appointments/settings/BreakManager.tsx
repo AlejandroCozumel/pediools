@@ -1,5 +1,6 @@
 // components/appointments/settings/BreakManager.tsx
 import React, { useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Trash } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const BreakManager: React.FC<BreakManagerProps> = ({
 }) => {
   const { toast } = useToast();
   const timeOptions = useMemo(() => generateTimeOptions(), []);
+  const t = useTranslations("Appointments.settings.weekly.breakManager");
 
   // Add a break period sequentially
   const addBreakPeriod = useCallback(() => {
@@ -94,9 +96,8 @@ const BreakManager: React.FC<BreakManagerProps> = ({
       // If no slot found, notify the user
       toast({
         variant: "destructive",
-        title: "Cannot Add Break",
-        description:
-          "No available time slot for a break. All possible time slots are already taken.",
+        title: t("cannotAddBreak.title"),
+        description: t("cannotAddBreak.description"),
       });
     }
   }, [day, dayIndex, onBreakAdded, toast]);
@@ -105,17 +106,15 @@ const BreakManager: React.FC<BreakManagerProps> = ({
     <div className="col-span-1 md:col-span-3 mt-4 border-t pt-4">
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm font-medium text-medical-700">
-          Unavailable Time Periods
+          {t("unavailableTimePeriods")}
         </label>
         <Button size="sm" variant="outline" onClick={addBreakPeriod}>
-          Add Break
+          {t("addBreak")}
         </Button>
       </div>
 
       {day.breaks.length === 0 ? (
-        <p className="text-sm text-medical-500 italic">
-          No breaks added. You are available all day.
-        </p>
+        <p className="text-sm text-medical-500 italic">{t("noBreaksAdded")}</p>
       ) : (
         <div className="space-y-3">
           {day.breaks.map((breakPeriod: BreakPeriod) => (
@@ -160,6 +159,7 @@ const BreakItem = React.memo(
     onBreakRemoved,
   }: BreakItemProps) => {
     const { toast } = useToast();
+    const t = useTranslations("Appointments.settings.weekly.breakManager");
 
     const handleTimeChange = useCallback(
       (field: "startTime" | "endTime", value: string) => {
@@ -170,8 +170,11 @@ const BreakItem = React.memo(
         ) {
           toast({
             variant: "destructive",
-            title: "Invalid Break Time",
-            description: "Start time must be before end time.",
+            title: t("breakItem.invalidBreakTime.title"),
+            description:
+              field === "startTime"
+                ? t("breakItem.invalidBreakTime.startBeforeEnd")
+                : t("breakItem.invalidBreakTime.endAfterStart"),
           });
           return;
         }
@@ -197,7 +200,7 @@ const BreakItem = React.memo(
       <div className="flex items-end space-x-2 p-3 bg-gray-50 rounded-md">
         <div className="flex-1">
           <label className="text-xs text-medical-500 mb-1 block">
-            Start Time
+            {t("breakItem.startTime")}
           </label>
           <Select
             value={breakPeriod.startTime || day.startTime} // Ensure we always have a value
@@ -232,7 +235,7 @@ const BreakItem = React.memo(
         </div>
         <div className="flex-1">
           <label className="text-xs text-medical-500 mb-1 block">
-            End Time
+            {t("breakItem.endTime")}
           </label>
           <Select
             value={
@@ -278,7 +281,7 @@ const BreakItem = React.memo(
           variant="outline"
           className="bg-white hover:bg-red-50 text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 rounded-full p-1.5 mb-1 ml-2 transition-colors duration-200"
           onClick={() => onBreakRemoved(dayIndex, breakPeriod.id)}
-          title="Remove break"
+          title={t("breakItem.removeBreak")}
         >
           <Trash className="h-4 w-4" />
         </Button>

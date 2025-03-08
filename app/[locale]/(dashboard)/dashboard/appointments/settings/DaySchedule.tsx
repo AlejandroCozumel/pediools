@@ -1,5 +1,6 @@
 // components/appointments/settings/DaySchedule.tsx
 import React, { useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -55,7 +56,7 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
   onBreakUpdated,
 }) => {
   const timeOptions = useMemo<TimeOption[]>(() => generateTimeOptions(), []);
-
+  const t = useTranslations("Appointments.settings.weekly.daySchedule");
   // Errors specific to this day
   const dayErrors = useMemo(
     () => errors.filter((error) => error.dayOfWeek === day.dayOfWeek),
@@ -143,7 +144,7 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label className="text-xs text-medical-500 mb-1 block">
-              Start Time
+              {t("startTime")}
             </label>
             <Select
               value={day.startTime}
@@ -164,7 +165,7 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
 
           <div>
             <label className="text-xs text-medical-500 mb-1 block">
-              End Time
+              {t("endTime")}
             </label>
             <Select
               value={day.endTime}
@@ -185,7 +186,7 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
 
           <div>
             <label className="text-xs text-medical-500 mb-1 block">
-              Appointment Duration
+              {t("appointmentDuration")}
             </label>
             <Select
               value={day.slotDuration.toString()}
@@ -225,12 +226,15 @@ const DaySchedule: React.FC<DayScheduleProps> = ({
         <div className="mt-4 text-sm text-medical-600">
           <div className="flex justify-between">
             <span>
-              Total availability:{" "}
+              {t("appointmentDuration")}{" "}
               {formatMinutesAsHoursAndMinutes(
                 availabilityStats.availableMinutes
               )}
             </span>
-            <span>Available slots: {availabilityStats.slots}</span>
+            <span>
+              {" "}
+              {t("availableSlots")} {availabilityStats.slots}
+            </span>
           </div>
         </div>
       )}

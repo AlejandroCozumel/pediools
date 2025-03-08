@@ -1,13 +1,14 @@
-'use client'
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Menu, ChevronRight } from 'lucide-react';
-import { Link } from '@/i18n/routing';
-import { usePremiumStore } from '@/stores/premiumStore';
-import UserMenu from './UserMenu';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+"use client";
+import React, { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { Menu, ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import { useSubscriptionStore } from "@/stores/premiumStore";
+import UserMenu from "./UserMenu";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { useUser } from "@clerk/nextjs";
 
 const navigationItems = [
   {
@@ -44,6 +45,7 @@ const navigationItems = [
 
 interface NavLeftProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  navItems: (typeof navigationItems[0] & { text: string })[];
 }
 
 const Logo: React.FC = () => {
@@ -82,50 +84,38 @@ const NavLink: React.FC<{
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isPremium } = usePremiumStore();
-  const t = useTranslations('Navigation');
+  const { isPremium } = useSubscriptionStore(); // Just get isPremium from store
+  const { user } = useUser();
+  const t = useTranslations("Navigation");
 
-  const getLocalizedItems = () => {
-    return navigationItems.map(item => ({
+  // Memoize the translations to prevent excessive requests
+  const localizedItems = useMemo(() => {
+    return navigationItems.map((item) => ({
       ...item,
-      text: t(item.textKey)
+      text: t(item.textKey),
     }));
-  };
+  }, [t]);
 
-  const visibleNavItems = getLocalizedItems().filter((item) =>
-    isPremium ? item.premiumOnly : !item.premiumOnly
-  );
+  // Memoize the filtered items to prevent recalculations
+  const visibleNavItems = useMemo(() => {
+    return localizedItems.filter((item) => {
+      if (!item.premiumOnly) return true;
+      return !!user && isPremium;
+    });
+  }, [localizedItems, user, isPremium]);
 
   return (
     <nav className="bg-white border-b-[1px] border-gray-200 p-4">
       <div className="max-container flex items-center justify-between relative">
-        <NavLeft setIsOpen={setIsOpen} />
+        <NavLeft setIsOpen={setIsOpen} navItems={visibleNavItems} />
         <NavRight />
-        <NavMenu
-          isOpen={isOpen}
-          isPremium={isPremium}
-          navigationItems={visibleNavItems}
-        />
+        <NavMenu isOpen={isOpen} navItems={visibleNavItems} />
       </div>
     </nav>
   );
 };
 
-const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
-  const { isPremium } = usePremiumStore();
-  const t = useTranslations('Navigation');
-
-  const getLocalizedItems = () => {
-    return navigationItems.map(item => ({
-      ...item,
-      text: t(item.textKey)
-    }));
-  };
-
-  const visibleNavItems = getLocalizedItems().filter((item) =>
-    isPremium ? item.premiumOnly : !item.premiumOnly
-  );
-
+const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen, navItems }) => {
   return (
     <div className="flex items-center gap-6">
       <motion.button
@@ -139,7 +129,7 @@ const NavLeft: React.FC<NavLeftProps> = ({ setIsOpen }) => {
       <Link href="/">
         <Logo />
       </Link>
-      {visibleNavItems.map((item) => (
+      {navItems.map((item) => (
         <NavLink key={item.textKey} text={item.text} href={item.href} />
       ))}
     </div>
@@ -157,9 +147,8 @@ const NavRight: React.FC = () => {
 
 const NavMenu: React.FC<{
   isOpen: boolean;
-  isPremium: boolean;
-  navigationItems: (typeof navigationItems[0] & { text: string })[];
-}> = ({ isOpen, navigationItems }) => {
+  navItems: (typeof navigationItems[0] & { text: string })[];
+}> = ({ isOpen, navItems }) => {
   return (
     <motion.div
       variants={menuVariants}
@@ -167,7 +156,7 @@ const NavMenu: React.FC<{
       animate={isOpen ? "open" : "closed"}
       className="z-10 absolute p-4 bg-white shadow-lg left-0 right-0 top-full origin-top flex flex-col gap-4"
     >
-      {navigationItems
+      {navItems
         .sort((a, b) => a.mobileOrder - b.mobileOrder)
         .map((item) => (
           <MenuLink key={item.textKey} text={item.text} href={item.href} />

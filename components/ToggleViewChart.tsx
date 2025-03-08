@@ -1,8 +1,8 @@
 import React from "react";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 
 export const ToggleViewChart = () => {
-  const { isFullCurveView, toggleFullCurveView } = usePremiumStore();
+  const { isFullCurveView, toggleFullCurveView } = useSubscriptionStore();
 
   return (
     <div className="flex flex-col items-center justify-center space-y-2">

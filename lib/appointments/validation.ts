@@ -1,11 +1,8 @@
-// lib/appointments/validation.ts
-import { parseISO } from "date-fns";
 import { DaySchedule, BreakPeriod, WeeklySchedule } from "@/types/appointments";
 import { calculateMinutesBetween, isEndTimeAfterStartTime } from "./timeUtils";
 
 // Constants for validation
 export const MIN_HOURS_PER_WEEK = 8; // Minimum total hours of availability per week
-export const MIN_HOURS_PER_DAY = 2; // Minimum hours per active day
 
 // Type for validation errors
 export type ValidationError = {
@@ -108,34 +105,21 @@ export const calculateAvailableMinutes = (day: DaySchedule): number => {
   let breakMinutes = 0;
 
   breaks.forEach((breakPeriod: BreakPeriod) => {
-    // For debugging, let's log each condition separately
-    const condition1 = breakPeriod.startTime >= day.startTime;
-    const condition2 = isEndTimeAfterStartTime(
-      day.startTime,
-      breakPeriod.endTime
-    );
-    const condition3 = isEndTimeAfterStartTime(
-      breakPeriod.startTime,
-      day.endTime
-    );
-    const condition4 = breakPeriod.endTime <= day.endTime;
-    const condition5 = isEndTimeAfterStartTime(
-      breakPeriod.startTime,
-      breakPeriod.endTime
-    );
-
     // Use the updated logic for break validation
-    const startTimeValid = condition1 && condition2;
-    const endTimeValid = condition3 && condition4;
+    const startTimeValid =
+      breakPeriod.startTime >= day.startTime &&
+      isEndTimeAfterStartTime(day.startTime, breakPeriod.endTime);
+    const endTimeValid =
+      isEndTimeAfterStartTime(breakPeriod.startTime, day.endTime) &&
+      breakPeriod.endTime <= day.endTime;
 
-    if (startTimeValid && endTimeValid && condition5) {
+    if (startTimeValid && endTimeValid &&
+        isEndTimeAfterStartTime(breakPeriod.startTime, breakPeriod.endTime)) {
       const breakDuration = calculateMinutesBetween(
         breakPeriod.startTime,
         breakPeriod.endTime
       );
       breakMinutes += breakDuration;
-    } else {
-      console.log(`- INVALID: Not counting this break in the calculation`);
     }
   });
 
@@ -186,12 +170,12 @@ export const validateWeeklySchedule = (
       const availableMinutes = calculateAvailableMinutes(day);
       totalMinutes += availableMinutes;
 
-      // Check minimum hours per day
-      if (availableMinutes < MIN_HOURS_PER_DAY * 60) {
+      // Ensure there's at least one slot possible
+      if (availableMinutes < day.slotDuration) {
         errors.push({
           dayOfWeek: day.dayOfWeek,
-          message: `Has less than ${MIN_HOURS_PER_DAY} hours of availability.`,
-          type: "warning",
+          message: `Not enough time to create a single ${day.slotDuration}-minute slot.`,
+          type: "error",
         });
       }
     }

@@ -84,7 +84,7 @@ async function handleCheckoutSessionCompleted(
       where: { doctorId },
       data: {
         status: SubscriptionStatus.ACTIVE,
-        plan: PlanType.PREMIUM,
+        plan: PlanType.PRO,
         stripeSubscriptionId: subscriptionId,
         stripePriceId: session.line_items?.data[0].price?.id,
         currentPeriodStart: new Date(session.created * 1000),

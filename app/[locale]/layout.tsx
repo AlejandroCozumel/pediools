@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -24,7 +25,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "PediCalc - Pediatric Calculator Suite",
-  description: "Professional pediatric calculation tools for healthcare providers",
+  description:
+    "Professional pediatric calculation tools for healthcare providers",
 };
 
 export default async function RootLayout({
@@ -44,20 +46,22 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
-      <html lang={locale}>
-        <body
-          className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
-        >
-          <NextIntlClientProvider messages={messages} locale={locale}>
-            <ProvidersQuery>
-              <ServerPremiumStatusProvider>
-                {children}
-              </ServerPremiumStatusProvider>
-            </ProvidersQuery>
-            <Toaster />
-          </NextIntlClientProvider>
-        </body>
-      </html>
+      <SubscriptionProvider>
+        <html lang={locale}>
+          <body
+            className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
+          >
+            <NextIntlClientProvider messages={messages} locale={locale}>
+              <ProvidersQuery>
+                <ServerPremiumStatusProvider>
+                  {children}
+                </ServerPremiumStatusProvider>
+              </ProvidersQuery>
+              <Toaster />
+            </NextIntlClientProvider>
+          </body>
+        </html>
+      </SubscriptionProvider>
     </ClerkProvider>
   );
 }
