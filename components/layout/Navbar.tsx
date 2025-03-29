@@ -15,37 +15,42 @@ const navigationItems = [
     textKey: "premium",
     href: "/premium",
     premiumOnly: false,
+    freeOnly: true,
     mobileOrder: 1,
   },
   {
     textKey: "dashboard",
     href: "/dashboard",
     premiumOnly: true,
+    freeOnly: false,
     mobileOrder: 2,
   },
   {
     textKey: "patients",
     href: "/dashboard/patients",
     premiumOnly: true,
+    freeOnly: false,
     mobileOrder: 3,
   },
   {
     textKey: "appointments",
     href: "/dashboard/appointments",
     premiumOnly: true,
+    freeOnly: false,
     mobileOrder: 4,
   },
   {
     textKey: "calculations",
     href: "/dashboard/calculations",
     premiumOnly: true,
+    freeOnly: false,
     mobileOrder: 5,
   },
 ];
 
 interface NavLeftProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  navItems: (typeof navigationItems[0] & { text: string })[];
+  navItems: ((typeof navigationItems)[0] & { text: string })[];
 }
 
 const Logo: React.FC = () => {
@@ -84,11 +89,13 @@ const NavLink: React.FC<{
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isPremium } = useSubscriptionStore(); // Just get isPremium from store
+  const { isPremium, subscriptionPlan, subscriptionStatus } =
+    useSubscriptionStore();
   const { user } = useUser();
   const t = useTranslations("Navigation");
-
-  // Memoize the translations to prevent excessive requests
+  // console.log("isPremium", isPremium);
+  // console.log("subscriptionPlan", subscriptionPlan);
+  // console.log("subscriptionStatus", subscriptionStatus);
   const localizedItems = useMemo(() => {
     return navigationItems.map((item) => ({
       ...item,
@@ -96,11 +103,16 @@ const Navbar: React.FC = () => {
     }));
   }, [t]);
 
-  // Memoize the filtered items to prevent recalculations
   const visibleNavItems = useMemo(() => {
     return localizedItems.filter((item) => {
-      if (!item.premiumOnly) return true;
-      return !!user && isPremium;
+      // Hide "Premium" tab for premium users
+      if (item.freeOnly && isPremium) return false;
+
+      // Handle premium-only items
+      if (item.premiumOnly) return !!user && isPremium;
+
+      // Show other items to everyone
+      return true;
     });
   }, [localizedItems, user, isPremium]);
 
@@ -147,7 +159,7 @@ const NavRight: React.FC = () => {
 
 const NavMenu: React.FC<{
   isOpen: boolean;
-  navItems: (typeof navigationItems[0] & { text: string })[];
+  navItems: ((typeof navigationItems)[0] & { text: string })[];
 }> = ({ isOpen, navItems }) => {
   return (
     <motion.div
