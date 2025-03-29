@@ -106,13 +106,14 @@ const AppointmentCalendarView = ({
     setCalendarMonth(month);
   };
 
+
   return (
     <div className="p-4 lg:p-0">
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-7/12">
           {/* Calendar container with improved styling */}
           <div className="border rounded-lg p-2 bg-white w-full">
-            <div className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
+            <div className="text-xs text-gray-500 flex items-center gap-1.5 p-2">
               <span className="flex items-center gap-1">
                 <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
                 <span>Available</span>

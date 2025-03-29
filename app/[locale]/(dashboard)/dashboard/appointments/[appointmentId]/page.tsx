@@ -331,12 +331,10 @@ const AppointmentDetails = () => {
             {/* Status change dialog */}
             <AlertDialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
               <AlertDialogTrigger asChild>
-                {appointment.status === "SCHEDULED" && (
                   <Button variant="outline" size="sm">
                     <ClipboardCheck className="h-4 w-4 mr-2" />
                     Update Status
                   </Button>
-                )}
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

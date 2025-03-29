@@ -354,7 +354,7 @@ const CreateAppointment = () => {
                 </label>
                 <div className="border rounded-md border-medical-200">
                   <div className="p-2 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
+                    <div className="text-xs text-gray-500 flex items-center gap-1.5 p-2">
                       <span className="flex items-center gap-1">
                         <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
                         Available
@@ -374,7 +374,7 @@ const CreateAppointment = () => {
                         }
                       }}
                       onMonthChange={handleMonthChange}
-                      className="rounded-md"
+                      className="w-full rounded-md"
                       disabled={(date) =>
                         date < new Date(new Date().setHours(0, 0, 0, 0))
                       }

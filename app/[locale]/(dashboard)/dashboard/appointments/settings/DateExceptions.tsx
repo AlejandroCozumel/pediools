@@ -318,6 +318,7 @@ const DateExceptions: React.FC<DateExceptionsProps> = ({
               </div>
               <Calendar
                 mode="single"
+                className="w-full"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 onMonthChange={handleMonthChange}
