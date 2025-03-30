@@ -1,10 +1,15 @@
-// app/dashboard/appointments/components/AppointmentCalendarView.tsx
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Calendar, DateAvailability } from "@/components/ui/calendar";
-import { format, parseISO, addMonths, startOfMonth, isSameDay } from "date-fns";
+import {
+  format,
+  parseISO,
+  addMonths,
+  startOfMonth,
+  isSameDay,
+  isSameMonth,
+} from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { AppointmentWithPatient } from "@/hooks/use-appointments";
 import { useDoctorAvailability } from "@/hooks/use-appointments";
@@ -20,8 +25,18 @@ const AppointmentCalendarView = ({
   currentDate,
   onDateChange,
 }: AppointmentCalendarViewProps) => {
-  const [calendarMonth, setCalendarMonth] = useState<Date>(currentDate);
+  // Sync calendarMonth with the currentDate from props
+  const [calendarMonth, setCalendarMonth] = useState<Date>(
+    startOfMonth(currentDate)
+  );
   const { availability } = useDoctorAvailability();
+
+  // Keep calendarMonth in sync with currentDate when it changes to a different month
+  useEffect(() => {
+    if (!isSameMonth(calendarMonth, currentDate)) {
+      setCalendarMonth(startOfMonth(currentDate));
+    }
+  }, [currentDate, calendarMonth]);
 
   // Group appointments by date
   const appointmentsByDate = useMemo(() => {
@@ -104,8 +119,11 @@ const AppointmentCalendarView = ({
   // Handle calendar month change
   const handleMonthChange = (month: Date) => {
     setCalendarMonth(month);
-  };
 
+    // Also update the parent's currentDate to a date in the new month
+    // This ensures the view stays consistent
+    onDateChange(new Date(month.getFullYear(), month.getMonth(), 1));
+  };
 
   return (
     <div className="p-4 lg:p-0">
@@ -115,7 +133,8 @@ const AppointmentCalendarView = ({
           <div className="border rounded-lg p-2 bg-white w-full">
             <div className="text-xs text-gray-500 flex items-center gap-1.5 p-2">
               <span className="flex items-center gap-1">
-                <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
+                <span className="inline-block h-2 w-2 bg-medical-200 rounded-full"></span>
+
                 <span>Available</span>
               </span>
               <span className="flex items-center gap-1 ml-3">
@@ -123,7 +142,7 @@ const AppointmentCalendarView = ({
                 <span>Exception</span>
               </span>
               <span className="flex items-center gap-1 ml-3">
-                <span className="inline-block h-2 w-2 bg-medical-200 rounded-full"></span>
+                <span className="inline-block h-2 w-2 bg-green-500 rounded-full"></span>
                 <span>Has Appointments</span>
               </span>
             </div>
@@ -133,6 +152,7 @@ const AppointmentCalendarView = ({
               selected={currentDate}
               onSelect={(date) => date && onDateChange(date)}
               onMonthChange={handleMonthChange}
+              month={calendarMonth}
               className="w-full"
               availabilityData={availabilityData}
               classNames={{
@@ -174,20 +194,16 @@ const AppointmentCalendarView = ({
 
                       {/* Position badges carefully to avoid overlap */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        {/* If there are appointments, show the badge at the bottom */}
                         {hasAppointments && (
                           <div className="absolute bottom-0 left-0 right-0 flex justify-center z-10">
                             <Badge
                               variant="secondary"
-                              className="text-[9px] h-3 px-1 py-0 min-w-5 flex items-center justify-center bg-medical-200 text-medical-800 border-medical-200"
+                              className="text-[9px] h-3 px-1 py-0 min-w-5 flex items-center justify-center bg-green-500 text-white"
                             >
                               {dayAppointments.length}
                             </Badge>
                           </div>
                         )}
-
-                        {/* We'll let the availability indicators show at the top rather than the center
-                            (the Calendar component handles this automatically based on availabilityData) */}
                       </div>
                     </div>
                   );
