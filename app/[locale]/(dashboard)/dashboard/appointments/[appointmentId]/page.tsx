@@ -95,12 +95,11 @@ const AppointmentDetails = () => {
   const handleDeleteAppointment = async () => {
     try {
       await deleteAppointment.mutateAsync();
-
+      router.refresh();
       toast({
         title: "Appointment Deleted",
         description: "Appointment has been successfully deleted.",
       });
-
       router.push("/dashboard/appointments");
     } catch (error) {
       toast({

@@ -329,7 +329,9 @@
       "actions": {
         "title": "Actions",
         "viewDetails": "View Details",
-        "viewCalculations": "View Calculations"
+        "viewCalculations": "View Calculations",
+        "newCalculation": "New Calculation",
+        "viewAppointment": "View Appointment"
       }
     }
   },

@@ -329,7 +329,9 @@
       "actions": {
         "title": "Acciones",
         "viewDetails": "Ver Detalles",
-        "viewCalculations": "Ver Cálculos"
+        "viewCalculations": "Ver Cálculos",
+        "newCalculation": "Nuevo Cálculo",
+        "viewAppointment": "Ver Cita"
       }
     }
   },

@@ -211,12 +211,11 @@ const CreateAppointment = () => {
         type: appointmentType,
         notes: notes ? { text: notes } : undefined,
       });
-
+      router.refresh();
       toast({
         title: "Appointment Created",
         description: "The appointment has been successfully scheduled.",
       });
-
       router.push("/dashboard/appointments");
     } catch (error) {
       toast({
