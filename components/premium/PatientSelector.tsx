@@ -28,7 +28,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
-import { formSchema } from "@/app/[locale]/(calculators)/growth-percentiles/GrowthForm";
+import { formSchema } from "@/app/[locale]/(calculators)/calculators/growth-percentiles/GrowthForm";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/use-toast";

@@ -104,6 +104,7 @@ interface MeasurementInputProps {
   whoWeightData?: WHOWeightDataPoint[];
   whoHeightData?: WHOHeightDataPoint[];
   whoHeadData?: WHOWeightDataPoint[];
+  disabled?: boolean;
 }
 
 // Helper function to parse CDC data
@@ -165,6 +166,7 @@ export default function MeasurementInput({
   whoHeightData,
   cdcInfantHeightHead,
   whoHeadData,
+  disabled,
 }: MeasurementInputProps) {
   const t = useTranslations("GrowthForm");
 
@@ -319,6 +321,7 @@ export default function MeasurementInput({
               pattern="[0-9]*[.]?[0-9]*"
               onChange={handleChange}
               className="pl-8 border-medical-100"
+              disabled={disabled}
             />
             <Icon
               className={cn(

@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { AppointmentWithPatient } from "@/hooks/use-appointments";
 import { useDoctorAvailability } from "@/hooks/use-appointments";
+import { toast } from "@/hooks/use-toast";
 
 interface AppointmentCalendarViewProps {
   appointments: AppointmentWithPatient[];
@@ -117,12 +118,40 @@ const AppointmentCalendarView = ({
   }, [availability, calendarMonth]);
 
   // Handle calendar month change
-  const handleMonthChange = (month: Date) => {
+  const handleMonthChange = async (month: Date) => {
     setCalendarMonth(month);
-
-    // Also update the parent's currentDate to a date in the new month
-    // This ensures the view stays consistent
     onDateChange(new Date(month.getFullYear(), month.getMonth(), 1));
+
+    // Generate slots for the new month if needed
+    if (availability) {
+      try {
+        const res = await fetch("/api/dashboard/appointments/generate-slots", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            year: month.getFullYear(),
+            month: month.getMonth() + 1,
+            workingHours: {
+              startHour: availability.startHour,
+              endHour: availability.endHour,
+              daysOfWeek: availability.weeklySchedule
+                .map((d: any, i: number) => (d.isActive ? i : null))
+                .filter((v: number | null) => v !== null),
+            },
+            slotDuration: availability.slotDuration,
+            exceptions: (availability.dateOverrides || []).map((d: any) => d.date),
+          }),
+        });
+        const data = await res.json();
+        if (data.error) {
+          toast({ title: "Error", description: data.error });
+        } else if (data.created > 0) {
+          toast({ title: "Slots generated", description: data.message });
+        }
+      } catch (err) {
+        toast({ title: "Error", description: "Failed to generate slots for this month" });
+      }
+    }
   };
 
   return (

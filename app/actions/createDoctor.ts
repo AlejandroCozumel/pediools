@@ -10,23 +10,26 @@ export async function createDoctor() {
       return { success: false, error: "Not authenticated" };
     }
 
-    // Check if doctor already exists to prevent duplicates
-    const existingDoctor = await prisma.doctor.findUnique({
-      where: {
-        clerkUserId: user.id,
-      },
-    });
-
-    if (existingDoctor) {
-      // Doctor already exists, check if they have a subscription
-      await initializeSubscription(existingDoctor.id);
-      return { success: true, doctor: existingDoctor };
-    }
-
     // Find primary email
     const primaryEmail = user.emailAddresses.find(
       email => email.id === user.primaryEmailAddressId
     )?.emailAddress || user.emailAddresses[0]?.emailAddress || "";
+
+    // Check if doctor already exists by clerkUserId or email
+    const existingDoctor = await prisma.doctor.findFirst({
+      where: {
+        OR: [
+          { clerkUserId: user.id },
+          { email: primaryEmail },
+        ],
+      },
+    });
+
+    if (existingDoctor) {
+      console.log("Doctor already exists in DB, skipping creation.");
+      await initializeSubscription(existingDoctor.id);
+      return { success: true, doctor: existingDoctor, message: "Doctor already exists" };
+    }
 
     // Create doctor in database
     const doctor = await prisma.doctor.create({
@@ -45,6 +48,11 @@ export async function createDoctor() {
 
     return { success: true, doctor };
   } catch (error) {
+    // If error is unique constraint, treat as already exists
+    if (error instanceof Error && (error as any).code === 'P2002') {
+      console.log("Doctor already exists (unique constraint error), treating as success.");
+      return { success: true, message: "Doctor already exists (unique constraint error)" };
+    }
     console.error("Error creating doctor:", error);
     return {
       success: false,
