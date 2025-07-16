@@ -33,7 +33,7 @@ const CalculatorsList = () => {
       icon: <LineChart className="h-6 w-6 icon" />,
       standards: ["CDC", "WHO", "Intergrowth"],
       category: t("categories.growth"),
-      link: "/calculators/growth-percentiles",
+      link: "/calculators/growth-calculator",
     },
     {
       title: t("calculators.bmi.title"),
@@ -47,7 +47,7 @@ const CalculatorsList = () => {
       description: "Calculate safe and effective medication doses for children based on weight and age.",
       icon: <Pill className="h-6 w-6 icon" />,
       category: t("categories.growth"),
-      link: "/calculators/dose",
+      link: "/calculators/dose-calculator",
     },
     {
       title: t("calculators.bloodPressure.title"),

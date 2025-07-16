@@ -91,8 +91,8 @@ interface WHOHeightDataPoint {
 interface MeasurementInputProps {
   label: string;
   field: any;
-  icon: LucideIcon;
-  gender: "male" | "female";
+  icon?: LucideIcon;
+  gender?: "male" | "female";
   birthDate?: Date;
   measurementDate?: Date;
   selectedStandard?: string;
@@ -105,6 +105,8 @@ interface MeasurementInputProps {
   whoHeightData?: WHOHeightDataPoint[];
   whoHeadData?: WHOWeightDataPoint[];
   disabled?: boolean;
+  type?: string;
+  placeholder?: string;
 }
 
 // Helper function to parse CDC data
@@ -167,6 +169,8 @@ export default function MeasurementInput({
   cdcInfantHeightHead,
   whoHeadData,
   disabled,
+  type = "number",
+  placeholder = "",
 }: MeasurementInputProps) {
   const t = useTranslations("GrowthForm");
 
@@ -316,19 +320,22 @@ export default function MeasurementInput({
           <div className="relative">
             <Input
               {...field}
-              type="text"
+              type={type}
               inputMode="decimal"
               pattern="[0-9]*[.]?[0-9]*"
               onChange={handleChange}
               className="pl-8 border-medical-100"
               disabled={disabled}
+              placeholder={placeholder}
             />
-            <Icon
-              className={cn(
-                "absolute left-2 top-2.5 h-4 w-4 transition-colors duration-300 ease-in-out",
-                gender === "male" ? "text-medical-500" : "text-medical-pink-500"
-              )}
-            />
+            {Icon && (
+              <Icon
+                className={cn(
+                  "absolute left-2 top-2.5 h-4 w-4 transition-colors duration-300 ease-in-out",
+                  gender === "male" ? "text-medical-500" : "text-medical-pink-500"
+                )}
+              />
+            )}
           </div>
         </FormControl>
         {field.value && !isNaN(value) && range && (
@@ -339,6 +346,45 @@ export default function MeasurementInput({
             normal={range.normal}
           />
         )}
+      </div>
+      <FormMessage />
+    </FormItem>
+  );
+}
+
+export function SimpleMeasurementInput({
+  label,
+  field,
+  icon: Icon,
+  type = "number",
+  placeholder = "",
+  disabled = false,
+}: {
+  label: string;
+  field: any;
+  icon?: LucideIcon;
+  type?: string;
+  placeholder?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <FormItem>
+      <FormLabel>{label}</FormLabel>
+      <div className="space-y-2 flex flex-col gap-1">
+        <FormControl>
+          <div className="relative">
+            <Input
+              {...field}
+              type={type}
+              placeholder={placeholder}
+              className="pl-8 border-medical-100"
+              disabled={disabled}
+            />
+            {Icon && (
+              <Icon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+            )}
+          </div>
+        </FormControl>
       </div>
       <FormMessage />
     </FormItem>

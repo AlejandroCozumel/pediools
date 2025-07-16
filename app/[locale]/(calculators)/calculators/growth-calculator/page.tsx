@@ -1,4 +1,4 @@
-import { GrowthForm } from "@/app/[locale]/(calculators)/calculators/growth-percentiles/GrowthForm";
+import { GrowthForm } from "@/app/[locale]/(calculators)/calculators/growth-calculator/GrowthForm";
 
 export default function GrowthPage() {
   return (
