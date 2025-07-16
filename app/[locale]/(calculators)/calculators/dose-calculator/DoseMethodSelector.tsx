@@ -65,17 +65,21 @@ export function DoseMethodSelector() {
                     value={method.id}
                     className="rounded-md border-2 border-transparent transition-colors duration-300 ease-in-out hover:bg-medical-50/80 data-[state=active]:border-medical-600 data-[state=active]:bg-white data-[state=active]:shadow-none"
                   >
-                    <div className="flex flex-col items-center gap-2 py-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col md:flex-col items-center gap-1 py-2 w-full">
+                      <div className="flex justify-center md:justify-center w-full">
                         <IconComponent className="h-4 w-4" />
-                        <span className="font-medium">{method.name}</span>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className="text-xs bg-medical-50 border-medical-200"
-                      >
-                        {method.description}
-                      </Badge>
+                      <div className="flex justify-center md:justify-center w-full">
+                        <span className="font-medium text-xs md:text-sm">{method.name}</span>
+                      </div>
+                      <div className="flex justify-center md:justify-center w-full">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] md:text-xs bg-medical-50 border-medical-200"
+                        >
+                          {method.description}
+                        </Badge>
+                      </div>
                     </div>
                   </TabsTrigger>
                 );
