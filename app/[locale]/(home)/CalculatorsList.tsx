@@ -61,7 +61,7 @@ const CalculatorsList = () => {
       description: t("calculators.bloodPressure.description"),
       icon: <Activity className="h-6 w-6 icon" />,
       category: t("categories.cardiovascular"),
-      link: "/calculators/blood-pressure",
+      link: "/calculators/blood-pressure-calculator",
     },
     {
       title: t("calculators.heartRate.title"),

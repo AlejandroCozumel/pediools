@@ -2,7 +2,7 @@ import { GrowthForm } from "@/app/[locale]/(calculators)/calculators/growth-calc
 
 export default function GrowthPage() {
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto">
       <GrowthForm />
     </div>
   );

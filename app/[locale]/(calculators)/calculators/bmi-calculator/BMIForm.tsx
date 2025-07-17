@@ -211,7 +211,7 @@ export function BMIForm() {
   }
 
   return (
-    <Card className="w-full mx-auto max-w-xl">
+    <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
           {t('title')}
