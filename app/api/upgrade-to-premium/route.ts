@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const subscription = await prisma.subscription.upsert({
       where: { doctorId: doctor.id },
       update: {
-        plan: PlanType.PREMIUM,
+        plan: PlanType.PRO,
         status: SubscriptionStatus.ACTIVE,
         stripePriceId: "dummy_stripe_price_id",
         stripeSubscriptionId: `sub_${Math.random().toString(36).substr(2, 9)}`,
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       },
       create: {
         doctorId: doctor.id,
-        plan: PlanType.PREMIUM,
+        plan: PlanType.PRO,
         status: SubscriptionStatus.ACTIVE,
         stripePriceId: "dummy_stripe_price_id",
         stripeSubscriptionId: `sub_${Math.random().toString(36).substr(2, 9)}`,
