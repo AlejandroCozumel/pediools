@@ -59,7 +59,8 @@ const weightBasedSchema = z.object({
 
 type WeightBasedFormValues = z.infer<typeof weightBasedSchema>;
 
-const InfoTooltip = ({ children, content }: { children: React.ReactNode; content: string }) => (
+// 1. InfoTooltip props type safety
+const InfoTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => (
   <Tooltip>
     <TooltipTrigger asChild>{children}</TooltipTrigger>
     <TooltipContent className="max-w-xs"><p>{content}</p></TooltipContent>
@@ -203,7 +204,7 @@ export function WeightBasedDoseForm() {
                     <FormItem className="flex flex-col justify-between gap-2">
                       <FormLabel className="flex items-center gap-2">
                         {t('weightBased.dose.label')}
-                        <InfoTooltip content={t('weightBased.dose.tooltip')} />
+                        <InfoTooltip content={t('weightBased.dose.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -374,7 +375,7 @@ export function WeightBasedDoseForm() {
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         {t('weightBased.medication.mass.label')}
-                        <InfoTooltip content={t('weightBased.medication.mass.tooltip')} />
+                        <InfoTooltip content={t('weightBased.medication.mass.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -418,7 +419,7 @@ export function WeightBasedDoseForm() {
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         {t('weightBased.medication.volume.label')}
-                        <InfoTooltip content={t('weightBased.medication.volume.tooltip')} />
+                        <InfoTooltip content={t('weightBased.medication.volume.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -487,11 +488,11 @@ export function WeightBasedDoseForm() {
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       {t('weightBased.results.perDoseVolume.label')}
-                      <InfoTooltip content={t('weightBased.results.perDoseVolume.tooltip')} />
+                      <InfoTooltip content={t('weightBased.results.perDoseVolume.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
                     </FormLabel>
                     <div className="flex gap-2 items-center">
                       <Input
-                        value={perDoseVolume.toFixed(2)}
+                        value={perDoseVolume ? perDoseVolume.toFixed(2) : ""}
                         readOnly
                         className="bg-gray-50 border-medical-100 font-semibold"
                       />
@@ -503,11 +504,11 @@ export function WeightBasedDoseForm() {
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       {t('weightBased.results.dailyVolume.label')}
-                      <InfoTooltip content={t('weightBased.results.dailyVolume.tooltip')} />
+                      <InfoTooltip content={t('weightBased.results.dailyVolume.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
                     </FormLabel>
                     <div className="flex gap-2 items-center">
                       <Input
-                        value={dailyVolume.toFixed(2)}
+                        value={dailyVolume ? dailyVolume.toFixed(2) : ""}
                         readOnly
                         className="bg-gray-50 border-medical-100 font-semibold"
                       />
@@ -549,7 +550,7 @@ export function WeightBasedDoseForm() {
                     <AlertDescription>
                       <div className="space-y-4">
                         <div className="font-semibold text-medical-900">
-                          {t('weightBased.results.tabletInformation.title', { mass: massInMg })}
+                          {t('weightBased.results.tabletInformation.title', { mass: massInMg }) || `Tablet Information (${massInMg} mg)`}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
