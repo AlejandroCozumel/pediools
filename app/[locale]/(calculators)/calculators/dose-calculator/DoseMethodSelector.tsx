@@ -8,46 +8,48 @@ import { Badge } from "@/components/ui/badge";
 import { WeightBasedDoseForm } from "./WeightBasedDoseForm";
 import { BSABasedDoseForm } from "./BSABasedDoseForm";
 import { BSANormalizedDoseForm } from "./BSANormalizedDoseForm";
-
-const doseMethods = [
-  {
-    id: "weight",
-    name: "Weight-based",
-    description: "mg/kg dosing",
-    icon: Weight,
-    details: "Based only on patient weight",
-    note: "Most common pediatric dosing method"
-  },
-  {
-    id: "bsa",
-    name: "BSA-based",
-    description: "mg/m² dosing",
-    icon: Activity,
-    details: "Based on weight + height (BSA)",
-    note: "Used for chemotherapy and high-risk medications"
-  },
-  {
-    id: "bsa_normalized",
-    name: "BSA-normalized",
-    description: "Normalized to 1.73 m²",
-    icon: Maximize,
-    details: "Uses total BSA, normalized to standard adult BSA",
-    note: "Common for renal function adjustments"
-  }
-];
+import { useTranslations } from 'next-intl';
 
 export function DoseMethodSelector() {
+  const t = useTranslations('DoseCalculator');
   const [selectedMethod, setSelectedMethod] = useState("weight");
+
+  const doseMethods = [
+    {
+      id: "weight",
+      name: t('methods.weight.name'),
+      description: t('methods.weight.description'),
+      icon: Weight,
+      details: t('methods.weight.details'),
+      note: ''
+    },
+    {
+      id: "bsa",
+      name: t('methods.bsa.name'),
+      description: t('methods.bsa.description'),
+      icon: Activity,
+      details: t('methods.bsa.details'),
+      note: ''
+    },
+    {
+      id: "bsa_normalized",
+      name: t('methods.bsa_normalized.name'),
+      description: t('methods.bsa_normalized.description'),
+      icon: Maximize,
+      details: t('methods.bsa_normalized.details'),
+      note: ''
+    }
+  ];
 
   return (
     <Card className="w-full mx-auto max-w-6xl">
       <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900 flex items-center gap-2">
           <Calculator className="h-6 w-6" />
-          Pediatric Dose Calculator
+          {t('title')}
         </CardTitle>
         <p className="text-muted-foreground mt-2">
-          Select a dosing method and calculate medication dosages based on patient parameters
+          {t('subtitle')}
         </p>
       </CardHeader>
 
@@ -96,9 +98,11 @@ export function DoseMethodSelector() {
                       <h3 className="font-semibold text-medical-900">{method.name} Dosing</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">{method.details}</p>
-                    <Badge variant="secondary" className="bg-medical-100 text-medical-800">
-                      {method.note}
-                    </Badge>
+                    {method.note && (
+                      <Badge variant="secondary" className="bg-medical-100 text-medical-800">
+                        {method.note}
+                      </Badge>
+                    )}
                   </div>
                 )
               ))}
