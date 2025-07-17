@@ -29,7 +29,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
-import { Info, Trash2, Plus, AlertTriangle, Search, User } from "lucide-react";
+import { Info, Trash2, Plus, AlertTriangle, Search, User, Baby } from "lucide-react";
 import DateInputs from "@/components/DateInputs";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import PatientSelector from "@/components/premium/PatientSelector";
@@ -738,36 +738,57 @@ const LabCalculatorForm: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Gender Selection */}
+              {/* Gender Selection as Tabs */}
               <FormField
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("gender")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
+                  <FormItem className="space-y-0 mb-6">
+                    <Tabs
                       value={field.value}
-                      disabled={!!selectedPatient}
+                      defaultValue="male"
+                      className="w-full"
+                      onValueChange={field.onChange}
                     >
-                      <FormControl>
-                        <SelectTrigger
-                          className={cn(
-                            "transition-colors duration-300",
-                            selectedPatient && "opacity-50",
-                            gender === "male"
-                              ? "border-medical-200 focus:ring-medical-500"
-                              : "border-medical-pink-200 focus:ring-medical-pink-500"
-                          )}
+                      <TabsList className="grid w-full grid-cols-2 bg-transparent border rounded-lg">
+                        <TabsTrigger
+                          value="male"
+                          className={`rounded-md transition-colors duration-300 ease-in-out
+                            hover:bg-medical-50/80
+                            data-[state=active]:text-white
+                            data-[state=active]:bg-medical-600
+                            data-[state=active]:shadow-sm`}
+                          disabled={!!selectedPatient}
                         >
-                          <SelectValue placeholder={t("selectGender")} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="male">{t("male")}</SelectItem>
-                        <SelectItem value="female">{t("female")}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                          <div className="flex items-center gap-2">
+                            <Baby
+                              className={`h-5 w-5 transition-colors duration-300 ease-in-out
+                                ${field.value === "male" ? "text-white" : "text-medical-600"}
+                              `}
+                            />
+                            <span className="font-medium">{t("male")}</span>
+                          </div>
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="female"
+                          className={`rounded-md transition-colors duration-300 ease-in-out
+                            hover:bg-medical-pink-50/80
+                            data-[state=active]:text-white
+                            data-[state=active]:bg-medical-pink-600
+                            data-[state=active]:shadow-sm`}
+                          disabled={!!selectedPatient}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Baby
+                              className={`h-5 w-5 transition-colors duration-300 ease-in-out
+                                ${field.value === "female" ? "text-white" : "text-medical-pink-600"}
+                              `}
+                            />
+                            <span className="font-medium">{t("female")}</span>
+                          </div>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -50,6 +50,13 @@ const CalculatorsList = () => {
       link: "/calculators/dose-calculator",
     },
     {
+      title: t("calculators.bilirubin.title"),
+      description: t("calculators.bilirubin.description"),
+      icon: <DropletsIcon className="h-6 w-6 icon" />,
+      category: t("categories.neonatal"),
+      link: "/calculators/lab-calculator",
+    },
+    {
       title: t("calculators.bloodPressure.title"),
       description: t("calculators.bloodPressure.description"),
       icon: <Activity className="h-6 w-6 icon" />,
@@ -62,13 +69,6 @@ const CalculatorsList = () => {
       icon: <Heart className="h-6 w-6 icon" />,
       category: t("categories.cardiovascular"),
       link: "/calculators/heart-rate",
-    },
-    {
-      title: t("calculators.bilirubin.title"),
-      description: t("calculators.bilirubin.description"),
-      icon: <DropletsIcon className="h-6 w-6 icon" />,
-      category: t("categories.neonatal"),
-      link: "/calculators/bilirubin-thresholds",
     },
   ];
 
