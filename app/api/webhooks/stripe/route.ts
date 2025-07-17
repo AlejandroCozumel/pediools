@@ -189,7 +189,7 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
       data: {
         status: SubscriptionStatus.CANCELED,
         canceledAt: new Date(),
-        plan: PlanType.PREMIUM, // Keep premium until period ends
+        plan: PlanType.PRO, // Keep premium until period ends
         gracePeriodEnd: null, // No grace period for cancellations
       },
       include: { doctor: true },
@@ -227,7 +227,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
           status: SubscriptionStatus.CANCELED,
           canceledAt: new Date(),
           currentPeriodEnd: currentPeriodEnd,
-          plan: PlanType.PREMIUM,
+          plan: PlanType.PRO,
           gracePeriodEnd: null,
         },
       });
@@ -249,7 +249,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         data: {
           status: SubscriptionStatus.ACTIVE,
           canceledAt: null,
-          plan: PlanType.PREMIUM,
+          plan: PlanType.PRO,
         },
       });
 
