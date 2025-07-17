@@ -329,7 +329,9 @@
       "actions": {
         "title": "Actions",
         "viewDetails": "View Details",
-        "viewCalculations": "View Calculations"
+        "viewCalculations": "View Calculations",
+        "newCalculation": "New Calculation",
+        "viewAppointment": "View Appointment"
       }
     }
   },
@@ -458,7 +460,20 @@
     "manageAvailability": "Manage Availability",
     "viewingAppointments": "View and manage appointments for the selected period",
     "calendar": "Calendar",
-    "list": "List",
+    "noAvailabilityTitle": "No availability settings configured",
+    "noAvailabilityDescription": "You haven't set up your availability schedule yet. Patients won't be able to book appointments until you define your available time slots.",
+    "setupAvailability": "Set Up Availability",
+    "list": {
+      "dateTime": "Date & Time",
+      "patient": "Patient",
+      "type": "Type",
+      "status": "Status",
+      "actions": "Actions",
+      "general": "General",
+      "viewDetails": "View Details",
+      "editAppointment": "Edit Appointment",
+      "noAppointmentsFound": "No appointments found."
+    },
     "settings": {
       "title": "Manage Availability",
       "subtitle": "Configure your availability and appointment slots",
@@ -466,9 +481,123 @@
       "availabilityDescription": "Set your recurring availability and schedule exceptions",
       "weeklySchedule": "Weekly Schedule",
       "weeklyScheduleDescription": "Configure your regular working hours for each day of the week",
-      "exceptions": "Exceptions",
       "exceptionsDescription": "Configure specific dates where your availability differs from the normal schedule",
-      "defaultAppointmentDuration": "Default Appointment Duration"
+      "defaultAppointmentDuration": "Default Appointment Duration",
+      "exceptionsTab": "Exceptions",
+      "loading": "Loading availability settings...",
+      "weekly": {
+        "description": "Set your regular weekly availability schedule. This will be used to generate appointment slots for patients to book.",
+        "validationErrors": "Validation Errors",
+        "availabilityWarnings": "Availability Warnings",
+        "defaultAppointmentDuration": "Default Appointment Duration",
+        "saveWeeklySchedule": "Save Weekly Schedule",
+        "saving": "Saving...",
+        "noBreaks": "No breaks added. You are available all day.",
+        "unavailablePeriods": "Unavailable Time Periods",
+        "addBreak": "Add Break",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "invalidBreakTime": "Invalid Break Time",
+        "startBeforeEnd": "Start time must be before end time.",
+        "endAfterStart": "End time must be after start time.",
+        "cannotAddBreak": "Cannot Add Break",
+        "noAvailableTimeSlot": "No available time slot for a break. All possible time slots are already taken.",
+        "daySchedule": {
+          "startTime": "Start Time:",
+          "endTime": "End Time:",
+          "appointmentDuration": "Appointment Duration:",
+          "noBreaks": "No breaks added. Available all day.",
+          "totalAvailability": "Total availability:",
+          "availableSlots": "Available slots:"
+        },
+        "breakManager": {
+          "unavailableTimePeriods": "Unavailable Time Periods",
+          "addBreak": "Add Break",
+          "noBreaksAdded": "No breaks added. You are available all day.",
+          "cannotAddBreak": {
+            "title": "Cannot Add Break",
+            "description": "No available time slot for a break. All possible time slots are already taken."
+          },
+          "breakItem": {
+            "startTime": "Start Time",
+            "endTime": "End Time",
+            "invalidBreakTime": {
+              "title": "Invalid Break Time",
+              "startBeforeEnd": "Start time must be before end time.",
+              "endAfterStart": "End time must be after start time."
+            },
+            "removeBreak": "Remove Break"
+          }
+        },
+        "alerts": {
+          "validationErrors": {
+            "title": "Validation Errors",
+            "cannotSave": "Cannot Save Schedule",
+            "fixErrorsBeforeSaving": "Please fix the validation errors before saving."
+          },
+          "warnings": {
+            "title": "Availability Warnings",
+            "confirmProceed": "There are warnings with your availability settings. Are you sure you want to proceed?"
+          }
+        },
+        "errors": {
+          "failedToSave": "Failed to save availability settings."
+        },
+        "saveButton": {
+          "save": "Save Weekly Schedule",
+          "saving": "Saving..."
+        }
+      },
+      "exceptions": {
+        "description": "Manage your availability by blocking specific dates, setting custom hours, or blocking individual time slots.",
+        "selectDate": "Select Date",
+        "available": "Available",
+        "exception": "Exception",
+        "manage": "Manage",
+        "noAvailability": "No availability on this day",
+        "notWorkingDay": "This day is not part of your regular working schedule",
+        "dayBlocked": "Day is completely blocked",
+        "noAppointmentsAvailable": "No appointments are available",
+        "unblockDay": "Unblock Day",
+        "customHoursSet": "Custom Hours Set",
+        "start": "Start",
+        "end": "End",
+        "resetToDefault": "Reset to Default",
+        "blockDay": "Block Day",
+        "noTimeSlots": "No available time slots",
+        "checkSettings": "Check your scheduling settings",
+        "blockEntireDay": "Block Entire Day",
+        "setCustomHours": "Set Custom Hours",
+        "availableTimeSlots": "Available Time Slots",
+        "clickToToggle": "Click on a slot to toggle its availability",
+        "currentExceptions": "Current Exceptions",
+        "noExceptions": "No exceptions added yet",
+        "customHours": "Custom Hours",
+        "availableOverride": "Available (Override)",
+        "blockedDay": "Blocked Day",
+        "reason": "Reason",
+        "blockedSlot": "Blocked Slot",
+        "remove": "Remove",
+        "saveExceptions": "Save Exceptions"
+      },
+      "toasts": {
+        "availabilityUpdated": {
+          "title": "Availability Updated",
+          "description": "Your weekly availability schedule has been saved correctly."
+        },
+        "exceptionsUpdated": {
+          "title": "Exceptions Updated",
+          "description": "Your date and time exceptions have been saved correctly."
+        },
+        "error": {
+          "title": "Error",
+          "description": "Could not save availability settings."
+        },
+        "exceptionsError": {
+          "title": "Error",
+          "description": "Could not save date exceptions."
+        }
+      }
     },
     "status": {
       "SCHEDULED": "Scheduled",
@@ -514,5 +643,219 @@
       "scheduling": "Scheduling..."
     },
     "noAppointments": "No appointments scheduled for this day"
+  },
+  "BMICalculator": {
+    "title": "BMI Calculator",
+    "gender": {
+      "male": "Boy",
+      "female": "Girl"
+    },
+    "standard": {
+      "label": "BMI Standard",
+      "placeholder": "Select a BMI standard"
+    },
+    "standards": {
+      "who": {
+        "name": "WHO BMI Standard",
+        "description": "International BMI percentiles for children (0-24 months)",
+        "ageRange": "4 months",
+        "details": "Recommended by WHO for international use"
+      },
+      "cdc": {
+        "name": "CDC BMI Standard",
+        "description": "U.S. reference BMI percentiles for children and teens",
+        "ageRange": "2-20 years",
+        "details": "Most widely used in U.S. clinical practice"
+      }
+    },
+    "measurements": {
+      "weight": "Weight (kg)",
+      "height": "Height (cm)"
+    },
+    "validation": {
+      "selectDob": "Please select a Date of Birth to enter measurements",
+      "whoAgeError": "WHO BMI Standard is only valid for 0-24 months.",
+      "cdcAgeError": "CDC BMI Standard is only valid for 2ars (24-240 months)."
+    },
+    "alerts": {
+      "invalidStandard": {
+        "title": "Invalid Standard for Age",
+        "description": "The selected standard is not valid for the patient's age."
+      }
+    },
+    "results": {
+      "bmi": "BMI",
+      "referenceRange": "Reference range for age/sex/standard:",
+      "dataSource": "Data source",
+      "dataSources": {
+        "who": "WHO Growth Standards (ages 0 months)",
+        "cdc": "United States CDC Growth Charts (ages 2 to 20)"
+      }
+    },
+    "buttons": {
+      "graph": "Graph"
+    }
+  },
+  "DoseCalculator": {
+    "title": "Dose Calculator",
+    "subtitle": "Select a dosing method and calculate medication dosages based on patient parameters",
+    "methods": {
+      "weight": {
+        "name": "Weight-based",
+        "description": "mg/kg dosing",
+        "details": "Based only on patient weight, note: Most common pediatric dosing method"
+      },
+      "bsa": {
+        "name": "BSA-based",
+        "description": "mg/m² dosing",
+        "details": "Based on weight and height (BSA)",
+        "note": "Used for chemotherapy and high-risk medications"
+      },
+      "bsa_normalized": {
+        "name": "BSA-normalized",
+        "description": "Normalized to 1.73 m²",
+        "details": "Uses total BSA, normalized to standard adult BSA",
+        "note": "Common for renal function adjustments"
+      }
+    },
+    "weightBased": {
+      "title": "Weight-Based Dosage Prescribed",
+      "dose": {
+        "label": "Dose",
+        "placeholder": "Enter dose"
+      },
+      "doseUnit": {
+        "label": "Dose Unit",
+        "mg": "mg",
+        "ml": "l",
+        "tablet": "tablet"
+      },
+      "dosageType": {
+        "label": "Age Type",
+        "perKgPerDay": {
+          "value": "/kg/day",
+          "label": "/kg/day",
+          "description": "Per kilogram per day"
+        },
+        "perKgPerDose": {
+          "value": "/kg/dose",
+          "label": "/kg/dose",
+          "description": "Per kilogram per dose"
+        },
+        "perDay": {
+          "value": "/day",
+          "label": "/day",
+          "description": "Total per day"
+        },
+        "perDose": {
+          "value": "/dose",
+          "label": "/dose",
+          "description": "Total per dose"
+        }
+      },
+      "frequency": {
+        "label": "Frequency",
+        "options": {
+          "qD": "qD (once a day)",
+          "BID": "BID (twice a day)",
+          "TID": "TID (thrice a day)",
+          "QID": "QID (four times a day)",
+          "q4hr": "q4(every 4 hours)",
+          "q6hr": "q6(every 6 hours)",
+          "q8hr": "q8 (every8hours)"
+        }
+      },
+      "patientWeight": {
+        "label": "Patient Weight",
+        "placeholder": "Enter weight"
+      },
+      "weightUnit": {
+        "label": "Weight Unit",
+        "kg": "kg",
+        "lb": "lb"
+      },
+      "medication": {
+        "title": "Medication Information",
+        "mass": {
+          "label": "Mass",
+          "placeholder": "Enter mass"
+        },
+        "massUnit": {
+          "label": "Mass Unit",
+          "mg": "mg",
+          "g": "g"
+        },
+        "volume": {
+          "label": "Volume",
+          "placeholder": "Enter volume"
+        },
+        "volumeUnit": {
+          "label": "Volume Unit",
+          "ml": "ml",
+          "tablet": "tablet"
+        }
+      },
+      "results": {
+        "title": "Dosage Results",
+        "dailyDosage": "Daily Dosage",
+        "perDose": "Per Dose",
+        "dailyVolume": "Daily Volume",
+        "concentration": "Concentration"
+      }
+    },
+    "drugConcentration": {
+      "title": "Drug Concentration",
+      "label": "Concentration",
+      "placeholder": "Enter concentration"
+    }
+  },
+  "LabCalculator": {
+    "noResults": "Please enter lab values and patient information to see results.",
+    "resultsTitle": "Lab Results Analysis",
+    "premium": "Premium",
+    "basic": "Basic Dataset",
+    "criticalValues": "Critical Values Detected:",
+    "result": "result",
+    "criticalResultsAttention": "result(s) require immediate attention.",
+    "basicPlan": "Basic plan includes common lab tests. Upgrade to Premium for complete Harriet Lane reference dataset with 200+ specialized tests.",
+    "completeHarrietLaneReferenceDataset": "complete Harriet Lane reference dataset",
+    "with200SpecializedTests": "with 200+ specialized tests",
+    "patientInfo": "Patient Information",
+    "searchPatient": "Search Patient",
+    "patientInfoHint": "Enter patient information to calculate age-appropriate reference ranges for lab values.",
+    "gender": "Gender",
+    "selectGender": "Select gender",
+    "male": "Boy",
+    "female": "Girl",
+    "labValues": "Lab Values",
+    "addLabValue": "Add Lab Value",
+    "manualEntry": "Manual Entry",
+    "commonTests": "Common Tests",
+    "testName": "Test Name",
+    "selectTest": "Select test",
+    "value": "Value",
+    "enterValue": "Enter value",
+    "unit": "Unit",
+    "example": "e.g., mg/dL",
+    "remove": "Remove",
+    "ageGroup": "Age Group",
+    "referenceDataSources": "Reference Data Sources:",
+    "chopLabsReferenceRanges": "CHOP Labs Reference Ranges",
+    "childrensHospitalOfPhiladelphia": "Children's Hospital of Philadelphia",
+    "disclaimer": "Disclaimer:",
+    "disclaimerText": "Values are commonly accepted reference ranges compiled from multiple sources. Patient-specific goals may differ depending on age, sex, clinical condition, and laboratory methodology used. Always consult with a healthcare professional for interpretation of laboratory results.",
+    "valuesAreCommonlyAcceptedReferenceRanges": "Values are commonly accepted reference ranges",
+    "compiledFromMultipleSources": "compiled from multiple sources",
+    "patientSpecificGoalsMayDiffer": "Patient-specific goals may differ",
+    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "depending on age, sex, clinical condition, and laboratory methodology used",
+    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Always consult with a healthcare professional for interpretation of laboratory results",
+    "referenceRange": "Reference Range",
+    "patientValue": "Patient Value",
+    "interpretation": "Interpretation",
+    "interpretationNormal": "Within normal limits",
+    "interpretationLow": "Below reference range",
+    "interpretationHigh": "Above reference range",
+    "interpretationCritical": "Critical value - requires immediate attention",
+    "interpretationUnknown": "Reference range not available"
   }
 }

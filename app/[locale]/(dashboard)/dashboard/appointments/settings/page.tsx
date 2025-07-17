@@ -1,9 +1,8 @@
-// app/dashboard/appointments/settings/page.tsx
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { Clock, ArrowLeft } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Clock } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,8 +11,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 import DashboardTitle from "@/components/DashboardTitle";
 import { useToast } from "@/hooks/use-toast";
@@ -38,10 +35,15 @@ const DAYS_OF_WEEK = [
 const AppointmentSettings = () => {
   const t = useTranslations("Appointments.settings");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<"weekly" | "exceptions">("weekly");
+  // Determine initial tab based on URL parameter
+  const initialTab =
+    searchParams?.get("tab") === "exceptions" ? "exceptions" : "weekly";
+  const [activeTab, setActiveTab] = useState<"weekly" | "exceptions">(
+    initialTab
+  );
 
   // Get availability data from API
   const {
@@ -55,7 +57,7 @@ const AppointmentSettings = () => {
   const [weeklySchedule, setWeeklySchedule] = useState<WeeklySchedule>(
     DAYS_OF_WEEK.map((_, index) => ({
       dayOfWeek: index,
-      isActive: index < 5, // Monday to Friday active by default
+      isActive: index >= 1 && index <= 5,
       startTime: "09:00",
       endTime: "17:00",
       slotDuration: 30,
@@ -65,7 +67,7 @@ const AppointmentSettings = () => {
 
   // State for days of operation
   const [daysOfOperation, setDaysOfOperation] = useState<number[]>(
-    [0, 1, 2, 3, 4] // Default to Monday to Friday
+    [1, 2, 3, 4, 5] // Explicitly set to Monday through Friday indices
   );
 
   // State for default times
@@ -75,7 +77,95 @@ const AppointmentSettings = () => {
   // State for date exceptions
   const [dateOverrides, setDateOverrides] = useState<DateOverride[]>([]);
 
-  // Update state when data loads from API
+  // Update URL when tab changes
+  const updateTabUrl = useCallback(
+    (tab: "weekly" | "exceptions") => {
+      const current = new URLSearchParams(
+        Array.from(searchParams?.entries() || [])
+      );
+
+      if (tab === "exceptions") {
+        current.set("tab", "exceptions");
+      } else {
+        current.delete("tab");
+      }
+
+      const search = current.toString();
+      const query = search ? `?${search}` : "";
+
+      router.replace(`/dashboard/appointments/settings${query}`, {
+        scroll: false,
+      });
+    },
+    [router, searchParams]
+  );
+
+  // Handle tab change with URL update
+  const handleTabChange = (value: "weekly" | "exceptions") => {
+    setActiveTab(value);
+    updateTabUrl(value);
+  };
+
+  const handleSaveWeeklySchedule = useCallback(async () => {
+    try {
+      await saveAvailability.mutateAsync({
+        weeklySchedule,
+        daysOfOperation,
+        defaultStartTime,
+        defaultEndTime,
+      });
+      toast({
+        title: t("toasts.availabilityUpdated.title"),
+        description: t("toasts.availabilityUpdated.description"),
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: t("toasts.error.title"),
+        description: t("toasts.error.description"),
+      });
+      throw error; // Re-throw to handle in the component
+    }
+  }, [
+    weeklySchedule,
+    daysOfOperation,
+    defaultStartTime,
+    defaultEndTime,
+    saveAvailability,
+    toast,
+    t,
+  ]);
+
+  // Save date exceptions
+  const handleSaveDateOverrides = useCallback(async () => {
+    try {
+      await saveAvailabilityOverride.mutateAsync({
+        dateOverrides: dateOverrides.map((override) => ({
+          date: new Date(override.date),
+          isAvailable: override.isAvailable,
+          startTime: override.startTime,
+          endTime: override.endTime,
+          reason: override.reason,
+          // Include slot information if present
+          slotId: override.slotId,
+          slotIsAvailable: override.slotIsAvailable,
+        })),
+      });
+      toast({
+        title: t("toasts.exceptionsUpdated.title"),
+        description: t("toasts.exceptionsUpdated.description"),
+      });
+    } catch (error) {
+      console.error("Failed to save date exceptions:", error);
+      toast({
+        variant: "destructive",
+        title: t("toasts.error.title"),
+        description: t("toasts.exceptionsError.description"),
+      });
+      throw error;
+    }
+  }, [dateOverrides, saveAvailabilityOverride, toast, t]);
+
   useEffect(() => {
     if (availability) {
       // Only update if there's actual availability data with active days
@@ -84,8 +174,14 @@ const AppointmentSettings = () => {
       );
 
       if (hasActiveAvailability) {
-        // Ensure breaks exist on all days
-        setWeeklySchedule(ensureBreaksExist(availability.weeklySchedule));
+        // Ensure breaks exist on all days and map the breaks correctly
+        const scheduleWithBreaks = ensureBreaksExist(
+          availability.weeklySchedule.map((day: any) => ({
+            ...day,
+            breaks: day.breaks || [], // Explicitly ensure breaks exist
+          }))
+        );
+        setWeeklySchedule(scheduleWithBreaks);
       }
 
       if (availability.dateOverrides) {
@@ -106,81 +202,9 @@ const AppointmentSettings = () => {
     }
   }, [availability]);
 
-  // Save weekly schedule
-  const handleSaveWeeklySchedule = useCallback(async () => {
-    try {
-      await saveAvailability.mutateAsync({
-        weeklySchedule,
-        daysOfOperation,
-        defaultStartTime,
-        defaultEndTime,
-      });
-
-      toast({
-        title: "Availability Updated",
-        description:
-          "Your weekly availability schedule has been saved successfully.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save availability settings.",
-      });
-      throw error; // Re-throw to handle in the component
-    }
-  }, [
-    weeklySchedule,
-    daysOfOperation,
-    defaultStartTime,
-    defaultEndTime,
-    saveAvailability,
-    toast,
-  ]);
-
-  // Save date exceptions
-  const handleSaveDateOverrides = useCallback(async () => {
-    try {
-      // Now we need to update this function to handle both
-      // day-level and slot-level overrides
-      await saveAvailabilityOverride.mutateAsync({
-        dateOverrides: dateOverrides.map((override) => ({
-          date: new Date(override.date), // Ensure it's a Date object
-          isAvailable: override.isAvailable,
-          startTime: override.startTime,
-          endTime: override.endTime,
-          reason: override.reason,
-          // Include slot information if present
-          slotId: override.slotId,
-          slotIsAvailable: override.slotIsAvailable,
-        })),
-      });
-
-      toast({
-        title: "Exceptions Updated",
-        description:
-          "Your date and slot exceptions have been saved successfully.",
-      });
-    } catch (error) {
-      console.error("Failed to save date exceptions:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save date exceptions.",
-      });
-      throw error;
-    }
-  }, [dateOverrides, saveAvailabilityOverride, toast]);
   return (
     <div className="my-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Link href="/dashboard/appointments">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <DashboardTitle title={t("title")} subtitle={t("subtitle")} />
-      </div>
+      <DashboardTitle title={t("title")} subtitle={t("subtitle")} />
 
       <Card>
         <CardHeader>
@@ -196,7 +220,7 @@ const AppointmentSettings = () => {
             <Tabs
               value={activeTab}
               onValueChange={(value) =>
-                setActiveTab(value as "weekly" | "exceptions")
+                handleTabChange(value as "weekly" | "exceptions")
               }
             >
               <TabsList>
@@ -209,7 +233,7 @@ const AppointmentSettings = () => {
                   className="flex items-center gap-2"
                 >
                   <Clock className="h-4 w-4" />
-                  {t("exceptions")}
+                  {t("exceptionsTab")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -219,7 +243,7 @@ const AppointmentSettings = () => {
         <CardContent>
           {isLoading ? (
             <div className="py-8 text-center text-medical-500">
-              Loading availability settings...
+              {t("loading")}
             </div>
           ) : activeTab === "weekly" ? (
             <WeeklyScheduleComponent

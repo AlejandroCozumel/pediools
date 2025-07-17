@@ -20,7 +20,7 @@ export async function checkPremiumStatus() {
     },
   });
 
-  return doctor?.subscription?.plan === "PREMIUM";
+  return doctor?.subscription?.plan === "PRO";
 }
 
 export default async function ServerPremiumStatusProvider({

@@ -95,12 +95,11 @@ const AppointmentDetails = () => {
   const handleDeleteAppointment = async () => {
     try {
       await deleteAppointment.mutateAsync();
-
+      router.refresh();
       toast({
         title: "Appointment Deleted",
         description: "Appointment has been successfully deleted.",
       });
-
       router.push("/dashboard/appointments");
     } catch (error) {
       toast({
@@ -149,11 +148,6 @@ const AppointmentDetails = () => {
     return (
       <div className="my-6">
         <div className="flex items-center gap-2 mb-6">
-          <Link href="/dashboard/appointments">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
           <DashboardTitle
             title="Appointment Not Found"
             subtitle="The requested appointment could not be found."
@@ -181,11 +175,6 @@ const AppointmentDetails = () => {
   return (
     <div className="my-6">
       <div className="flex items-center gap-2 mb-6">
-        <Link href="/dashboard/appointments">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <DashboardTitle
           title={`Appointment Details`}
           subtitle={`View and manage appointment information`}
@@ -341,12 +330,10 @@ const AppointmentDetails = () => {
             {/* Status change dialog */}
             <AlertDialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
               <AlertDialogTrigger asChild>
-                {appointment.status === "SCHEDULED" && (
                   <Button variant="outline" size="sm">
                     <ClipboardCheck className="h-4 w-4 mr-2" />
                     Update Status
                   </Button>
-                )}
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

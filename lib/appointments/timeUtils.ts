@@ -1,6 +1,8 @@
 // lib/appointments/timeUtils.ts
-import { format, parseISO, differenceInMinutes } from "date-fns";
+import { format, parseISO, differenceInMinutes, addMinutes, isBefore, isAfter, startOfMonth, endOfMonth, addDays, setHours, setMinutes, isSameDay, isSameMonth } from "date-fns";
 import { TimeOption, DurationOption } from "@/types/appointments";
+import prisma from "@/lib/prismadb";
+import { SlotStatus } from "@prisma/client";
 
 /**
  * Calculate the difference in minutes between two time strings (HH:MM)
@@ -119,3 +121,74 @@ export const findNextAvailableSlot = (
   // If no available slot found, return the end time
   return endTime;
 };
+
+/**
+ * Generate appointment slots for a doctor for a given month and year.
+ * - Only generates if slots for that month don't already exist.
+ * - Respects working hours, slot duration, and exceptions.
+ * - Will not generate slots for months more than 1 year in advance.
+ * @param doctorId string
+ * @param year number (e.g. 2024)
+ * @param month number (1-12)
+ * @param workingHours { startHour: number, endHour: number, daysOfWeek: number[] } (0=Sunday)
+ * @param slotDuration number (minutes)
+ * @param exceptions Date[] (dates to skip)
+ */
+export async function generateSlotsForMonth({
+  doctorId,
+  year,
+  month,
+  workingHours,
+  slotDuration,
+  exceptions = [],
+}: {
+  doctorId: string;
+  year: number;
+  month: number; // 1-12
+  workingHours: { startHour: number; endHour: number; daysOfWeek: number[] };
+  slotDuration: number;
+  exceptions?: Date[];
+}) {
+  const now = new Date();
+  const targetMonth = new Date(year, month - 1, 1);
+  const maxAdvance = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+  if (isAfter(targetMonth, maxAdvance)) {
+    throw new Error("Cannot generate slots more than 1 year in advance");
+  }
+
+  // Check if slots already exist for this doctor/month
+  const monthStart = startOfMonth(targetMonth);
+  const monthEnd = endOfMonth(targetMonth);
+  const existing = await prisma.appointmentSlot.findFirst({
+    where: {
+      doctorId,
+      startTime: { gte: monthStart, lte: monthEnd },
+    },
+  });
+  if (existing) return { created: 0, message: "Slots already exist for this month" };
+
+  let created = 0;
+  let slotsToCreate = [];
+  for (let day = 1; day <= 31; day++) {
+    const date = new Date(year, month - 1, day);
+    if (!isSameMonth(date, targetMonth)) break;
+    if (!workingHours.daysOfWeek.includes(date.getDay())) continue;
+    if (exceptions.some(ex => isSameDay(ex, date))) continue;
+    let slotTime = setHours(setMinutes(date, 0), workingHours.startHour);
+    const endTime = setHours(setMinutes(date, 0), workingHours.endHour);
+    while (isBefore(slotTime, endTime)) {
+      slotsToCreate.push({
+        doctorId,
+        startTime: slotTime,
+        endTime: addMinutes(slotTime, slotDuration),
+        status: SlotStatus.AVAILABLE,
+      });
+      slotTime = addMinutes(slotTime, slotDuration);
+      created++;
+    }
+  }
+  if (slotsToCreate.length > 0) {
+    await prisma.appointmentSlot.createMany({ data: slotsToCreate });
+  }
+  return { created, message: `Created ${created} slots for ${year}-${month}` };
+}

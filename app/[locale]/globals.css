@@ -19,6 +19,12 @@ h6 {
   color: #2563eb;
 }
 
+.required-field::after {
+  content: "*";
+  color: #ef4444;
+  margin-left: 4px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -104,4 +110,14 @@ h6 {
   .max-container {
     @apply max-w-7xl px-4 m-auto container;
   }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }

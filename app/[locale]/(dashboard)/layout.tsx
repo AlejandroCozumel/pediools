@@ -2,7 +2,7 @@
 "use client";
 import Navbar from "@/components/layout/Navbar";
 import React, { ReactNode, useEffect, useState } from "react";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 import UnauthorizedAccess from "@/components/UnauthorizedAccess";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 
@@ -12,7 +12,7 @@ type LayoutProps = {
 
 const Layout = ({ children }: LayoutProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const { isPremium } = usePremiumStore();
+  const { isPremium } = useSubscriptionStore();
 
   useEffect(() => {
     const timeout = setTimeout(() => {

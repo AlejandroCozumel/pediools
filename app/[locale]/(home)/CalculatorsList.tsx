@@ -15,6 +15,7 @@ import {
   DropletsIcon,
   RulerIcon,
   Sparkles,
+  Pill,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import DashboardTitle from "@/components/DashboardTitle";
@@ -32,42 +33,42 @@ const CalculatorsList = () => {
       icon: <LineChart className="h-6 w-6 icon" />,
       standards: ["CDC", "WHO", "Intergrowth"],
       category: t("categories.growth"),
-      link: "/growth-percentiles",
-    },
-    {
-      title: t("calculators.bloodPressure.title"),
-      description: t("calculators.bloodPressure.description"),
-      icon: <Activity className="h-6 w-6 icon" />,
-      category: t("categories.cardiovascular"),
-      link: "/blood-pressure",
-    },
-    {
-      title: t("calculators.heartRate.title"),
-      description: t("calculators.heartRate.description"),
-      icon: <Heart className="h-6 w-6 icon" />,
-      category: t("categories.cardiovascular"),
-      link: "/heart-rate",
-    },
-    {
-      title: t("calculators.bilirubin.title"),
-      description: t("calculators.bilirubin.description"),
-      icon: <DropletsIcon className="h-6 w-6 icon" />,
-      category: t("categories.neonatal"),
-      link: "/bilirubin-thresholds",
+      link: "/calculators/growth-calculator",
     },
     {
       title: t("calculators.bmi.title"),
       description: t("calculators.bmi.description"),
       icon: <RulerIcon className="h-6 w-6 icon" />,
       category: t("categories.growth"),
-      link: "/bmi-calculator",
+      link: "/calculators/bmi-calculator",
     },
     {
-      title: t("calculators.headCircumference.title"),
-      description: t("calculators.headCircumference.description"),
-      icon: <Baby className="h-6 w-6 icon" />,
+      title: "Pediatric Dose Calculator",
+      description: "Calculate safe and effective medication doses for children based on weight and age.",
+      icon: <Pill className="h-6 w-6 icon" />,
       category: t("categories.growth"),
-      link: "/head-circumference",
+      link: "/calculators/dose-calculator",
+    },
+    {
+      title: t("calculators.bilirubin.title"),
+      description: t("calculators.bilirubin.description"),
+      icon: <DropletsIcon className="h-6 w-6 icon" />,
+      category: t("categories.neonatal"),
+      link: "/calculators/lab-calculator",
+    },
+    {
+      title: t("calculators.bloodPressure.title"),
+      description: t("calculators.bloodPressure.description"),
+      icon: <Activity className="h-6 w-6 icon" />,
+      category: t("categories.cardiovascular"),
+      link: "/calculators/blood-pressure",
+    },
+    {
+      title: t("calculators.heartRate.title"),
+      description: t("calculators.heartRate.description"),
+      icon: <Heart className="h-6 w-6 icon" />,
+      category: t("categories.cardiovascular"),
+      link: "/calculators/heart-rate",
     },
   ];
 
@@ -76,6 +77,7 @@ const CalculatorsList = () => {
       <DashboardTitle
         title={t("dashboardTitle")}
         subtitle={t("dashboardSubtitle")}
+        showBackButton={false}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {calculators.map((calc, index) => (

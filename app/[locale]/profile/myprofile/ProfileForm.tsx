@@ -29,31 +29,18 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-  ArrowLeft,
-  User,
-  Building,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
-  Palette,
-  Save,
-  Image,
-  FileSignature,
-  Loader2,
-} from "lucide-react";
+import { User, Building, Globe, Palette, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { DoctorProfileData } from "@/hooks/use-doctor-profile";
 import ImageUploader from "@/components/uploader/ImageUploader";
 import { useUploadFile } from "@/hooks/use-upload-file";
 import { FileUploader } from "@/components/uploader/FileUploader";
+import DashboardTitle from "@/components/DashboardTitle";
 
 const doctorProfileSchema = z.object({
   // Professional Information
-  prefix: z.string().optional().nullable(),
+  prefix: z.string().min(1, "Please select a title").optional().nullable(),
   specialty: z
     .string()
     .min(2, "Specialty must be at least 2 characters")
@@ -188,23 +175,10 @@ const DoctorProfileForm = ({
   return (
     <div className="max-w-4xl m-auto w-full my-6 px-4">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-medical-600 mb-6">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 text-sm hover:text-medical-700 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Link>
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight font-heading text-medical-900">
-          Doctor Profile
-        </h1>
-        <p className="text-medical-600 text-lg leading-relaxed mt-2">
-          Update your professional information and clinic branding
-        </p>
-      </div>
+      <DashboardTitle
+        title="Doctor Profile"
+        subtitle="Update your professional information and clinic branding"
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -228,7 +202,7 @@ const DoctorProfileForm = ({
                   name="prefix"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-medical-700">
+                      <FormLabel className="text-medical-700 required-field">
                         Title/Prefix
                       </FormLabel>
                       <Select
@@ -258,7 +232,7 @@ const DoctorProfileForm = ({
                   name="specialty"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-medical-700">
+                      <FormLabel className="text-medical-700 required-field">
                         Specialty
                       </FormLabel>
                       <Select
@@ -300,7 +274,7 @@ const DoctorProfileForm = ({
                   name="licenseNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-medical-700">
+                      <FormLabel className="text-medical-700 required-field">
                         License Number
                       </FormLabel>
                       <FormControl>
@@ -320,7 +294,7 @@ const DoctorProfileForm = ({
                   name="clinicName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-medical-700">
+                      <FormLabel className="text-medical-700 required-field">
                         Clinic Name
                       </FormLabel>
                       <FormControl>

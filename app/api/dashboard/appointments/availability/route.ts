@@ -242,7 +242,7 @@ async function generateAppointmentSlots(doctorId: string) {
     });
 
     // Generate slots for the next 4 weeks
-    for (let week = 0; week < 4; week++) {
+    for (let week = 0; week < 24; week++) {
       // Calculate the date for this schedule's day of the week
       const currentDate = new Date();
       currentDate.setDate(

@@ -25,10 +25,8 @@ import {
 } from "@/components/ui/popover";
 import { useSearchPatients } from "@/hooks/useSearchPatients";
 import { useDebounce } from "@/hooks/useDebounce";
-import { usePremiumStore } from "@/stores/premiumStore";
-import { UseFormReturn } from "react-hook-form";
-import * as z from "zod";
-import { formSchema } from "@/app/[locale]/(calculators)/growth-percentiles/GrowthForm";
+import { useSubscriptionStore } from "@/stores/premiumStore";
+import { UseFormReturn, FieldValues, Path } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/hooks/use-toast";
@@ -41,20 +39,20 @@ interface Patient {
   gender: "male" | "female";
 }
 
-interface PatientSelectorProps {
-  form: UseFormReturn<z.infer<typeof formSchema>>;
+interface PatientSelectorProps<T extends FieldValues = FieldValues> {
+  form: UseFormReturn<T>;
   onPatientSelect?: (patient: Patient | null) => void;
 }
 
-export default function PatientSelector({
+export default function PatientSelector<T extends FieldValues = FieldValues>({
   form,
   onPatientSelect = () => {},
-}: PatientSelectorProps) {
+}: PatientSelectorProps<T>) {
   const t = useTranslations("PatientSelector");
   const { toast } = useToast();
 
   const { selectedPatient: globalSelectedPatient, setPatient } =
-    usePremiumStore();
+    useSubscriptionStore();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Patient | null>(
@@ -66,8 +64,8 @@ export default function PatientSelector({
 
   useEffect(() => {
     if (globalSelectedPatient) {
-      form.setValue("dateOfBirth", new Date(globalSelectedPatient.dateOfBirth));
-      form.setValue("gender", globalSelectedPatient.gender);
+      form.setValue("dateOfBirth" as Path<T>, new Date(globalSelectedPatient.dateOfBirth) as any);
+      form.setValue("gender" as Path<T>, globalSelectedPatient.gender as any);
     }
   }, [globalSelectedPatient, form]);
 
@@ -87,8 +85,8 @@ export default function PatientSelector({
               setSelected(selectedPatient);
               onPatientSelect(selectedPatient);
               setPatient(selectedPatient);
-              form.setValue("dateOfBirth", selectedPatient.dateOfBirth);
-              form.setValue("gender", selectedPatient.gender);
+              form.setValue("dateOfBirth" as Path<T>, selectedPatient.dateOfBirth as any);
+              form.setValue("gender" as Path<T>, selectedPatient.gender as any);
               setOpen(false);
               setSearch("");
               toast({
@@ -156,8 +154,8 @@ export default function PatientSelector({
                 onClick={() => {
                   setPatient(null);
                   setSelected(null);
-                  form.setValue("dateOfBirth", undefined);
-                  form.setValue("gender", "male");
+                  form.setValue("dateOfBirth" as Path<T>, undefined as any);
+                  form.setValue("gender" as Path<T>, "male" as any);
                   toast({
                     title: t("toast.patientRemoved.title"),
                     description: t("toast.patientRemoved.description"),

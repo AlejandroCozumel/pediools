@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { useSearchPatients } from "@/hooks/useSearchPatients";
 import { useDebounce } from "@/hooks/useDebounce";
-import { usePremiumStore } from "@/stores/premiumStore";
+import { useSubscriptionStore } from "@/stores/premiumStore";
 import { UseFormReturn } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { MedicalConsultationData } from "@/app/[locale]/(dashboard)/dashboard/appointments/add/AddMedicalConsultationForm";
@@ -48,7 +48,7 @@ export default function PatientSelectorConsultation({
   onPatientSelect = () => {},
 }: PatientSelectorConsultationProps) {
   const { selectedPatient: globalSelectedPatient, setPatient } =
-    usePremiumStore();
+    useSubscriptionStore();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<ConsultationPatient | null>(

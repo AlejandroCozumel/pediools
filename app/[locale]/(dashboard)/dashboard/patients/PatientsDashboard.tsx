@@ -63,8 +63,6 @@ import {
   Filter,
   LayoutGrid,
   LayoutList,
-  ChevronUp,
-  ChevronDown,
   PlusCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -325,6 +323,7 @@ const PatientsDashboard = React.memo(
           accessorKey: "ageGroup",
           header: t("columns.ageGroup"),
           cell: ({ row }) => {
+            console.log(row.original.appointmentStatus);
             const ageGroup = getAgeGroup(row.original.dateOfBirth);
             return (
               <Badge
@@ -569,7 +568,7 @@ const PatientsDashboard = React.memo(
                     {t("actions.viewAppointment")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
+                  {/* <DropdownMenuItem
                     onClick={() =>
                       router.push(
                         `/dashboard/calculations/new?patientId=${row.original.id}`
@@ -577,8 +576,8 @@ const PatientsDashboard = React.memo(
                     }
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    New Calculation
-                  </DropdownMenuItem>
+                    {t("actions.newCalculation")}
+                  </DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             );

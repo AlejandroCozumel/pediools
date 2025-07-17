@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, startOfMonth, isSameDay } from "date-fns";
 import {
   Form,
   FormControl,
@@ -44,8 +44,6 @@ import {
   Save,
   CalendarIcon,
   Contact,
-  Mail,
-  Home,
   Heart,
   UserPlus,
   Loader2,
@@ -54,7 +52,6 @@ import Link from "next/link";
 import { PatientData } from "@/hooks/use-patient";
 import { useToast } from "@/hooks/use-toast";
 
-// Zod schema with all patient fields
 const patientSchema = z.object({
   // Personal Information
   firstName: z
@@ -136,7 +133,7 @@ const patientSchema = z.object({
 });
 
 interface AddPatientFormProps {
-  patient: any;
+  patient?: any;
   isSubmitting: boolean;
   savePatient: any;
 }
@@ -179,18 +176,50 @@ const AddPatientForm = ({
     },
   });
 
+  // --- ADDED: State for Calendar Display Month ---
+  const [calendarDisplayMonth, setCalendarDisplayMonth] = useState<Date>(
+    // Initialize based on potential existing patient data or today
+    startOfMonth(
+      (patient?.dateOfBirth ? new Date(patient.dateOfBirth) : undefined) ||
+        new Date()
+    )
+  );
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 121 }, (_, i) => ({
     value: String(currentYear - i),
     label: String(currentYear - i),
   }));
 
+  // --- MODIFIED: Year Select Handler ---
   const handleYearSelect = (year: string) => {
     const currentDate = form.getValues("dateOfBirth") || new Date();
-    const newDate = new Date(currentDate);
+    const currentMonth = currentDate.getMonth(); // Store month before changing year
+
+    const newDate = new Date(currentDate); // Clone
     newDate.setFullYear(parseInt(year));
-    form.setValue("dateOfBirth", newDate);
+
+    // Adjust day if month changed (e.g., Feb 29th to non-leap year)
+    if (newDate.getMonth() !== currentMonth) {
+      newDate.setDate(0); // Go to last valid day of the target month
+    }
+
+    form.setValue("dateOfBirth", newDate, {
+      shouldValidate: true,
+      shouldDirty: true,
+    }); // Update form state
+
+    // --- ADDED: Update Calendar Display Month ---
+    setCalendarDisplayMonth(startOfMonth(newDate));
+    // --- END OF ADDED LINE ---
   };
+  // --- END OF MODIFIED HANDLER ---
+
+  // --- ADDED: Handler for calendar's internal month navigation ---
+  const handleCalendarMonthChange = (month: Date) => {
+    setCalendarDisplayMonth(startOfMonth(month));
+  };
+  // --- END OF ADDED HANDLER ---
 
   const onSubmit = async (data: PatientData) => {
     try {
@@ -210,6 +239,7 @@ const AddPatientForm = ({
 
   return (
     <div className="max-w-4xl m-auto w-full my-6 px-4">
+      {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center gap-2 text-medical-600 mb-6">
           <Link
@@ -245,14 +275,16 @@ const AddPatientForm = ({
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* First Name */}
                 <FormField
                   control={form.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
+                      {" "}
                       <FormLabel className="text-medical-700">
                         {t("sections.personal.fields.firstName")}
-                      </FormLabel>
+                      </FormLabel>{" "}
                       <FormControl>
                         <Input
                           placeholder={t(
@@ -261,19 +293,21 @@ const AddPatientForm = ({
                           className="border-medical-200"
                           {...field}
                         />
-                      </FormControl>
-                      <FormMessage />
+                      </FormControl>{" "}
+                      <FormMessage />{" "}
                     </FormItem>
                   )}
                 />
+                {/* Last Name */}
                 <FormField
                   control={form.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
+                      {" "}
                       <FormLabel className="text-medical-700">
                         {t("sections.personal.fields.lastName")}
-                      </FormLabel>
+                      </FormLabel>{" "}
                       <FormControl>
                         <Input
                           placeholder={t(
@@ -282,14 +316,15 @@ const AddPatientForm = ({
                           className="border-medical-200"
                           {...field}
                         />
-                      </FormControl>
-                      <FormMessage />
+                      </FormControl>{" "}
+                      <FormMessage />{" "}
                     </FormItem>
                   )}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Date of Birth Field */}
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
@@ -298,7 +333,9 @@ const AddPatientForm = ({
                       <FormLabel className="text-medical-700">
                         {t("sections.personal.fields.dateOfBirth")}
                       </FormLabel>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-start">
+                        {" "}
+                        {/* Using items-start */}
                         <Select
                           onValueChange={handleYearSelect}
                           value={
@@ -322,47 +359,77 @@ const AddPatientForm = ({
                             ))}
                           </SelectContent>
                         </Select>
-                        <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className="w-full pl-3 text-left font-normal border-medical-200"
-                              >
-                                {field.value ? (
-                                  format(field.value, "MMM d, yyyy")
-                                ) : (
-                                  <span>
-                                    {t(
-                                      "sections.personal.fields.datePlaceholder"
-                                    )}
-                                  </span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={(date) => {
-                                field.onChange(date);
-                                setDateOpen(false);
-                              }}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <div className="flex-1">
+                          <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className="w-full pl-3 text-left font-normal border-medical-200 justify-start"
+                                >
+                                  {field.value ? (
+                                    format(field.value, "MMM d, yyyy") // Standard format
+                                  ) : (
+                                    <span>
+                                      {t(
+                                        "sections.personal.fields.datePlaceholder"
+                                      )}
+                                    </span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                // --- MODIFIED: onSelect handler ---
+                                onSelect={(date) => {
+                                  field.onChange(date); // Update form value
+                                  // Sync display month if needed
+                                  if (date) {
+                                    const selectedMonthStart =
+                                      startOfMonth(date);
+                                    // Check if different before setting to avoid loop if using internal nav logic
+                                    const currentDisplayMonthStart =
+                                      startOfMonth(calendarDisplayMonth);
+                                    if (
+                                      !isSameDay(
+                                        selectedMonthStart,
+                                        currentDisplayMonthStart
+                                      )
+                                    ) {
+                                      setCalendarDisplayMonth(
+                                        selectedMonthStart
+                                      );
+                                    }
+                                  }
+                                  setDateOpen(false); // Close popover
+                                }}
+                                // --- ADDED: Calendar control props ---
+                                month={calendarDisplayMonth}
+                                onMonthChange={handleCalendarMonthChange}
+                                // --- Other props ---
+                                disabled={(date) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                                // Removed captionLayout props to avoid duplicate controls
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                       </div>
-                      <FormMessage />
+                      <FormMessage /> {/* Message below the controls */}
                     </FormItem>
                   )}
                 />
+                {/* Gender Field */}
                 <FormField
                   control={form.control}
                   name="gender"
@@ -405,10 +472,11 @@ const AddPatientForm = ({
           <Card className="border-medical-100">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Contact className="h-5 w-5 text-medical-500" />
+                {" "}
+                <Contact className="h-5 w-5 text-medical-500" />{" "}
                 <CardTitle className="text-xl font-heading text-medical-900">
                   {t("sections.contact.title")}
-                </CardTitle>
+                </CardTitle>{" "}
               </div>
               <CardDescription>
                 {t("sections.contact.subtitle")}
@@ -577,10 +645,11 @@ const AddPatientForm = ({
           <Card className="border-medical-100">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-medical-500" />
+                {" "}
+                <Heart className="h-5 w-5 text-medical-500" />{" "}
                 <CardTitle className="text-xl font-heading text-medical-900">
                   {t("sections.medical.title")}
-                </CardTitle>
+                </CardTitle>{" "}
               </div>
               <CardDescription>
                 {t("sections.medical.subtitle")}
@@ -693,7 +762,6 @@ const AddPatientForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="insuranceInfo.provider"
@@ -813,10 +881,11 @@ const AddPatientForm = ({
           <Card className="border-medical-100">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-medical-500" />
+                {" "}
+                <UserPlus className="h-5 w-5 text-medical-500" />{" "}
                 <CardTitle className="text-xl font-heading text-medical-900">
                   {t("sections.guardian.title")}
-                </CardTitle>
+                </CardTitle>{" "}
               </div>
               <CardDescription>
                 {t("sections.guardian.subtitle")}
@@ -957,13 +1026,14 @@ const AddPatientForm = ({
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {t("actions.saving")}
+                  {" "}
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
+                  {t("actions.saving")}{" "}
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
-                  {t("actions.save")}
+                  {" "}
+                  <Save className="h-4 w-4 mr-2" /> {t("actions.save")}{" "}
                 </>
               )}
             </Button>
