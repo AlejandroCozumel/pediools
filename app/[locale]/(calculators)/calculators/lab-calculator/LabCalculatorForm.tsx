@@ -663,7 +663,7 @@ const LabCalculatorForm: React.FC = () => {
   // ... existing code ...
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6">
       {/* Patient Selector - Outside Form Component */}
       <Card
         className={cn(
