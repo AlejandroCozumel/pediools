@@ -14,6 +14,7 @@ import {
   Repeat,
   ChevronsUp,
   FlaskConical,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,7 +64,6 @@ interface BilirubinResult {
   ETCOc?: string;
 }
 
-// Updated Form Schema
 const createFormSchema = (t: any) =>
   z
     .object({
@@ -96,7 +96,21 @@ const createFormSchema = (t: any) =>
     .refine((data) => data.measurementDateTime >= data.birthDateTime, {
       message: "Measurement time must be after birth time",
       path: ["measurementDateTime"],
-    });
+    })
+    .refine(
+      (data) => {
+        const ageInHours = differenceInHours(
+          data.measurementDateTime,
+          data.birthDateTime
+        );
+        return ageInHours >= 12 && ageInHours <= 336;
+      },
+      {
+        message:
+          "Age at measurement must be between 12 and 336 hours (14 days). AAP 2022 guidelines do not provide data outside this range.",
+        path: ["measurementDateTime"],
+      }
+    );
 
 export function BilirubinThresholdsForm() {
   const t = useTranslations("BilirubinCalculator");
@@ -134,6 +148,29 @@ export function BilirubinThresholdsForm() {
     if (!birthDateTime || !measurementDateTime) return null;
     return differenceInHours(measurementDateTime, birthDateTime);
   }, [birthDateTime, measurementDateTime]);
+
+  const isFormValid = useMemo(() => {
+    const totalBilirubin = form.watch("totalBilirubin");
+    const gestationalAge = form.watch("gestationalAge");
+
+    // Check if all required fields are filled
+    const hasAllRequiredFields =
+      birthDateTime &&
+      measurementDateTime &&
+      totalBilirubin &&
+      totalBilirubin.trim() !== "" &&
+      gestationalAge &&
+      gestationalAge.trim() !== "";
+
+    // Check if age is in valid range
+    const isAgeInValidRange = ageInHours !== null && ageInHours >= 12 && ageInHours <= 336;
+
+    // Check if bilirubin is a valid number
+    const isBilirubinValid = totalBilirubin && !isNaN(parseFloat(totalBilirubin)) && parseFloat(totalBilirubin) > 0;
+
+    return hasAllRequiredFields && isAgeInValidRange && isBilirubinValid;
+  }, [birthDateTime, measurementDateTime, ageInHours, form.watch("totalBilirubin"), form.watch("gestationalAge")]);
+
 
   const gestationalAgeOptions = [
     { value: "35", label: "35 weeks" },
@@ -234,6 +271,52 @@ export function BilirubinThresholdsForm() {
     }, 1000);
   }
 
+  const AgeValidationAlert = ({
+    ageInHours,
+  }: {
+    ageInHours: number | null;
+  }) => {
+    if (ageInHours === null) return null;
+
+    if (ageInHours < 12) {
+      return (
+        <Alert className="bg-red-50 border-red-200 text-red-800">
+          <AlertTriangle className="h-4 w-4 text-red-700" />
+          <AlertDescription>
+            <strong>Age too young:</strong> The baby is only {ageInHours} hours
+            old. AAP 2022 guidelines only provide recommendations for babies ≥12
+            hours old. Please wait until the baby is at least 12 hours old
+            before using this calculator.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    if (ageInHours > 336) {
+      return (
+        <Alert className="bg-red-50 border-red-200 text-red-800">
+          <AlertTriangle className="h-4 w-4 text-red-700" />
+          <AlertDescription>
+            <strong>Age too old:</strong> The baby is {ageInHours} hours old (
+            {Math.floor(ageInHours / 24)} days). AAP 2022 guidelines only
+            provide recommendations up to 336 hours (14 days) of age. Please
+            consult with a pediatrician for babies older than 14 days.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    return (
+      <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+        <Info className="h-4 w-4 text-blue-700" />
+        <AlertDescription>
+          Calculated age at time of measurement:{" "}
+          <strong>{ageInHours} hours</strong>.
+        </AlertDescription>
+      </Alert>
+    );
+  };
+
   return (
     <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6 !pb-0">
@@ -249,14 +332,8 @@ export function BilirubinThresholdsForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <DateInputsWithTime form={form} />
-            {ageInHours !== null && ageInHours >= 0 && (
-              <Alert className="bg-blue-50 border-blue-200 text-blue-800">
-                <Info className="h-4 w-4 text-blue-700" />
-                <AlertDescription>
-                  Calculated age at time of measurement:{" "}
-                  <strong>{ageInHours} hours</strong>.
-                </AlertDescription>
-              </Alert>
+            {ageInHours !== null && (
+              <AgeValidationAlert ageInHours={ageInHours} />
             )}
             <Card className="p-4 border-medical-100">
               <CardTitle className="text-lg font-semibold flex items-center gap-2 mb-4 text-medical-800">
@@ -576,7 +653,7 @@ export function BilirubinThresholdsForm() {
             <div className="flex gap-4">
               <Button
                 type="submit"
-                disabled={isSubmitting || results !== null}
+                disabled={isSubmitting || results !== null || !isFormValid}
                 size="lg"
                 className="flex-1 bg-gradient-to-r from-medical-600 to-medical-700"
               >
