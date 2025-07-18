@@ -1,8 +1,9 @@
 import React from 'react'
+import { BilirubinThresholdsForm } from './BilirubinThresholdsForm'
 
 const BilirubinCalculator = () => {
   return (
-    <div>BilirubinCalculator</div>
+    <BilirubinThresholdsForm/>
   )
 }
 

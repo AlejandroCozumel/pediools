@@ -982,5 +982,30 @@
     "interpretationHigh": "Por encima del rango de referencia",
     "interpretationCritical": "Valor crítico - requiere atención inmediata",
     "interpretationUnknown": "Rango de referencia no disponible"
+  },
+  "BilirubinCalculator": {
+    "riskFactors": {
+      "isoimmuneDisease": "Enfermedad hemolítica isoinmune",
+      "g6pdDeficiency": "Deficiencia de G6PD",
+      "asphyxia": "Asfixia significativa",
+      "lethargy": "Letargo significativo",
+      "temperatureInstability": "Inestabilidad térmica",
+      "sepsis": "Sepsis",
+      "acidosis": "Acidosis",
+      "lowAlbumen": "Albúmina < 3.0 g/dL"
+    },
+    "riskCategories": {
+      "lowerRisk": "riesgo bajo",
+      "mediumRisk": "riesgo intermedio",
+      "higherRisk": "riesgo alto"
+    },
+    "results": {
+      "phototherapyRecommended": "Fototerapia Recomendada",
+      "phototherapyNotRecommended": "Fototerapia No Recomendada"
+    },
+    "buttons": {
+      "calculate": "Calcular Umbral",
+      "calculating": "Calculando..."
+    }
   }
 }
