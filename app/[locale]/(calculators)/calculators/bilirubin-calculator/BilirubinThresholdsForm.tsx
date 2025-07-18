@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -104,14 +104,28 @@ export function BilirubinThresholdsForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BilirubinResult | null>(null);
+  const isMounted = useRef(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      measurementDateTime: new Date(),
+      birthDateTime: undefined,
+      measurementDateTime: undefined,
     },
     mode: "onChange",
   });
+
+  const watchedFormValues = form.watch();
+
+  useEffect(() => {
+    if (isMounted.current) {
+      if (results) {
+        setResults(null);
+      }
+    } else {
+      isMounted.current = true;
+    }
+  }, [JSON.stringify(watchedFormValues)]);
 
   const birthDateTime = form.watch("birthDateTime");
   const measurementDateTime = form.watch("measurementDateTime");
@@ -134,15 +148,13 @@ export function BilirubinThresholdsForm() {
     gestationalAge: number,
     hasRiskFactors: boolean
   ): string {
-    // Determine gestational age group
     let gestGroup;
-    if (gestationalAge >= 38) {
-      gestGroup = "38";
+    if (gestationalAge >= 40) {
+      gestGroup = "40";
     } else {
       gestGroup = gestationalAge.toString();
     }
 
-    // Add risk factor suffix
     const riskSuffix = hasRiskFactors ? "_withRisk" : "_noRisk";
 
     return gestGroup + riskSuffix;
@@ -161,7 +173,6 @@ export function BilirubinThresholdsForm() {
       const gestAge = parseFloat(values.gestationalAge);
       const ETCOc = values.ETCOc ? parseFloat(values.ETCOc) : undefined;
 
-      // CORRECTED: ETCOc must be >1.5 to be a risk factor (not just any ETCOc value)
       const hasRiskFactors =
         values.isoimmuneDisease ||
         values.g6pdDeficiency ||
@@ -171,7 +182,7 @@ export function BilirubinThresholdsForm() {
         values.sepsis ||
         values.acidosis ||
         values.lowAlbumen ||
-        (ETCOc && ETCOc > 1.5); // Only ETCOc >1.5 is a risk factor
+        (ETCOc && ETCOc > 1.5);
 
       const riskCategory = getRiskCategory2022(gestAge, !!hasRiskFactors);
 
@@ -565,7 +576,7 @@ export function BilirubinThresholdsForm() {
             <div className="flex gap-4">
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || results !== null}
                 size="lg"
                 className="flex-1 bg-gradient-to-r from-medical-600 to-medical-700"
               >
