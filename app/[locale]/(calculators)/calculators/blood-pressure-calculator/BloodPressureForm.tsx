@@ -6,13 +6,14 @@ import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import {
-  Heart,
   Baby,
   Loader2,
   Activity,
   AlertTriangle,
   Info,
   CheckCircle,
+  FileText,
+  Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -38,8 +39,9 @@ import { differenceInMonths, differenceInYears } from "date-fns";
 import cdcHeightData from "@/app/data/cdc-data-height.json";
 import whoHeightData from "@/app/data/who-data-height.json";
 import DateInputs from "@/components/DateInputs";
+import { AmbulatoryReferenceCard } from "./AmbulatoryReferenceCard";
+import { OfficeBPReferenceCard } from "./OfficeBPReferenceCard";
 
-// Blood Pressure Classification
 interface BPClassification {
   category: string;
   description: string;
@@ -103,7 +105,6 @@ interface WhoDataPoint {
   P999: number;
 }
 
-// Create form schema factory that accepts translations
 const createFormSchema = (t: any) =>
   z
     .object({
@@ -292,8 +293,7 @@ function calculateBPPercentile(
   ageInYears: number,
   heightPercentile: number,
   gender: "male" | "female",
-  ageInMonths: number,
-  t: any // Add translations parameter
+  t: any
 ): BPResult | null {
   // 1. Age validation - using years for precision
   if (ageInYears < 1 || ageInYears > 17) {
@@ -341,7 +341,7 @@ function calculateBPPercentile(
     -2.5,
     Math.min(2.5, (clampedHeightPercentile - 50) / 25)
   );
-  const heightAdjustment = heightZScore * 1.5; // Reduced from 2 to be more conservative
+  const heightAdjustment = heightZScore * 1.5;
   // Calculate reference percentiles with bounds checking
   const adjustedSystolic95 = Math.max(
     80,
@@ -426,6 +426,7 @@ function calculateBPPercentile(
         1.645
     )
   );
+
   // ========== CLASSIFICATION WITH EDGE CASES ==========
   const maxPercentile = Math.max(systolicPercentile, diastolicPercentile);
   let classification: BPClassification;
@@ -501,12 +502,20 @@ function calculateBPPercentile(
         bgColor: "bg-orange-50 border-orange-200",
       };
     } else if (maxPercentile >= 90) {
+      // This is the block for "Elevated"
+      let descriptionText = t("classifications.elevated.pediatricDescription");
+      let actionText = t("classifications.elevated.pediatricAction");
+
+      // Check which value is higher to provide a more specific reason
+      if (systolicPercentile > 90 && diastolicPercentile < 90) {
+        descriptionText = t("classifications.elevated.systolicReason");
+      } else if (diastolicPercentile > 90 && systolicPercentile < 90) {
+        descriptionText = t("classifications.elevated.diastolicReason");
+      }
+
       classification = {
         category: t("classifications.elevated.category"),
-        description: t("classifications.elevated.description", {
-          description: t("classifications.elevated.pediatricDescription"),
-          action: t("classifications.elevated.pediatricAction"),
-        }),
+        description: `${descriptionText} ${actionText}`,
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
@@ -560,7 +569,6 @@ function isAgeInRange(
 }
 
 export function BloodPressureForm() {
-  // Initialize translations
   const t = useTranslations("BloodPressureCalculator");
 
   // Create form schema with translations
@@ -569,6 +577,7 @@ export function BloodPressureForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BPResult | null>(null);
   const [ageError, setAgeError] = useState<string>("");
+  const [activeMainTab, setActiveMainTab] = useState("calculator");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -666,33 +675,12 @@ export function BloodPressureForm() {
         ageInYears,
         heightPercentile,
         values.gender,
-        ageInMonths,
-        t // Pass translations to calculation function
+        t
       );
 
       setResults(result);
       setIsSubmitting(false);
     }, 1000);
-  }
-
-  function getAgeSpecificReferences(
-    ageInYears: number,
-    gender: "male" | "female"
-  ) {
-    const screeningValues =
-      aapScreeningTable[gender][ageInYears] || aapScreeningTable[gender][17];
-    return {
-      normal: `<90th percentile (approx. <${screeningValues.systolic}/<${screeningValues.diastolic})`,
-      elevated: `90th-95th percentile (approx. ${screeningValues.systolic}-${
-        screeningValues.systolic + 8
-      }/${screeningValues.diastolic}-${screeningValues.diastolic + 6})`,
-      stage1: `≥95th percentile (approx. ≥${screeningValues.systolic + 8}/${
-        screeningValues.diastolic + 6
-      })`,
-      stage2: `≥95th percentile + 12mmHg (approx. ≥${
-        screeningValues.systolic + 20
-      }/${screeningValues.diastolic + 18})`,
-    };
   }
 
   return (
@@ -704,431 +692,336 @@ export function BloodPressureForm() {
         <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 lg:p-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Gender Selection */}
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem className="space-y-0 mb-6">
-                  <Tabs
-                    value={field.value}
-                    defaultValue="male"
-                    className="w-full"
-                    onValueChange={field.onChange}
-                  >
-                    <TabsList className="grid w-full grid-cols-2 bg-transparent border rounded-lg">
-                      <TabsTrigger
-                        value="male"
-                        className={`rounded-md transition-colors duration-300 ease-in-out
+        <Tabs
+          value={activeMainTab}
+          onValueChange={setActiveMainTab}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="calculator" className="flex items-center gap-2">
+              <Calculator className="w-4 h-4" />
+              BP Calculator
+            </TabsTrigger>
+            <TabsTrigger value="bedside" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Ambulatory BP Card
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="calculator">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* Gender Selection */}
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0 mb-6">
+                      <Tabs
+                        value={field.value}
+                        defaultValue="male"
+                        className="w-full"
+                        onValueChange={field.onChange}
+                      >
+                        <TabsList className="grid w-full grid-cols-2 bg-transparent border rounded-lg">
+                          <TabsTrigger
+                            value="male"
+                            className={`rounded-md transition-colors duration-300 ease-in-out
                           hover:bg-medical-50/80
                           data-[state=active]:text-white
                           data-[state=active]:bg-medical-600
                           data-[state=active]:shadow-sm`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Baby
-                            className={`h-5 w-5 transition-colors duration-300 ease-in-out
+                          >
+                            <div className="flex items-center gap-2">
+                              <Baby
+                                className={`h-5 w-5 transition-colors duration-300 ease-in-out
                             ${
                               selectedGender === "male"
                                 ? "text-white"
                                 : "text-medical-600"
                             }`}
-                          />
-                          <span className="font-medium">
-                            {t("gender.male")}
-                          </span>
-                        </div>
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="female"
-                        className={`rounded-md transition-colors duration-300 ease-in-out
+                              />
+                              <span className="font-medium">
+                                {t("gender.male")}
+                              </span>
+                            </div>
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="female"
+                            className={`rounded-md transition-colors duration-300 ease-in-out
                           hover:bg-medical-pink-50/80
                           data-[state=active]:text-white
                           data-[state=active]:bg-medical-pink-600
                           data-[state=active]:shadow-sm`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Baby
-                            className={`h-5 w-5 transition-colors duration-300 ease-in-out
+                          >
+                            <div className="flex items-center gap-2">
+                              <Baby
+                                className={`h-5 w-5 transition-colors duration-300 ease-in-out
                             ${
                               selectedGender === "female"
                                 ? "text-white"
                                 : "text-medical-pink-600"
                             }`}
-                          />
-                          <span className="font-medium">
-                            {t("gender.female")}
-                          </span>
-                        </div>
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Date Inputs */}
-            <DateInputs form={form} gender={selectedGender} />
+                              />
+                              <span className="font-medium">
+                                {t("gender.female")}
+                              </span>
+                            </div>
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Date Inputs */}
+                <DateInputs form={form} gender={selectedGender} />
 
-            {/* Age range info/warning */}
-            {!birthDate || !measurementDate ? (
-              <Alert
-                variant="default"
-                className="mb-4 bg-blue-50 border-blue-200 text-blue-800"
-              >
-                <AlertTitle className="font-semibold flex items-center gap-2">
-                  <Info className="w-4 h-4" /> {t("alerts.startHere.title")}
-                </AlertTitle>
-                <AlertDescription>
-                  {t("alerts.startHere.description")}
-                </AlertDescription>
-              </Alert>
-            ) : (
-              !ageIsValid && (
-                <Alert className="mb-4 bg-yellow-50 border-yellow-200 text-yellow-900">
-                  <AlertTitle className="font-semibold flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4" />{" "}
-                    {t("alerts.invalidAge.title")}
-                  </AlertTitle>
-                  <AlertDescription>
-                    {t("alerts.invalidAge.description")}
-                  </AlertDescription>
-                </Alert>
-              )
-            )}
-            {/* Educational Info Box */}
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-800">
-                <strong>{t("info.bpFormat.title")}</strong>{" "}
-                {t("info.bpFormat.description")}
-                <br />• <strong>{t("info.bpFormat.systolic")}</strong>
-                <br />• <strong>{t("info.bpFormat.diastolic")}</strong>
-              </p>
-            </div>
-            {/* BP Invalid Warning */}
-            {isBPInvalid && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-                <AlertTitle className="text-red-800">
-                  {t("alerts.invalidBP.title")}
-                </AlertTitle>
-                <AlertDescription className="text-red-700">
-                  {t("alerts.invalidBP.description", {
-                    systolic: systolicValue,
-                    diastolic: diastolicValue,
-                  })}
-                </AlertDescription>
-              </Alert>
-            )}
-            {/* Measurements */}
-            {ageIsValid && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.height")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder={t("form.heightPlaceholder")}
-                          {...field}
-                          className="border-medical-100"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="systolicBP"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.systolicBP")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder={t("form.systolicPlaceholder")}
-                          {...field}
-                          className={cn(
-                            "border-medical-100",
-                            isBPInvalid && "border-red-500 focus:border-red-500"
-                          )}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      {isBPInvalid && (
-                        <p className="text-sm text-red-600">
-                          {t("validation.systolicHigher")}
-                        </p>
-                      )}
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="diastolicBP"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.diastolicBP")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder={t("form.diastolicPlaceholder")}
-                          {...field}
-                          className={cn(
-                            "border-medical-100",
-                            isBPInvalid && "border-red-500 focus:border-red-500"
-                          )}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      {isBPInvalid && (
-                        <p className="text-sm text-red-600">
-                          {t("validation.systolicHigher")}
-                        </p>
-                      )}
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-            {/* Real-time Results */}
-            {results && (
-              <>
-                {/* Growth Chart Source Info Banner */}
-                {ageInMonths >= 12 && ageInMonths < 24 && (
-                  <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                    {t("dataSource.whoHeight")}
-                  </div>
+                {/* Age range info/warning */}
+                {!birthDate || !measurementDate ? (
+                  <Alert
+                    variant="default"
+                    className="mb-4 bg-blue-50 border-blue-200 text-blue-800"
+                  >
+                    <AlertTitle className="font-semibold flex items-center gap-2">
+                      <Info className="w-4 h-4" /> {t("alerts.startHere.title")}
+                    </AlertTitle>
+                    <AlertDescription>
+                      {t("alerts.startHere.description")}
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  !ageIsValid && (
+                    <Alert className="mb-4 bg-yellow-50 border-yellow-200 text-yellow-900">
+                      <AlertTitle className="font-semibold flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />{" "}
+                        {t("alerts.invalidAge.title")}
+                      </AlertTitle>
+                      <AlertDescription>
+                        {t("alerts.invalidAge.description")}
+                      </AlertDescription>
+                    </Alert>
+                  )
                 )}
-                {ageInMonths >= 24 && ageInMonths <= 215 && (
-                  <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                    {t("dataSource.cdcHeight")}
-                  </div>
+                {/* Educational Info Box */}
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800">
+                    <strong>{t("info.bpFormat.title")}</strong>{" "}
+                    {t("info.bpFormat.description")}
+                    <br />• <strong>{t("info.bpFormat.systolic")}</strong>
+                    <br />• <strong>{t("info.bpFormat.diastolic")}</strong>
+                  </p>
+                </div>
+                {/* BP Invalid Warning */}
+                {isBPInvalid && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <AlertTitle className="text-red-800">
+                      {t("alerts.invalidBP.title")}
+                    </AlertTitle>
+                    <AlertDescription className="text-red-700">
+                      {t("alerts.invalidBP.description", {
+                        systolic: systolicValue,
+                        diastolic: diastolicValue,
+                      })}
+                    </AlertDescription>
+                  </Alert>
                 )}
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          {t("results.title")}
-                        </h3>
-                        <Badge
-                          className={cn(
-                            "font-medium",
-                            results.classification.bgColor,
-                            results.classification.color
-                          )}
-                        >
-                          {results.classification.category}
-                        </Badge>
-                      </div>
-                      <div
-                        className={cn(
-                          "flex items-center gap-3 p-4 rounded-lg border mb-4",
-                          results.classification.category ===
-                            t("classifications.normal.category") &&
-                            "bg-green-50 border-green-200",
-                          results.classification.category ===
-                            t("classifications.elevated.category") &&
-                            "bg-yellow-50 border-yellow-200",
-                          results.classification.category ===
-                            t("classifications.stage1.category") &&
-                            "bg-orange-50 border-orange-200",
-                          results.classification.category ===
-                            t("classifications.stage2.category") &&
-                            "bg-red-50 border-red-200"
-                        )}
-                      >
-                        {results.classification.category ===
-                          t("classifications.normal.category") && (
-                          <CheckCircle className="w-6 h-6 text-green-600" />
-                        )}
-                        {(results.classification.category ===
-                          t("classifications.elevated.category") ||
-                          results.classification.category ===
-                            t("classifications.stage1.category") ||
-                          results.classification.category ===
-                            t("classifications.stage2.category")) && (
-                          <AlertTriangle
-                            className={cn(
-                              "w-6 h-6",
-                              results.classification.category ===
-                                t("classifications.elevated.category") &&
-                                "text-yellow-600",
-                              results.classification.category ===
-                                t("classifications.stage1.category") &&
-                                "text-orange-600",
-                              results.classification.category ===
-                                t("classifications.stage2.category") &&
-                                "text-red-600"
-                            )}
-                          />
-                        )}
-                        <div>
-                          <div
-                            className={cn(
-                              "font-semibold text-lg",
-                              results.classification.category ===
-                                t("classifications.normal.category") &&
-                                "text-green-800",
-                              results.classification.category ===
-                                t("classifications.elevated.category") &&
-                                "text-yellow-800",
-                              results.classification.category ===
-                                t("classifications.stage1.category") &&
-                                "text-orange-800",
-                              results.classification.category ===
-                                t("classifications.stage2.category") &&
-                                "text-red-800"
-                            )}
-                          >
-                            {results.classification.category}
-                          </div>
-                          <div
-                            className={cn(
-                              "text-sm",
-                              results.classification.category ===
-                                t("classifications.normal.category") &&
-                                "text-green-700",
-                              results.classification.category ===
-                                t("classifications.elevated.category") &&
-                                "text-yellow-700",
-                              results.classification.category ===
-                                t("classifications.stage1.category") &&
-                                "text-orange-700",
-                              results.classification.category ===
-                                t("classifications.stage2.category") &&
-                                "text-red-700"
-                            )}
-                          >
-                            {results.classification.description}
-                          </div>
-                        </div>
-                      </div>
-                      {/* Enhanced BP Details with Clinical Context */}
-                      <div className="mt-4">
-                        <div
-                          className={cn(
-                            "rounded-t-lg px-4 py-2 font-semibold text-white text-sm",
-                            selectedGender === "male"
-                              ? "bg-medical-600"
-                              : "bg-medical-pink-600"
-                          )}
-                        >
-                          {t("results.details")} (
-                          {selectedGender === "male"
-                            ? t("gender.male")
-                            : t("gender.female")}
-                          )
-                        </div>
-                        <table className="w-full border rounded-b-lg bg-white">
-                          <thead>
-                            <tr
+                {/* Measurements */}
+                {ageIsValid && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="height"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("form.height")}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.1"
+                              placeholder={t("form.heightPlaceholder")}
+                              {...field}
+                              className="border-medical-100"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="systolicBP"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("form.systolicBP")}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder={t("form.systolicPlaceholder")}
+                              {...field}
                               className={cn(
-                                selectedGender === "male"
-                                  ? "bg-medical-50 text-medical-700"
-                                  : "bg-medical-pink-50 text-medical-pink-700"
+                                "border-medical-100",
+                                isBPInvalid &&
+                                  "border-red-500 focus:border-red-500"
+                              )}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          {isBPInvalid && (
+                            <p className="text-sm text-red-600">
+                              {t("validation.systolicHigher")}
+                            </p>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="diastolicBP"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("form.diastolicBP")}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder={t("form.diastolicPlaceholder")}
+                              {...field}
+                              className={cn(
+                                "border-medical-100",
+                                isBPInvalid &&
+                                  "border-red-500 focus:border-red-500"
+                              )}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          {isBPInvalid && (
+                            <p className="text-sm text-red-600">
+                              {t("validation.systolicHigher")}
+                            </p>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                {/* Real-time Results */}
+                {results && (
+                  <>
+                    {/* Growth Chart Source Info Banner */}
+                    {ageInMonths >= 12 && ageInMonths < 24 && (
+                      <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
+                        {t("dataSource.whoHeight")}
+                      </div>
+                    )}
+                    {ageInMonths >= 24 && ageInMonths <= 215 && (
+                      <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
+                        {t("dataSource.cdcHeight")}
+                      </div>
+                    )}
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">
+                              {t("results.title")}
+                            </h3>
+                            <Badge
+                              className={cn(
+                                "font-medium",
+                                results.classification.bgColor,
+                                results.classification.color
                               )}
                             >
-                              <th className="py-2 px-4 text-left text-sm font-medium">
-                                {t("results.metrics.metric")}
-                              </th>
-                              <th className="py-2 px-4 text-left text-sm font-medium">
-                                {t("results.metrics.systolic")}
-                              </th>
-                              <th className="py-2 px-4 text-left text-sm font-medium">
-                                {t("results.metrics.diastolic")}
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr className="border-t text-sm">
-                              <td className="py-2 px-4 font-medium">
-                                {t("results.metrics.value")}
-                              </td>
-                              <td className="py-2 px-4">
-                                {results.systolic.value}
-                              </td>
-                              <td className="py-2 px-4">
-                                {results.diastolic.value}
-                              </td>
-                            </tr>
-                            <tr className="border-t text-sm">
-                              <td className="py-2 px-4 font-medium">
-                                {t("results.metrics.percentile")}
-                              </td>
-                              <td className="py-2 px-4">
-                                {results.systolic.percentile.toFixed(1)}%
-                              </td>
-                              <td className="py-2 px-4">
-                                {results.diastolic.percentile.toFixed(1)}%
-                              </td>
-                            </tr>
-                            <tr className="border-t text-sm">
-                              <td className="py-2 px-4 font-medium">
-                                {t("results.metrics.zScore")}
-                              </td>
-                              <td className="py-2 px-4">
-                                {results.systolic.zScore.toFixed(2)}
-                              </td>
-                              <td className="py-2 px-4">
-                                {results.diastolic.zScore.toFixed(2)}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      {/* Clinical Interpretation */}
-                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <h4 className="font-medium text-sm mb-2 text-blue-800">
-                          {t("results.clinicalInterpretation.title")}
-                        </h4>
-                        <div className="text-xs text-blue-700">
-                          <p>
-                            <strong>
-                              {t("results.clinicalInterpretation.currentBP")}
-                            </strong>{" "}
-                            {results.systolic.value}/{results.diastolic.value}{" "}
-                            mmHg
-                          </p>
-                          <p>
-                            <strong>
-                              {t(
-                                "results.clinicalInterpretation.classification",
-                                {
-                                  systolic:
-                                    results.systolic.percentile.toFixed(1),
-                                  diastolic:
-                                    results.diastolic.percentile.toFixed(1),
-                                }
-                              )}
-                            </strong>
-                          </p>
-                          <p>
-                            <strong>
-                              {t(
-                                "results.clinicalInterpretation.heightAdjustment",
-                                {
-                                  height: results.heightPercentile.toFixed(1),
-                                }
-                              )}
-                            </strong>
-                          </p>
-                        </div>
-                      </div>
-                      {(() => {
-                        const references = getAgeSpecificReferences(
-                          ageInYears,
-                          selectedGender
-                        );
-                        return (
+                              {results.classification.category}
+                            </Badge>
+                          </div>
+                          <div
+                            className={cn(
+                              "flex items-center gap-3 p-4 rounded-lg border mb-4",
+                              results.classification.category ===
+                                t("classifications.normal.category") &&
+                                "bg-green-50 border-green-200",
+                              results.classification.category ===
+                                t("classifications.elevated.category") &&
+                                "bg-yellow-50 border-yellow-200",
+                              results.classification.category ===
+                                t("classifications.stage1.category") &&
+                                "bg-orange-50 border-orange-200",
+                              results.classification.category ===
+                                t("classifications.stage2.category") &&
+                                "bg-red-50 border-red-200"
+                            )}
+                          >
+                            {results.classification.category ===
+                              t("classifications.normal.category") && (
+                              <CheckCircle className="w-6 h-6 text-green-600" />
+                            )}
+                            {(results.classification.category ===
+                              t("classifications.elevated.category") ||
+                              results.classification.category ===
+                                t("classifications.stage1.category") ||
+                              results.classification.category ===
+                                t("classifications.stage2.category")) && (
+                              <AlertTriangle
+                                className={cn(
+                                  "w-6 h-6",
+                                  results.classification.category ===
+                                    t("classifications.elevated.category") &&
+                                    "text-yellow-600",
+                                  results.classification.category ===
+                                    t("classifications.stage1.category") &&
+                                    "text-orange-600",
+                                  results.classification.category ===
+                                    t("classifications.stage2.category") &&
+                                    "text-red-600"
+                                )}
+                              />
+                            )}
+                            <div>
+                              <div
+                                className={cn(
+                                  "font-semibold text-lg",
+                                  results.classification.category ===
+                                    t("classifications.normal.category") &&
+                                    "text-green-800",
+                                  results.classification.category ===
+                                    t("classifications.elevated.category") &&
+                                    "text-yellow-800",
+                                  results.classification.category ===
+                                    t("classifications.stage1.category") &&
+                                    "text-orange-800",
+                                  results.classification.category ===
+                                    t("classifications.stage2.category") &&
+                                    "text-red-800"
+                                )}
+                              >
+                                {results.classification.category}
+                              </div>
+                              <div
+                                className={cn(
+                                  "text-sm",
+                                  results.classification.category ===
+                                    t("classifications.normal.category") &&
+                                    "text-green-700",
+                                  results.classification.category ===
+                                    t("classifications.elevated.category") &&
+                                    "text-yellow-700",
+                                  results.classification.category ===
+                                    t("classifications.stage1.category") &&
+                                    "text-orange-700",
+                                  results.classification.category ===
+                                    t("classifications.stage2.category") &&
+                                    "text-red-700"
+                                )}
+                              >
+                                {results.classification.description}
+                              </div>
+                            </div>
+                          </div>
+                          {/* Enhanced BP Details with Clinical Context */}
                           <div className="mt-4">
                             <div
                               className={cn(
@@ -1138,131 +1031,179 @@ export function BloodPressureForm() {
                                   : "bg-medical-pink-600"
                               )}
                             >
-                              {t("results.referenceRanges.title", {
-                                age: ageInYears,
-                                gender:
-                                  selectedGender === "male"
-                                    ? t("gender.male")
-                                    : t("gender.female"),
-                              })}
+                              {t("results.details")} (
+                              {selectedGender === "male"
+                                ? t("gender.male")
+                                : t("gender.female")}
+                              )
                             </div>
-                            <div className="border border-t-0 rounded-b-lg bg-white p-4">
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                {/* Normal */}
-                                <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                                  <div className="w-4 h-4 bg-green-500 rounded-full mt-0.5 flex-shrink-0"></div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-semibold text-green-800 text-sm">
-                                      {t("referenceCategories.normal")}
-                                    </div>
-                                    <div className="text-green-700 text-xs mt-1 break-words">
-                                      {references.normal}
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* Elevated */}
-                                <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                  <div className="w-4 h-4 bg-yellow-500 rounded-full mt-0.5 flex-shrink-0"></div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-semibold text-yellow-800 text-sm">
-                                      {t("referenceCategories.elevated")}
-                                    </div>
-                                    <div className="text-yellow-700 text-xs mt-1 break-words">
-                                      {references.elevated}
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* Stage 1 HTN */}
-                                <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                                  <div className="w-4 h-4 bg-orange-500 rounded-full mt-0.5 flex-shrink-0"></div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-semibold text-orange-800 text-sm">
-                                      {t("referenceCategories.stage1")}
-                                    </div>
-                                    <div className="text-orange-700 text-xs mt-1 break-words">
-                                      {references.stage1}
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* Stage 2 HTN */}
-                                <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                                  <div className="w-4 h-4 bg-red-500 rounded-full mt-0.5 flex-shrink-0"></div>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="font-semibold text-red-800 text-sm">
-                                      {t("referenceCategories.stage2")}
-                                    </div>
-                                    <div className="text-red-700 text-xs mt-1 break-words">
-                                      {references.stage2}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="mt-4 pt-3 border-t border-gray-200">
-                                <div className="flex items-start gap-2">
-                                  <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                                  <p className="text-xs text-gray-600">
-                                    {t("results.referenceRanges.note")}
-                                  </p>
-                                </div>
-                              </div>
+                            <table className="w-full border rounded-b-lg bg-white">
+                              <thead>
+                                <tr
+                                  className={cn(
+                                    selectedGender === "male"
+                                      ? "bg-medical-50 text-medical-700"
+                                      : "bg-medical-pink-50 text-medical-pink-700"
+                                  )}
+                                >
+                                  <th className="py-2 px-4 text-left text-sm font-medium">
+                                    {t("results.metrics.metric")}
+                                  </th>
+                                  <th className="py-2 px-4 text-left text-sm font-medium">
+                                    {t("results.metrics.systolic")}
+                                  </th>
+                                  <th className="py-2 px-4 text-left text-sm font-medium">
+                                    {t("results.metrics.diastolic")}
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="border-t text-sm">
+                                  <td className="py-2 px-4 font-medium">
+                                    {t("results.metrics.value")}
+                                  </td>
+                                  <td className="py-2 px-4">
+                                    {results.systolic.value}
+                                  </td>
+                                  <td className="py-2 px-4">
+                                    {results.diastolic.value}
+                                  </td>
+                                </tr>
+                                <tr className="border-t text-sm">
+                                  <td className="py-2 px-4 font-medium">
+                                    {t("results.metrics.percentile")}
+                                  </td>
+                                  <td className="py-2 px-4">
+                                    {results.systolic.percentile.toFixed(1)}%
+                                  </td>
+                                  <td className="py-2 px-4">
+                                    {results.diastolic.percentile.toFixed(1)}%
+                                  </td>
+                                </tr>
+                                <tr className="border-t text-sm">
+                                  <td className="py-2 px-4 font-medium">
+                                    {t("results.metrics.zScore")}
+                                  </td>
+                                  <td className="py-2 px-4">
+                                    {results.systolic.zScore.toFixed(2)}
+                                  </td>
+                                  <td className="py-2 px-4">
+                                    {results.diastolic.zScore.toFixed(2)}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+
+                          <OfficeBPReferenceCard
+                            ageInYears={ageInYears}
+                            gender={selectedGender}
+                            heightPercentile={results.heightPercentile}
+                            height={parseFloat(height)}
+                          />
+
+                          {/* Clinical Interpretation */}
+                          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 className="font-medium text-sm mb-2 text-blue-800">
+                              {t("results.clinicalInterpretation.title")}
+                            </h4>
+                            <div className="text-xs text-blue-700">
+                              <p>
+                                <strong>
+                                  {t(
+                                    "results.clinicalInterpretation.currentBP"
+                                  )}
+                                </strong>{" "}
+                                {results.systolic.value}/
+                                {results.diastolic.value} mmHg
+                              </p>
+                              <p>
+                                <strong>
+                                  {t(
+                                    "results.clinicalInterpretation.classification",
+                                    {
+                                      systolic:
+                                        results.systolic.percentile.toFixed(1),
+                                      diastolic:
+                                        results.diastolic.percentile.toFixed(1),
+                                    }
+                                  )}
+                                </strong>
+                              </p>
+                              <p>
+                                <strong>
+                                  {t(
+                                    "results.clinicalInterpretation.heightAdjustment",
+                                    {
+                                      height:
+                                        results.heightPercentile.toFixed(1),
+                                    }
+                                  )}
+                                </strong>
+                              </p>
                             </div>
                           </div>
-                        );
-                      })()}
-                      <div className="text-xs text-muted-foreground pt-2 border-t">
-                        <p>
-                          {t("results.footer.heightPercentile", {
-                            percentile: results.heightPercentile.toFixed(1),
-                          })}
-                        </p>
-                        <p>
-                          {t("results.footer.heightData", {
-                            source:
-                              ageInMonths < 24
-                                ? t("results.footer.whoSource")
-                                : t("results.footer.cdcSource"),
-                          })}
-                        </p>
-                        <p>{t("results.footer.reference")}</p>
-                        <p>{t("results.footer.note")}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-            {ageError && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertTitle>{t("alerts.invalidAge.title")}</AlertTitle>
-                <AlertDescription>{ageError}</AlertDescription>
-              </Alert>
-            )}
-            <Button
-              type="submit"
-              disabled={isSubmitting || !form.formState.isValid || isBPInvalid}
-              size="lg"
-              className={cn(
-                "w-full transition-all duration-300 ease-in-out",
-                selectedGender === "male"
-                  ? "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800"
-                  : "bg-gradient-to-r from-medical-pink-600 to-medical-pink-700 hover:from-medical-pink-700 hover:to-medical-pink-800",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t("button.calculating")}
-                </>
-              ) : (
-                <>
-                  {t("button.calculate")}
-                  <Activity className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </form>
-        </Form>
+                          <div className="text-xs text-muted-foreground pt-2 border-t">
+                            <p>
+                              {t("results.footer.heightPercentile", {
+                                percentile: results.heightPercentile.toFixed(1),
+                              })}
+                            </p>
+                            <p>
+                              {t("results.footer.heightData", {
+                                source:
+                                  ageInMonths < 24
+                                    ? t("results.footer.whoSource")
+                                    : t("results.footer.cdcSource"),
+                              })}
+                            </p>
+                            <p>{t("results.footer.reference")}</p>
+                            <p>{t("results.footer.note")}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
+                {ageError && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertTitle>{t("alerts.invalidAge.title")}</AlertTitle>
+                    <AlertDescription>{ageError}</AlertDescription>
+                  </Alert>
+                )}
+                <Button
+                  type="submit"
+                  disabled={
+                    isSubmitting || !form.formState.isValid || isBPInvalid
+                  }
+                  size="lg"
+                  className={cn(
+                    "w-full transition-all duration-300 ease-in-out",
+                    selectedGender === "male"
+                      ? "bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800"
+                      : "bg-gradient-to-r from-medical-pink-600 to-medical-pink-700 hover:from-medical-pink-700 hover:to-medical-pink-800",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("button.calculating")}
+                    </>
+                  ) : (
+                    <>
+                      {t("button.calculate")}
+                      <Activity className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </TabsContent>
+          <TabsContent value="bedside">
+            <AmbulatoryReferenceCard />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

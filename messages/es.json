@@ -259,7 +259,9 @@
         "pediatricDescription": "percentil 90-95",
         "pediatricAction": "Se recomienda monitoreo",
         "adolescentDescription": "120/<80 a 129/<80 mmHg",
-        "adolescentAction": "Se recomiendan modificaciones del estilo de vida"
+        "adolescentAction": "Se recomiendan modificaciones del estilo de vida",
+        "systolicReason": "La presión sistólica de su hijo/a está elevada.",
+        "diastolicReason": "La presión diastólica de su hijo/a está elevada."
       },
       "stage1": {
         "category": "Hipertensión Etapa 1",

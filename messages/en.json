@@ -259,7 +259,9 @@
         "pediatricDescription": "90th-95th percentile",
         "pediatricAction": "Monitoring recommended",
         "adolescentDescription": "120/<80 to 129/<80 mmHg",
-        "adolescentAction": "Lifestyle modifications recommended"
+        "adolescentAction": "Lifestyle modifications recommended",
+        "systolicReason": "Your child's systolic pressure is elevated.",
+        "diastolicReason": "Your child's diastolic pressure is elevated."
       },
       "stage1": {
         "category": "Stage 1 HTN",
