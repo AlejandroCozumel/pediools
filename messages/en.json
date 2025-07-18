@@ -159,6 +159,134 @@
       }
     }
   },
+  "BloodPressureCalculator": {
+    "title": "Blood Pressure Calculator",
+    "description": "Calculate pediatric blood pressure percentiles using 2017 AAP guidelines (Ages 1 year - 17 years)",
+    "gender": {
+      "male": "Boy",
+      "female": "Girl"
+    },
+    "form": {
+      "height": "Height (cm)",
+      "heightPlaceholder": "150",
+      "systolicBP": "Systolic BP (mmHg)",
+      "systolicPlaceholder": "120",
+      "diastolicBP": "Diastolic BP (mmHg)",
+      "diastolicPlaceholder": "80"
+    },
+    "validation": {
+      "selectGender": "Please select a gender",
+      "dobRequired": "Date of birth is required",
+      "measurementRequired": "Measurement date is required",
+      "heightInvalid": "Please enter a valid height in cm",
+      "systolicRange": "Systolic BP must be between 50-250 mmHg",
+      "diastolicRange": "Diastolic BP must be between 30-150 mmHg",
+      "systolicHigher": "Systolic BP must be higher than diastolic BP",
+      "ageRange": "Patient age must be between 1 and 17 years at the time of measurement."
+    },
+    "alerts": {
+      "startHere": {
+        "title": "Start Here",
+        "description": "Please select both a date of birth and a date of measurement to begin."
+      },
+      "invalidAge": {
+        "title": "Invalid Age Range",
+        "description": "Please select a date of birth and measurement date so that the patient is between 1 and 17 years old at the time of measurement."
+      },
+      "invalidBP": {
+        "title": "Invalid Blood Pressure",
+        "description": "Systolic pressure must be higher than diastolic pressure. Current: {systolic}/{diastolic} - Please check your values."
+      }
+    },
+    "info": {
+      "bpFormat": {
+        "title": "Blood Pressure Format:",
+        "description": "Always enter as Systolic/Diastolic (e.g., 120/80)",
+        "systolic": "Systolic (top number): Pressure when heart beats",
+        "diastolic": "Diastolic (bottom number): Pressure when heart rests"
+      }
+    },
+    "ageDisplay": {
+      "label": "Age:",
+      "years": "years",
+      "months": "months",
+      "warning": "Calculator is designed for ages 1 year - 17 years (12-215 months)"
+    },
+    "dataSource": {
+      "whoHeight": "Height percentiles use WHO growth standards for ages 1–2 years.",
+      "cdcHeight": "Height percentiles use CDC growth charts for ages 2–17 years."
+    },
+    "results": {
+      "title": "Blood Pressure Assessment",
+      "details": "Blood Pressure Details",
+      "metrics": {
+        "metric": "Metric",
+        "systolic": "Systolic",
+        "diastolic": "Diastolic",
+        "value": "Value (mmHg)",
+        "percentile": "Percentile (%)",
+        "zScore": "Z-Score"
+      },
+      "clinicalInterpretation": {
+        "title": "Clinical Interpretation",
+        "currentBP": "Current BP:",
+        "classification": "Classification: Based on the higher percentile (systolic: {systolic}%, diastolic: {diastolic}%)",
+        "heightAdjustment": "Height adjustment: Applied based on {height}th percentile height"
+      },
+      "referenceRanges": {
+        "title": "Reference Ranges for Age {age} ({gender})",
+        "note": "These are approximate values based on 50th percentile height. Actual thresholds adjust for individual height percentile."
+      },
+      "footer": {
+        "heightPercentile": "Height percentile: {percentile}%",
+        "heightData": "Height data: {source}",
+        "whoSource": "WHO (1–2 years)",
+        "cdcSource": "CDC (2–17 years)",
+        "reference": "Reference: 2017 American Academy of Pediatrics Clinical Practice Guideline",
+        "note": "Note: Uses 2017 AAP screening table with quantile regression approximation"
+      }
+    },
+    "classifications": {
+      "normal": {
+        "category": "Normal",
+        "description": "{description} - Blood pressure is within normal range",
+        "pediatricDescription": "<90th percentile - Normal range",
+        "adolescentDescription": "<120/<80 mmHg"
+      },
+      "elevated": {
+        "category": "Elevated BP",
+        "description": "{description} - {action}",
+        "pediatricDescription": "90th-95th percentile",
+        "pediatricAction": "Monitoring recommended",
+        "adolescentDescription": "120/<80 to 129/<80 mmHg",
+        "adolescentAction": "Lifestyle modifications recommended"
+      },
+      "stage1": {
+        "category": "Stage 1 HTN",
+        "description": "{description} - {action}",
+        "pediatricDescription": "≥95th percentile",
+        "pediatricAction": "Requires medical evaluation",
+        "adolescentDescription": "130/80 to 139/89 mmHg",
+        "adolescentAction": "Lifestyle modifications and monitoring needed"
+      },
+      "stage2": {
+        "category": "Stage 2 HTN",
+        "description": "{description} - Requires immediate medical attention",
+        "pediatricDescription": "≥95th percentile + 12mmHg or ≥140/90",
+        "adolescentDescription": "≥140/90 mmHg"
+      }
+    },
+    "referenceCategories": {
+      "normal": "Normal",
+      "elevated": "Elevated",
+      "stage1": "Stage 1 HTN",
+      "stage2": "Stage 2 HTN"
+    },
+    "button": {
+      "calculate": "Calculate Blood Pressure",
+      "calculating": "Calculating..."
+    }
+  },
   "PatientSelector": {
     "search": {
       "placeholder": "Search patients...",
@@ -358,8 +486,8 @@
           "yearPlaceholder": "Year",
           "datePlaceholder": "Pick a date",
           "genderOptions": {
-            "male": "Male",
-            "female": "Female"
+            "male": "Boy",
+            "female": "Girl"
           }
         }
       },
@@ -658,7 +786,7 @@
       "who": {
         "name": "WHO BMI Standard",
         "description": "International BMI percentiles for children (0-24 months)",
-        "ageRange": "4 months",
+        "ageRange": "0-24 months",
         "details": "Recommended by WHO for international use"
       },
       "cdc": {
