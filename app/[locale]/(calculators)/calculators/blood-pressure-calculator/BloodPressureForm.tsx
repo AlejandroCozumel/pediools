@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   Heart,
   Baby,
@@ -102,53 +103,55 @@ interface WhoDataPoint {
   P999: number;
 }
 
-const formSchema = z
-  .object({
-    gender: z.enum(["male", "female"], {
-      required_error: "Please select a gender",
-    }),
-    dateOfBirth: z.date({
-      required_error: "Date of birth is required",
-    }),
-    dateOfMeasurement: z.date({
-      required_error: "Measurement date is required",
-    }),
-    height: z
-      .string()
-      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-        message: "Please enter a valid height in cm",
+// Create form schema factory that accepts translations
+const createFormSchema = (t: any) =>
+  z
+    .object({
+      gender: z.enum(["male", "female"], {
+        required_error: t("validation.selectGender"),
       }),
-    systolicBP: z.string().refine(
-      (val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num >= 50 && num <= 250;
+      dateOfBirth: z.date({
+        required_error: t("validation.dobRequired"),
+      }),
+      dateOfMeasurement: z.date({
+        required_error: t("validation.measurementRequired"),
+      }),
+      height: z
+        .string()
+        .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+          message: t("validation.heightInvalid"),
+        }),
+      systolicBP: z.string().refine(
+        (val) => {
+          const num = parseFloat(val);
+          return !isNaN(num) && num >= 50 && num <= 250;
+        },
+        {
+          message: t("validation.systolicRange"),
+        }
+      ),
+      diastolicBP: z.string().refine(
+        (val) => {
+          const num = parseFloat(val);
+          return !isNaN(num) && num >= 30 && num <= 150;
+        },
+        {
+          message: t("validation.diastolicRange"),
+        }
+      ),
+    })
+    .refine(
+      (data) => {
+        // Cross-field validation: systolic must be higher than diastolic
+        const systolic = parseFloat(data.systolicBP);
+        const diastolic = parseFloat(data.diastolicBP);
+        return systolic > diastolic;
       },
       {
-        message: "Systolic BP must be between 50-250 mmHg",
+        message: t("validation.systolicHigher"),
+        path: ["diastolicBP"], // Show error on diastolic field
       }
-    ),
-    diastolicBP: z.string().refine(
-      (val) => {
-        const num = parseFloat(val);
-        return !isNaN(num) && num >= 30 && num <= 150;
-      },
-      {
-        message: "Diastolic BP must be between 30-150 mmHg",
-      }
-    ),
-  })
-  .refine(
-    (data) => {
-      // Cross-field validation: systolic must be higher than diastolic
-      const systolic = parseFloat(data.systolicBP);
-      const diastolic = parseFloat(data.diastolicBP);
-      return systolic > diastolic;
-    },
-    {
-      message: "Systolic BP must be higher than diastolic BP",
-      path: ["diastolicBP"], // Show error on diastolic field
-    }
-  );
+    );
 
 // Calculate Z-Score using LMS method
 const calculateZScore = (value: number, L: number, M: number, S: number) => {
@@ -289,27 +292,21 @@ function calculateBPPercentile(
   ageInYears: number,
   heightPercentile: number,
   gender: "male" | "female",
-  ageInMonths: number
+  ageInMonths: number,
+  t: any // Add translations parameter
 ): BPResult | null {
-  // 1. Age validation - using months for precision
-  const minAgeMonths = 12; // 1 year
-  const maxAgeMonths = 17 * 12 + 11; // 17 years 11 months (just before 18th birthday)
-
-  if (ageInMonths < minAgeMonths || ageInMonths > maxAgeMonths) {
-    const years = Math.floor(ageInMonths / 12);
-    const months = ageInMonths % 12;
+  // 1. Age validation - using years for precision
+  if (ageInYears < 1 || ageInYears > 17) {
     console.warn(
-      `Age ${years} years ${months} months is outside valid range (1 year - 17 years 11 months)`
+      `Age ${ageInYears} years is outside valid range (1 year - 17 years)`
     );
     return null;
   }
-
   // 2. BP validation (reasonable physiological ranges)
   if (systolic < 50 || systolic > 250 || diastolic < 30 || diastolic > 150) {
     console.warn(`BP ${systolic}/${diastolic} is outside reasonable range`);
     return null;
   }
-
   // 3. BP relationship validation
   if (diastolic >= systolic) {
     console.warn(
@@ -317,7 +314,6 @@ function calculateBPPercentile(
     );
     return null;
   }
-
   // 4. Height percentile validation and capping
   const clampedHeightPercentile = Math.max(1, Math.min(99.9, heightPercentile));
   if (heightPercentile !== clampedHeightPercentile) {
@@ -325,7 +321,6 @@ function calculateBPPercentile(
       `Height percentile clamped from ${heightPercentile}% to ${clampedHeightPercentile}%`
     );
   }
-
   // Get screening values with fallback logic
   let screeningValues = aapScreeningTable[gender][String(ageInYears)];
   if (!screeningValues) {
@@ -341,14 +336,12 @@ function calculateBPPercentile(
       `Using age ${closestAge} screening values for age ${ageInYears}`
     );
   }
-
   // Height adjustment with bounds
   const heightZScore = Math.max(
     -2.5,
     Math.min(2.5, (clampedHeightPercentile - 50) / 25)
   );
   const heightAdjustment = heightZScore * 1.5; // Reduced from 2 to be more conservative
-
   // Calculate reference percentiles with bounds checking
   const adjustedSystolic95 = Math.max(
     80,
@@ -368,7 +361,6 @@ function calculateBPPercentile(
   );
   const adjustedSystolic50 = Math.max(60, adjustedSystolic90 - 15);
   const adjustedDiastolic50 = Math.max(35, adjustedDiastolic90 - 12);
-
   // Enhanced percentile calculation with bounds
   function calculatePercentileRobust(
     value: number,
@@ -387,7 +379,6 @@ function calculateBPPercentile(
           Math.min(99, 90 + 9 * ((value - p90) / (p95 - p90)))
         );
     }
-
     if (value <= p50) {
       // Below 50th percentile
       return Math.max(1, 50 * (value / p50));
@@ -403,7 +394,6 @@ function calculateBPPercentile(
       return Math.min(99.9, 95 + 4 * excessRatio);
     }
   }
-
   // Calculate percentiles
   const systolicPercentile = calculatePercentileRobust(
     systolic,
@@ -417,7 +407,6 @@ function calculateBPPercentile(
     adjustedDiastolic90,
     adjustedDiastolic95
   );
-
   // Bounded z-score calculation
   const systolicZScore = Math.max(
     -3,
@@ -437,40 +426,46 @@ function calculateBPPercentile(
         1.645
     )
   );
-
   // ========== CLASSIFICATION WITH EDGE CASES ==========
   const maxPercentile = Math.max(systolicPercentile, diastolicPercentile);
   let classification: BPClassification;
-
   if (ageInYears >= 13) {
     // Adolescent classification (≥13 years)
     if (systolic >= 140 || diastolic >= 90) {
       classification = {
-        category: "Stage 2 HTN",
-        description: "≥140/90 mmHg - Requires immediate medical attention",
+        category: t("classifications.stage2.category"),
+        description: t("classifications.stage2.description", {
+          description: t("classifications.stage2.adolescentDescription"),
+        }),
         color: "text-red-700",
         bgColor: "bg-red-50 border-red-200",
       };
     } else if (systolic >= 130 || diastolic >= 80) {
       classification = {
-        category: "Stage 1 HTN",
-        description:
-          "130/80 to 139/89 mmHg - Lifestyle modifications and monitoring needed",
+        category: t("classifications.stage1.category"),
+        description: t("classifications.stage1.description", {
+          description: t("classifications.stage1.adolescentDescription"),
+          action: t("classifications.stage1.adolescentAction"),
+        }),
         color: "text-orange-700",
         bgColor: "bg-orange-50 border-orange-200",
       };
     } else if (systolic >= 120 && systolic < 130 && diastolic < 80) {
       classification = {
-        category: "Elevated BP",
-        description:
-          "120/<80 to 129/<80 mmHg - Lifestyle modifications recommended",
+        category: t("classifications.elevated.category"),
+        description: t("classifications.elevated.description", {
+          description: t("classifications.elevated.adolescentDescription"),
+          action: t("classifications.elevated.adolescentAction"),
+        }),
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
     } else {
       classification = {
-        category: "Normal",
-        description: "<120/<80 mmHg - Blood pressure is within normal range",
+        category: t("classifications.normal.category"),
+        description: t("classifications.normal.description", {
+          description: t("classifications.normal.adolescentDescription"),
+        }),
         color: "text-green-700",
         bgColor: "bg-green-50 border-green-200",
       };
@@ -480,46 +475,52 @@ function calculateBPPercentile(
     // Stage 2 thresholds
     const stage2SystolicThreshold = adjustedSystolic95 + 12;
     const stage2DiastolicThreshold = adjustedDiastolic95 + 12;
-
     // Additional absolute thresholds for very young children
     const absoluteStage2Systolic = Math.min(140, stage2SystolicThreshold);
     const absoluteStage2Diastolic = Math.min(90, stage2DiastolicThreshold);
-
     if (
       systolic >= absoluteStage2Systolic ||
       diastolic >= absoluteStage2Diastolic
     ) {
       classification = {
-        category: "Stage 2 HTN",
-        description:
-          "≥95th percentile + 12mmHg or ≥140/90 - Requires immediate medical attention",
+        category: t("classifications.stage2.category"),
+        description: t("classifications.stage2.description", {
+          description: t("classifications.stage2.pediatricDescription"),
+        }),
         color: "text-red-700",
         bgColor: "bg-red-50 border-red-200",
       };
     } else if (maxPercentile >= 95) {
       classification = {
-        category: "Stage 1 HTN",
-        description: "≥95th percentile - Requires medical evaluation",
+        category: t("classifications.stage1.category"),
+        description: t("classifications.stage1.description", {
+          description: t("classifications.stage1.pediatricDescription"),
+          action: t("classifications.stage1.pediatricAction"),
+        }),
         color: "text-orange-700",
         bgColor: "bg-orange-50 border-orange-200",
       };
     } else if (maxPercentile >= 90) {
       classification = {
-        category: "Elevated BP",
-        description: "90th-95th percentile - Monitoring recommended",
+        category: t("classifications.elevated.category"),
+        description: t("classifications.elevated.description", {
+          description: t("classifications.elevated.pediatricDescription"),
+          action: t("classifications.elevated.pediatricAction"),
+        }),
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
     } else {
       classification = {
-        category: "Normal",
-        description: "<90th percentile - Normal range",
+        category: t("classifications.normal.category"),
+        description: t("classifications.normal.description", {
+          description: t("classifications.normal.pediatricDescription"),
+        }),
         color: "text-green-700",
         bgColor: "bg-green-50 border-green-200",
       };
     }
   }
-
   return {
     systolic: {
       value: systolic,
@@ -542,31 +543,29 @@ function isAgeInRange(
   minYears: number,
   maxYears: number
 ) {
-  const y0 = birthDate.getFullYear(),
-    m0 = birthDate.getMonth(),
-    d0 = birthDate.getDate();
-  const y1 = measurementDate.getFullYear(),
-    m1 = measurementDate.getMonth(),
-    d1 = measurementDate.getDate();
-  // Calculate years difference
-  let years = y1 - y0;
-  if (m1 < m0 || (m1 === m0 && d1 < d0)) years--;
-  // Calculate if at least minYears
-  let minOk = false;
-  if (years > minYears) minOk = true;
-  else if (years === minYears) {
-    if (m1 > m0 || (m1 === m0 && d1 >= d0)) minOk = true;
-  }
-  // Calculate if at most maxYears
-  let maxOk = false;
-  if (years < maxYears) maxOk = true;
-  else if (years === maxYears) {
-    if (m1 < m0 || (m1 === m0 && d1 <= d0)) maxOk = true;
-  }
-  return minOk && maxOk;
+  // Normalize both dates to avoid timezone/hour issues
+  const birth = new Date(
+    birthDate.getFullYear(),
+    birthDate.getMonth(),
+    birthDate.getDate()
+  );
+  const measurement = new Date(
+    measurementDate.getFullYear(),
+    measurementDate.getMonth(),
+    measurementDate.getDate()
+  );
+
+  const ageInYears = differenceInYears(measurement, birth);
+  return ageInYears >= minYears && ageInYears <= maxYears;
 }
 
 export function BloodPressureForm() {
+  // Initialize translations
+  const t = useTranslations("BloodPressureCalculator");
+
+  // Create form schema with translations
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BPResult | null>(null);
   const [ageError, setAgeError] = useState<string>("");
@@ -588,14 +587,41 @@ export function BloodPressureForm() {
   const diastolicBP = form.watch("diastolicBP");
 
   // Calculate age in months and years
-  const ageInMonths =
-    birthDate && measurementDate
-      ? differenceInMonths(measurementDate, birthDate)
-      : 0;
-  const ageInYears =
-    birthDate && measurementDate
-      ? differenceInYears(measurementDate, birthDate)
-      : 0;
+  const ageInMonths = useMemo(() => {
+    if (!birthDate || !measurementDate) return 0;
+
+    // Normalize both dates to avoid timezone/hour issues
+    const birth = new Date(
+      birthDate.getFullYear(),
+      birthDate.getMonth(),
+      birthDate.getDate()
+    );
+    const measurement = new Date(
+      measurementDate.getFullYear(),
+      measurementDate.getMonth(),
+      measurementDate.getDate()
+    );
+
+    return differenceInMonths(measurement, birth);
+  }, [birthDate, measurementDate]);
+
+  const ageInYears = useMemo(() => {
+    if (!birthDate || !measurementDate) return 0;
+
+    // Normalize both dates to avoid timezone/hour issues
+    const birth = new Date(
+      birthDate.getFullYear(),
+      birthDate.getMonth(),
+      birthDate.getDate()
+    );
+    const measurement = new Date(
+      measurementDate.getFullYear(),
+      measurementDate.getMonth(),
+      measurementDate.getDate()
+    );
+
+    return differenceInYears(measurement, birth);
+  }, [birthDate, measurementDate]);
 
   // Real-time BP validation (use debounced values)
   const systolicValue = parseFloat(systolicBP || "0");
@@ -615,33 +641,35 @@ export function BloodPressureForm() {
     // Age range check
     const birthDate = values.dateOfBirth;
     const measurementDate = values.dateOfMeasurement;
-    console.log("onSubmit values:", values);
-    console.log("birthDate:", birthDate, "measurementDate:", measurementDate);
+
     const inRange = isAgeInRange(birthDate, measurementDate, 1, 17);
-    console.log("isAgeInRange:", inRange);
+
     if (!inRange) {
-      setAgeError(
-        "Patient age must be between 1 and 17 years at the time of measurement."
-      );
+      setAgeError(t("validation.ageRange"));
       setIsSubmitting(false);
       setResults(null);
       return;
     }
+
+    // Calculate height percentile
+    const heightPercentile = calculateHeightPercentile(
+      parseFloat(values.height),
+      ageInMonths,
+      values.gender
+    );
+
     // Simulate API call
     setTimeout(() => {
-      // Add debug log for calculation
       const result = calculateBPPercentile(
         parseFloat(values.systolicBP),
         parseFloat(values.diastolicBP),
-        Math.floor(measurementDate.getFullYear() - birthDate.getFullYear()),
-        50, // placeholder for heightPercentile
+        ageInYears,
+        heightPercentile,
         values.gender,
-        (measurementDate.getFullYear() - birthDate.getFullYear()) * 12 // placeholder for ageInMonths
+        ageInMonths,
+        t // Pass translations to calculation function
       );
-      console.log("calculateBPPercentile result:", result);
-      if (!result) {
-        console.log("calculateBPPercentile returned null.");
-      }
+
       setResults(result);
       setIsSubmitting(false);
     }, 1000);
@@ -653,7 +681,6 @@ export function BloodPressureForm() {
   ) {
     const screeningValues =
       aapScreeningTable[gender][ageInYears] || aapScreeningTable[gender][17];
-
     return {
       normal: `<90th percentile (approx. <${screeningValues.systolic}/<${screeningValues.diastolic})`,
       elevated: `90th-95th percentile (approx. ${screeningValues.systolic}-${
@@ -672,12 +699,9 @@ export function BloodPressureForm() {
     <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
-          Blood Pressure Calculator
+          {t("title")}
         </CardTitle>
-        <CardDescription>
-          Calculate pediatric blood pressure percentiles using 2017 AAP
-          guidelines (Ages 1 year - 17 years)
-        </CardDescription>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
@@ -712,7 +736,9 @@ export function BloodPressureForm() {
                                 : "text-medical-600"
                             }`}
                           />
-                          <span className="font-medium">Male</span>
+                          <span className="font-medium">
+                            {t("gender.male")}
+                          </span>
                         </div>
                       </TabsTrigger>
                       <TabsTrigger
@@ -732,7 +758,9 @@ export function BloodPressureForm() {
                                 : "text-medical-pink-600"
                             }`}
                           />
-                          <span className="font-medium">Female</span>
+                          <span className="font-medium">
+                            {t("gender.female")}
+                          </span>
                         </div>
                       </TabsTrigger>
                     </TabsList>
@@ -741,25 +769,8 @@ export function BloodPressureForm() {
                 </FormItem>
               )}
             />
-
             {/* Date Inputs */}
             <DateInputs form={form} gender={selectedGender} />
-
-            {/* Age Display */}
-            {ageInYears > 0 && (
-              <div className="p-3 bg-medical-50 rounded-lg">
-                <p className="text-sm text-medical-700">
-                  <strong>Age:</strong> {ageInYears} years, {ageInMonths % 12}{" "}
-                  months
-                </p>
-                {(ageInMonths < 12 || ageInMonths > 215) && (
-                  <p className="text-sm text-red-600 mt-1">
-                    Calculator is designed for ages 1 year - 17 years (12-215
-                    months)
-                  </p>
-                )}
-              </div>
-            )}
 
             {/* Age range info/warning */}
             {!birthDate || !measurementDate ? (
@@ -768,55 +779,49 @@ export function BloodPressureForm() {
                 className="mb-4 bg-blue-50 border-blue-200 text-blue-800"
               >
                 <AlertTitle className="font-semibold flex items-center gap-2">
-                  <Info className="w-4 h-4" /> Start Here
+                  <Info className="w-4 h-4" /> {t("alerts.startHere.title")}
                 </AlertTitle>
                 <AlertDescription>
-                  Please select both a <strong>date of birth</strong> and a{" "}
-                  <strong>date of measurement</strong> to begin.
+                  {t("alerts.startHere.description")}
                 </AlertDescription>
               </Alert>
             ) : (
               !ageIsValid && (
                 <Alert className="mb-4 bg-yellow-50 border-yellow-200 text-yellow-900">
                   <AlertTitle className="font-semibold flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4" /> Invalid Age Range
+                    <AlertTriangle className="w-4 h-4" />{" "}
+                    {t("alerts.invalidAge.title")}
                   </AlertTitle>
                   <AlertDescription>
-                    Please select a date of birth and measurement date so that
-                    the patient is <strong>between 1 and 17 years old</strong>{" "}
-                    at the time of measurement.
+                    {t("alerts.invalidAge.description")}
                   </AlertDescription>
                 </Alert>
               )
             )}
-
             {/* Educational Info Box */}
             <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                <strong>Blood Pressure Format:</strong> Always enter as
-                Systolic/Diastolic (e.g., 120/80)
-                <br />• <strong>Systolic</strong> (top number): Pressure when
-                heart beats
-                <br />• <strong>Diastolic</strong> (bottom number): Pressure
-                when heart rests
+                <strong>{t("info.bpFormat.title")}</strong>{" "}
+                {t("info.bpFormat.description")}
+                <br />• <strong>{t("info.bpFormat.systolic")}</strong>
+                <br />• <strong>{t("info.bpFormat.diastolic")}</strong>
               </p>
             </div>
-
             {/* BP Invalid Warning */}
             {isBPInvalid && (
               <Alert className="border-red-200 bg-red-50">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
                 <AlertTitle className="text-red-800">
-                  Invalid Blood Pressure
+                  {t("alerts.invalidBP.title")}
                 </AlertTitle>
                 <AlertDescription className="text-red-700">
-                  Systolic pressure must be higher than diastolic pressure.
-                  Current: {systolicValue}/{diastolicValue} - Please check your
-                  values.
+                  {t("alerts.invalidBP.description", {
+                    systolic: systolicValue,
+                    diastolic: diastolicValue,
+                  })}
                 </AlertDescription>
               </Alert>
             )}
-
             {/* Measurements */}
             {ageIsValid && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -825,12 +830,12 @@ export function BloodPressureForm() {
                   name="height"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Height (cm)</FormLabel>
+                      <FormLabel>{t("form.height")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.1"
-                          placeholder="150"
+                          placeholder={t("form.heightPlaceholder")}
                           {...field}
                           className="border-medical-100"
                         />
@@ -844,11 +849,11 @@ export function BloodPressureForm() {
                   name="systolicBP"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Systolic BP (mmHg)</FormLabel>
+                      <FormLabel>{t("form.systolicBP")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="120"
+                          placeholder={t("form.systolicPlaceholder")}
                           {...field}
                           className={cn(
                             "border-medical-100",
@@ -859,7 +864,7 @@ export function BloodPressureForm() {
                       <FormMessage />
                       {isBPInvalid && (
                         <p className="text-sm text-red-600">
-                          Systolic must be higher than diastolic
+                          {t("validation.systolicHigher")}
                         </p>
                       )}
                     </FormItem>
@@ -870,11 +875,11 @@ export function BloodPressureForm() {
                   name="diastolicBP"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Diastolic BP (mmHg)</FormLabel>
+                      <FormLabel>{t("form.diastolicBP")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="80"
+                          placeholder={t("form.diastolicPlaceholder")}
                           {...field}
                           className={cn(
                             "border-medical-100",
@@ -885,7 +890,7 @@ export function BloodPressureForm() {
                       <FormMessage />
                       {isBPInvalid && (
                         <p className="text-sm text-red-600">
-                          Diastolic must be lower than systolic
+                          {t("validation.systolicHigher")}
                         </p>
                       )}
                     </FormItem>
@@ -893,29 +898,26 @@ export function BloodPressureForm() {
                 />
               </div>
             )}
-
             {/* Real-time Results */}
             {results && (
               <>
                 {/* Growth Chart Source Info Banner */}
                 {ageInMonths >= 12 && ageInMonths < 24 && (
                   <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                    Height percentiles use <strong>WHO</strong> growth standards
-                    for ages 1–2 years.
+                    {t("dataSource.whoHeight")}
                   </div>
                 )}
                 {ageInMonths >= 24 && ageInMonths <= 215 && (
                   <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                    Height percentiles use <strong>CDC</strong> growth charts
-                    for ages 2–17 years.
+                    {t("dataSource.cdcHeight")}
                   </div>
                 )}
-                <Card className="mt-6">
+                <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between mt-6">
+                      <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold">
-                          Blood Pressure Assessment
+                          {t("results.title")}
                         </h3>
                         <Badge
                           className={cn(
@@ -927,36 +929,45 @@ export function BloodPressureForm() {
                           {results.classification.category}
                         </Badge>
                       </div>
-
                       <div
                         className={cn(
                           "flex items-center gap-3 p-4 rounded-lg border mb-4",
-                          results.classification.category === "Normal" &&
+                          results.classification.category ===
+                            t("classifications.normal.category") &&
                             "bg-green-50 border-green-200",
-                          results.classification.category === "Elevated BP" &&
+                          results.classification.category ===
+                            t("classifications.elevated.category") &&
                             "bg-yellow-50 border-yellow-200",
-                          results.classification.category === "Stage 1 HTN" &&
+                          results.classification.category ===
+                            t("classifications.stage1.category") &&
                             "bg-orange-50 border-orange-200",
-                          results.classification.category === "Stage 2 HTN" &&
+                          results.classification.category ===
+                            t("classifications.stage2.category") &&
                             "bg-red-50 border-red-200"
                         )}
                       >
-                        {results.classification.category === "Normal" && (
+                        {results.classification.category ===
+                          t("classifications.normal.category") && (
                           <CheckCircle className="w-6 h-6 text-green-600" />
                         )}
-                        {(results.classification.category === "Elevated BP" ||
-                          results.classification.category === "Stage 1 HTN" ||
+                        {(results.classification.category ===
+                          t("classifications.elevated.category") ||
                           results.classification.category ===
-                            "Stage 2 HTN") && (
+                            t("classifications.stage1.category") ||
+                          results.classification.category ===
+                            t("classifications.stage2.category")) && (
                           <AlertTriangle
                             className={cn(
                               "w-6 h-6",
                               results.classification.category ===
-                                "Elevated BP" && "text-yellow-600",
+                                t("classifications.elevated.category") &&
+                                "text-yellow-600",
                               results.classification.category ===
-                                "Stage 1 HTN" && "text-orange-600",
+                                t("classifications.stage1.category") &&
+                                "text-orange-600",
                               results.classification.category ===
-                                "Stage 2 HTN" && "text-red-600"
+                                t("classifications.stage2.category") &&
+                                "text-red-600"
                             )}
                           />
                         )}
@@ -964,14 +975,18 @@ export function BloodPressureForm() {
                           <div
                             className={cn(
                               "font-semibold text-lg",
-                              results.classification.category === "Normal" &&
+                              results.classification.category ===
+                                t("classifications.normal.category") &&
                                 "text-green-800",
                               results.classification.category ===
-                                "Elevated BP" && "text-yellow-800",
+                                t("classifications.elevated.category") &&
+                                "text-yellow-800",
                               results.classification.category ===
-                                "Stage 1 HTN" && "text-orange-800",
+                                t("classifications.stage1.category") &&
+                                "text-orange-800",
                               results.classification.category ===
-                                "Stage 2 HTN" && "text-red-800"
+                                t("classifications.stage2.category") &&
+                                "text-red-800"
                             )}
                           >
                             {results.classification.category}
@@ -979,21 +994,24 @@ export function BloodPressureForm() {
                           <div
                             className={cn(
                               "text-sm",
-                              results.classification.category === "Normal" &&
+                              results.classification.category ===
+                                t("classifications.normal.category") &&
                                 "text-green-700",
                               results.classification.category ===
-                                "Elevated BP" && "text-yellow-700",
+                                t("classifications.elevated.category") &&
+                                "text-yellow-700",
                               results.classification.category ===
-                                "Stage 1 HTN" && "text-orange-700",
+                                t("classifications.stage1.category") &&
+                                "text-orange-700",
                               results.classification.category ===
-                                "Stage 2 HTN" && "text-red-700"
+                                t("classifications.stage2.category") &&
+                                "text-red-700"
                             )}
                           >
                             {results.classification.description}
                           </div>
                         </div>
                       </div>
-
                       {/* Enhanced BP Details with Clinical Context */}
                       <div className="mt-4">
                         <div
@@ -1004,8 +1022,11 @@ export function BloodPressureForm() {
                               : "bg-medical-pink-600"
                           )}
                         >
-                          Blood Pressure Details (
-                          {selectedGender === "male" ? "Male" : "Female"})
+                          {t("results.details")} (
+                          {selectedGender === "male"
+                            ? t("gender.male")
+                            : t("gender.female")}
+                          )
                         </div>
                         <table className="w-full border rounded-b-lg bg-white">
                           <thead>
@@ -1017,20 +1038,20 @@ export function BloodPressureForm() {
                               )}
                             >
                               <th className="py-2 px-4 text-left text-sm font-medium">
-                                Metric
+                                {t("results.metrics.metric")}
                               </th>
                               <th className="py-2 px-4 text-left text-sm font-medium">
-                                Systolic
+                                {t("results.metrics.systolic")}
                               </th>
                               <th className="py-2 px-4 text-left text-sm font-medium">
-                                Diastolic
+                                {t("results.metrics.diastolic")}
                               </th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr className="border-t">
+                            <tr className="border-t text-sm">
                               <td className="py-2 px-4 font-medium">
-                                Value (mmHg)
+                                {t("results.metrics.value")}
                               </td>
                               <td className="py-2 px-4">
                                 {results.systolic.value}
@@ -1039,9 +1060,9 @@ export function BloodPressureForm() {
                                 {results.diastolic.value}
                               </td>
                             </tr>
-                            <tr className="border-t">
+                            <tr className="border-t text-sm">
                               <td className="py-2 px-4 font-medium">
-                                Percentile (%)
+                                {t("results.metrics.percentile")}
                               </td>
                               <td className="py-2 px-4">
                                 {results.systolic.percentile.toFixed(1)}%
@@ -1050,8 +1071,10 @@ export function BloodPressureForm() {
                                 {results.diastolic.percentile.toFixed(1)}%
                               </td>
                             </tr>
-                            <tr className="border-t">
-                              <td className="py-2 px-4 font-medium">Z-Score</td>
+                            <tr className="border-t text-sm">
+                              <td className="py-2 px-4 font-medium">
+                                {t("results.metrics.zScore")}
+                              </td>
                               <td className="py-2 px-4">
                                 {results.systolic.zScore.toFixed(2)}
                               </td>
@@ -1062,33 +1085,44 @@ export function BloodPressureForm() {
                           </tbody>
                         </table>
                       </div>
-
                       {/* Clinical Interpretation */}
                       <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <h4 className="font-medium text-sm mb-2 text-blue-800">
-                          Clinical Interpretation
+                          {t("results.clinicalInterpretation.title")}
                         </h4>
                         <div className="text-xs text-blue-700">
                           <p>
-                            <strong>Current BP:</strong>{" "}
+                            <strong>
+                              {t("results.clinicalInterpretation.currentBP")}
+                            </strong>{" "}
                             {results.systolic.value}/{results.diastolic.value}{" "}
                             mmHg
                           </p>
                           <p>
-                            <strong>Classification:</strong> Based on the higher
-                            percentile (systolic:{" "}
-                            {results.systolic.percentile.toFixed(1)}%,
-                            diastolic: {results.diastolic.percentile.toFixed(1)}
-                            %)
+                            <strong>
+                              {t(
+                                "results.clinicalInterpretation.classification",
+                                {
+                                  systolic:
+                                    results.systolic.percentile.toFixed(1),
+                                  diastolic:
+                                    results.diastolic.percentile.toFixed(1),
+                                }
+                              )}
+                            </strong>
                           </p>
                           <p>
-                            <strong>Height adjustment:</strong> Applied based on{" "}
-                            {results.heightPercentile.toFixed(1)}th percentile
-                            height
+                            <strong>
+                              {t(
+                                "results.clinicalInterpretation.heightAdjustment",
+                                {
+                                  height: results.heightPercentile.toFixed(1),
+                                }
+                              )}
+                            </strong>
                           </p>
                         </div>
                       </div>
-
                       {(() => {
                         const references = getAgeSpecificReferences(
                           ageInYears,
@@ -1104,8 +1138,13 @@ export function BloodPressureForm() {
                                   : "bg-medical-pink-600"
                               )}
                             >
-                              Reference Ranges for Age {ageInYears} (
-                              {selectedGender === "male" ? "Male" : "Female"})
+                              {t("results.referenceRanges.title", {
+                                age: ageInYears,
+                                gender:
+                                  selectedGender === "male"
+                                    ? t("gender.male")
+                                    : t("gender.female"),
+                              })}
                             </div>
                             <div className="border border-t-0 rounded-b-lg bg-white p-4">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1114,46 +1153,43 @@ export function BloodPressureForm() {
                                   <div className="w-4 h-4 bg-green-500 rounded-full mt-0.5 flex-shrink-0"></div>
                                   <div className="min-w-0 flex-1">
                                     <div className="font-semibold text-green-800 text-sm">
-                                      Normal
+                                      {t("referenceCategories.normal")}
                                     </div>
                                     <div className="text-green-700 text-xs mt-1 break-words">
                                       {references.normal}
                                     </div>
                                   </div>
                                 </div>
-
                                 {/* Elevated */}
                                 <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                   <div className="w-4 h-4 bg-yellow-500 rounded-full mt-0.5 flex-shrink-0"></div>
                                   <div className="min-w-0 flex-1">
                                     <div className="font-semibold text-yellow-800 text-sm">
-                                      Elevated
+                                      {t("referenceCategories.elevated")}
                                     </div>
                                     <div className="text-yellow-700 text-xs mt-1 break-words">
                                       {references.elevated}
                                     </div>
                                   </div>
                                 </div>
-
                                 {/* Stage 1 HTN */}
                                 <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                                   <div className="w-4 h-4 bg-orange-500 rounded-full mt-0.5 flex-shrink-0"></div>
                                   <div className="min-w-0 flex-1">
                                     <div className="font-semibold text-orange-800 text-sm">
-                                      Stage 1 HTN
+                                      {t("referenceCategories.stage1")}
                                     </div>
                                     <div className="text-orange-700 text-xs mt-1 break-words">
                                       {references.stage1}
                                     </div>
                                   </div>
                                 </div>
-
                                 {/* Stage 2 HTN */}
                                 <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
                                   <div className="w-4 h-4 bg-red-500 rounded-full mt-0.5 flex-shrink-0"></div>
                                   <div className="min-w-0 flex-1">
                                     <div className="font-semibold text-red-800 text-sm">
-                                      Stage 2 HTN
+                                      {t("referenceCategories.stage2")}
                                     </div>
                                     <div className="text-red-700 text-xs mt-1 break-words">
                                       {references.stage2}
@@ -1161,14 +1197,11 @@ export function BloodPressureForm() {
                                   </div>
                                 </div>
                               </div>
-
                               <div className="mt-4 pt-3 border-t border-gray-200">
                                 <div className="flex items-start gap-2">
                                   <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
                                   <p className="text-xs text-gray-600">
-                                    These are approximate values based on 50th
-                                    percentile height. Actual thresholds adjust
-                                    for individual height percentile.
+                                    {t("results.referenceRanges.note")}
                                   </p>
                                 </div>
                               </div>
@@ -1176,26 +1209,22 @@ export function BloodPressureForm() {
                           </div>
                         );
                       })()}
-
                       <div className="text-xs text-muted-foreground pt-2 border-t">
                         <p>
-                          Height percentile:{" "}
-                          {results.heightPercentile.toFixed(1)}%
+                          {t("results.footer.heightPercentile", {
+                            percentile: results.heightPercentile.toFixed(1),
+                          })}
                         </p>
                         <p>
-                          Height data:{" "}
-                          {ageInMonths < 24
-                            ? "WHO (1–2 years)"
-                            : "CDC (2–17 years)"}
+                          {t("results.footer.heightData", {
+                            source:
+                              ageInMonths < 24
+                                ? t("results.footer.whoSource")
+                                : t("results.footer.cdcSource"),
+                          })}
                         </p>
-                        <p>
-                          Reference: 2017 American Academy of Pediatrics
-                          Clinical Practice Guideline
-                        </p>
-                        <p>
-                          Note: Uses 2017 AAP screening table with quantile
-                          regression approximation
-                        </p>
+                        <p>{t("results.footer.reference")}</p>
+                        <p>{t("results.footer.note")}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1204,7 +1233,7 @@ export function BloodPressureForm() {
             )}
             {ageError && (
               <Alert variant="destructive" className="mb-4">
-                <AlertTitle>Invalid Age</AlertTitle>
+                <AlertTitle>{t("alerts.invalidAge.title")}</AlertTitle>
                 <AlertDescription>{ageError}</AlertDescription>
               </Alert>
             )}
@@ -1223,11 +1252,11 @@ export function BloodPressureForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Calculating...
+                  {t("button.calculating")}
                 </>
               ) : (
                 <>
-                  Calculate Blood Pressure
+                  {t("button.calculate")}
                   <Activity className="ml-2 h-4 w-4" />
                 </>
               )}

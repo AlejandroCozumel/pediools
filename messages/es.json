@@ -159,6 +159,134 @@
       }
     }
   },
+  "BloodPressureCalculator": {
+    "title": "Calculadora de Presión Arterial",
+    "description": "Calcule percentiles de presión arterial pediátrica usando las guías AAP 2017 (Edades 1 año - 17 años)",
+    "gender": {
+      "male": "Niño",
+      "female": "Niña"
+    },
+    "form": {
+      "height": "Altura (cm)",
+      "heightPlaceholder": "150",
+      "systolicBP": "Presión Sistólica (mmHg)",
+      "systolicPlaceholder": "120",
+      "diastolicBP": "Presión Diastólica (mmHg)",
+      "diastolicPlaceholder": "80"
+    },
+    "validation": {
+      "selectGender": "Por favor seleccione un género",
+      "dobRequired": "La fecha de nacimiento es requerida",
+      "measurementRequired": "La fecha de medición es requerida",
+      "heightInvalid": "Por favor ingrese una altura válida en cm",
+      "systolicRange": "La presión sistólica debe estar entre 50-250 mmHg",
+      "diastolicRange": "La presión diastólica debe estar entre 30-150 mmHg",
+      "systolicHigher": "La presión sistólica debe ser mayor que la diastólica",
+      "ageRange": "La edad del paciente debe estar entre 1 y 17 años al momento de la medición."
+    },
+    "alerts": {
+      "startHere": {
+        "title": "Comience Aquí",
+        "description": "Por favor seleccione tanto una fecha de nacimiento como una fecha de medición para comenzar."
+      },
+      "invalidAge": {
+        "title": "Rango de Edad Inválido",
+        "description": "Por favor seleccione una fecha de nacimiento y fecha de medición de modo que el paciente tenga entre 1 y 17 años al momento de la medición."
+      },
+      "invalidBP": {
+        "title": "Presión Arterial Inválida",
+        "description": "La presión sistólica debe ser mayor que la diastólica. Actual: {systolic}/{diastolic} - Por favor revise sus valores."
+      }
+    },
+    "info": {
+      "bpFormat": {
+        "title": "Formato de Presión Arterial:",
+        "description": "Siempre ingrese como Sistólica/Diastólica (ej., 120/80)",
+        "systolic": "Sistólica (número superior): Presión cuando el corazón late",
+        "diastolic": "Diastólica (número inferior): Presión cuando el corazón descansa"
+      }
+    },
+    "ageDisplay": {
+      "label": "Edad:",
+      "years": "años",
+      "months": "meses",
+      "warning": "La calculadora está diseñada para edades de 1 año - 17 años (12-215 meses)"
+    },
+    "dataSource": {
+      "whoHeight": "Los percentiles de altura usan estándares de crecimiento OMS para edades 1–2 años.",
+      "cdcHeight": "Los percentiles de altura usan gráficas de crecimiento CDC para edades 2–17 años."
+    },
+    "results": {
+      "title": "Evaluación de Presión Arterial",
+      "details": "Detalles de Presión Arterial",
+      "metrics": {
+        "metric": "Métrica",
+        "systolic": "Sistólica",
+        "diastolic": "Diastólica",
+        "value": "Valor (mmHg)",
+        "percentile": "Percentil (%)",
+        "zScore": "Puntuación Z"
+      },
+      "clinicalInterpretation": {
+        "title": "Interpretación Clínica",
+        "currentBP": "Presión Arterial Actual:",
+        "classification": "Clasificación: Basada en el percentil más alto (sistólica: {systolic}%, diastólica: {diastolic}%)",
+        "heightAdjustment": "Ajuste por altura: Aplicado basado en el percentil {height} de altura"
+      },
+      "referenceRanges": {
+        "title": "Rangos de Referencia para Edad {age} ({gender})",
+        "note": "Estos son valores aproximados basados en el percentil 50 de altura. Los umbrales reales se ajustan según el percentil individual de altura."
+      },
+      "footer": {
+        "heightPercentile": "Percentil de altura: {percentile}%",
+        "heightData": "Datos de altura: {source}",
+        "whoSource": "OMS (1–2 años)",
+        "cdcSource": "CDC (2–17 años)",
+        "reference": "Referencia: Guía de Práctica Clínica 2017 de la Academia Americana de Pediatría",
+        "note": "Nota: Usa tabla de detección AAP 2017 con aproximación de regresión cuantil"
+      }
+    },
+    "classifications": {
+      "normal": {
+        "category": "Normal",
+        "description": "{description} - La presión arterial está dentro del rango normal",
+        "pediatricDescription": "<percentil 90 - Rango normal",
+        "adolescentDescription": "<120/<80 mmHg"
+      },
+      "elevated": {
+        "category": "Presión Arterial Elevada",
+        "description": "{description} - {action}",
+        "pediatricDescription": "percentil 90-95",
+        "pediatricAction": "Se recomienda monitoreo",
+        "adolescentDescription": "120/<80 a 129/<80 mmHg",
+        "adolescentAction": "Se recomiendan modificaciones del estilo de vida"
+      },
+      "stage1": {
+        "category": "Hipertensión Etapa 1",
+        "description": "{description} - {action}",
+        "pediatricDescription": "≥percentil 95",
+        "pediatricAction": "Requiere evaluación médica",
+        "adolescentDescription": "130/80 a 139/89 mmHg",
+        "adolescentAction": "Se necesitan modificaciones del estilo de vida y monitoreo"
+      },
+      "stage2": {
+        "category": "Hipertensión Etapa 2",
+        "description": "{description} - Requiere atención médica inmediata",
+        "pediatricDescription": "≥percentil 95 + 12mmHg o ≥140/90",
+        "adolescentDescription": "≥140/90 mmHg"
+      }
+    },
+    "referenceCategories": {
+      "normal": "Normal",
+      "elevated": "Elevada",
+      "stage1": "Etapa 1 HTN",
+      "stage2": "Etapa 2 HTN"
+    },
+    "button": {
+      "calculate": "Calcular Presión Arterial",
+      "calculating": "Calculando..."
+    }
+  },
   "PatientSelector": {
     "search": {
       "placeholder": "Buscar pacientes...",
@@ -358,8 +486,8 @@
           "yearPlaceholder": "Año",
           "datePlaceholder": "Seleccione fecha",
           "genderOptions": {
-            "male": "Masculino",
-            "female": "Femenino"
+            "male": "Niño",
+            "female": "Niña"
           }
         }
       },
