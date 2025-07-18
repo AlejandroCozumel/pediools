@@ -492,7 +492,7 @@ export const exchangeTransfusionThresholds = {
     "336": 27.0,
   },
   "39_noRisk": {
-    "12": 20.5,
+    "12": 19.8,
     "24": 21.4,
     "36": 22.8,
     "48": 24.0,
@@ -522,7 +522,7 @@ export const exchangeTransfusionThresholds = {
     "336": 27.0,
   },
   "40_noRisk": {
-    "12": 21.4,
+    "12": 19.8,
     "24": 21.4,
     "36": 22.8,
     "48": 24.0,
