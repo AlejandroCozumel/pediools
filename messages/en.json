@@ -11,7 +11,8 @@
     "categories": {
       "growth": "Growth",
       "cardiovascular": "Cardiovascular",
-      "neonatal": "Neonatal"
+      "neonatal": "Neonatal",
+      "labs": "Lab Values"
     },
     "calculators": {
       "growthPercentiles": {
@@ -37,6 +38,10 @@
       "headCircumference": {
         "title": "Head Circumference",
         "description": "Track head circumference measurements and percentiles"
+      },
+      "lab": {
+        "title": "Lab Reference",
+        "description": "Interpret pediatric lab values with age-based reference ranges."
       }
     },
     "premiumFeatures": {

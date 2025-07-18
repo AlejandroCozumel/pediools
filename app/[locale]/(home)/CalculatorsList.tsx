@@ -16,6 +16,7 @@ import {
   RulerIcon,
   Sparkles,
   Pill,
+  FlaskConical,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import DashboardTitle from "@/components/DashboardTitle";
@@ -50,10 +51,10 @@ const CalculatorsList = () => {
       link: "/calculators/dose-calculator",
     },
     {
-      title: t("calculators.bilirubin.title"),
-      description: t("calculators.bilirubin.description"),
-      icon: <DropletsIcon className="h-6 w-6 icon" />,
-      category: t("categories.neonatal"),
+      title: t("calculators.lab.title"),
+      description: t("calculators.lab.description"),
+      icon: <FlaskConical className="h-6 w-6 icon" />,
+      category: t("categories.labs"),
       link: "/calculators/lab-calculator",
     },
     {
@@ -64,11 +65,11 @@ const CalculatorsList = () => {
       link: "/calculators/blood-pressure-calculator",
     },
     {
-      title: t("calculators.heartRate.title"),
-      description: t("calculators.heartRate.description"),
-      icon: <Heart className="h-6 w-6 icon" />,
-      category: t("categories.cardiovascular"),
-      link: "/calculators/heart-rate",
+      title: t("calculators.bilirubin.title"),
+      description: t("calculators.bilirubin.description"),
+      icon: <DropletsIcon className="h-6 w-6 icon" />,
+      category: t("categories.neonatal"),
+      link: "/calculators/bilirubin-calculator",
     },
   ];
 
