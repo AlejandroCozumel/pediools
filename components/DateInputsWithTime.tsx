@@ -23,10 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format, addDays, isSameDay, startOfHour } from "date-fns";
+import {
+  format,
+  addDays,
+  isSameDay,
+  startOfHour,
+  differenceInHours,
+} from "date-fns";
 import { cn } from "@/lib/utils";
 
-// Generate an array of hours for the dropdown
 const hours = Array.from({ length: 24 }, (_, i) => {
   const hour = i.toString().padStart(2, "0");
   return `${hour}:00`;
@@ -41,7 +46,6 @@ export default function DateInputsWithTime({ form }: { form: any }) {
   const birthDateTime = form.watch("birthDateTime");
   const measurementDateTime = form.watch("measurementDateTime");
 
-  // This function intelligently combines the date and hour into a single Date object
   const handleDateTimeChange = (
     field: any,
     datePart?: Date | null,
@@ -50,7 +54,6 @@ export default function DateInputsWithTime({ form }: { form: any }) {
     const currentDate = field.value || startOfHour(new Date());
 
     let newDate = datePart || currentDate;
-    // If only the hour is changed, don't change the date part
     if (hourPart && !datePart) {
       newDate = currentDate;
     }
@@ -60,12 +63,11 @@ export default function DateInputsWithTime({ form }: { form: any }) {
       : newDate.getHours();
 
     const finalDate = new Date(newDate);
-    finalDate.setHours(newHour, 0, 0, 0); // Set minutes and seconds to 0
+    finalDate.setHours(newHour, 0, 0, 0);
 
     field.onChange(finalDate);
   };
 
-  // This effect resets the measurement date if the birth date makes it invalid
   useEffect(() => {
     if (
       birthDateTime &&
@@ -76,28 +78,53 @@ export default function DateInputsWithTime({ form }: { form: any }) {
     }
   }, [birthDateTime, measurementDateTime, form]);
 
-  // Dynamically generate the list of valid hours for the BIRTH time
   const getValidBirthHours = () => {
     const today = new Date();
     if (!birthDateTime || !isSameDay(birthDateTime, today)) {
-      return hours; // All hours are valid if the date is not today
+      return hours;
     }
     const currentHour = today.getHours();
-    return hours.slice(0, currentHour + 1); // Only allow hours up to and including the current hour
+    return hours.slice(0, currentHour + 1);
   };
 
-  // Dynamically generate the list of valid hours for the MEASUREMENT time
   const getValidMeasurementHours = () => {
-    if (
-      !birthDateTime ||
-      !measurementDateTime ||
-      !isSameDay(birthDateTime, measurementDateTime)
-    ) {
-      return hours; // All hours are valid if dates are different
+    if (!birthDateTime || !measurementDateTime) {
+      return [];
     }
-    const birthHour = birthDateTime.getHours();
-    // Only allow hours from the birth hour onwards
-    return hours.slice(birthHour);
+
+    if (!isSameDay(birthDateTime, measurementDateTime)) {
+      const potentialHours: string[] = [];
+
+      hours.forEach((hour) => {
+        const hourValue = parseInt(hour.split(":")[0]);
+        const testDate = new Date(measurementDateTime);
+        testDate.setHours(hourValue, 0, 0, 0);
+
+        const ageInHours = differenceInHours(testDate, birthDateTime);
+
+        if (ageInHours >= 12 && ageInHours <= 336) {
+          potentialHours.push(hour);
+        }
+      });
+
+      return potentialHours;
+    }
+
+    const validHours: string[] = [];
+
+    hours.forEach((hour) => {
+      const hourValue = parseInt(hour.split(":")[0]);
+      const testDate = new Date(measurementDateTime);
+      testDate.setHours(hourValue, 0, 0, 0);
+
+      const ageInHours = differenceInHours(testDate, birthDateTime);
+
+      if (ageInHours >= 12 && ageInHours <= 336) {
+        validHours.push(hour);
+      }
+    });
+
+    return validHours;
   };
 
   const validBirthHours = getValidBirthHours();
@@ -142,12 +169,12 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                       selected={field.value}
                       onSelect={(date) => {
                         handleDateTimeChange(field, date);
-                        setBirthDateOpen(false); // Close the popover
-                        setTimeout(() => birthHourRef.current?.click(), 0); // Focus and open the select
+                        setBirthDateOpen(false);
+                        setTimeout(() => birthHourRef.current?.click(), 0);
                       }}
                       disabled={(date) =>
                         date > new Date() || date < addDays(new Date(), -14)
-                      } // Disable future dates and dates more than 2 weeks ago
+                      }
                       initialFocus
                     />
                   </PopoverContent>
@@ -191,7 +218,6 @@ export default function DateInputsWithTime({ form }: { form: any }) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <div className="flex gap-2">
-                {/* Date Picker */}
                 <Popover
                   open={measurementDateOpen}
                   onOpenChange={setMeasurementDateOpen}
@@ -220,24 +246,25 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                       selected={field.value}
                       onSelect={(date) => {
                         handleDateTimeChange(field, date);
-                        setMeasurementDateOpen(false); // Close the popover
+                        setMeasurementDateOpen(false);
                         setTimeout(
                           () => measurementHourRef.current?.click(),
                           0
-                        ); // Focus and open the select
+                        );
                       }}
-                      disabled={
-                        (date) =>
-                          !birthDateTime ||
-                          date < startOfHour(birthDateTime) ||
-                          date > addDays(birthDateTime, 14) // Limit to 14 days after birth
-                      }
+                      disabled={(date) => {
+                        if (!birthDateTime) return true;
+
+                        const birthDate = startOfHour(birthDateTime);
+                        const maxDate = addDays(birthDateTime, 14);
+
+                        return date < birthDate || date > maxDate;
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
 
-                {/* Hour Picker */}
                 <Select
                   onValueChange={(value) =>
                     handleDateTimeChange(field, undefined, value)
@@ -254,11 +281,17 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {validMeasurementHours.map((hour) => (
-                      <SelectItem key={hour} value={hour}>
-                        {hour}
-                      </SelectItem>
-                    ))}
+                    {validMeasurementHours.length > 0 ? (
+                      validMeasurementHours.map((hour) => (
+                        <SelectItem key={hour} value={hour}>
+                          {hour}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground">
+                        No valid times available for this date
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
