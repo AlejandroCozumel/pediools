@@ -442,7 +442,7 @@ export function BMIForm() {
                 </div>
               )}
             {/* Graph button (disabled if errors or missing fields) */}
-            <Button
+            {/* <Button
               type="button"
               className="w-full mt-6"
               disabled={
@@ -455,11 +455,10 @@ export function BMIForm() {
                 isNaN(parseFloat(height))
               }
               onClick={() => {
-                /* TODO: implement graph endpoint */
               }}
             >
               {t('buttons.graph')}
-            </Button>
+            </Button> */}
           </form>
         </Form>
         {result && (

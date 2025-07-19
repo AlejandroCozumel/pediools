@@ -994,6 +994,164 @@
     "interpretationUnknown": "Reference range not available"
   },
   "BilirubinCalculator": {
+    "title": "Bilirubin Thresholds Calculator",
+    "description": "Assess hyperbilirubinemia and determine phototherapy need for newborns ≥35 weeks gestation (AAP 2022).",
+    "form": {
+      "dateInputs": {
+        "birthDateTime": "Date and Time of Birth",
+        "measurementDateTime": "Date and Time of Measurement"
+      },
+      "patientData": {
+        "title": "Patient Data & Risk Factors",
+        "totalBilirubin": "Total Serum Bilirubin (mg/dL)",
+        "totalBilirubinPlaceholder": "e.g., 15.2",
+        "gestationalAge": "Gestational Age at Birth",
+        "gestationalAgePlaceholder": "Choose weeks...",
+        "ETCOc": "ETCOc (ppm) - Optional",
+        "ETCOcPlaceholder": "e.g., 1.2",
+        "neurotoxicityRiskFactors": "Neurotoxicity Risk Factors"
+      },
+      "gestationalAgeOptions": {
+        "35weeks": "35 weeks",
+        "36weeks": "36 weeks",
+        "37weeks": "37 weeks",
+        "38weeks": "38 weeks",
+        "39weeks": "39 weeks",
+        "40weeks": "40+ weeks"
+      }
+    },
+    "validation": {
+      "dateTimeRequired": {
+        "birth": "Date and time of birth are required",
+        "measurement": "Date and time of measurement are required"
+      },
+      "bilirubinValidation": {
+        "validLevel": "Enter a valid bilirubin level",
+        "tooHigh": "Bilirubin level seems too high. Please verify the value (normal range: 0.1-30 mg/dL)",
+        "tooLow": "Bilirubin level seems too low. Please verify the value (minimum: 0.1 mg/dL)"
+      },
+      "gestationalAgeValidation": {
+        "required": "Please select a gestational age",
+        "minimum": "Must be ≥35 weeks"
+      },
+      "timeValidation": {
+        "measurementAfterBirth": "Measurement time must be after birth time",
+        "ageRange": "Age at measurement must be between 12 and 336 hours (14 days). AAP 2022 guidelines do not provide data outside this range."
+      }
+    },
+    "alerts": {
+      "ageValidation": {
+        "tooYoung": {
+          "title": "Age too young:",
+          "description": "The baby is only {hours} hours old. AAP 2022 guidelines only provide recommendations for babies ≥12 hours old. Please wait until the baby is at least 12 hours old before using this calculator."
+        },
+        "tooOld": {
+          "title": "Age too old:",
+          "description": "The baby is {hours} hours old ({days} days). AAP 2022 guidelines only provide recommendations up to 336 hours (14 days) of age. Please consult with a pediatrician for babies older than 14 days."
+        },
+        "validAge": {
+          "description": "Calculated age at time of measurement: {hours} hours."
+        }
+      }
+    },
+    "results": {
+      "patientSummary": {
+        "title": "Patient Summary",
+        "ageAtSampling": "Age at sampling:",
+        "totalBilirubin": "Total Bilirubin:",
+        "gestationalAge": "Gestational Age (GA):",
+        "ETCOc": "ETCOc:",
+        "neurotoxicityRiskFactors": "Neurotoxicity Risk Factors Present:",
+        "notProvided": "Not provided",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "recommendations": {
+        "title": "Recommendations",
+        "interventions": {
+          "intervention": "Intervention",
+          "recommendation": "Recommendation",
+          "threshold": "Threshold",
+          "confirmTSB": "If using TcB, confirm with TSB?",
+          "phototherapy": "Phototherapy?",
+          "escalationOfCare": "Escalation of Care?",
+          "exchangeTransfusion": "Exchange Transfusion?"
+        },
+        "actions": {
+          "yes": "Yes",
+          "no": "No",
+          "consider": "Consider"
+        }
+      },
+      "clinicalActionPlan": {
+        "title": "Clinical Action Plan",
+        "urgentExchangeTransfusion": {
+          "title": "URGENT - Exchange Transfusion",
+          "description": "Consult neonatologist immediately. Continue intensive phototherapy."
+        },
+        "escalationRequired": {
+          "title": "Escalation Required",
+          "description": "Intensive phototherapy. Consider neonatology consult. Recheck in 4-6h."
+        },
+        "startPhototherapy": {
+          "title": "Start Phototherapy",
+          "description": "Begin immediately. Monitor hydration. Recheck in 12-24h."
+        },
+        "closeMonitoring": {
+          "title": "Close Monitoring",
+          "description": "Approaching threshold. Recheck in 12-24h or if clinical concerns."
+        },
+        "routineCare": {
+          "title": "Routine Care",
+          "description": "Levels acceptable. Continue standard newborn care."
+        },
+        "nextSteps": {
+          "title": "Next Steps",
+          "recheckQ4_6h": "• Recheck bilirubin q4-6h",
+          "vitalSigns": "• Vital signs monitoring",
+          "neuroChecks": "• Neuro checks q2-4h",
+          "recheck12_24h": "• Recheck bilirubin 12-24h",
+          "monitorHydration": "• Monitor hydration",
+          "assessFeeding": "• Assess feeding",
+          "followUp24_48h": "• Follow-up 24-48h",
+          "monitorFeedingOutput": "• Monitor feeding/output",
+          "watchJaundice": "• Watch jaundice progression"
+        },
+        "keyPoints": {
+          "title": "Key Points",
+          "riskFactorsPresent": "• Risk factors present",
+          "earlyOnset": "• Early onset - check hemolysis",
+          "confirmTcB": "• Confirm TcB with TSB",
+          "ensureFeeding": "• Ensure adequate feeding",
+          "parentEducation": "• Parent education on monitoring"
+        },
+        "riskFactorAlert": {
+          "title": "Risk Factors Present",
+          "description": "Consider lower intervention thresholds and increased monitoring frequency."
+        }
+      },
+      "chart": {
+        "title": "Bilirubin Thresholds",
+        "riskStatus": {
+          "exchangeTransfusionRequired": "Exchange Transfusion Required",
+          "escalationOfCareRequired": "Escalation of Care Required",
+          "phototherapyRequired": "Phototherapy Required",
+          "belowTreatmentThreshold": "Below Treatment Threshold"
+        },
+        "patientInfo": "@ {hours} hours | GA: {weeks} weeks | Neurotox risk factors: {riskFactors}",
+        "dataSource": "Based on AAP 2022 Clinical Practice Guidelines for Hyperbilirubinemia",
+        "thresholdLines": {
+          "phototherapy": "Phototherapy",
+          "escalationOfCare": "Escalation of Care",
+          "exchangeTransfusion": "Exchange Transfusion",
+          "patient": "Patient"
+        },
+        "tooltip": {
+          "age": "Age: {hours} hours",
+          "mgPerDL": "mg/dL"
+        }
+      }
+    },
     "riskFactors": {
       "isoimmuneDisease": "Isoimmune hemolytic disease",
       "g6pdDeficiency": "G6PD deficiency",
@@ -1003,15 +1161,6 @@
       "sepsis": "Sepsis",
       "acidosis": "Acidosis",
       "lowAlbumen": "Albumin < 3.0 g/dL"
-    },
-    "riskCategories": {
-      "lowerRisk": "lower risk",
-      "mediumRisk": "medium risk",
-      "higherRisk": "higher risk"
-    },
-    "results": {
-      "phototherapyRecommended": "Phototherapy is Recommended",
-      "phototherapyNotRecommended": "Phototherapy Not Recommended"
     },
     "buttons": {
       "calculate": "Calculate Threshold",

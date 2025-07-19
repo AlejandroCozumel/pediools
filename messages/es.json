@@ -984,24 +984,173 @@
     "interpretationUnknown": "Rango de referencia no disponible"
   },
   "BilirubinCalculator": {
+    "title": "Calculadora de Umbrales de Bilirrubina",
+    "description": "Evalúa la hiperbilirrubinemia y determina la necesidad de fototerapia para recién nacidos ≥35 semanas de gestación (AAP 2022).",
+    "form": {
+      "dateInputs": {
+        "birthDateTime": "Fecha y Hora de Nacimiento",
+        "measurementDateTime": "Fecha y Hora de Medición"
+      },
+      "patientData": {
+        "title": "Datos del Paciente y Factores de Riesgo",
+        "totalBilirubin": "Bilirrubina Sérica Total (mg/dL)",
+        "totalBilirubinPlaceholder": "ej., 15.2",
+        "gestationalAge": "Edad Gestacional al Nacer",
+        "gestationalAgePlaceholder": "Elegir semanas...",
+        "ETCOc": "ETCOc (ppm) - Opcional",
+        "ETCOcPlaceholder": "ej., 1.2",
+        "neurotoxicityRiskFactors": "Factores de Riesgo de Neurotoxicidad"
+      },
+      "gestationalAgeOptions": {
+        "35weeks": "35 semanas",
+        "36weeks": "36 semanas",
+        "37weeks": "37 semanas",
+        "38weeks": "38 semanas",
+        "39weeks": "39 semanas",
+        "40weeks": "40+ semanas"
+      }
+    },
+    "validation": {
+      "dateTimeRequired": {
+        "birth": "Se requiere fecha y hora de nacimiento",
+        "measurement": "Se requiere fecha y hora de medición"
+      },
+      "bilirubinValidation": {
+        "validLevel": "Ingrese un nivel válido de bilirrubina",
+        "tooHigh": "El nivel de bilirrubina parece demasiado alto. Verifique el valor (rango normal: 0.1-30 mg/dL)",
+        "tooLow": "El nivel de bilirrubina parece demasiado bajo. Verifique el valor (mínimo: 0.1 mg/dL)"
+      },
+      "gestationalAgeValidation": {
+        "required": "Por favor seleccione una edad gestacional",
+        "minimum": "Debe ser ≥35 semanas"
+      },
+      "timeValidation": {
+        "measurementAfterBirth": "La hora de medición debe ser posterior a la hora de nacimiento",
+        "ageRange": "La edad al momento de la medición debe estar entre 12 y 336 horas (14 días). Las guías AAP 2022 no proporcionan datos fuera de este rango."
+      }
+    },
+    "alerts": {
+      "ageValidation": {
+        "tooYoung": {
+          "title": "Edad demasiado joven:",
+          "description": "El bebé tiene solo {hours} horas de edad. Las guías AAP 2022 solo proporcionan recomendaciones para bebés ≥12 horas de edad. Espere hasta que el bebé tenga al menos 12 horas antes de usar esta calculadora."
+        },
+        "tooOld": {
+          "title": "Edad demasiado avanzada:",
+          "description": "El bebé tiene {hours} horas de edad ({days} días). Las guías AAP 2022 solo proporcionan recomendaciones hasta 336 horas (14 días) de edad. Consulte con un pediatra para bebés mayores de 14 días."
+        },
+        "validAge": {
+          "description": "Edad calculada al momento de la medición: {hours} horas."
+        }
+      }
+    },
+    "results": {
+      "patientSummary": {
+        "title": "Resumen del Paciente",
+        "ageAtSampling": "Edad al tomar la muestra:",
+        "totalBilirubin": "Bilirrubina Total:",
+        "gestationalAge": "Edad Gestacional (EG):",
+        "ETCOc": "ETCOc:",
+        "neurotoxicityRiskFactors": "Factores de Riesgo de Neurotoxicidad Presentes:",
+        "notProvided": "No proporcionado",
+        "yes": "Sí",
+        "no": "No"
+      },
+      "recommendations": {
+        "title": "Recomendaciones",
+        "interventions": {
+          "intervention": "Intervención",
+          "recommendation": "Recomendación",
+          "threshold": "Umbral",
+          "confirmTSB": "Si usa TcB, ¿confirmar con TSB?",
+          "phototherapy": "¿Fototerapia?",
+          "escalationOfCare": "¿Escalamiento de Atención?",
+          "exchangeTransfusion": "¿Exanguinotransfusión?"
+        },
+        "actions": {
+          "yes": "Sí",
+          "no": "No",
+          "consider": "Considerar"
+        }
+      },
+      "clinicalActionPlan": {
+        "title": "Plan de Acción Clínica",
+        "urgentExchangeTransfusion": {
+          "title": "URGENTE - Exanguinotransfusión",
+          "description": "Consultar neonatólogo inmediatamente. Continuar fototerapia intensiva."
+        },
+        "escalationRequired": {
+          "title": "Escalamiento Requerido",
+          "description": "Fototerapia intensiva. Considerar consulta de neonatología. Revisar en 4-6h."
+        },
+        "startPhototherapy": {
+          "title": "Iniciar Fototerapia",
+          "description": "Comenzar inmediatamente. Monitorear hidratación. Revisar en 12-24h."
+        },
+        "closeMonitoring": {
+          "title": "Monitoreo Estrecho",
+          "description": "Acercándose al umbral. Revisar en 12-24h o ante preocupaciones clínicas."
+        },
+        "routineCare": {
+          "title": "Cuidado de Rutina",
+          "description": "Niveles aceptables. Continuar cuidado estándar del recién nacido."
+        },
+        "nextSteps": {
+          "title": "Próximos Pasos",
+          "recheckQ4_6h": "• Revisar bilirrubina c/4-6h",
+          "vitalSigns": "• Monitoreo de signos vitales",
+          "neuroChecks": "• Evaluaciones neurológicas c/2-4h",
+          "recheck12_24h": "• Revisar bilirrubina 12-24h",
+          "monitorHydration": "• Monitorear hidratación",
+          "assessFeeding": "• Evaluar alimentación",
+          "followUp24_48h": "• Seguimiento 24-48h",
+          "monitorFeedingOutput": "• Monitorear alimentación/eliminación",
+          "watchJaundice": "• Observar progresión de ictericia"
+        },
+        "keyPoints": {
+          "title": "Puntos Clave",
+          "riskFactorsPresent": "• Factores de riesgo presentes",
+          "earlyOnset": "• Inicio temprano - verificar hemólisis",
+          "confirmTcB": "• Confirmar TcB con TSB",
+          "ensureFeeding": "• Asegurar alimentación adecuada",
+          "parentEducation": "• Educación parental sobre monitoreo"
+        },
+        "riskFactorAlert": {
+          "title": "Factores de Riesgo Presentes",
+          "description": "Considerar umbrales de intervención más bajos y mayor frecuencia de monitoreo."
+        }
+      },
+      "chart": {
+        "title": "Umbrales Bilirrubina",
+        "riskStatus": {
+          "exchangeTransfusionRequired": "Exanguinotransfusión Requerida",
+          "escalationOfCareRequired": "Escalamiento de Atención Requerido",
+          "phototherapyRequired": "Fototerapia Requerida",
+          "belowTreatmentThreshold": "Por Debajo del Umbral de Tratamiento"
+        },
+        "patientInfo": "@ {hours} horas | EG: {weeks} semanas | Factores de riesgo neurotóx: {riskFactors}",
+        "dataSource": "Basado en las Guías de Práctica Clínica AAP 2022 para Hiperbilirrubinemia",
+        "thresholdLines": {
+          "phototherapy": "Fototerapia",
+          "escalationOfCare": "Escalamiento de Atención",
+          "exchangeTransfusion": "Exanguinotransfusión",
+          "patient": "Paciente"
+        },
+        "tooltip": {
+          "age": "Edad: {hours} horas",
+          "mgPerDL": "mg/dL"
+        }
+      }
+    },
     "riskFactors": {
       "isoimmuneDisease": "Enfermedad hemolítica isoinmune",
       "g6pdDeficiency": "Deficiencia de G6PD",
       "asphyxia": "Asfixia significativa",
       "lethargy": "Letargo significativo",
-      "temperatureInstability": "Inestabilidad térmica",
+      "temperatureInstability": "Inestabilidad de temperatura",
       "sepsis": "Sepsis",
       "acidosis": "Acidosis",
       "lowAlbumen": "Albúmina < 3.0 g/dL"
-    },
-    "riskCategories": {
-      "lowerRisk": "riesgo bajo",
-      "mediumRisk": "riesgo intermedio",
-      "higherRisk": "riesgo alto"
-    },
-    "results": {
-      "phototherapyRecommended": "Fototerapia Recomendada",
-      "phototherapyNotRecommended": "Fototerapia No Recomendada"
     },
     "buttons": {
       "calculate": "Calcular Umbral",

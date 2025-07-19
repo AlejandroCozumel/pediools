@@ -31,13 +31,24 @@ import {
   differenceInHours,
 } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const hours = Array.from({ length: 24 }, (_, i) => {
   const hour = i.toString().padStart(2, "0");
   return `${hour}:00`;
 });
 
-export default function DateInputsWithTime({ form }: { form: any }) {
+interface DateInputsWithTimeProps {
+  form: any;
+  translationNamespace?: string; // Allow different translation namespaces
+}
+
+export default function DateInputsWithTime({
+  form,
+  translationNamespace = "BilirubinCalculator",
+}: DateInputsWithTimeProps) {
+  const t = useTranslations(translationNamespace);
+
   const [birthDateOpen, setBirthDateOpen] = useState(false);
   const [measurementDateOpen, setMeasurementDateOpen] = useState(false);
   const birthHourRef = useRef<HTMLButtonElement>(null);
@@ -52,8 +63,8 @@ export default function DateInputsWithTime({ form }: { form: any }) {
     hourPart?: string
   ) => {
     const currentDate = field.value || startOfHour(new Date());
-
     let newDate = datePart || currentDate;
+
     if (hourPart && !datePart) {
       newDate = currentDate;
     }
@@ -64,7 +75,6 @@ export default function DateInputsWithTime({ form }: { form: any }) {
 
     const finalDate = new Date(newDate);
     finalDate.setHours(newHour, 0, 0, 0);
-
     field.onChange(finalDate);
   };
 
@@ -91,34 +101,56 @@ export default function DateInputsWithTime({ form }: { form: any }) {
     if (!birthDateTime || !measurementDateTime) {
       return hours;
     }
-
     if (!isSameDay(birthDateTime, measurementDateTime)) {
       return hours; // Allow all hours for different days
     }
-
     // Only filter same-day hours to prevent negative age
     const validHours: string[] = [];
     const birthHour = birthDateTime.getHours();
-
     hours.forEach((hour) => {
       const hourValue = parseInt(hour.split(":")[0]);
-      if (hourValue >= birthHour) { // Only prevent negative age
+      if (hourValue >= birthHour) {
+        // Only prevent negative age
         validHours.push(hour);
       }
     });
-
     return validHours;
   };
 
   const validBirthHours = getValidBirthHours();
   const validMeasurementHours = getValidMeasurementHours();
 
+  // Get the appropriate translation keys based on namespace
+  const getBirthDateLabel = () => {
+    if (translationNamespace === "BilirubinCalculator") {
+      return t("form.dateInputs.birthDateTime");
+    }
+    // Add other namespace mappings as needed
+    return "Date and Time of Birth";
+  };
+
+  const getMeasurementDateLabel = () => {
+    if (translationNamespace === "BilirubinCalculator") {
+      return t("form.dateInputs.measurementDateTime");
+    }
+    // Add other namespace mappings as needed
+    return "Date and Time of Measurement";
+  };
+
+  const getPickDateText = () => {
+    if (translationNamespace === "GrowthForm") {
+      return t("dateInputs.placeholders.pickDate");
+    }
+    return "Pick a date";
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
       {/* Birth Date & Time Card */}
       <Card className="p-4 border-medical-100">
         <FormLabel className="flex items-center gap-2 mb-4 font-semibold text-medical-800">
-          <Baby className="w-5 h-5 text-medical-600" /> Birth Details
+          <Baby className="w-5 h-5 text-medical-600" />
+          {getBirthDateLabel()}
         </FormLabel>
         <FormField
           control={form.control}
@@ -141,7 +173,7 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                         {field.value ? (
                           format(field.value, "PPP")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>{getPickDateText()}</span>
                         )}
                       </Button>
                     </FormControl>
@@ -155,8 +187,10 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                         setBirthDateOpen(false);
                         setTimeout(() => birthHourRef.current?.click(), 0);
                       }}
-                      disabled={(date) =>
-                        date > new Date() || date < addDays(new Date(), -14)
+                      disabled={
+                        (date) =>
+                          date > new Date() ||
+                          date < addDays(new Date(), -365 * 2) // Allow up to 2 years back
                       }
                       initialFocus
                     />
@@ -193,7 +227,8 @@ export default function DateInputsWithTime({ form }: { form: any }) {
       {/* Measurement Date & Time Card */}
       <Card className="p-4 border-medical-100">
         <FormLabel className="flex items-center gap-2 mb-4 font-semibold text-medical-800">
-          <Clock className="w-5 h-5 text-medical-600" /> Measurement Details
+          <Clock className="w-5 h-5 text-medical-600" />
+          {getMeasurementDateLabel()}
         </FormLabel>
         <FormField
           control={form.control}
@@ -211,14 +246,15 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                         variant={"outline"}
                         className={cn(
                           "flex-1 justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
+                          !birthDateTime && "opacity-50 cursor-not-allowed"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
                           format(field.value, "PPP")
                         ) : (
-                          <span>Pick a date</span>
+                          <span>{getPickDateText()}</span>
                         )}
                       </Button>
                     </FormControl>
@@ -237,10 +273,13 @@ export default function DateInputsWithTime({ form }: { form: any }) {
                       }}
                       disabled={(date) => {
                         if (!birthDateTime) return true;
-
                         const birthDate = startOfHour(birthDateTime);
-                        const maxDate = addDays(birthDateTime, 14);
-
+                        // For bilirubin: max 14 days, for growth: could be longer
+                        const maxDays =
+                          translationNamespace === "BilirubinCalculator"
+                            ? 14
+                            : 365;
+                        const maxDate = addDays(birthDateTime, maxDays);
                         return date < birthDate || date > maxDate;
                       }}
                       initialFocus
