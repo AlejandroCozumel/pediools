@@ -42,6 +42,10 @@
       "lab": {
         "title": "Lab Reference",
         "description": "Interpret pediatric lab values with age-based reference ranges."
+      },
+      "dose": {
+        "title": "Pediatric Dose Calculator",
+        "description": "Calculate safe and effective medication doses for children based on weight and age."
       }
     },
     "premiumFeatures": {
@@ -58,6 +62,7 @@
   },
   "GrowthForm": {
     "title": "Growth Percentile Calculator",
+    "description": "Calculate and track growth measurements using WHO, CDC, and INTERGROWTH-21st standards",
     "gender": {
       "male": "Boy",
       "female": "Girl"
@@ -863,6 +868,7 @@
   },
   "BMICalculator": {
     "title": "BMI Calculator",
+    "description": "Calculate Body Mass Index and track BMI percentiles for pediatric patients",
     "gender": {
       "male": "Boy",
       "female": "Girl"
@@ -892,7 +898,7 @@
     "validation": {
       "selectDob": "Please select a Date of Birth to enter measurements",
       "whoAgeError": "WHO BMI Standard is only valid for 0-24 months.",
-      "cdcAgeError": "CDC BMI Standard is only valid for 2ars (24-240 months)."
+      "cdcAgeError": "CDC BMI Standard is only valid for 2-20 years (24-240 months)."
     },
     "alerts": {
       "invalidStandard": {
@@ -905,7 +911,7 @@
       "referenceRange": "Reference range for age/sex/standard:",
       "dataSource": "Data source",
       "dataSources": {
-        "who": "WHO Growth Standards (ages 0 months)",
+        "who": "WHO Growth Standards (ages 0-24 months)",
         "cdc": "United States CDC Growth Charts (ages 2 to 20)"
       }
     },
@@ -913,120 +919,9 @@
       "graph": "Graph"
     }
   },
-  "DoseCalculator": {
-    "title": "Dose Calculator",
-    "subtitle": "Select a dosing method and calculate medication dosages based on patient parameters",
-    "methods": {
-      "weight": {
-        "name": "Weight-based",
-        "description": "mg/kg dosing",
-        "details": "Based only on patient weight, note: Most common pediatric dosing method"
-      },
-      "bsa": {
-        "name": "BSA-based",
-        "description": "mg/m² dosing",
-        "details": "Based on weight and height (BSA)",
-        "note": "Used for chemotherapy and high-risk medications"
-      },
-      "bsa_normalized": {
-        "name": "BSA-normalized",
-        "description": "Normalized to 1.73 m²",
-        "details": "Uses total BSA, normalized to standard adult BSA",
-        "note": "Common for renal function adjustments"
-      }
-    },
-    "weightBased": {
-      "title": "Weight-Based Dosage Prescribed",
-      "dose": {
-        "label": "Dose",
-        "placeholder": "Enter dose"
-      },
-      "doseUnit": {
-        "label": "Dose Unit",
-        "mg": "mg",
-        "ml": "l",
-        "tablet": "tablet"
-      },
-      "dosageType": {
-        "label": "Age Type",
-        "perKgPerDay": {
-          "value": "/kg/day",
-          "label": "/kg/day",
-          "description": "Per kilogram per day"
-        },
-        "perKgPerDose": {
-          "value": "/kg/dose",
-          "label": "/kg/dose",
-          "description": "Per kilogram per dose"
-        },
-        "perDay": {
-          "value": "/day",
-          "label": "/day",
-          "description": "Total per day"
-        },
-        "perDose": {
-          "value": "/dose",
-          "label": "/dose",
-          "description": "Total per dose"
-        }
-      },
-      "frequency": {
-        "label": "Frequency",
-        "options": {
-          "qD": "qD (once a day)",
-          "BID": "BID (twice a day)",
-          "TID": "TID (thrice a day)",
-          "QID": "QID (four times a day)",
-          "q4hr": "q4(every 4 hours)",
-          "q6hr": "q6(every 6 hours)",
-          "q8hr": "q8 (every8hours)"
-        }
-      },
-      "patientWeight": {
-        "label": "Patient Weight",
-        "placeholder": "Enter weight"
-      },
-      "weightUnit": {
-        "label": "Weight Unit",
-        "kg": "kg",
-        "lb": "lb"
-      },
-      "medication": {
-        "title": "Medication Information",
-        "mass": {
-          "label": "Mass",
-          "placeholder": "Enter mass"
-        },
-        "massUnit": {
-          "label": "Mass Unit",
-          "mg": "mg",
-          "g": "g"
-        },
-        "volume": {
-          "label": "Volume",
-          "placeholder": "Enter volume"
-        },
-        "volumeUnit": {
-          "label": "Volume Unit",
-          "ml": "ml",
-          "tablet": "tablet"
-        }
-      },
-      "results": {
-        "title": "Dosage Results",
-        "dailyDosage": "Daily Dosage",
-        "perDose": "Per Dose",
-        "dailyVolume": "Daily Volume",
-        "concentration": "Concentration"
-      }
-    },
-    "drugConcentration": {
-      "title": "Drug Concentration",
-      "label": "Concentration",
-      "placeholder": "Enter concentration"
-    }
-  },
   "LabCalculator": {
+    "title": "Lab Reference Calculator",
+    "description": "Interpret pediatric lab values with age-based reference ranges",
     "noResults": "Please enter lab values and patient information to see results.",
     "resultsTitle": "Lab Results Analysis",
     "premium": "Premium",
@@ -1075,13 +970,130 @@
     "interpretationCritical": "Critical value - requires immediate attention",
     "interpretationUnknown": "Reference range not available"
   },
+  "DoseCalculator": {
+    "title": "Dose Calculator",
+    "description": "Calculate medication dosages based on weight, age, and clinical parameters",
+    "subtitle": "Select a dosing method and calculate medication dosages based on patient parameters",
+    "methods": {
+      "weight": {
+        "name": "Weight-based",
+        "description": "mg/kg dosing",
+        "details": "Based only on patient weight, note: Most common pediatric dosing method"
+      },
+      "bsa": {
+        "name": "BSA-based",
+        "description": "mg/m² dosing",
+        "details": "Based on weight and height (BSA)",
+        "note": "Used for chemotherapy and high-risk medications"
+      },
+      "bsa_normalized": {
+        "name": "BSA-normalized",
+        "description": "Normalized to 1.73 m²",
+        "details": "Uses total BSA, normalized to standard adult BSA",
+        "note": "Common for renal function adjustments"
+      }
+    },
+    "weightBased": {
+      "title": "Weight-Based Dosage Prescribed",
+      "dose": {
+        "label": "Dose",
+        "placeholder": "Enter dose"
+      },
+      "doseUnit": {
+        "label": "Dose Unit",
+        "mg": "mg",
+        "ml": "ml",
+        "tablet": "tablet"
+      },
+      "dosageType": {
+        "label": "Age Type",
+        "perKgPerDay": {
+          "value": "/kg/day",
+          "label": "/kg/day",
+          "description": "Per kilogram per day"
+        },
+        "perKgPerDose": {
+          "value": "/kg/dose",
+          "label": "/kg/dose",
+          "description": "Per kilogram per dose"
+        },
+        "perDay": {
+          "value": "/day",
+          "label": "/day",
+          "description": "Total per day"
+        },
+        "perDose": {
+          "value": "/dose",
+          "label": "/dose",
+          "description": "Total per dose"
+        }
+      },
+      "frequency": {
+        "label": "Frequency",
+        "options": {
+          "qD": "qD (once a day)",
+          "BID": "BID (twice a day)",
+          "TID": "TID (thrice a day)",
+          "QID": "QID (four times a day)",
+          "q4hr": "q4h (every 4 hours)",
+          "q6hr": "q6h (every 6 hours)",
+          "q8hr": "q8h (every 8 hours)"
+        }
+      },
+      "patientWeight": {
+        "label": "Patient Weight",
+        "placeholder": "Enter weight"
+      },
+      "weightUnit": {
+        "label": "Weight Unit",
+        "kg": "kg",
+        "lb": "lb"
+      },
+      "medication": {
+        "title": "Medication Information",
+        "mass": {
+          "label": "Mass",
+          "placeholder": "Enter mass"
+        },
+        "massUnit": {
+          "label": "Mass Unit",
+          "mg": "mg",
+          "g": "g"
+        },
+        "volume": {
+          "label": "Volume",
+          "placeholder": "Enter volume"
+        },
+        "volumeUnit": {
+          "label": "Volume Unit",
+          "ml": "ml",
+          "tablet": "tablet"
+        }
+      },
+      "results": {
+        "title": "Dosage Results",
+        "dailyDosage": "Daily Dosage",
+        "perDose": "Per Dose",
+        "dailyVolume": "Daily Volume",
+        "concentration": "Concentration"
+      }
+    },
+    "drugConcentration": {
+      "title": "Drug Concentration",
+      "label": "Concentration",
+      "placeholder": "Enter concentration"
+    }
+  },
   "BilirubinCalculator": {
     "title": "Bilirubin Thresholds Calculator",
     "description": "Assess hyperbilirubinemia and determine phototherapy need for newborns ≥35 weeks gestation (AAP 2022).",
     "form": {
       "dateInputs": {
         "birthDateTime": "Date and Time of Birth",
-        "measurementDateTime": "Date and Time of Measurement"
+        "measurementDateTime": "Date and Time of Measurement",
+        "pickDate": "Pick a date",
+        "time": "Time",
+        "noValidTimes": "No valid times available for this date"
       },
       "patientData": {
         "title": "Patient Data & Risk Factors",

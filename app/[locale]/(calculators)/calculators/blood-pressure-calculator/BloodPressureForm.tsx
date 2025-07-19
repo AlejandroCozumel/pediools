@@ -1182,8 +1182,8 @@ export function BloodPressureForm() {
                     </>
                   ) : (
                     <>
-                      {t("button.calculate")}
                       <Activity className="ml-2 h-4 w-4" />
+                      {t("button.calculate")}
                     </>
                   )}
                 </Button>

@@ -335,7 +335,7 @@ export function BilirubinThresholdsForm() {
 
   return (
     <Card className="w-full mx-auto">
-      <CardHeader className="p-4 lg:p-6">
+      <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
           {t("title")}
         </CardTitle>

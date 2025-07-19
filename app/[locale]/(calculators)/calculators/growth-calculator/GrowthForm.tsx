@@ -505,8 +505,8 @@ export function GrowthForm() {
         <CardTitle className="text-2xl font-heading text-medical-900">
           {t("title")}
         </CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
-      <CardDescription className="p-4 lg:p-6 pb-0 lg:pb-0"></CardDescription>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
           <form

@@ -141,6 +141,9 @@ export default function DateInputsWithTime({
     if (translationNamespace === "GrowthForm") {
       return t("dateInputs.placeholders.pickDate");
     }
+    if (translationNamespace === "BilirubinCalculator") {
+      return t("form.dateInputs.pickDate");
+    }
     return "Pick a date";
   };
 
@@ -206,7 +209,7 @@ export default function DateInputsWithTime({
                 >
                   <FormControl>
                     <SelectTrigger ref={birthHourRef} className="w-[120px]">
-                      <SelectValue placeholder="Time" />
+                      <SelectValue placeholder={translationNamespace === "BilirubinCalculator" ? t("form.dateInputs.time") : "Time"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -299,7 +302,7 @@ export default function DateInputsWithTime({
                       ref={measurementHourRef}
                       className="w-[120px]"
                     >
-                      <SelectValue placeholder="Time" />
+                      <SelectValue placeholder={translationNamespace === "BilirubinCalculator" ? t("form.dateInputs.time") : "Time"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -310,9 +313,9 @@ export default function DateInputsWithTime({
                         </SelectItem>
                       ))
                     ) : (
-                      <div className="p-2 text-sm text-muted-foreground">
-                        No valid times available for this date
-                      </div>
+                                          <div className="p-2 text-sm text-muted-foreground">
+                      {translationNamespace === "BilirubinCalculator" ? t("form.dateInputs.noValidTimes") : "No valid times available for this date"}
+                    </div>
                     )}
                   </SelectContent>
                 </Select>

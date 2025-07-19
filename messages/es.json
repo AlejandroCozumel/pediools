@@ -42,6 +42,10 @@
       "lab": {
         "title": "Referencia de Laboratorio",
         "description": "Interprete valores de laboratorio pediátricos con rangos de referencia por edad."
+      },
+      "dose": {
+        "title": "Calculadora de Dosis Pediátrica",
+        "description": "Calcula dosis seguras y efectivas de medicamentos para niños basadas en peso y edad."
       }
     },
     "premiumFeatures": {
@@ -58,6 +62,7 @@
   },
   "GrowthForm": {
     "title": "Calculadora de Percentiles de Crecimiento",
+    "description": "Calcula y rastrea mediciones de crecimiento usando estándares WHO, CDC e INTERGROWTH-21st",
     "gender": {
       "male": "Niño",
       "female": "Niña"
@@ -166,7 +171,7 @@
   },
   "BloodPressureCalculator": {
     "title": "Calculadora de Presión Arterial",
-    "description": "Calcule percentiles de presión arterial pediátrica usando las guías AAP 2017 (Edades 1 año - 17 años)",
+    "description": "Calcula percentiles de presión arterial pediátrica usando guías AAP 2017 (Edades 1 año - 17 años)",
     "gender": {
       "male": "Niño",
       "female": "Niña"
@@ -853,6 +858,7 @@
   },
   "BMICalculator": {
     "title": "Calculadora de IMC",
+    "description": "Calcula el Índice de Masa Corporal y rastrea percentiles de IMC para pacientes pediátricos",
     "gender": {
       "male": "Niño",
       "female": "Niña"
@@ -903,8 +909,60 @@
       "graph": "Graficar"
     }
   },
+  "LabCalculator": {
+    "title": "Calculadora de Referencia de Laboratorio",
+    "description": "Interpreta valores de laboratorio pediátricos con rangos de referencia basados en edad",
+    "noResults": "Por favor ingrese valores de laboratorio e información del paciente para ver los resultados.",
+    "resultsTitle": "Análisis de Resultados de Laboratorio",
+    "premium": "Premium",
+    "basic": "Conjunto Básico",
+    "criticalValues": "Valores Críticos Detectados:",
+    "result": "resultado",
+    "criticalResultsAttention": "resultado(s) requieren atención inmediata.",
+    "basicPlan": "El plan básico incluye pruebas de laboratorio comunes. Actualice a Premium para el conjunto completo de referencias Harriet Lane con más de 200 pruebas especializadas.",
+    "completeHarrietLaneReferenceDataset": "conjunto completo de referencias Harriet Lane",
+    "with200SpecializedTests": "con más de 200 pruebas especializadas",
+    "patientInfo": "Información del Paciente",
+    "searchPatient": "Buscar Paciente",
+    "patientInfoHint": "Ingrese la información del paciente para calcular los rangos de referencia apropiados para la edad.",
+    "gender": "Género",
+    "selectGender": "Seleccione género",
+    "male": "Niño",
+    "female": "Niña",
+    "labValues": "Valores de Laboratorio",
+    "addLabValue": "Agregar Valor de Laboratorio",
+    "manualEntry": "Entrada Manual",
+    "commonTests": "Pruebas Comunes",
+    "testName": "Nombre de la Prueba",
+    "selectTest": "Seleccione prueba",
+    "value": "Valor",
+    "enterValue": "Ingrese valor",
+    "unit": "Unidad",
+    "example": "ej., mg/dL",
+    "remove": "Eliminar",
+    "ageGroup": "Grupo de Edad",
+    "referenceDataSources": "Fuentes de Datos de Referencia:",
+    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorios CHOP",
+    "childrensHospitalOfPhiladelphia": "Hospital Infantil de Filadelfia",
+    "disclaimer": "Aviso:",
+    "disclaimerText": "Los valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden variar según la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
+    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados",
+    "compiledFromMultipleSources": "compilados de múltiples fuentes",
+    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar",
+    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "según la edad, sexo, condición clínica y metodología de laboratorio utilizada",
+    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio",
+    "referenceRange": "Rango de Referencia",
+    "patientValue": "Valor del Paciente",
+    "interpretation": "Interpretación",
+    "interpretationNormal": "Dentro de los límites normales",
+    "interpretationLow": "Por debajo del rango de referencia",
+    "interpretationHigh": "Por encima del rango de referencia",
+    "interpretationCritical": "Valor crítico - requiere atención inmediata",
+    "interpretationUnknown": "Rango de referencia no disponible"
+  },
   "DoseCalculator": {
     "title": "Calculadora de Dosis",
+    "description": "Calcula dosis de medicamentos basadas en peso, edad y parámetros clínicos",
     "subtitle": "Seleccione un método de dosificación y calcule dosis de medicamentos según los parámetros del paciente",
     "methods": {
       "weight": {
@@ -1016,62 +1074,16 @@
       "placeholder": "Ingrese la concentración"
     }
   },
-  "LabCalculator": {
-    "noResults": "Por favor ingrese valores de laboratorio e información del paciente para ver los resultados.",
-    "resultsTitle": "Análisis de Resultados de Laboratorio",
-    "premium": "Premium",
-    "basic": "Conjunto Básico",
-    "criticalValues": "Valores Críticos Detectados:",
-    "result": "resultado",
-    "criticalResultsAttention": "resultado(s) requieren atención inmediata.",
-    "basicPlan": "El plan básico incluye pruebas de laboratorio comunes. Actualice a Premium para el conjunto completo de referencias Harriet Lane con más de 200 pruebas especializadas.",
-    "completeHarrietLaneReferenceDataset": "conjunto completo de referencias Harriet Lane",
-    "with200SpecializedTests": "con más de 200 pruebas especializadas",
-    "patientInfo": "Información del Paciente",
-    "searchPatient": "Buscar Paciente",
-    "patientInfoHint": "Ingrese la información del paciente para calcular los rangos de referencia apropiados para la edad.",
-    "gender": "Género",
-    "selectGender": "Seleccione género",
-    "male": "Niño",
-    "female": "Niña",
-    "labValues": "Valores de Laboratorio",
-    "addLabValue": "Agregar Valor de Laboratorio",
-    "manualEntry": "Entrada Manual",
-    "commonTests": "Pruebas Comunes",
-    "testName": "Nombre de la Prueba",
-    "selectTest": "Seleccione prueba",
-    "value": "Valor",
-    "enterValue": "Ingrese valor",
-    "unit": "Unidad",
-    "example": "ej., mg/dL",
-    "remove": "Eliminar",
-    "ageGroup": "Grupo de Edad",
-    "referenceDataSources": "Fuentes de Datos de Referencia:",
-    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorios CHOP",
-    "childrensHospitalOfPhiladelphia": "Hospital Infantil de Filadelfia",
-    "disclaimer": "Aviso:",
-    "disclaimerText": "Los valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden variar según la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
-    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados",
-    "compiledFromMultipleSources": "compilados de múltiples fuentes",
-    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar",
-    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "según la edad, sexo, condición clínica y metodología de laboratorio utilizada",
-    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio",
-    "referenceRange": "Rango de Referencia",
-    "patientValue": "Valor del Paciente",
-    "interpretation": "Interpretación",
-    "interpretationNormal": "Dentro de los límites normales",
-    "interpretationLow": "Por debajo del rango de referencia",
-    "interpretationHigh": "Por encima del rango de referencia",
-    "interpretationCritical": "Valor crítico - requiere atención inmediata",
-    "interpretationUnknown": "Rango de referencia no disponible"
-  },
   "BilirubinCalculator": {
     "title": "Calculadora de Umbrales de Bilirrubina",
     "description": "Evalúa la hiperbilirrubinemia y determina la necesidad de fototerapia para recién nacidos ≥35 semanas de gestación (AAP 2022).",
     "form": {
       "dateInputs": {
         "birthDateTime": "Fecha y Hora de Nacimiento",
-        "measurementDateTime": "Fecha y Hora de Medición"
+        "measurementDateTime": "Fecha y Hora de Medición",
+        "pickDate": "Elegir fecha",
+        "time": "Hora",
+        "noValidTimes": "No hay horas válidas disponibles para esta fecha"
       },
       "patientData": {
         "title": "Datos del Paciente y Factores de Riesgo",
