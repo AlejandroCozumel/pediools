@@ -169,11 +169,8 @@ const Charts = () => {
   }
 
   return (
-    <motion.div
+    <div
       className="my-4 md:my-6 flex flex-col gap-6 px-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <motion.div
         className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
@@ -233,7 +230,7 @@ const Charts = () => {
           yearRangeAround={isFullCurveView ? 18 : 4}
         />
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 

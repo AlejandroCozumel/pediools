@@ -447,7 +447,6 @@ const CDCChartInfant: React.FC<ChartProps> = ({
   const latestCalculatedPercentile = currentPatientMeasurement
     ? config.percentileAccessor(currentPatientMeasurement)
     : null;
-  console.log(patientAge);
   const { minAge, maxAge, minYValue, maxYValue } = useMemo(() => {
     if (!patientAge || patientValue === null)
       return {
@@ -836,7 +835,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
   ]);
 
   return (
-    <div className="w-full relative">
+    <div className="w-full h-full relative">
       <Card className="bg-white shadow-lg group hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-medical-200 relative overflow-hidden">
         <CardHeader className="relative space-y-4 pb-3 md:pb-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
