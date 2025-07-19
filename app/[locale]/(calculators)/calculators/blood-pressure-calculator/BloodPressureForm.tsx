@@ -34,7 +34,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { differenceInMonths, differenceInYears } from "date-fns";
 import cdcHeightData from "@/app/data/cdc-data-height.json";
 import whoHeightData from "@/app/data/who-data-height.json";
@@ -700,11 +699,11 @@ export function BloodPressureForm() {
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="calculator" className="flex items-center gap-2">
               <Calculator className="w-4 h-4" />
-              BP Calculator
+              {t("tabs.calculator")}
             </TabsTrigger>
             <TabsTrigger value="bedside" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Ambulatory BP Card
+              {t("tabs.bedside")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="calculator">
@@ -928,15 +927,6 @@ export function BloodPressureForm() {
                             <h3 className="text-lg font-semibold">
                               {t("results.title")}
                             </h3>
-                            <Badge
-                              className={cn(
-                                "font-medium",
-                                results.classification.bgColor,
-                                results.classification.color
-                              )}
-                            >
-                              {results.classification.category}
-                            </Badge>
                           </div>
                           <div
                             className={cn(

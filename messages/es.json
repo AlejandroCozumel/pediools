@@ -292,6 +292,88 @@
     "button": {
       "calculate": "Calcular Presión Arterial",
       "calculating": "Calculando..."
+    },
+    "tabs": {
+      "calculator": "Calculadora PA",
+      "bedside": "Tarjeta PA Ambulatoria"
+    },
+    "officeBPReference": {
+      "title": "Referencia de PA de Consultorio",
+      "subtitle": "Para un {gender} de {age} años con una altura de {height}cm ({percentile} percentil).",
+      "print": "Imprimir",
+      "milestone": "Hito",
+      "bpValue": "Valor de PA (mmHg)",
+      "clinicalMeaning": "Significado Clínico",
+      "percentile50": "50º Percentil",
+      "percentile90": "90º Percentil",
+      "percentile95": "95º Percentil",
+      "stage2Threshold": "95º %ile + 12mmHg",
+      "averageBP": "La PA promedio estadística para este paciente.",
+      "elevatedBP": "La PA Elevada comienza en este valor.",
+      "stage1Hypertension": "La Hipertensión Etapa 1 comienza en este valor.",
+      "stage2Hypertension": "La Hipertensión Etapa 2 comienza en este valor.",
+      "footer": "Estos umbrales se calculan basándose en las guías AAP 2017, ajustados para la edad, género y percentil de altura específicos de este paciente."
+    },
+    "bedsideCard": {
+      "title": "Tarjeta de Cabecera de PA Ambulatoria",
+      "subtitle": "Generar una tarjeta de cabecera imprimible para monitoreo ambulatorio de presión arterial",
+      "patientInfo": {
+        "name": "Nombre del Paciente",
+        "age": "Edad (años)",
+        "gender": "Género",
+        "height": "Altura (cm)",
+        "weight": "Peso (kg) - Opcional",
+        "studyDate": "Fecha del Estudio"
+      },
+      "measurements": {
+        "daytime": "PA Diurna",
+        "nighttime": "PA Nocturna",
+        "systolic": "Sistólica",
+        "diastolic": "Diastólica",
+        "systolic24h": "Sistólica 24h - Opcional",
+        "diastolic24h": "Diastólica 24h - Opcional"
+      },
+      "buttons": {
+        "generateCard": "Generar Tarjeta",
+        "print": "Imprimir",
+        "copyText": "Copiar Texto",
+        "download": "Descargar"
+      },
+      "alerts": {
+        "fillRequiredFields": "Por favor complete todos los campos requeridos",
+        "cardCopied": "¡Datos de la tarjeta copiados al portapapeles!"
+      },
+      "dipping": {
+        "title": "Descenso Nocturno",
+        "normalDipper": "Descenso normal",
+        "nonDipper": "Sin descenso",
+        "reverseDipper": "Descenso inverso"
+      },
+      "cardHeader": "TARJETA DE REFERENCIA DE PA AMBULATORIA",
+      "measurementsLabel": "MEDICIONES:",
+      "daytimeLabel": "📅 PA DIURNA:",
+      "nighttimeLabel": "🌙 PA NOCTURNA:",
+      "dippingLabel": "📉 DESCENSO:",
+      "percentilesLabel": "Percentiles:"
+    },
+    "ambulatoryReference": {
+      "title": "Tarjeta de Referencia Rápida de PA Ambulatoria",
+      "subtitle": "Generar una referencia imprimible de percentiles de PA ambulatoria basada en la altura del paciente.",
+      "patientHeight": "Altura del Paciente (cm)",
+      "heightPlaceholder": "ej., 150",
+      "generateCard": "Generar Tarjeta de Referencia",
+      "printCard": "Imprimir Tarjeta",
+      "cardTitle": "Referencia de PA Ambulatoria para un {gender} de ~{height}cm",
+      "source": "Fuente: Wühl et al. 2002 | Nota: Valores ≥95º percentil indican hipertensión ambulatoria.",
+      "period": "Período",
+      "percentile5": "5º %ile",
+      "percentile50": "50º %ile",
+      "percentile90": "90º %ile",
+      "percentile95": "95º %ile",
+      "percentile99": "99º %ile",
+      "daytime": "Diurno",
+      "nighttime": "Nocturno",
+      "hour24": "24-Horas"
     }
   },
   "PatientSelector": {

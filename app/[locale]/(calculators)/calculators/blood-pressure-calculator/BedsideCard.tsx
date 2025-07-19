@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslations } from "next-intl";
 import ambulatoryBPData from "@/app/data/ambulatory-bp-reference.json";
 
 interface BedsideCardData {
@@ -52,6 +53,9 @@ interface BedsideCardData {
 }
 
 export function BedsideCard() {
+  const t = useTranslations("BloodPressureCalculator.bedsideCard");
+  const genderT = useTranslations("BloodPressureCalculator.gender");
+
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -114,7 +118,7 @@ export function BedsideCard() {
     const { gender, height, age, systolicDay, diastolicDay, systolicNight, diastolicNight, systolic24h, diastolic24h } = formData;
 
     if (!height || !age || !systolicDay || !diastolicDay || !systolicNight || !diastolicNight) {
-      alert('Please fill in all required fields');
+      alert(t("alerts.fillRequiredFields"));
       return;
     }
 
@@ -176,7 +180,7 @@ export function BedsideCard() {
 
     const text = generatePlainTextCard(cardData);
     navigator.clipboard.writeText(text);
-    alert('Card data copied to clipboard!');
+    alert(t("alerts.cardCopied"));
   };
 
   const generatePlainTextCard = (data: BedsideCardData): string => {
@@ -228,10 +232,10 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          ABPM Bedside Reference Card Generator
+          {t("title")}
         </h1>
         <p className="text-gray-600">
-          Generate printable ambulatory blood pressure reference cards for pediatric patients
+          {t("subtitle")}
         </p>
       </div>
 
@@ -253,7 +257,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
               {/* Patient Info */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="name">Patient Name</Label>
+                  <Label htmlFor="name">{t("patientInfo.name")}</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -262,7 +266,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                   />
                 </div>
                 <div>
-                  <Label htmlFor="age">Age (years)</Label>
+                  <Label htmlFor="age">{t("patientInfo.age")}</Label>
                   <Input
                     id="age"
                     type="number"
@@ -272,19 +276,19 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                   />
                 </div>
                 <div>
-                  <Label htmlFor="gender">Gender</Label>
+                  <Label htmlFor="gender">{t("patientInfo.gender")}</Label>
                   <Select value={formData.gender} onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="male">{genderT("male")}</SelectItem>
+                      <SelectItem value="female">{genderT("female")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="height">Height (cm)</Label>
+                  <Label htmlFor="height">{t("patientInfo.height")}</Label>
                   <Input
                     id="height"
                     type="number"
@@ -294,7 +298,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                   />
                 </div>
                 <div>
-                  <Label htmlFor="weight">Weight (kg) - Optional</Label>
+                  <Label htmlFor="weight">{t("patientInfo.weight")}</Label>
                   <Input
                     id="weight"
                     type="number"
@@ -304,7 +308,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                   />
                 </div>
                 <div>
-                  <Label htmlFor="studyDate">Study Date</Label>
+                  <Label htmlFor="studyDate">{t("patientInfo.studyDate")}</Label>
                   <Input
                     id="studyDate"
                     type="date"
@@ -320,11 +324,11 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                 <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Sun className="w-4 h-4" />
-                    Daytime Average BP
+                    {t("measurements.daytime")}
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="systolicDay">Systolic (mmHg)</Label>
+                      <Label htmlFor="systolicDay">{t("measurements.systolic")} (mmHg)</Label>
                       <Input
                         id="systolicDay"
                         type="number"
@@ -334,7 +338,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                       />
                     </div>
                     <div>
-                      <Label htmlFor="diastolicDay">Diastolic (mmHg)</Label>
+                      <Label htmlFor="diastolicDay">{t("measurements.diastolic")} (mmHg)</Label>
                       <Input
                         id="diastolicDay"
                         type="number"
@@ -350,11 +354,11 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Moon className="w-4 h-4" />
-                    Nighttime Average BP
+                    {t("measurements.nighttime")}
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="systolicNight">Systolic (mmHg)</Label>
+                      <Label htmlFor="systolicNight">{t("measurements.systolic")} (mmHg)</Label>
                       <Input
                         id="systolicNight"
                         type="number"
@@ -364,7 +368,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                       />
                     </div>
                     <div>
-                      <Label htmlFor="diastolicNight">Diastolic (mmHg)</Label>
+                      <Label htmlFor="diastolicNight">{t("measurements.diastolic")} (mmHg)</Label>
                       <Input
                         id="diastolicNight"
                         type="number"
@@ -384,7 +388,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                   </h3>
                   <div className="grid grid-cols-2 gap-3 max-w-md">
                     <div>
-                      <Label htmlFor="systolic24h">Systolic (mmHg)</Label>
+                      <Label htmlFor="systolic24h">{t("measurements.systolic24h")}</Label>
                       <Input
                         id="systolic24h"
                         type="number"
@@ -394,7 +398,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                       />
                     </div>
                     <div>
-                      <Label htmlFor="diastolic24h">Diastolic (mmHg)</Label>
+                      <Label htmlFor="diastolic24h">{t("measurements.diastolic24h")}</Label>
                       <Input
                         id="diastolic24h"
                         type="number"
@@ -408,7 +412,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
               </div>
 
               <Button onClick={generateCard} className="w-full" size="lg">
-                Generate Bedside Card
+                {t("buttons.generateCard")}
               </Button>
             </CardContent>
           </Card>
@@ -421,11 +425,11 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
               <div className="flex gap-2 print:hidden">
                 <Button onClick={handlePrint} className="flex items-center gap-2">
                   <Printer className="w-4 h-4" />
-                  Print Card
+                  {t("buttons.print")}
                 </Button>
                 <Button onClick={handleCopyText} variant="outline" className="flex items-center gap-2">
                   <Copy className="w-4 h-4" />
-                  Copy Text
+                  {t("buttons.copyText")}
                 </Button>
               </div>
 
@@ -433,7 +437,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
               <div className="print:shadow-none print:border-none">
                 <Card className="max-w-4xl mx-auto print:shadow-none print:border-none">
                   <CardHeader className="text-center border-b print:pb-2">
-                    <CardTitle className="text-lg font-bold">AMBULATORY BLOOD PRESSURE REFERENCE CARD</CardTitle>
+                    <CardTitle className="text-lg font-bold">{t("cardHeader")}</CardTitle>
                     <div className="text-sm text-gray-600 flex justify-center items-center gap-4">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
@@ -455,7 +459,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                       <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                         <div className="flex items-center justify-center gap-1 mb-2">
                           <Sun className="w-4 h-4 text-yellow-600" />
-                          <span className="font-semibold text-sm">DAYTIME</span>
+                          <span className="font-semibold text-sm">{t("daytimeLabel")}</span>
                         </div>
                         <div className="text-xl font-bold">
                           {cardData.measurements.daytime.systolic}/{cardData.measurements.daytime.diastolic}
@@ -475,7 +479,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                       <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="flex items-center justify-center gap-1 mb-2">
                           <Moon className="w-4 h-4 text-blue-600" />
-                          <span className="font-semibold text-sm">NIGHTTIME</span>
+                          <span className="font-semibold text-sm">{t("nighttimeLabel")}</span>
                         </div>
                         <div className="text-xl font-bold">
                           {cardData.measurements.nighttime.systolic}/{cardData.measurements.nighttime.diastolic}
@@ -495,7 +499,7 @@ Based on Wühl et al. 2002 / AAP 2017 Guidelines
                       <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <div className="flex items-center justify-center gap-1 mb-2">
                           <TrendingDown className="w-4 h-4 text-gray-600" />
-                          <span className="font-semibold text-sm">DIPPING</span>
+                          <span className="font-semibold text-sm">{t("dippingLabel")}</span>
                         </div>
                         <div className="text-sm space-y-1">
                           <div className={`font-semibold ${cardData.dipping.systolic.normal ? 'text-green-600' : 'text-orange-600'}`}>

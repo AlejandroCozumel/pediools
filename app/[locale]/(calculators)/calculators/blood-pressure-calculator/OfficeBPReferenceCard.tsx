@@ -3,6 +3,7 @@ import React from "react";
 import { Printer, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface OfficeBPReferenceCardProps {
   ageInYears: number;
@@ -17,6 +18,8 @@ export function OfficeBPReferenceCard({
   height,
   heightPercentile,
 }: OfficeBPReferenceCardProps) {
+  const t = useTranslations("BloodPressureCalculator.officeBPReference");
+
   // Logic remains the same.
   const calculateMilestones = () => {
     const clampedHeightPercentile = Math.max(
@@ -81,9 +84,9 @@ export function OfficeBPReferenceCard({
     <div className="mt-6" id="office-bp-reference-card">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="text-lg font-semibold">Office BP Reference</h3>
+          <h3 className="text-lg font-semibold">{t("title")}</h3>
           <p className="text-xs text-muted-foreground">
-          For a {gender} aged {ageInYears} with a height of {height}cm ({heightPercentile.toFixed(0)}th percentile).
+            {t("subtitle", { gender: gender === "male" ? "boy" : "girl", age: ageInYears, height, percentile: heightPercentile.toFixed(0) })}
           </p>
         </div>
         <Button
@@ -93,7 +96,7 @@ export function OfficeBPReferenceCard({
           className="print-hidden"
         >
           <Printer className="w-4 h-4 mr-2" />
-          Print
+          {t("print")}
         </Button>
       </div>
 
@@ -106,54 +109,54 @@ export function OfficeBPReferenceCard({
                 gender === "male" ? "bg-medical-600" : "bg-medical-pink-600"
               )}
             >
-              <th className="p-3 font-semibold text-left">Milestone</th>
-              <th className="p-3 font-semibold text-center">BP Value (mmHg)</th>
-              <th className="p-3 font-semibold text-left">Clinical Meaning</th>
+              <th className="p-3 font-semibold text-left">{t("milestone")}</th>
+              <th className="p-3 font-semibold text-center">{t("bpValue")}</th>
+              <th className="p-3 font-semibold text-left">{t("clinicalMeaning")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-300">
             <tr className="bg-medical-5">
               <td className="p-3 text-left font-semibold text-blue-800">
-                50th Percentile
+                {t("percentile50")}
               </td>
               <td className="p-3 text-center font-mono text-blue-900">
                 {milestones.p50}
               </td>
               <td className="p-3 text-left text-xs text-gray-700">
-                The statistical <strong>average</strong> BP for this patient.
+                {t("averageBP")}
               </td>
             </tr>
             <tr className="bg-yellow-50">
               <td className="p-3 text-left font-semibold text-yellow-800">
-                90th Percentile
+                {t("percentile90")}
               </td>
               <td className="p-3 text-center font-mono font-semibold text-yellow-900">
                 {milestones.p90}
               </td>
               <td className="p-3 text-left text-xs text-gray-700">
-                <strong>Elevated BP</strong> begins at this value.
+                {t("elevatedBP")}
               </td>
             </tr>
             <tr className="bg-orange-50">
               <td className="p-3 text-left font-semibold text-orange-800">
-                95th Percentile
+                {t("percentile95")}
               </td>
               <td className="p-3 text-center font-mono font-bold text-orange-900">
                 {milestones.p95}
               </td>
               <td className="p-3 text-left text-xs text-gray-700">
-                <strong>Stage 1 Hypertension</strong> begins at this value.
+                {t("stage1Hypertension")}
               </td>
             </tr>
             <tr className="bg-red-50">
               <td className="p-3 text-left font-semibold text-red-800">
-                95th %ile + 12mmHg
+                {t("stage2Threshold")}
               </td>
               <td className="p-3 text-center font-mono font-bold text-red-900">
                 {milestones.stage2}
               </td>
               <td className="p-3 text-left text-xs text-gray-700">
-                <strong>Stage 2 Hypertension</strong> begins at this value.
+                {t("stage2Hypertension")}
               </td>
             </tr>
           </tbody>
@@ -163,9 +166,7 @@ export function OfficeBPReferenceCard({
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 flex-shrink-0 text-medical-600" />
                   <p>
-                    These thresholds are calculated based on the 2017 AAP
-                    guidelines, adjusted for this specific patient's age,
-                    gender, and height percentile.
+                    {t("footer")}
                   </p>
                 </div>
               </td>

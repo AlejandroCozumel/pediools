@@ -292,6 +292,88 @@
     "button": {
       "calculate": "Calculate Blood Pressure",
       "calculating": "Calculating..."
+    },
+    "tabs": {
+      "calculator": "BP Calculator",
+      "bedside": "Ambulatory BP Card"
+    },
+    "officeBPReference": {
+      "title": "Office BP Reference",
+      "subtitle": "For a {gender} aged {age} with a height of {height}cm ({percentile}th percentile).",
+      "print": "Print",
+      "milestone": "Milestone",
+      "bpValue": "BP Value (mmHg)",
+      "clinicalMeaning": "Clinical Meaning",
+      "percentile50": "50th Percentile",
+      "percentile90": "90th Percentile",
+      "percentile95": "95th Percentile",
+      "stage2Threshold": "95th %ile + 12mmHg",
+      "averageBP": "The statistical average BP for this patient.",
+      "elevatedBP": "Elevated BP begins at this value.",
+      "stage1Hypertension": "Stage 1 Hypertension begins at this value.",
+      "stage2Hypertension": "Stage 2 Hypertension begins at this value.",
+      "footer": "These thresholds are calculated based on the 2017 AAP guidelines, adjusted for this specific patient's age, gender, and height percentile."
+    },
+    "bedsideCard": {
+      "title": "Ambulatory BP Bedside Card",
+      "subtitle": "Generate a printable bedside card for ambulatory blood pressure monitoring",
+      "patientInfo": {
+        "name": "Patient Name",
+        "age": "Age (years)",
+        "gender": "Gender",
+        "height": "Height (cm)",
+        "weight": "Weight (kg) - Optional",
+        "studyDate": "Study Date"
+      },
+      "measurements": {
+        "daytime": "Daytime BP",
+        "nighttime": "Nighttime BP",
+        "systolic": "Systolic",
+        "diastolic": "Diastolic",
+        "systolic24h": "24h Systolic - Optional",
+        "diastolic24h": "24h Diastolic - Optional"
+      },
+      "buttons": {
+        "generateCard": "Generate Card",
+        "print": "Print",
+        "copyText": "Copy Text",
+        "download": "Download"
+      },
+      "alerts": {
+        "fillRequiredFields": "Please fill in all required fields",
+        "cardCopied": "Card data copied to clipboard!"
+      },
+      "dipping": {
+        "title": "Nocturnal Dipping",
+        "normalDipper": "Normal dipper",
+        "nonDipper": "Non-dipper",
+        "reverseDipper": "Reverse dipper"
+      },
+      "cardHeader": "AMBULATORY BP REFERENCE CARD",
+      "measurementsLabel": "MEASUREMENTS:",
+      "daytimeLabel": "📅 DAYTIME BP:",
+      "nighttimeLabel": "🌙 NIGHTTIME BP:",
+      "dippingLabel": "📉 DIPPING:",
+      "percentilesLabel": "Percentiles:"
+    },
+    "ambulatoryReference": {
+      "title": "Ambulatory BP Quick Reference Card",
+      "subtitle": "Generate a printable reference of ABPM percentiles based on patient height.",
+      "patientHeight": "Patient Height (cm)",
+      "heightPlaceholder": "e.g., 150",
+      "generateCard": "Generate Reference Card",
+      "printCard": "Print Card",
+      "cardTitle": "ABPM Reference for a {gender} of ~{height}cm",
+      "source": "Source: Wühl et al. 2002 | Note: Values ≥95th percentile indicate ambulatory hypertension.",
+      "period": "Period",
+      "percentile5": "5th %ile",
+      "percentile50": "50th %ile",
+      "percentile90": "90th %ile",
+      "percentile95": "95th %ile",
+      "percentile99": "99th %ile",
+      "daytime": "Daytime",
+      "nighttime": "Nighttime",
+      "hour24": "24-Hour"
     }
   },
   "PatientSelector": {
