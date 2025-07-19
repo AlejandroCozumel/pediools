@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, XCircle, RefreshCw } from "lucide-react";
 import SmartLoader from "@/components/SmartLoader";
-import CDCChartInfant from "./CDCChartInfant";
+import CDCChartInfantDisplay from "./CDCChartInfantDisplay";
 // import ProgressionTable from "@/components/ProgressionTable";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
@@ -213,7 +213,7 @@ const Charts = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <CDCChartInfant
+        <CDCChartInfantDisplay
           rawData={data}
           type="weight"
           isFullCurveView={isFullCurveView}
@@ -227,7 +227,7 @@ const Charts = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
       >
-        <CDCChartInfant
+        <CDCChartInfantDisplay
           rawData={data}
           type="height"
           isFullCurveView={isFullCurveView}

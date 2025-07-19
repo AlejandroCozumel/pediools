@@ -206,7 +206,7 @@ const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   );
 };
 
-const CDCChartInfant: React.FC<ChartProps> = ({
+const CDCChartInfantDisplay: React.FC<ChartProps> = ({
   rawData,
   type,
   isFullCurveView,
@@ -520,18 +520,30 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         y: chartCanvas.offsetTop + tooltip.caretY,
       };
 
-      const age = chart.scales.x.getValueForPixel(tooltip.caretX);
-      if (age === undefined || age === null) {
-        setTooltipState((prev) => ({ ...prev, visible: false }));
-        return;
+      // Get the actual age from the tooltip data point instead of pixel calculation
+      let actualAge = 0; // Default to 0 months
+      if (
+        tooltipItems[0] &&
+        tooltipItems[0].parsed &&
+        typeof tooltipItems[0].parsed.x === "number"
+      ) {
+        actualAge = tooltipItems[0].parsed.x;
+      } else {
+        // Fallback to pixel calculation if parsed data not available
+        const ageFromPixel = chart.scales.x.getValueForPixel(tooltip.caretX);
+        if (ageFromPixel !== undefined && ageFromPixel !== null) {
+          actualAge = ageFromPixel;
+        }
       }
 
-      const title = `Age: ${age.toFixed(1)} months`;
+      // Ensure age is within valid range
+      const clampedAge = Math.max(0, Math.min(36, actualAge));
+      const title = `Age: ${clampedAge.toFixed(1)} months`;
 
-      // IMPROVED: Use the generated data directly instead of searching through chart data
+      // Find the correct data index using the step size (0.5 months)
       const step = 0.5; // Your data step (every 0.5 months)
       const baseAge = 0; // Starting age
-      const calculatedIndex = Math.round((age - baseAge) / step);
+      const calculatedIndex = Math.round((clampedAge - baseAge) / step);
 
       // Validate the calculated index against actual data
       const firstPercentileDataset = chart.data.datasets.find(
@@ -553,7 +565,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
           y: number;
         } | null;
         if (dataPoint && typeof dataPoint.x === "number") {
-          const ageDiff = Math.abs(dataPoint.x - age);
+          const ageDiff = Math.abs(dataPoint.x - clampedAge);
           // Accept if the age difference is within reasonable tolerance
           if (ageDiff <= step / 2) {
             dataIndex = calculatedIndex;
@@ -569,17 +581,15 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         }[];
         let bestMatch = -1;
         let minDiff = Infinity;
-
         dataPoints.forEach((point, index) => {
           if (point && typeof point.x === "number") {
-            const diff = Math.abs(point.x - age);
+            const diff = Math.abs(point.x - clampedAge);
             if (diff < minDiff) {
               minDiff = diff;
               bestMatch = index;
             }
           }
         });
-
         dataIndex = bestMatch;
       }
 
@@ -600,7 +610,6 @@ const CDCChartInfant: React.FC<ChartProps> = ({
           x: number;
           y: number | null;
         } | null;
-
         const value =
           pointData &&
           typeof pointData === "object" &&
@@ -614,7 +623,6 @@ const CDCChartInfant: React.FC<ChartProps> = ({
           let color = dataset.borderColor || "#000";
           const match = label.match(/(\d+(\.\d+)?)th Perc./);
           label = match ? `P${match[1]}` : label;
-
           allValuesForAge.push({
             label,
             value: `${value.toFixed(1)} ${config.yAxisUnit}`,
@@ -624,9 +632,10 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         }
       });
 
+      // Check for patient data at this age
       const ageTolerance = 0.5;
       const patientPointAtHover = patientDataPointsWithPercentile.find(
-        (p) => Math.abs(p.x - age) < ageTolerance
+        (p) => Math.abs(p.x - clampedAge) < ageTolerance
       );
 
       if (patientPointAtHover) {
@@ -638,6 +647,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         });
       }
 
+      // Sort percentiles from highest to lowest
       allValuesForAge.sort((a, b) => {
         const getPercValue = (label: string): number => {
           let match = label.match(/Patient \(P(\d+(\.\d+)?)\)/);
@@ -655,7 +665,6 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         title: title,
         dataPoints: allValuesForAge,
       };
-
       setTooltipState(newState);
     },
     [patientDataPointsWithPercentile, config.yAxisUnit]
@@ -887,4 +896,4 @@ const CDCChartInfant: React.FC<ChartProps> = ({
   );
 };
 
-export default CDCChartInfant;
+export default CDCChartInfantDisplay;

@@ -30,8 +30,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import intergrowthWeightData from "@/app/data/intergrowht-weight.json";
-import intergrowthHeightData from "@/app/data/intergrowht-lenght.json";
+import whoWeightData from "@/app/data/who-data-weight.json";
+import whoHeightData from "@/app/data/who-data-height.json";
 
 ChartJS.register(
   CategoryScale,
@@ -46,24 +46,31 @@ ChartJS.register(
 );
 
 // Interfaces
-interface IntergrowthDataPoint {
-  sex: number;
-  age: string;
-  "3rd": number;
-  "5th": number;
-  "10th": number;
-  "50th": number;
-  "90th": number;
-  "95th": number;
-  "97th": number;
-}
-
-interface ProcessedDataPoint {
-  gestationalWeeks: number;
+interface WHODataPoint {
+  Sex: number;
+  Agemos: number;
+  L: number;
+  M: number;
+  S: number;
   P3: number;
   P5: number;
   P10: number;
+  P25: number;
   P50: number;
+  P75: number;
+  P90: number;
+  P95: number;
+  P97: number;
+}
+
+interface ProcessedDataPoint {
+  ageInMonths: number;
+  P3: number;
+  P5: number;
+  P10: number;
+  P25: number;
+  P50: number;
+  P75: number;
   P90: number;
   P95: number;
   P97: number;
@@ -84,16 +91,14 @@ interface ChartProps {
     };
     data: {
       weight: Array<{
-        gestationalAge: number;
-        gestationalDays: number;
+        ageInMonths: number;
         weight: {
           value: number;
           percentiles: { calculatedPercentile: number };
         };
       }>;
       height: Array<{
-        gestationalAge: number;
-        gestationalDays: number;
+        ageInMonths: number;
         height: {
           value: number;
           percentiles: { calculatedPercentile: number };
@@ -103,7 +108,7 @@ interface ChartProps {
   };
   type: "weight" | "height";
   isFullCurveView: boolean;
-  weekRangeAround: number;
+  monthRangeAround: number;
 }
 
 interface CustomTooltipDataPoint {
@@ -122,26 +127,26 @@ interface CustomHtmlTooltipProps {
 
 const chartConfigs = {
   weight: {
-    sourceData: intergrowthWeightData,
+    sourceData: whoWeightData,
     dataKey: "weight" as const,
     inputGenderKey: "weight" as const,
-    title: "Weight For Gestational Age Chart",
+    title: "Weight For Age Chart",
     yAxisLabel: "Weight (kg)",
     yAxisUnit: "kg",
-    yAxisDomainFull: [0, 5] as [number, number],
-    defaultRangeAround: 2,
+    yAxisDomainFull: [0, 20] as [number, number],
+    defaultRangeAround: 8,
     valueAccessor: (m: any) => m?.weight?.value,
     percentileAccessor: (m: any) => m?.weight?.percentiles?.calculatedPercentile,
   },
   height: {
-    sourceData: intergrowthHeightData,
+    sourceData: whoHeightData,
     dataKey: "height" as const,
     inputGenderKey: "height" as const,
-    title: "Length For Gestational Age Chart",
-    yAxisLabel: "Length (cm)",
+    title: "Height For Age Chart",
+    yAxisLabel: "Height (cm)",
     yAxisUnit: "cm",
-    yAxisDomainFull: [20, 60] as [number, number],
-    defaultRangeAround: 15,
+    yAxisDomainFull: [40, 100] as [number, number],
+    defaultRangeAround: 25,
     valueAccessor: (m: any) => m?.height?.value,
     percentileAccessor: (m: any) => m?.height?.percentiles?.calculatedPercentile,
   },
@@ -191,11 +196,11 @@ const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   );
 };
 
-const IntergrowthChartDisplay: React.FC<ChartProps> = ({
+const WHOChartDisplay: React.FC<ChartProps> = ({
   rawData,
   type,
   isFullCurveView,
-  weekRangeAround,
+  monthRangeAround,
 }) => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const chartRef = useRef<ChartJS<"line", (number | Point | null)[], number> | null>(null);
@@ -218,174 +223,215 @@ const IntergrowthChartDisplay: React.FC<ChartProps> = ({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Convert gestational age to decimal weeks
-  const convertToDecimalWeeks = useCallback((weeks: number, days: number): number => {
-    return weeks + days / 7;
-  }, []);
-
-  // Convert decimal weeks back to weeks+days format for display
-  const formatGestationalAge = useCallback((decimalWeeks: number): string => {
-    const weeks = Math.floor(decimalWeeks);
-    const days = Math.round((decimalWeeks - weeks) * 7);
-    return `${weeks}+${days}`;
+  // Convert months to display format
+  const formatAge = useCallback((ageInMonths: number): string => {
+    if (ageInMonths < 1) {
+      return `${Math.round(ageInMonths * 30)} months`;
+    } else if (ageInMonths < 12) {
+      return `${ageInMonths} months`;
+    } else {
+      const years = Math.floor(ageInMonths / 12);
+      const months = Math.round(ageInMonths % 12);
+      return months > 0 ? `${years}y ${months}m` : `${years} years`;
+    }
   }, []);
 
   const findClosestDataPoint = useCallback(
     (
-      gestationalAge: number,
-      gestationalDays: number,
+      ageInMonths: number,
       gender: "male" | "female",
-      sourceData: IntergrowthDataPoint[]
-    ): IntergrowthDataPoint | null => {
+      sourceData: WHODataPoint[]
+    ): WHODataPoint | null => {
       const sex = gender === "male" ? 1 : 2;
-      const totalDays = gestationalAge * 7 + gestationalDays;
-      const ageString = `${gestationalAge}+${gestationalDays}`;
-
-      // First try exact match
-      const exactMatch = sourceData.find(
-        (point) => point.sex === sex && point.age === ageString
+      const filteredData = sourceData.filter(
+        (point) => point.Sex === sex && point.Agemos >= 0 && point.Agemos <= 24
       );
-      if (exactMatch) return exactMatch;
 
-      // If no exact match, find closest point
-      const filteredData = sourceData.filter((point) => point.sex === sex);
       if (filteredData.length === 0) return null;
 
-      return filteredData.reduce((prev, curr) => {
-        const [prevWeeks, prevDays] = prev.age.split("+").map(Number);
-        const [currWeeks, currDays] = curr.age.split("+").map(Number);
+      const exactMatch = filteredData.find((p) => p.Agemos === ageInMonths);
+      if (exactMatch) return exactMatch;
 
-        const prevTotalDays = prevWeeks * 7 + prevDays;
-        const currTotalDays = currWeeks * 7 + currDays;
+      const sortedPoints = filteredData.sort(
+        (a, b) =>
+          Math.abs(a.Agemos - ageInMonths) - Math.abs(b.Agemos - ageInMonths)
+      );
 
-        const prevDiff = Math.abs(prevTotalDays - totalDays);
-        const currDiff = Math.abs(currTotalDays - totalDays);
+      const point1 = sortedPoints[0];
+      const point2 = sortedPoints[1];
 
-        return prevDiff < currDiff ? prev : curr;
-      });
+      if (point1.Agemos === point2.Agemos || point1.Agemos === ageInMonths) {
+        return point1;
+      }
+
+      const factor =
+        (ageInMonths - point1.Agemos) / (point2.Agemos - point1.Agemos);
+
+      if (!isFinite(factor) || factor < 0 || factor > 1) {
+        return point1;
+      }
+
+      return {
+        Sex: point1.Sex,
+        Agemos: ageInMonths,
+        L: point1.L + (point2.L - point1.L) * factor,
+        M: point1.M + (point2.M - point1.M) * factor,
+        S: point1.S + (point2.S - point1.S) * factor,
+        P3: point1.P3 + (point2.P3 - point1.P3) * factor,
+        P5: point1.P5 + (point2.P5 - point1.P5) * factor,
+        P10: point1.P10 + (point2.P10 - point1.P10) * factor,
+        P25: point1.P25 + (point2.P25 - point1.P25) * factor,
+        P50: point1.P50 + (point2.P50 - point1.P50) * factor,
+        P75: point1.P75 + (point2.P75 - point1.P75) * factor,
+        P90: point1.P90 + (point2.P90 - point1.P90) * factor,
+        P95: point1.P95 + (point2.P95 - point1.P95) * factor,
+        P97: point1.P97 + (point2.P97 - point1.P97) * factor,
+      };
     },
     []
   );
 
   const generateChartDataPoints = useCallback(
     (
-      sourceData: IntergrowthDataPoint[],
+      sourceData: WHODataPoint[],
       gender: "male" | "female"
     ): ProcessedDataPoint[] => {
       const sex = gender === "male" ? 1 : 2;
-      const filteredData = sourceData.filter((point) => point.sex === sex);
+      const filteredData = sourceData.filter(
+        (point) => point.Sex === sex && point.Agemos >= 0 && point.Agemos <= 24
+      );
 
-      return filteredData.map((point) => {
-        const [weeks, days] = point.age.split("+").map(Number);
-        const decimalWeeks = convertToDecimalWeeks(weeks, days);
+      // Use the actual monthly data points from WHO (0, 1, 2, 3... 24 months)
+      const monthlyAges = Array.from({ length: 25 }, (_, i) => i); // 0 to 24 months
 
-        return {
-          gestationalWeeks: decimalWeeks,
-          P3: point["3rd"],
-          P5: point["5th"],
-          P10: point["10th"],
-          P50: point["50th"],
-          P90: point["90th"],
-          P95: point["95th"],
-          P97: point["97th"],
-        };
-      }).sort((a, b) => a.gestationalWeeks - b.gestationalWeeks);
+      return monthlyAges
+        .map((ageInMonths) => {
+          // Find exact match first (WHO data comes in exact monthly intervals)
+          const exactMatch = filteredData.find((p) => p.Agemos === ageInMonths);
+
+          if (exactMatch) {
+            return {
+              ageInMonths: ageInMonths,
+              P3: Number(exactMatch.P3.toFixed(2)),
+              P5: Number(exactMatch.P5.toFixed(2)),
+              P10: Number(exactMatch.P10.toFixed(2)),
+              P25: Number(exactMatch.P25.toFixed(2)),
+              P50: Number(exactMatch.P50.toFixed(2)),
+              P75: Number(exactMatch.P75.toFixed(2)),
+              P90: Number(exactMatch.P90.toFixed(2)),
+              P95: Number(exactMatch.P95.toFixed(2)),
+              P97: Number(exactMatch.P97.toFixed(2)),
+            };
+          }
+
+          // If no exact match, interpolate (shouldn't happen with proper WHO data)
+          const dataPoint = findClosestDataPoint(ageInMonths, gender, sourceData);
+          if (!dataPoint) return null;
+
+          return {
+            ageInMonths: ageInMonths,
+            P3: Number(dataPoint.P3.toFixed(2)),
+            P5: Number(dataPoint.P5.toFixed(2)),
+            P10: Number(dataPoint.P10.toFixed(2)),
+            P25: Number(dataPoint.P25.toFixed(2)),
+            P50: Number(dataPoint.P50.toFixed(2)),
+            P75: Number(dataPoint.P75.toFixed(2)),
+            P90: Number(dataPoint.P90.toFixed(2)),
+            P95: Number(dataPoint.P95.toFixed(2)),
+            P97: Number(dataPoint.P97.toFixed(2)),
+          };
+        })
+        .filter((point) => point !== null) as ProcessedDataPoint[];
     },
-    [convertToDecimalWeeks]
+    [findClosestDataPoint]
   );
 
-  // Updated section for smooth lines - replace the chartData generation in your useMemo
+  const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
+    const gender = rawData.originalInput[config.inputGenderKey].gender;
+    const sourceData = config.sourceData as WHODataPoint[];
+    const patientMeasurements = rawData.data[config.dataKey];
 
-const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
-  const gender = rawData.originalInput[config.inputGenderKey].gender;
-  const sourceData = config.sourceData as IntergrowthDataPoint[];
-  const patientMeasurements = rawData.data[config.dataKey];
+    const processedDataPoints = generateChartDataPoints(sourceData, gender);
 
-  const processedDataPoints = generateChartDataPoints(sourceData, gender);
+    const patientPoints: PatientDataPoint[] = patientMeasurements
+      .filter(
+        (m) =>
+          config.valueAccessor(m) !== undefined &&
+          config.valueAccessor(m) !== null
+      )
+      .map((m) => ({
+        x: m.ageInMonths,
+        y: config.valueAccessor(m)!,
+        percentile: config.percentileAccessor(m),
+      }))
+      .sort((a, b) => a.x - b.x);
 
-  const patientPoints: PatientDataPoint[] = patientMeasurements
-    .filter(
-      (m) =>
-        config.valueAccessor(m) !== undefined &&
-        config.valueAccessor(m) !== null
-    )
-    .map((m) => ({
-      x: convertToDecimalWeeks(m.gestationalAge, m.gestationalDays),
-      y: config.valueAccessor(m)!,
-      percentile: config.percentileAccessor(m),
-    }))
-    .sort((a, b) => a.x - b.x);
+    const percentileKeys = ["P3", "P5", "P10", "P25", "P50", "P75", "P90", "P95", "P97"] as const;
+    const percentileColors = {
+      P3: "#93C5FD",
+      P5: "#60A5FA",
+      P10: "#3B82F6",
+      P25: "#2563EB",
+      P50: "#1D4ED8",
+      P75: "#1E40AF",
+      P90: "#1E3A8A",
+      P95: "#172554",
+      P97: "#172554",
+    };
 
-  // Filter out percentiles that don't exist in Intergrowth data
-  const availablePercentileKeys = ["P3", "P5", "P10", "P50", "P90", "P95", "P97"] as const;
+    const chartData = {
+      datasets: [
+        ...percentileKeys.map((key) => ({
+          label: `${key.slice(1)}th Perc.`,
+          data: processedDataPoints.map((p) => ({ x: p.ageInMonths, y: p[key] })),
+          borderColor: percentileColors[key],
+          backgroundColor: percentileColors[key],
+          borderWidth: key === "P50" ? 2.5 : 1.5,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: false,
+          spanGaps: true,
+          hidden: ![
+            "P3",
+            "P5",
+            "P10",
+            "P25",
+            "P50",
+            "P75",
+            "P90",
+            "P95",
+            "P97",
+          ].includes(key),
+        })),
+        {
+          label: `Patient ${config.title.split(" ")[0]}`,
+          data: patientPoints,
+          borderColor: "#DC2626",
+          backgroundColor: "#DC2626",
+          borderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointBackgroundColor: "#DC2626",
+          tension: 0.1,
+          showLine: patientPoints.length > 1,
+          order: 10,
+        },
+      ],
+    };
 
-  // Check which percentiles actually have data
-  const validPercentiles = availablePercentileKeys.filter(key => {
-    return processedDataPoints.some(point =>
-      point[key] !== undefined &&
-      point[key] !== null &&
-      !isNaN(point[key])
-    );
-  });
-
-  const percentileColors = {
-    P3: "#93C5FD",
-    P5: "#60A5FA",
-    P10: "#3B82F6",
-    P50: "#1D4ED8",
-    P90: "#1E3A8A",
-    P95: "#172554",
-    P97: "#172554",
-  };
-
-  const chartData = {
-    datasets: [
-      ...validPercentiles.map((key) => ({
-        label: `${key.slice(1)}th Perc.`,
-        data: processedDataPoints
-          .filter(p => p[key] !== undefined && p[key] !== null && !isNaN(p[key]))
-          .map((p) => ({ x: p.gestationalWeeks, y: p[key] })),
-        borderColor: percentileColors[key],
-        backgroundColor: percentileColors[key],
-        borderWidth: key === "P50" ? 2.5 : 1.5,
-        pointRadius: 0,
-        tension: 0.4, // Increased for smoother curves
-        fill: false,
-        spanGaps: true, // This helps connect gaps in data
-        hidden: false,
-      })),
-      {
-        label: `Patient ${config.title.split(" ")[0]}`,
-        data: patientPoints,
-        borderColor: "#DC2626",
-        backgroundColor: "#DC2626",
-        borderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        pointBackgroundColor: "#DC2626",
-        tension: 0.1,
-        showLine: patientPoints.length > 1,
-        order: 10,
-      },
-    ],
-  };
-
-  return {
-    chartJsData: chartData,
-    patientDataPointsWithPercentile: patientPoints,
-  };
-}, [rawData, config, generateChartDataPoints, convertToDecimalWeeks]);
+    return {
+      chartJsData: chartData,
+      patientDataPointsWithPercentile: patientPoints,
+    };
+  }, [rawData, config, generateChartDataPoints]);
 
   const currentPatientMeasurement =
     rawData.data[config.dataKey]?.length > 0
       ? rawData.data[config.dataKey][rawData.data[config.dataKey].length - 1]
       : undefined;
 
-  const patientGestationalAge = currentPatientMeasurement
-    ? convertToDecimalWeeks(
-        currentPatientMeasurement.gestationalAge,
-        currentPatientMeasurement.gestationalDays
-      )
+  const patientAge = currentPatientMeasurement
+    ? currentPatientMeasurement.ageInMonths
     : null;
 
   const patientValue = currentPatientMeasurement
@@ -396,25 +442,25 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
     ? config.percentileAccessor(currentPatientMeasurement)
     : null;
 
-  const { minWeeks, maxWeeks, minYValue, maxYValue } = useMemo(() => {
-    if (!patientGestationalAge || patientValue === null)
+  const { minMonths, maxMonths, minYValue, maxYValue } = useMemo(() => {
+    if (!patientAge || patientValue === null)
       return {
-        minWeeks: 24,
-        maxWeeks: 42,
+        minMonths: 0,
+        maxMonths: 24,
         minYValue: config.yAxisDomainFull[0],
         maxYValue: config.yAxisDomainFull[1],
       };
 
     if (isFullCurveView)
       return {
-        minWeeks: 24,
-        maxWeeks: 42,
+        minMonths: 0,
+        maxMonths: 24,
         minYValue: config.yAxisDomainFull[0],
         maxYValue: config.yAxisDomainFull[1],
       };
     else {
-      const calcMinWeeks = Math.max(24, patientGestationalAge - weekRangeAround / 2);
-      const calcMaxWeeks = Math.min(42, patientGestationalAge + weekRangeAround / 2);
+      const calcMinMonths = Math.max(0, patientAge - monthRangeAround / 2);
+      const calcMaxMonths = Math.min(24, patientAge + monthRangeAround / 2);
       const calcMinY = Math.max(
         config.yAxisDomainFull[0],
         patientValue - yRangeAround / 2
@@ -424,30 +470,31 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         patientValue + yRangeAround / 2
       );
 
-      const finalMaxWeeks =
-        calcMaxWeeks <= calcMinWeeks + 0.5 ? calcMinWeeks + 2 : calcMaxWeeks;
+      const finalMaxMonths =
+        calcMaxMonths <= calcMinMonths + 1 ? calcMinMonths + 3 : calcMaxMonths;
       const finalMaxY =
-        calcMaxY <= calcMinY + (type === "weight" ? 0.2 : 2)
-          ? calcMinY + (type === "weight" ? 0.5 : 5)
+        calcMaxY <= calcMinY + (type === "weight" ? 1 : 5)
+          ? calcMinY + (type === "weight" ? 3 : 15)
           : calcMaxY;
 
       return {
-        minWeeks: calcMinWeeks,
-        maxWeeks: finalMaxWeeks,
+        minMonths: calcMinMonths,
+        maxMonths: finalMaxMonths,
         minYValue: calcMinY,
         maxYValue: finalMaxY,
       };
     }
   }, [
     isFullCurveView,
-    patientGestationalAge,
+    patientAge,
     patientValue,
-    weekRangeAround,
+    monthRangeAround,
     yRangeAround,
     config.yAxisDomainFull,
     type,
   ]);
 
+  // Tooltip External Function
   const externalTooltipHandler = useCallback(
     (context: { chart: ChartJS; tooltip: TooltipModel<"line"> }) => {
       const { chart, tooltip } = context;
@@ -469,38 +516,36 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         y: chartCanvas.offsetTop + tooltip.caretY,
       };
 
-      // Get the actual gestational age from the tooltip data point instead of pixel calculation
-      let actualGestationalWeeks = 24; // Default to 24 weeks
+      // Get the actual age from the tooltip data point instead of pixel calculation
+      // This is more reliable, especially at age 0
+      let actualAge = 0;
       if (tooltipItems[0] && tooltipItems[0].parsed && typeof tooltipItems[0].parsed.x === 'number') {
-        actualGestationalWeeks = tooltipItems[0].parsed.x;
+        actualAge = tooltipItems[0].parsed.x;
       } else {
         // Fallback to pixel calculation if parsed data not available
-        const weeksFromPixel = chart.scales.x.getValueForPixel(tooltip.caretX);
-        if (weeksFromPixel !== undefined && weeksFromPixel !== null) {
-          actualGestationalWeeks = weeksFromPixel;
+        const ageFromPixel = chart.scales.x.getValueForPixel(tooltip.caretX);
+        if (ageFromPixel !== undefined && ageFromPixel !== null) {
+          actualAge = ageFromPixel;
         }
       }
 
-      // Ensure gestational age is within valid range
-      const clampedWeeks = Math.max(24, Math.min(42, actualGestationalWeeks));
-      const title = `Gestational Age: ${formatGestationalAge(clampedWeeks)}`;
+      // Ensure age is within valid range
+      const clampedAge = Math.max(0, Math.min(24, actualAge));
+      const roundedAge = Math.round(clampedAge);
 
-      // Find the exact gestational age string (weeks+days format)
-      const weeks = Math.floor(clampedWeeks);
-      const days = Math.round((clampedWeeks - weeks) * 7);
-      const targetAgeString = `${weeks}+${days}`;
+      const title = `Age: ${formatAge(clampedAge)}`;
 
       const allValuesForAge: CustomTooltipDataPoint[] = [];
       const currentDatasets = chart.data.datasets;
 
-      // Get percentile data for the actual hovered gestational age
+      // Get percentile data for the actual hovered monthly age
       currentDatasets.forEach((dataset: any, i: number) => {
         if (!chart.isDatasetVisible(i) || dataset.label?.startsWith("Patient"))
           return;
 
-        // Find the data point for this exact gestational age (with small tolerance for decimal precision)
+        // Find the data point for this exact monthly age
         const dataPoint = dataset.data.find((point: any) =>
-          point && typeof point === 'object' && Math.abs(point.x - clampedWeeks) < 0.05
+          point && typeof point === 'object' && Math.abs(point.x - roundedAge) < 0.1
         );
 
         if (dataPoint && typeof dataPoint.y === "number") {
@@ -517,10 +562,10 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         }
       });
 
-      // Check for patient data at this gestational age
-      const weeksTolerance = 0.1; // About 0.7 days tolerance
+      // Check for patient data at this age
+      const monthsTolerance = 0.5; // Half month tolerance
       const patientPointAtHover = patientDataPointsWithPercentile.find(
-        (p) => Math.abs(p.x - clampedWeeks) < weeksTolerance
+        (p) => Math.abs(p.x - clampedAge) < monthsTolerance
       );
 
       if (patientPointAtHover) {
@@ -552,7 +597,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
       };
       setTooltipState(newState);
     },
-    [patientDataPointsWithPercentile, config.yAxisUnit, formatGestationalAge]
+    [patientDataPointsWithPercentile, config.yAxisUnit, formatAge]
   );
 
   // Chart.js Options
@@ -564,32 +609,30 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         x: {
           type: "linear",
           position: "bottom",
-          min: minWeeks,
-          max: maxWeeks,
+          min: minMonths,
+          max: maxMonths,
           title: {
             display: true,
-            text: "Gestational Age (weeks)",
+            text: "Age (months)",
             font: { size: 14 },
             color: "#374151",
           },
           ticks: {
             callback: function (value, index, ticks) {
               const numericValue = Number(value);
-              const weeks = Math.floor(numericValue);
 
               if (isFullCurveView) {
-                // In full view, show every 2 weeks
-                if (weeks % 2 === 0 && weeks >= 24 && weeks <= 42) {
-                  return weeks;
+                // In full view, show every 3 months for desktop, 6 for mobile
+                const stepSize = isMediumScreen ? 3 : 6;
+                if (numericValue % stepSize === 0 && numericValue >= 0 && numericValue <= 24) {
+                  return numericValue;
                 }
                 return undefined;
               } else {
                 // In focused view, show more frequent ticks
-                if (weeks >= Math.floor(minWeeks) && weeks <= Math.ceil(maxWeeks)) {
-                  const prevTickFloor = index > 0 ? Math.floor(Number(ticks[index - 1].value)) : null;
-                  if (weeks !== prevTickFloor) {
-                    return weeks;
-                  }
+                const stepSize = isMediumScreen ? 1 : 2;
+                if (numericValue % stepSize === 0 && numericValue >= Math.floor(minMonths) && numericValue <= Math.ceil(maxMonths)) {
+                  return numericValue;
                 }
                 return undefined;
               }
@@ -612,7 +655,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
             color: "#374151",
           },
           ticks: {
-            maxTicksLimit: isMediumScreen ? 9 : 6,
+            maxTicksLimit: isMediumScreen ? 10 : 6,
             font: { size: 12 },
             color: "#6B7280",
           },
@@ -632,17 +675,17 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
           callbacks: { title: () => "" },
         },
         annotation: {
-          annotations: patientGestationalAge
+          annotations: patientAge !== null
             ? {
                 ageLine: {
                   type: "line",
-                  xMin: patientGestationalAge,
-                  xMax: patientGestationalAge,
+                  xMin: patientAge,
+                  xMax: patientAge,
                   borderColor: "#DC2626",
                   borderWidth: 1.5,
                   borderDash: [6, 6],
                   label: {
-                    content: "Current GA",
+                    content: "Current Age",
                     display: true,
                     position: "end",
                     yAdjust: -10,
@@ -659,11 +702,11 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
       elements: { line: { tension: 0.3 } },
     };
   }, [
-    minWeeks,
-    maxWeeks,
+    minMonths,
+    maxMonths,
     minYValue,
     maxYValue,
-    patientGestationalAge,
+    patientAge,
     isMediumScreen,
     isFullCurveView,
     config,
@@ -680,7 +723,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
                 {rawData.originalInput[config.inputGenderKey].gender === "male"
                   ? "Boys"
                   : "Girls"}
-                {type === "weight" ? " (Weight)" : " (Length)"}
+                {type === "weight" ? " (Weight)" : " (Height)"}
                 <span className="block text-sm md:text-base text-medical-90 font-medium">
                   {config.title}
                 </span>
@@ -692,9 +735,9 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
                     {config.yAxisUnit}
                   </Badge>
                 )}
-                {patientGestationalAge !== null && (
+                {patientAge !== null && (
                   <Badge variant="outline" className="text-xs md:text-sm">
-                    GA: {formatGestationalAge(patientGestationalAge)}
+                    Age: {formatAge(patientAge)}
                   </Badge>
                 )}
                 {latestCalculatedPercentile !== undefined &&
@@ -714,7 +757,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         </CardContent>
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">
           <p className="text-xs text-gray-500">
-            Data source: Intergrowth-21st Growth Standards (24-42 weeks)
+            Data source: WHO Growth Standards (0-24 months)
           </p>
         </CardFooter>
       </Card>
@@ -728,4 +771,4 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
   );
 };
 
-export default IntergrowthChartDisplay;
+export default WHOChartDisplay;
