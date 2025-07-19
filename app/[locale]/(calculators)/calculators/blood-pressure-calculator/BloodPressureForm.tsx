@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -36,7 +36,8 @@ import {
 } from "@/components/ui/card";
 import { differenceInMonths, differenceInYears } from "date-fns";
 import cdcHeightData from "@/app/data/cdc-data-height.json";
-import whoHeightData from "@/app/data/who-data-height.json";
+import cdcChildHeightData from "@/app/data/cdc-data-height.json";
+import cdcInfantHeightData from "@/app/data/cdc-data-infant-height.json";
 import DateInputs from "@/components/DateInputs";
 import { AmbulatoryReferenceCard } from "./AmbulatoryReferenceCard";
 import { OfficeBPReferenceCard } from "./OfficeBPReferenceCard";
@@ -80,78 +81,54 @@ interface CdcDataPoint {
   P97: number;
 }
 
-interface WhoDataPoint {
-  Sex: number;
-  Agemos: number;
-  L: number;
-  M: number;
-  S: number;
-  SD: number;
-  P01: number;
-  P1: number;
-  P3: number;
-  P5: number;
-  P10: number;
-  P15: number;
-  P25: number;
-  P50: number;
-  P75: number;
-  P85: number;
-  P90: number;
-  P95: number;
-  P97: number;
-  P99: number;
-  P999: number;
-}
-
 const createFormSchema = (t: any) =>
   z
     .object({
       gender: z.enum(["male", "female"], {
         required_error: t("validation.selectGender"),
       }),
+      // Make dates required again
       dateOfBirth: z.date({
         required_error: t("validation.dobRequired"),
       }),
       dateOfMeasurement: z.date({
         required_error: t("validation.measurementRequired"),
       }),
+      // Keep height required
       height: z
         .string()
+        .min(1, { message: t("validation.heightRequired") })
         .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
           message: t("validation.heightInvalid"),
         }),
-      systolicBP: z.string().refine(
-        (val) => {
-          const num = parseFloat(val);
-          return !isNaN(num) && num >= 50 && num <= 250;
-        },
-        {
-          message: t("validation.systolicRange"),
-        }
-      ),
-      diastolicBP: z.string().refine(
-        (val) => {
-          const num = parseFloat(val);
-          return !isNaN(num) && num >= 30 && num <= 150;
-        },
-        {
-          message: t("validation.diastolicRange"),
-        }
-      ),
+      // Make BP fields optional
+      systolicBP: z.string().optional(),
+      diastolicBP: z.string().optional(),
     })
-    .refine(
-      (data) => {
-        // Cross-field validation: systolic must be higher than diastolic
+    .refine((data) => {
+      // If both BP values are provided, validate them
+      if (data.systolicBP && data.diastolicBP) {
         const systolic = parseFloat(data.systolicBP);
         const diastolic = parseFloat(data.diastolicBP);
-        return systolic > diastolic;
-      },
-      {
-        message: t("validation.systolicHigher"),
-        path: ["diastolicBP"], // Show error on diastolic field
+
+        // Check ranges
+        if (isNaN(systolic) || systolic < 50 || systolic > 250) return false;
+        if (isNaN(diastolic) || diastolic < 30 || diastolic > 150) return false;
+
+        // Check relationship
+        if (systolic <= diastolic) return false;
       }
-    );
+
+      // If only one BP value is provided, it's invalid
+      if (
+        (data.systolicBP && !data.diastolicBP) ||
+        (!data.systolicBP && data.diastolicBP)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
 
 // Calculate Z-Score using LMS method
 const calculateZScore = (value: number, L: number, M: number, S: number) => {
@@ -217,21 +194,23 @@ function calculateHeightPercentile(
 ): number {
   const sex = gender === "male" ? 1 : 2;
   let heightDataPoint;
-  if (ageInMonths < 24) {
-    // Use WHO data for ages 0-24 months
+
+  if (ageInMonths < 36) {
+    // Use CDC Infant data for ages 0-36 months
     heightDataPoint = interpolateDataPoint(
       ageInMonths,
-      whoHeightData as WhoDataPoint[],
+      cdcInfantHeightData as CdcDataPoint[],
       sex
     );
   } else {
-    // Use CDC data for ages 24+ months
+    // Use CDC Child data for ages 36+ months
     heightDataPoint = interpolateDataPoint(
       ageInMonths,
       cdcHeightData as CdcDataPoint[],
       sex
     );
   }
+
   const zScore = calculateZScore(
     height,
     heightDataPoint.L,
@@ -577,6 +556,7 @@ export function BloodPressureForm() {
   const [results, setResults] = useState<BPResult | null>(null);
   const [ageError, setAgeError] = useState<string>("");
   const [activeMainTab, setActiveMainTab] = useState("calculator");
+  const [showReferenceCard, setShowReferenceCard] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -631,11 +611,39 @@ export function BloodPressureForm() {
     return differenceInYears(measurement, birth);
   }, [birthDate, measurementDate]);
 
-  // Real-time BP validation (use debounced values)
+  const isMounted = useRef(false);
+  const watchedFormValues = form.watch();
+
+  useEffect(() => {
+    if (isMounted.current) {
+      if (results) {
+        setResults(null);
+      }
+      if (showReferenceCard) {
+        setShowReferenceCard(false);
+      }
+    } else {
+      isMounted.current = true;
+    }
+  }, [JSON.stringify(watchedFormValues)]);
+
+  const hasHeight = height && parseFloat(height) > 0;
+  const hasBothBP =
+    systolicBP &&
+    diastolicBP &&
+    parseFloat(systolicBP) > 0 &&
+    parseFloat(diastolicBP) > 0;
+  const hasOnlyOneBP =
+    (systolicBP && !diastolicBP) || (!systolicBP && diastolicBP);
+
   const systolicValue = parseFloat(systolicBP || "0");
   const diastolicValue = parseFloat(diastolicBP || "0");
-  const isBPInvalid =
-    systolicValue > 0 && diastolicValue > 0 && diastolicValue >= systolicValue;
+  const isBPInvalid = hasBothBP && diastolicValue >= systolicValue;
+  const systolicOutOfRange =
+    systolicBP && (parseFloat(systolicBP) < 50 || parseFloat(systolicBP) > 250);
+  const diastolicOutOfRange =
+    diastolicBP &&
+    (parseFloat(diastolicBP) < 30 || parseFloat(diastolicBP) > 150);
 
   // Compute if age is valid for input fields
   const ageIsValid =
@@ -646,10 +654,10 @@ export function BloodPressureForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     setAgeError("");
-    // Age range check
+
+    // Age range check (dates are now required)
     const birthDate = values.dateOfBirth;
     const measurementDate = values.dateOfMeasurement;
-
     const inRange = isAgeInRange(birthDate, measurementDate, 1, 17);
 
     if (!inRange) {
@@ -659,25 +667,31 @@ export function BloodPressureForm() {
       return;
     }
 
-    // Calculate height percentile
+    // Calculate height percentile (age is always available now)
     const heightPercentile = calculateHeightPercentile(
       parseFloat(values.height),
       ageInMonths,
       values.gender
     );
 
-    // Simulate API call
+    // Simulate processing
     setTimeout(() => {
-      const result = calculateBPPercentile(
-        parseFloat(values.systolicBP),
-        parseFloat(values.diastolicBP),
-        ageInYears,
-        heightPercentile,
-        values.gender,
-        t
-      );
-
-      setResults(result);
+      // If we have BP values, calculate full analysis
+      if (hasBothBP && values.systolicBP && values.diastolicBP) {
+        const result = calculateBPPercentile(
+          parseFloat(values.systolicBP),
+          parseFloat(values.diastolicBP),
+          ageInYears,
+          heightPercentile,
+          values.gender,
+          t
+        );
+        setResults(result);
+      } else {
+        // Just showing reference card - no full results
+        setResults(null);
+        setShowReferenceCard(true);
+      }
       setIsSubmitting(false);
     }, 1000);
   }
@@ -814,29 +828,16 @@ export function BloodPressureForm() {
                   </p>
                 </div>
                 {/* BP Invalid Warning */}
-                {isBPInvalid && (
-                  <Alert className="border-red-200 bg-red-50">
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <AlertTitle className="text-red-800">
-                      {t("alerts.invalidBP.title")}
-                    </AlertTitle>
-                    <AlertDescription className="text-red-700">
-                      {t("alerts.invalidBP.description", {
-                        systolic: systolicValue,
-                        diastolic: diastolicValue,
-                      })}
-                    </AlertDescription>
-                  </Alert>
-                )}
                 {/* Measurements */}
                 {ageIsValid && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-6">
+                    {/* Height Input */}
                     <FormField
                       control={form.control}
                       name="height"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("form.height")}</FormLabel>
+                          <FormLabel>{t("form.height")} *</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -850,62 +851,120 @@ export function BloodPressureForm() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="systolicBP"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("form.systolicBP")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder={t("form.systolicPlaceholder")}
-                              {...field}
-                              className={cn(
-                                "border-medical-100",
-                                isBPInvalid &&
-                                  "border-red-500 focus:border-red-500"
-                              )}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                          {isBPInvalid && (
-                            <p className="text-sm text-red-600">
-                              {t("validation.systolicHigher")}
-                            </p>
+
+                    {/* BP Section - Optional */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-medium">
+                          {t("form.bpSection")}
+                        </h3>
+                        <Info className="w-4 h-4 text-blue-500" />
+                      </div>
+                      <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+                        <Info className="w-4 h-4" />
+                        <AlertTitle>{t("alerts.bpOptional.title")}</AlertTitle>
+                        <AlertDescription>
+                          {t("alerts.bpOptional.description")}
+                        </AlertDescription>
+                      </Alert>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="systolicBP"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t("form.systolicBP")}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder={t("form.systolicPlaceholder")}
+                                  {...field}
+                                  className={cn(
+                                    "border-medical-100",
+                                    (isBPInvalid || hasOnlyOneBP) &&
+                                      "border-red-500 focus:border-red-500"
+                                  )}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
                           )}
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="diastolicBP"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("form.diastolicBP")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder={t("form.diastolicPlaceholder")}
-                              {...field}
-                              className={cn(
-                                "border-medical-100",
-                                isBPInvalid &&
-                                  "border-red-500 focus:border-red-500"
-                              )}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                          {isBPInvalid && (
-                            <p className="text-sm text-red-600">
-                              {t("validation.systolicHigher")}
-                            </p>
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="diastolicBP"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t("form.diastolicBP")}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder={t("form.diastolicPlaceholder")}
+                                  {...field}
+                                  className={cn(
+                                    "border-medical-100",
+                                    (isBPInvalid || hasOnlyOneBP) &&
+                                      "border-red-500 focus:border-red-500"
+                                  )}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
                           )}
-                        </FormItem>
+                        />
+                      </div>
+
+                      {/* BP Validation Messages */}
+                      {(hasOnlyOneBP ||
+                        isBPInvalid ||
+                        systolicOutOfRange ||
+                        diastolicOutOfRange) && (
+                        <Alert variant="destructive">
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertTitle>
+                            {hasOnlyOneBP
+                              ? t("alerts.incompleteBP.title")
+                              : systolicOutOfRange || diastolicOutOfRange
+                              ? t("alerts.bpOutOfRange.title")
+                              : t("alerts.invalidBP.title")}
+                          </AlertTitle>
+                          <AlertDescription>
+                            {hasOnlyOneBP && (
+                              <p>{t("alerts.incompleteBP.description")}</p>
+                            )}
+                            {systolicOutOfRange && (
+                              <p>
+                                {t("alerts.bpOutOfRange.systolicRange", {
+                                  value: systolicBP,
+                                })}
+                              </p>
+                            )}
+                            {diastolicOutOfRange && (
+                              <p>
+                                {t("alerts.bpOutOfRange.diastolicRange", {
+                                  value: diastolicBP,
+                                })}
+                              </p>
+                            )}
+                            {isBPInvalid &&
+                              !systolicOutOfRange &&
+                              !diastolicOutOfRange && (
+                                <p>
+                                  {t("alerts.invalidBP.description", {
+                                    systolic: systolicValue,
+                                    diastolic: diastolicValue,
+                                  })}
+                                </p>
+                              )}
+                          </AlertDescription>
+                        </Alert>
                       )}
-                    />
+                    </div>
                   </div>
                 )}
+
                 {/* Real-time Results */}
                 {results && (
                   <>
@@ -1088,8 +1147,12 @@ export function BloodPressureForm() {
                           <OfficeBPReferenceCard
                             ageInYears={ageInYears}
                             gender={selectedGender}
-                            heightPercentile={results.heightPercentile}
                             height={parseFloat(height)}
+                            heightPercentile={results.heightPercentile}
+                            cdcChildHeightData={cdcChildHeightData}
+                            cdcInfantHeightData={cdcInfantHeightData}
+                            patientSystolic={results.systolic.value}
+                            patientDiastolic={results.diastolic.value}
                           />
 
                           {/* Clinical Interpretation */}
@@ -1161,10 +1224,35 @@ export function BloodPressureForm() {
                     <AlertDescription>{ageError}</AlertDescription>
                   </Alert>
                 )}
+                {!results &&
+                  showReferenceCard &&
+                  ageIsValid &&
+                  hasHeight &&
+                  !isSubmitting && (
+                    <OfficeBPReferenceCard
+                      ageInYears={ageInYears}
+                      gender={selectedGender}
+                      heightPercentile={calculateHeightPercentile(
+                        parseFloat(height),
+                        ageInMonths,
+                        selectedGender
+                      )}
+                      height={parseFloat(height)}
+                      cdcChildHeightData={cdcHeightData}
+                      cdcInfantHeightData={cdcInfantHeightData}
+                    />
+                  )}
                 <Button
                   type="submit"
                   disabled={
-                    isSubmitting || !form.formState.isValid || isBPInvalid
+                    !!isSubmitting ||
+                    !!results ||
+                    !ageIsValid ||
+                    !hasHeight ||
+                    !!hasOnlyOneBP ||
+                    !!isBPInvalid ||
+                    !!systolicOutOfRange ||
+                    !!diastolicOutOfRange
                   }
                   size="lg"
                   className={cn(
@@ -1183,7 +1271,9 @@ export function BloodPressureForm() {
                   ) : (
                     <>
                       <Activity className="ml-2 h-4 w-4" />
-                      {t("button.calculate")}
+                      {hasBothBP
+                        ? t("button.calculate")
+                        : t("button.showReference")}
                     </>
                   )}
                 </Button>

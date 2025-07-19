@@ -177,8 +177,10 @@
       "female": "Niña"
     },
     "form": {
+      "bpSection": "Mediciones de Presión Arterial (Opcional)",
       "height": "Altura (cm)",
       "heightPlaceholder": "150",
+      "heightRequired": "La estatura es requerida",
       "systolicBP": "Presión Sistólica (mmHg)",
       "systolicPlaceholder": "120",
       "diastolicBP": "Presión Diastólica (mmHg)",
@@ -188,16 +190,30 @@
       "selectGender": "Por favor seleccione un género",
       "dobRequired": "La fecha de nacimiento es requerida",
       "measurementRequired": "La fecha de medición es requerida",
+      "heightRequired": "La estatura es requerida",
       "heightInvalid": "Por favor ingrese una altura válida en cm",
       "systolicRange": "La presión sistólica debe estar entre 50-250 mmHg",
       "diastolicRange": "La presión diastólica debe estar entre 30-150 mmHg",
       "systolicHigher": "La presión sistólica debe ser mayor que la diastólica",
-      "ageRange": "La edad del paciente debe estar entre 1 y 17 años al momento de la medición."
+      "ageRange": "La edad del paciente debe estar entre 1 y 17 años al momento de la medición.",
+      "bpBothRequired": "Se requieren ambos valores de presión arterial o ninguno"
     },
     "alerts": {
       "startHere": {
         "title": "Comience Aquí",
         "description": "Por favor seleccione tanto una fecha de nacimiento como una fecha de medición para comenzar."
+      },
+      "ageOptional": {
+        "title": "La Edad es Opcional",
+        "description": "Si no conoce la edad del paciente, aún puede obtener valores de referencia usando solo la estatura."
+      },
+      "bpOptional": {
+        "title": "La Presión Arterial es Opcional",
+        "description": "Se requieren tanto los valores sistólicos como diastólicos para el análisis de PA. Deje vacío para mostrar solo valores de referencia."
+      },
+      "incompleteBP": {
+        "title": "Presión Arterial Incompleta",
+        "description": "Por favor proporcione tanto valores sistólicos como diastólicos, o deje ambos vacíos."
       },
       "invalidAge": {
         "title": "Rango de Edad Inválido",
@@ -206,6 +222,11 @@
       "invalidBP": {
         "title": "Presión Arterial Inválida",
         "description": "La presión sistólica debe ser mayor que la diastólica. Actual: {systolic}/{diastolic} - Por favor revise sus valores."
+      },
+      "bpOutOfRange": {
+        "title": "Valores de Presión Arterial Fuera del Rango",
+        "systolicRange": "La presión sistólica debe estar entre 50-250 mmHg (actual: {value})",
+        "diastolicRange": "La presión diastólica debe estar entre 30-150 mmHg (actual: {value})"
       }
     },
     "info": {
@@ -296,7 +317,8 @@
     },
     "button": {
       "calculate": "Calcular Presión Arterial",
-      "calculating": "Calculando..."
+      "calculating": "Calculando...",
+      "showReference": "Mostrar Valores de Referencia"
     },
     "tabs": {
       "calculator": "Calculadora PA",
@@ -305,80 +327,33 @@
     "officeBPReference": {
       "title": "Referencia de PA de Consultorio",
       "subtitle": "Para un {gender} de {age} años con una altura de {height}cm ({percentile} percentil).",
+      "subtitleHeightOnly": "Niño/a de {height} cm de estatura (edad estimada: {ageRange} años)",
+      "heightOnlyWarning": "Valores estimados basados en estatura. Para mayor precisión, proporcione la edad exacta.",
       "print": "Imprimir",
+      "age": "Edad",
+      "years": "años",
       "milestone": "Hito",
       "bpValue": "Valor de PA (mmHg)",
       "clinicalMeaning": "Significado Clínico",
+      "percentile3": "3º Percentil",
+      "percentile5": "5º Percentil",
+      "percentile10": "10º Percentil",
       "percentile50": "50º Percentil",
       "percentile90": "90º Percentil",
       "percentile95": "95º Percentil",
       "stage2Threshold": "95º %ile + 12mmHg",
+      "criticalHypotension": "Hipotensión Crítica",
+      "severeHypotension": "Hipotensión Severa",
+      "mildHypotension": "Hipotensión Leve",
       "averageBP": "La PA promedio estadística para este paciente.",
       "elevatedBP": "La PA Elevada comienza en este valor.",
       "stage1Hypertension": "La Hipertensión Etapa 1 comienza en este valor.",
       "stage2Hypertension": "La Hipertensión Etapa 2 comienza en este valor.",
-      "footer": "Estos umbrales se calculan basándose en las guías AAP 2017, ajustados para la edad, género y percentil de altura específicos de este paciente."
-    },
-    "bedsideCard": {
-      "title": "Tarjeta de Cabecera de PA Ambulatoria",
-      "subtitle": "Generar una tarjeta de cabecera imprimible para monitoreo ambulatorio de presión arterial",
-      "patientInfo": {
-        "name": "Nombre del Paciente",
-        "age": "Edad (años)",
-        "gender": "Género",
-        "height": "Altura (cm)",
-        "weight": "Peso (kg) - Opcional",
-        "studyDate": "Fecha del Estudio"
-      },
-      "measurements": {
-        "daytime": "PA Diurna",
-        "nighttime": "PA Nocturna",
-        "systolic": "Sistólica",
-        "diastolic": "Diastólica",
-        "systolic24h": "Sistólica 24h - Opcional",
-        "diastolic24h": "Diastólica 24h - Opcional"
-      },
-      "buttons": {
-        "generateCard": "Generar Tarjeta",
-        "print": "Imprimir",
-        "copyText": "Copiar Texto",
-        "download": "Descargar"
-      },
-      "alerts": {
-        "fillRequiredFields": "Por favor complete todos los campos requeridos",
-        "cardCopied": "¡Datos de la tarjeta copiados al portapapeles!"
-      },
-      "dipping": {
-        "title": "Descenso Nocturno",
-        "normalDipper": "Descenso normal",
-        "nonDipper": "Sin descenso",
-        "reverseDipper": "Descenso inverso"
-      },
-      "cardHeader": "TARJETA DE REFERENCIA DE PA AMBULATORIA",
-      "measurementsLabel": "MEDICIONES:",
-      "daytimeLabel": "📅 PA DIURNA:",
-      "nighttimeLabel": "🌙 PA NOCTURNA:",
-      "dippingLabel": "📉 DESCENSO:",
-      "percentilesLabel": "Percentiles:"
-    },
-    "ambulatoryReference": {
-      "title": "Tarjeta de Referencia Rápida de PA Ambulatoria",
-      "subtitle": "Generar una referencia imprimible de percentiles de PA ambulatoria basada en la altura del paciente.",
-      "patientHeight": "Altura del Paciente (cm)",
-      "heightPlaceholder": "ej., 150",
-      "generateCard": "Generar Tarjeta de Referencia",
-      "printCard": "Imprimir Tarjeta",
-      "cardTitle": "Referencia de PA Ambulatoria para un {gender} de ~{height}cm",
-      "source": "Fuente: Wühl et al. 2002 | Nota: Valores ≥95º percentil indican hipertensión ambulatoria.",
-      "period": "Período",
-      "percentile5": "5º %ile",
-      "percentile50": "50º %ile",
-      "percentile90": "90º %ile",
-      "percentile95": "95º %ile",
-      "percentile99": "99º %ile",
-      "daytime": "Diurno",
-      "nighttime": "Nocturno",
-      "hour24": "24-Horas"
+      "footer": "Estos umbrales se calculan basándose en las guías AAP 2017, ajustados para la edad, género y percentil de altura específicos de este paciente.",
+      "heightAdjustment": "Valores ajustados por percentil de estatura ({percentile}%)",
+      "heightOnlyDisclaimer": "Valores aproximados basados en estatura. La edad exacta proporcionaría mayor precisión.",
+      "hypotensionNote": "Los percentiles más bajos ayudan a identificar hipotensión y asegurar una evaluación clínica integral.",
+      "dataSource": "Los percentiles de estatura se calculan utilizando estándares de crecimiento CDC cuando están disponibles."
     }
   },
   "PatientSelector": {

@@ -177,8 +177,10 @@
       "female": "Girl"
     },
     "form": {
+      "bpSection": "Blood Pressure Measurements (Optional)",
       "height": "Height (cm)",
       "heightPlaceholder": "150",
+      "heightRequired": "Height is required",
       "systolicBP": "Systolic BP (mmHg)",
       "systolicPlaceholder": "120",
       "diastolicBP": "Diastolic BP (mmHg)",
@@ -188,24 +190,43 @@
       "selectGender": "Please select a gender",
       "dobRequired": "Date of birth is required",
       "measurementRequired": "Measurement date is required",
+      "heightRequired": "Height is required",
       "heightInvalid": "Please enter a valid height in cm",
-      "systolicRange": "Systolic BP must be between 50-250 mmHg",
-      "diastolicRange": "Diastolic BP must be between 30-150 mmHg",
-      "systolicHigher": "Systolic BP must be higher than diastolic BP",
-      "ageRange": "Patient age must be between 1 and 17 years at the time of measurement."
+      "systolicRange": "Systolic pressure must be between 50-250 mmHg",
+      "diastolicRange": "Diastolic pressure must be between 30-150 mmHg",
+      "systolicHigher": "Systolic pressure must be higher than diastolic",
+      "ageRange": "Patient age must be between 1 and 17 years at time of measurement.",
+      "bpBothRequired": "Both blood pressure values are required or neither"
     },
     "alerts": {
       "startHere": {
         "title": "Start Here",
-        "description": "Please select both a date of birth and a date of measurement to begin."
+        "description": "Please select both a birth date and measurement date to begin."
+      },
+      "ageOptional": {
+        "title": "Age is Optional",
+        "description": "If you don't know the patient's age, you can still get reference values using height only."
+      },
+      "bpOptional": {
+        "title": "Blood Pressure is Optional",
+        "description": "Both systolic and diastolic values are required for BP analysis. Leave empty to show reference values only."
+      },
+      "incompleteBP": {
+        "title": "Incomplete Blood Pressure",
+        "description": "Please provide both systolic and diastolic values, or leave both empty."
       },
       "invalidAge": {
         "title": "Invalid Age Range",
-        "description": "Please select a date of birth and measurement date so that the patient is between 1 and 17 years old at the time of measurement."
+        "description": "Please select birth and measurement dates so the patient is between 1 and 17 years old at measurement time."
       },
       "invalidBP": {
         "title": "Invalid Blood Pressure",
-        "description": "Systolic pressure must be higher than diastolic pressure. Current: {systolic}/{diastolic} - Please check your values."
+        "description": "Systolic pressure must be higher than diastolic. Current: {systolic}/{diastolic} - Please check your values."
+      },
+      "bpOutOfRange": {
+        "title": "Blood Pressure Values Out of Range",
+        "systolicRange": "Systolic pressure must be between 50-250 mmHg (current: {value})",
+        "diastolicRange": "Diastolic pressure must be between 30-150 mmHg (current: {value})"
       }
     },
     "info": {
@@ -239,9 +260,9 @@
       },
       "clinicalInterpretation": {
         "title": "Clinical Interpretation",
-        "currentBP": "Current BP:",
-        "classification": "Classification: Based on the higher percentile (systolic: {systolic}%, diastolic: {diastolic}%)",
-        "heightAdjustment": "Height adjustment: Applied based on {height}th percentile height"
+        "currentBP": "Current Blood Pressure:",
+        "classification": "Classification: Based on highest percentile (systolic: {systolic}%, diastolic: {diastolic}%)",
+        "heightAdjustment": "Height adjustment: Applied based on {height} height percentile"
       },
       "referenceRanges": {
         "title": "Reference Ranges for Age {age} ({gender})",
@@ -264,7 +285,7 @@
         "adolescentDescription": "<120/<80 mmHg"
       },
       "elevated": {
-        "category": "Elevated BP",
+        "category": "Elevated Blood Pressure",
         "description": "{description} - {action}",
         "pediatricDescription": "90th-95th percentile",
         "pediatricAction": "Monitoring recommended",
@@ -274,7 +295,7 @@
         "diastolicReason": "Your child's diastolic pressure is elevated."
       },
       "stage1": {
-        "category": "Stage 1 HTN",
+        "category": "Stage 1 Hypertension",
         "description": "{description} - {action}",
         "pediatricDescription": "≥95th percentile",
         "pediatricAction": "Requires medical evaluation",
@@ -282,7 +303,7 @@
         "adolescentAction": "Lifestyle modifications and monitoring needed"
       },
       "stage2": {
-        "category": "Stage 2 HTN",
+        "category": "Stage 2 Hypertension",
         "description": "{description} - Requires immediate medical attention",
         "pediatricDescription": "≥95th percentile + 12mmHg or ≥140/90",
         "adolescentDescription": "≥140/90 mmHg"
@@ -296,7 +317,8 @@
     },
     "button": {
       "calculate": "Calculate Blood Pressure",
-      "calculating": "Calculating..."
+      "calculating": "Calculating...",
+      "showReference": "Show Reference Values"
     },
     "tabs": {
       "calculator": "BP Calculator",
@@ -304,81 +326,34 @@
     },
     "officeBPReference": {
       "title": "Office BP Reference",
-      "subtitle": "For a {gender} aged {age} with a height of {height}cm ({percentile}th percentile).",
+      "subtitle": "For a {age}-year-old {gender} with height {height}cm ({percentile} percentile).",
+      "subtitleHeightOnly": "Child with height {height}cm (estimated age: {ageRange} years)",
+      "heightOnlyWarning": "Values estimated based on height. For greater accuracy, provide exact age.",
       "print": "Print",
+      "age": "Age",
+      "years": "years",
       "milestone": "Milestone",
       "bpValue": "BP Value (mmHg)",
       "clinicalMeaning": "Clinical Meaning",
+      "percentile3": "3rd Percentile",
+      "percentile5": "5th Percentile",
+      "percentile10": "10th Percentile",
       "percentile50": "50th Percentile",
       "percentile90": "90th Percentile",
       "percentile95": "95th Percentile",
       "stage2Threshold": "95th %ile + 12mmHg",
-      "averageBP": "The statistical average BP for this patient.",
+      "criticalHypotension": "Critical Hypotension",
+      "severeHypotension": "Severe Hypotension",
+      "mildHypotension": "Mild Hypotension",
+      "averageBP": "Average statistical BP for this patient.",
       "elevatedBP": "Elevated BP begins at this value.",
       "stage1Hypertension": "Stage 1 Hypertension begins at this value.",
       "stage2Hypertension": "Stage 2 Hypertension begins at this value.",
-      "footer": "These thresholds are calculated based on the 2017 AAP guidelines, adjusted for this specific patient's age, gender, and height percentile."
-    },
-    "bedsideCard": {
-      "title": "Ambulatory BP Bedside Card",
-      "subtitle": "Generate a printable bedside card for ambulatory blood pressure monitoring",
-      "patientInfo": {
-        "name": "Patient Name",
-        "age": "Age (years)",
-        "gender": "Gender",
-        "height": "Height (cm)",
-        "weight": "Weight (kg) - Optional",
-        "studyDate": "Study Date"
-      },
-      "measurements": {
-        "daytime": "Daytime BP",
-        "nighttime": "Nighttime BP",
-        "systolic": "Systolic",
-        "diastolic": "Diastolic",
-        "systolic24h": "24h Systolic - Optional",
-        "diastolic24h": "24h Diastolic - Optional"
-      },
-      "buttons": {
-        "generateCard": "Generate Card",
-        "print": "Print",
-        "copyText": "Copy Text",
-        "download": "Download"
-      },
-      "alerts": {
-        "fillRequiredFields": "Please fill in all required fields",
-        "cardCopied": "Card data copied to clipboard!"
-      },
-      "dipping": {
-        "title": "Nocturnal Dipping",
-        "normalDipper": "Normal dipper",
-        "nonDipper": "Non-dipper",
-        "reverseDipper": "Reverse dipper"
-      },
-      "cardHeader": "AMBULATORY BP REFERENCE CARD",
-      "measurementsLabel": "MEASUREMENTS:",
-      "daytimeLabel": "📅 DAYTIME BP:",
-      "nighttimeLabel": "🌙 NIGHTTIME BP:",
-      "dippingLabel": "📉 DIPPING:",
-      "percentilesLabel": "Percentiles:"
-    },
-    "ambulatoryReference": {
-      "title": "Ambulatory BP Quick Reference Card",
-      "subtitle": "Generate a printable reference of ABPM percentiles based on patient height.",
-      "patientHeight": "Patient Height (cm)",
-      "heightPlaceholder": "e.g., 150",
-      "generateCard": "Generate Reference Card",
-      "printCard": "Print Card",
-      "cardTitle": "ABPM Reference for a {gender} of ~{height}cm",
-      "source": "Source: Wühl et al. 2002 | Note: Values ≥95th percentile indicate ambulatory hypertension.",
-      "period": "Period",
-      "percentile5": "5th %ile",
-      "percentile50": "50th %ile",
-      "percentile90": "90th %ile",
-      "percentile95": "95th %ile",
-      "percentile99": "99th %ile",
-      "daytime": "Daytime",
-      "nighttime": "Nighttime",
-      "hour24": "24-Hour"
+      "footer": "These thresholds are calculated based on 2017 AAP guidelines, adjusted for this patient's specific age, gender, and height percentile.",
+      "heightAdjustment": "Values adjusted for height percentile ({percentile}%)",
+      "heightOnlyDisclaimer": "Approximate values based on height. Exact age would provide greater accuracy.",
+      "hypotensionNote": "Lower percentiles help identify hypotension and ensure comprehensive clinical assessment.",
+      "dataSource": "Height percentiles calculated using CDC growth standards when available."
     }
   },
   "PatientSelector": {
