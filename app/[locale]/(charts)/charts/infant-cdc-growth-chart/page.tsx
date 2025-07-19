@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, XCircle, RefreshCw } from "lucide-react";
 import SmartLoader from "@/components/SmartLoader";
-import CDCChartInfant from "./CDCChartInfant";
+import CDCChartInfantDisplay from "./CDCChartInfantDisplay";
 // import ProgressionTable from "@/components/ProgressionTable";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
@@ -20,7 +20,8 @@ const Charts = () => {
   const calculationId = searchParams.get("calculationId");
 
   // Get data but don't show it immediately
-  const { data, isError, error, refetch } = useInfantGrowthChartData(searchParams);
+  const { data, isError, error, refetch } =
+    useInfantGrowthChartData(searchParams);
 
   const handleLoaderComplete = () => {
     setShowLoader(false);
@@ -84,7 +85,9 @@ const Charts = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            {error instanceof Error ? error.message : "An unexpected error occurred while processing your data"}
+            {error instanceof Error
+              ? error.message
+              : "An unexpected error occurred while processing your data"}
           </motion.p>
 
           <motion.div
@@ -147,7 +150,8 @@ const Charts = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            The chart data received is invalid or incomplete. Please check your inputs and try again.
+            The chart data received is invalid or incomplete. Please check your
+            inputs and try again.
           </motion.p>
 
           <motion.div
@@ -169,11 +173,8 @@ const Charts = () => {
   }
 
   return (
-    <motion.div
+    <div
       className="my-4 md:my-6 flex flex-col gap-6 px-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <motion.div
         className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
@@ -212,7 +213,7 @@ const Charts = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <CDCChartInfant
+        <CDCChartInfantDisplay
           rawData={data}
           type="weight"
           isFullCurveView={isFullCurveView}
@@ -226,14 +227,14 @@ const Charts = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
       >
-        <CDCChartInfant
+        <CDCChartInfantDisplay
           rawData={data}
           type="height"
           isFullCurveView={isFullCurveView}
           monthRangeAround={isFullCurveView ? 18 : 4}
         />
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 

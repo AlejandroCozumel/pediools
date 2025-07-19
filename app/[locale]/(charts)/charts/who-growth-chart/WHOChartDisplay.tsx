@@ -30,8 +30,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import cdcInfantWeightData from "@/app/data/cdc-data-infant-weight.json";
-import cdcInfantHeightData from "@/app/data/cdc-data-infant-height.json";
+import whoWeightData from "@/app/data/who-data-weight.json";
+import whoHeightData from "@/app/data/who-data-height.json";
 
 ChartJS.register(
   CategoryScale,
@@ -46,7 +46,7 @@ ChartJS.register(
 );
 
 // Interfaces
-interface CDCDataPoint {
+interface WHODataPoint {
   Sex: number;
   Agemos: number;
   L: number;
@@ -64,7 +64,7 @@ interface CDCDataPoint {
 }
 
 interface ProcessedDataPoint {
-  age: number;
+  ageInMonths: number;
   P3: number;
   P5: number;
   P10: number;
@@ -105,17 +105,10 @@ interface ChartProps {
         };
       }>;
     };
-    progressionData?: Array<{
-      date: string;
-      age: string;
-      weight: string;
-      height: string;
-      bmi: string;
-    }>;
   };
   type: "weight" | "height";
   isFullCurveView: boolean;
-  monthRangeAround?: number;
+  monthRangeAround: number;
 }
 
 interface CustomTooltipDataPoint {
@@ -134,30 +127,28 @@ interface CustomHtmlTooltipProps {
 
 const chartConfigs = {
   weight: {
-    cdcSourceData: cdcInfantWeightData,
+    sourceData: whoWeightData,
     dataKey: "weight" as const,
     inputGenderKey: "weight" as const,
     title: "Weight For Age Chart",
     yAxisLabel: "Weight (kg)",
     yAxisUnit: "kg",
-    yAxisDomainFull: [0, 25] as [number, number],
+    yAxisDomainFull: [0, 20] as [number, number],
     defaultRangeAround: 8,
     valueAccessor: (m: any) => m?.weight?.value,
-    percentileAccessor: (m: any) =>
-      m?.weight?.percentiles?.calculatedPercentile,
+    percentileAccessor: (m: any) => m?.weight?.percentiles?.calculatedPercentile,
   },
   height: {
-    cdcSourceData: cdcInfantHeightData,
+    sourceData: whoHeightData,
     dataKey: "height" as const,
     inputGenderKey: "height" as const,
     title: "Height For Age Chart",
     yAxisLabel: "Height (cm)",
     yAxisUnit: "cm",
-    yAxisDomainFull: [40, 110] as [number, number],
-    defaultRangeAround: 20,
+    yAxisDomainFull: [40, 100] as [number, number],
+    defaultRangeAround: 25,
     valueAccessor: (m: any) => m?.height?.value,
-    percentileAccessor: (m: any) =>
-      m?.height?.percentiles?.calculatedPercentile,
+    percentileAccessor: (m: any) => m?.height?.percentiles?.calculatedPercentile,
   },
 };
 
@@ -168,7 +159,6 @@ const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   dataPoints,
 }) => {
   if (!visible || dataPoints.length === 0) return null;
-
   return (
     <div
       className="bg-white p-3 border border-gray-300 shadow-lg rounded-md text-sm pointer-events-none transition-opacity duration-100"
@@ -206,18 +196,14 @@ const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   );
 };
 
-const CDCChartInfant: React.FC<ChartProps> = ({
+const WHOChartDisplay: React.FC<ChartProps> = ({
   rawData,
   type,
   isFullCurveView,
-  monthRangeAround = 12,
+  monthRangeAround,
 }) => {
   const [isMediumScreen, setIsMediumScreen] = useState(false);
-  const chartRef = useRef<ChartJS<
-    "line",
-    (number | Point | null)[],
-    number
-  > | null>(null);
+  const chartRef = useRef<ChartJS<"line", (number | Point | null)[], number> | null>(null);
   const [tooltipState, setTooltipState] = useState<CustomHtmlTooltipProps>({
     visible: false,
     position: { x: 0, y: 0 },
@@ -237,15 +223,28 @@ const CDCChartInfant: React.FC<ChartProps> = ({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  // Convert months to display format
+  const formatAge = useCallback((ageInMonths: number): string => {
+    if (ageInMonths < 1) {
+      return `${Math.round(ageInMonths * 30)} months`;
+    } else if (ageInMonths < 12) {
+      return `${ageInMonths} months`;
+    } else {
+      const years = Math.floor(ageInMonths / 12);
+      const months = Math.round(ageInMonths % 12);
+      return months > 0 ? `${years}y ${months}m` : `${years} years`;
+    }
+  }, []);
+
   const findClosestDataPoint = useCallback(
     (
       ageInMonths: number,
       gender: "male" | "female",
-      sourceCdcData: CDCDataPoint[]
-    ): CDCDataPoint | null => {
+      sourceData: WHODataPoint[]
+    ): WHODataPoint | null => {
       const sex = gender === "male" ? 1 : 2;
-      const filteredData = sourceCdcData.filter(
-        (p) => p.Sex === sex && p.Agemos >= 0 && p.Agemos <= 36
+      const filteredData = sourceData.filter(
+        (point) => point.Sex === sex && point.Agemos >= 0 && point.Agemos <= 24
       );
 
       if (filteredData.length === 0) return null;
@@ -253,55 +252,40 @@ const CDCChartInfant: React.FC<ChartProps> = ({
       const exactMatch = filteredData.find((p) => p.Agemos === ageInMonths);
       if (exactMatch) return exactMatch;
 
-      const clampedAgeInMonths = Math.max(0, Math.min(ageInMonths, 36));
-
-      let lowerPoint: CDCDataPoint | undefined,
-        upperPoint: CDCDataPoint | undefined;
-
-      const sortedFilteredData = filteredData.sort(
-        (a, b) => a.Agemos - b.Agemos
+      const sortedPoints = filteredData.sort(
+        (a, b) =>
+          Math.abs(a.Agemos - ageInMonths) - Math.abs(b.Agemos - ageInMonths)
       );
 
-      for (const point of sortedFilteredData) {
-        if (point.Agemos <= clampedAgeInMonths) lowerPoint = point;
-        if (point.Agemos >= clampedAgeInMonths) {
-          upperPoint = point;
-          break;
-        }
+      const point1 = sortedPoints[0];
+      const point2 = sortedPoints[1];
+
+      if (point1.Agemos === point2.Agemos || point1.Agemos === ageInMonths) {
+        return point1;
       }
 
-      if (!lowerPoint && !upperPoint) return null;
-      if (!lowerPoint) return upperPoint!;
-      if (!upperPoint) return lowerPoint!;
-      if (lowerPoint.Agemos === upperPoint.Agemos) return lowerPoint;
-
-      const range = upperPoint.Agemos - lowerPoint.Agemos;
-      if (range === 0) return lowerPoint;
-
-      const factor = (clampedAgeInMonths - lowerPoint.Agemos) / range;
+      const factor =
+        (ageInMonths - point1.Agemos) / (point2.Agemos - point1.Agemos);
 
       if (!isFinite(factor) || factor < 0 || factor > 1) {
-        return Math.abs(clampedAgeInMonths - lowerPoint.Agemos) <
-          Math.abs(clampedAgeInMonths - upperPoint.Agemos)
-          ? lowerPoint
-          : upperPoint;
+        return point1;
       }
 
       return {
-        Sex: lowerPoint.Sex,
-        Agemos: clampedAgeInMonths,
-        L: lowerPoint.L + (upperPoint.L - lowerPoint.L) * factor,
-        M: lowerPoint.M + (upperPoint.M - lowerPoint.M) * factor,
-        S: lowerPoint.S + (upperPoint.S - lowerPoint.S) * factor,
-        P3: lowerPoint.P3 + (upperPoint.P3 - lowerPoint.P3) * factor,
-        P5: lowerPoint.P5 + (upperPoint.P5 - lowerPoint.P5) * factor,
-        P10: lowerPoint.P10 + (upperPoint.P10 - lowerPoint.P10) * factor,
-        P25: lowerPoint.P25 + (upperPoint.P25 - lowerPoint.P25) * factor,
-        P50: lowerPoint.P50 + (upperPoint.P50 - lowerPoint.P50) * factor,
-        P75: lowerPoint.P75 + (upperPoint.P75 - lowerPoint.P75) * factor,
-        P90: lowerPoint.P90 + (upperPoint.P90 - lowerPoint.P90) * factor,
-        P95: lowerPoint.P95 + (upperPoint.P95 - lowerPoint.P95) * factor,
-        P97: lowerPoint.P97 + (upperPoint.P97 - lowerPoint.P97) * factor,
+        Sex: point1.Sex,
+        Agemos: ageInMonths,
+        L: point1.L + (point2.L - point1.L) * factor,
+        M: point1.M + (point2.M - point1.M) * factor,
+        S: point1.S + (point2.S - point1.S) * factor,
+        P3: point1.P3 + (point2.P3 - point1.P3) * factor,
+        P5: point1.P5 + (point2.P5 - point1.P5) * factor,
+        P10: point1.P10 + (point2.P10 - point1.P10) * factor,
+        P25: point1.P25 + (point2.P25 - point1.P25) * factor,
+        P50: point1.P50 + (point2.P50 - point1.P50) * factor,
+        P75: point1.P75 + (point2.P75 - point1.P75) * factor,
+        P90: point1.P90 + (point2.P90 - point1.P90) * factor,
+        P95: point1.P95 + (point2.P95 - point1.P95) * factor,
+        P97: point1.P97 + (point2.P97 - point1.P97) * factor,
       };
     },
     []
@@ -309,24 +293,43 @@ const CDCChartInfant: React.FC<ChartProps> = ({
 
   const generateChartDataPoints = useCallback(
     (
-      sourceCdcData: CDCDataPoint[],
+      sourceData: WHODataPoint[],
       gender: "male" | "female"
     ): ProcessedDataPoint[] => {
-      const step = 0.5; // Every 2 weeks
-      const agesInMonths = [];
-      for (let age = 0; age <= 36; age += step) agesInMonths.push(age);
+      const sex = gender === "male" ? 1 : 2;
+      const filteredData = sourceData.filter(
+        (point) => point.Sex === sex && point.Agemos >= 0 && point.Agemos <= 24
+      );
 
-      let allDataPoints = agesInMonths
+      // Use the actual monthly data points from WHO (0, 1, 2, 3... 24 months)
+      const monthlyAges = Array.from({ length: 25 }, (_, i) => i); // 0 to 24 months
+
+      return monthlyAges
         .map((ageInMonths) => {
-          const dataPoint = findClosestDataPoint(
-            ageInMonths,
-            gender,
-            sourceCdcData
-          );
+          // Find exact match first (WHO data comes in exact monthly intervals)
+          const exactMatch = filteredData.find((p) => p.Agemos === ageInMonths);
+
+          if (exactMatch) {
+            return {
+              ageInMonths: ageInMonths,
+              P3: Number(exactMatch.P3.toFixed(2)),
+              P5: Number(exactMatch.P5.toFixed(2)),
+              P10: Number(exactMatch.P10.toFixed(2)),
+              P25: Number(exactMatch.P25.toFixed(2)),
+              P50: Number(exactMatch.P50.toFixed(2)),
+              P75: Number(exactMatch.P75.toFixed(2)),
+              P90: Number(exactMatch.P90.toFixed(2)),
+              P95: Number(exactMatch.P95.toFixed(2)),
+              P97: Number(exactMatch.P97.toFixed(2)),
+            };
+          }
+
+          // If no exact match, interpolate (shouldn't happen with proper WHO data)
+          const dataPoint = findClosestDataPoint(ageInMonths, gender, sourceData);
           if (!dataPoint) return null;
 
           return {
-            age: Number(ageInMonths.toFixed(2)),
+            ageInMonths: ageInMonths,
             P3: Number(dataPoint.P3.toFixed(2)),
             P5: Number(dataPoint.P5.toFixed(2)),
             P10: Number(dataPoint.P10.toFixed(2)),
@@ -339,15 +342,13 @@ const CDCChartInfant: React.FC<ChartProps> = ({
           };
         })
         .filter((point) => point !== null) as ProcessedDataPoint[];
-
-      return allDataPoints;
     },
     [findClosestDataPoint]
   );
 
   const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
     const gender = rawData.originalInput[config.inputGenderKey].gender;
-    const sourceData = config.cdcSourceData;
+    const sourceData = config.sourceData as WHODataPoint[];
     const patientMeasurements = rawData.data[config.dataKey];
 
     const processedDataPoints = generateChartDataPoints(sourceData, gender);
@@ -365,18 +366,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
       }))
       .sort((a, b) => a.x - b.x);
 
-    const percentileKeys = [
-      "P3",
-      "P5",
-      "P10",
-      "P25",
-      "P50",
-      "P75",
-      "P90",
-      "P95",
-      "P97",
-    ] as const;
-
+    const percentileKeys = ["P3", "P5", "P10", "P25", "P50", "P75", "P90", "P95", "P97"] as const;
     const percentileColors = {
       P3: "#93C5FD",
       P5: "#60A5FA",
@@ -393,12 +383,14 @@ const CDCChartInfant: React.FC<ChartProps> = ({
       datasets: [
         ...percentileKeys.map((key) => ({
           label: `${key.slice(1)}th Perc.`,
-          data: processedDataPoints.map((p) => ({ x: p.age, y: p[key] })),
+          data: processedDataPoints.map((p) => ({ x: p.ageInMonths, y: p[key] })),
           borderColor: percentileColors[key],
           backgroundColor: percentileColors[key],
           borderWidth: key === "P50" ? 2.5 : 1.5,
           pointRadius: 0,
           tension: 0.4,
+          fill: false,
+          spanGaps: true,
           hidden: ![
             "P3",
             "P5",
@@ -441,32 +433,34 @@ const CDCChartInfant: React.FC<ChartProps> = ({
   const patientAge = currentPatientMeasurement
     ? currentPatientMeasurement.ageInMonths
     : null;
+
   const patientValue = currentPatientMeasurement
     ? config.valueAccessor(currentPatientMeasurement)
     : null;
+
   const latestCalculatedPercentile = currentPatientMeasurement
     ? config.percentileAccessor(currentPatientMeasurement)
     : null;
-  console.log(patientAge);
-  const { minAge, maxAge, minYValue, maxYValue } = useMemo(() => {
+
+  const { minMonths, maxMonths, minYValue, maxYValue } = useMemo(() => {
     if (!patientAge || patientValue === null)
       return {
-        minAge: 0,
-        maxAge: 36,
+        minMonths: 0,
+        maxMonths: 24,
         minYValue: config.yAxisDomainFull[0],
         maxYValue: config.yAxisDomainFull[1],
       };
 
     if (isFullCurveView)
       return {
-        minAge: 0,
-        maxAge: 36,
+        minMonths: 0,
+        maxMonths: 24,
         minYValue: config.yAxisDomainFull[0],
         maxYValue: config.yAxisDomainFull[1],
       };
     else {
-      const calcMinAge = Math.max(0, patientAge - monthRangeAround / 2);
-      const calcMaxAge = Math.min(36, patientAge + monthRangeAround / 2);
+      const calcMinMonths = Math.max(0, patientAge - monthRangeAround / 2);
+      const calcMaxMonths = Math.min(24, patientAge + monthRangeAround / 2);
       const calcMinY = Math.max(
         config.yAxisDomainFull[0],
         patientValue - yRangeAround / 2
@@ -476,16 +470,16 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         patientValue + yRangeAround / 2
       );
 
-      const finalMaxAge =
-        calcMaxAge <= calcMinAge + 2 ? calcMinAge + 4 : calcMaxAge;
+      const finalMaxMonths =
+        calcMaxMonths <= calcMinMonths + 1 ? calcMinMonths + 3 : calcMaxMonths;
       const finalMaxY =
-        calcMaxY <= calcMinY + (type === "weight" ? 1 : 2)
-          ? calcMinY + (type === "weight" ? 3 : 6)
+        calcMaxY <= calcMinY + (type === "weight" ? 1 : 5)
+          ? calcMinY + (type === "weight" ? 3 : 15)
           : calcMaxY;
 
       return {
-        minAge: calcMinAge,
-        maxAge: finalMaxAge,
+        minMonths: calcMinMonths,
+        maxMonths: finalMaxMonths,
         minYValue: calcMinY,
         maxYValue: finalMaxY,
       };
@@ -500,6 +494,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
     type,
   ]);
 
+  // Tooltip External Function
   const externalTooltipHandler = useCallback(
     (context: { chart: ChartJS; tooltip: TooltipModel<"line"> }) => {
       const { chart, tooltip } = context;
@@ -521,113 +516,56 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         y: chartCanvas.offsetTop + tooltip.caretY,
       };
 
-      const age = chart.scales.x.getValueForPixel(tooltip.caretX);
-      if (age === undefined || age === null) {
-        setTooltipState((prev) => ({ ...prev, visible: false }));
-        return;
-      }
-
-      const title = `Age: ${age.toFixed(1)} months`;
-
-      // IMPROVED: Use the generated data directly instead of searching through chart data
-      const step = 0.5; // Your data step (every 0.5 months)
-      const baseAge = 0; // Starting age
-      const calculatedIndex = Math.round((age - baseAge) / step);
-
-      // Validate the calculated index against actual data
-      const firstPercentileDataset = chart.data.datasets.find(
-        (dataset) =>
-          !dataset.label?.startsWith("Patient") &&
-          dataset.data &&
-          dataset.data.length > 0
-      );
-
-      let dataIndex = -1;
-      if (
-        firstPercentileDataset?.data &&
-        calculatedIndex >= 0 &&
-        calculatedIndex < firstPercentileDataset.data.length
-      ) {
-        // Verify the calculated index has the expected age value
-        const dataPoint = firstPercentileDataset.data[calculatedIndex] as {
-          x: number;
-          y: number;
-        } | null;
-        if (dataPoint && typeof dataPoint.x === "number") {
-          const ageDiff = Math.abs(dataPoint.x - age);
-          // Accept if the age difference is within reasonable tolerance
-          if (ageDiff <= step / 2) {
-            dataIndex = calculatedIndex;
-          }
+      // Get the actual age from the tooltip data point instead of pixel calculation
+      // This is more reliable, especially at age 0
+      let actualAge = 0;
+      if (tooltipItems[0] && tooltipItems[0].parsed && typeof tooltipItems[0].parsed.x === 'number') {
+        actualAge = tooltipItems[0].parsed.x;
+      } else {
+        // Fallback to pixel calculation if parsed data not available
+        const ageFromPixel = chart.scales.x.getValueForPixel(tooltip.caretX);
+        if (ageFromPixel !== undefined && ageFromPixel !== null) {
+          actualAge = ageFromPixel;
         }
       }
 
-      // Fallback: find closest point if calculated index doesn't work
-      if (dataIndex === -1 && firstPercentileDataset?.data) {
-        const dataPoints = firstPercentileDataset.data as {
-          x: number;
-          y: number;
-        }[];
-        let bestMatch = -1;
-        let minDiff = Infinity;
+      // Ensure age is within valid range
+      const clampedAge = Math.max(0, Math.min(24, actualAge));
+      const roundedAge = Math.round(clampedAge);
 
-        dataPoints.forEach((point, index) => {
-          if (point && typeof point.x === "number") {
-            const diff = Math.abs(point.x - age);
-            if (diff < minDiff) {
-              minDiff = diff;
-              bestMatch = index;
-            }
-          }
-        });
+      const title = `Age: ${formatAge(clampedAge)}`;
 
-        dataIndex = bestMatch;
-      }
-
-      if (dataIndex === -1) {
-        setTooltipState((prev) => ({ ...prev, visible: false }));
-        return;
-      }
-
-      // Build tooltip data points
       const allValuesForAge: CustomTooltipDataPoint[] = [];
       const currentDatasets = chart.data.datasets;
 
+      // Get percentile data for the actual hovered monthly age
       currentDatasets.forEach((dataset: any, i: number) => {
         if (!chart.isDatasetVisible(i) || dataset.label?.startsWith("Patient"))
           return;
 
-        const pointData = dataset.data[dataIndex] as {
-          x: number;
-          y: number | null;
-        } | null;
+        // Find the data point for this exact monthly age
+        const dataPoint = dataset.data.find((point: any) =>
+          point && typeof point === 'object' && Math.abs(point.x - roundedAge) < 0.1
+        );
 
-        const value =
-          pointData &&
-          typeof pointData === "object" &&
-          pointData !== null &&
-          typeof pointData.y === "number"
-            ? pointData.y
-            : null;
-
-        if (value !== null) {
+        if (dataPoint && typeof dataPoint.y === "number") {
           let label = dataset.label || "";
           let color = dataset.borderColor || "#000";
           const match = label.match(/(\d+(\.\d+)?)th Perc./);
           label = match ? `P${match[1]}` : label;
-
           allValuesForAge.push({
             label,
-            value: `${value.toFixed(1)} ${config.yAxisUnit}`,
+            value: `${dataPoint.y.toFixed(1)} ${config.yAxisUnit}`,
             color: color as string,
             isPatient: false,
           });
         }
       });
 
-      const ageTolerance = 0.5;
+      // Check for patient data at this age
+      const monthsTolerance = 0.5; // Half month tolerance
       const patientPointAtHover = patientDataPointsWithPercentile.find(
-        (p) => Math.abs(p.x - age) < ageTolerance
+        (p) => Math.abs(p.x - clampedAge) < monthsTolerance
       );
 
       if (patientPointAtHover) {
@@ -639,6 +577,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         });
       }
 
+      // Sort percentiles from highest to lowest
       allValuesForAge.sort((a, b) => {
         const getPercValue = (label: string): number => {
           let match = label.match(/Patient \(P(\d+(\.\d+)?)\)/);
@@ -656,55 +595,13 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         title: title,
         dataPoints: allValuesForAge,
       };
-
       setTooltipState(newState);
     },
-    [patientDataPointsWithPercentile, config.yAxisUnit]
+    [patientDataPointsWithPercentile, config.yAxisUnit, formatAge]
   );
-
-  useEffect(() => {
-    // This effect runs only when the patient's age becomes available.
-    if (chartRef.current && patientAge !== null) {
-      // The timeout gives the chart and its plugins a moment to fully initialize
-      // after being displayed, which is crucial for the first-time load.
-      const timerId = setTimeout(() => {
-        const chart = chartRef.current;
-        if (!chart) return;
-
-        chart.data.datasets.forEach((dataset) => {
-          if (dataset.label && dataset.label.includes("Perc.")) {
-            dataset.hidden = false;
-          }
-        });
-        chart.update();
-      }, 200);
-
-      return () => clearTimeout(timerId);
-    }
-  }, [patientAge]);
 
   // Chart.js Options
   const chartJsOptions: ChartOptions<"line"> = useMemo(() => {
-    const fullCurveYTicks = isMediumScreen
-      ? Array.from(
-          {
-            length:
-              Math.floor(
-                (config.yAxisDomainFull[1] - config.yAxisDomainFull[0]) / 2
-              ) + 1,
-          },
-          (_, i) => config.yAxisDomainFull[0] + i * 2
-        )
-      : Array.from(
-          {
-            length:
-              Math.floor(
-                (config.yAxisDomainFull[1] - config.yAxisDomainFull[0]) / 5
-              ) + 1,
-          },
-          (_, i) => config.yAxisDomainFull[0] + i * 5
-        );
-
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -712,8 +609,8 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         x: {
           type: "linear",
           position: "bottom",
-          min: minAge,
-          max: maxAge,
+          min: minMonths,
+          max: maxMonths,
           title: {
             display: true,
             text: "Age (months)",
@@ -723,33 +620,21 @@ const CDCChartInfant: React.FC<ChartProps> = ({
           ticks: {
             callback: function (value, index, ticks) {
               const numericValue = Number(value);
-              const floorValue = Math.floor(numericValue);
 
               if (isFullCurveView) {
-                const targetTicks = isMediumScreen
-                  ? Array.from({ length: 19 }, (_, i) => i * 2)
-                  : [0, 6, 12, 18, 24, 30, 36];
-
-                const prevTickFloor =
-                  index > 0 ? Math.floor(Number(ticks[index - 1].value)) : null;
-
-                if (
-                  targetTicks.includes(floorValue) &&
-                  floorValue !== prevTickFloor
-                ) {
-                  return floorValue;
-                } else {
-                  return undefined;
+                // In full view, show every 3 months for desktop, 6 for mobile
+                const stepSize = isMediumScreen ? 3 : 6;
+                if (numericValue % stepSize === 0 && numericValue >= 0 && numericValue <= 24) {
+                  return numericValue;
                 }
+                return undefined;
               } else {
-                const prevTickFloor =
-                  index > 0 ? Math.floor(Number(ticks[index - 1].value)) : null;
-
-                if (floorValue !== prevTickFloor) {
-                  return floorValue;
-                } else {
-                  return undefined;
+                // In focused view, show more frequent ticks
+                const stepSize = isMediumScreen ? 1 : 2;
+                if (numericValue % stepSize === 0 && numericValue >= Math.floor(minMonths) && numericValue <= Math.ceil(maxMonths)) {
+                  return numericValue;
                 }
+                return undefined;
               }
             },
             autoSkip: true,
@@ -770,14 +655,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
             color: "#374151",
           },
           ticks: {
-            ...(isFullCurveView
-              ? {
-                  callback: (value: any) =>
-                    fullCurveYTicks.includes(Number(value)) ? value : undefined,
-                  stepSize: isMediumScreen ? 2 : 5,
-                  autoSkip: false,
-                }
-              : { maxTicksLimit: isMediumScreen ? 9 : 6 }),
+            maxTicksLimit: isMediumScreen ? 10 : 6,
             font: { size: 12 },
             color: "#6B7280",
           },
@@ -797,7 +675,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
           callbacks: { title: () => "" },
         },
         annotation: {
-          annotations: patientAge
+          annotations: patientAge !== null
             ? {
                 ageLine: {
                   type: "line",
@@ -824,8 +702,8 @@ const CDCChartInfant: React.FC<ChartProps> = ({
       elements: { line: { tension: 0.3 } },
     };
   }, [
-    minAge,
-    maxAge,
+    minMonths,
+    maxMonths,
     minYValue,
     maxYValue,
     patientAge,
@@ -857,6 +735,11 @@ const CDCChartInfant: React.FC<ChartProps> = ({
                     {config.yAxisUnit}
                   </Badge>
                 )}
+                {patientAge !== null && (
+                  <Badge variant="outline" className="text-xs md:text-sm">
+                    Age: {formatAge(patientAge)}
+                  </Badge>
+                )}
                 {latestCalculatedPercentile !== undefined &&
                   latestCalculatedPercentile !== null && (
                     <Badge variant="outline" className="text-xs md:text-sm">
@@ -874,7 +757,7 @@ const CDCChartInfant: React.FC<ChartProps> = ({
         </CardContent>
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">
           <p className="text-xs text-gray-500">
-            Data source: CDC Growth Charts for infants (0-36 months)
+            Data source: WHO Growth Standards (0-24 months)
           </p>
         </CardFooter>
       </Card>
@@ -888,4 +771,4 @@ const CDCChartInfant: React.FC<ChartProps> = ({
   );
 };
 
-export default CDCChartInfant;
+export default WHOChartDisplay;
