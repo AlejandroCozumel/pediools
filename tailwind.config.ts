@@ -95,6 +95,24 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      height: {
+        "screen-nav": "calc(100vh - 82px)",
+        "dvh-nav": "calc(100dvh - 82px)",
+      },
+      minHeight: {
+        "screen-nav": "calc(100vh - 82px)",
+        "dvh-nav": "calc(100dvh - 82px)",
+      },
+      maxHeight: {
+        "screen-nav": "calc(100vh - 82px)",
+        "dvh-nav": "calc(100dvh - 82px)",
+      },
+      spacing: {
+        navbar: "82px",
+      },
+      inset: {
+        navbar: "82px",
+      },
       keyframes: {
         "accordion-down": {
           from: {

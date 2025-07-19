@@ -1,34 +1,107 @@
 "use client";
-import React from "react";
-import LoaderSpinnner from "@/components/LoaderSpinnner";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { AlertTriangle, XCircle, RefreshCw } from "lucide-react";
+import SmartLoader from "@/components/SmartLoader";
 import GrowthChartDisplay from "./GrowthChartDisplay";
-import ProgressionTable from "@/components/ProgressionTable";
+// import ProgressionTable from "@/components/ProgressionTable";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
-// import SendChartNotification from "@/components/SendChartNotification ";
-
-// Import the new client-side hook
 import { useGrowthChartData } from "@/hooks/calculations/use-growth-chart-data";
+import { Button } from "@/components/ui/button";
 
 const Charts = () => {
   const { isFullCurveView } = useSubscriptionStore();
+  const [showLoader, setShowLoader] = useState(true);
+
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
   const calculationId = searchParams.get("calculationId");
 
-  // Use the new client-side hook instead of the API call
-  const { data, isLoading, isError, error } = useGrowthChartData(searchParams);
+  // Get data but don't show it immediately
+  const { data, isError, error, refetch } = useGrowthChartData(searchParams);
 
-  if (isLoading || !data) {
-    return <LoaderSpinnner />;
+  const handleLoaderComplete = () => {
+    setShowLoader(false);
+  };
+
+  const handleRetry = () => {
+    setShowLoader(true);
+    refetch();
+  };
+
+  // If there's an error, hide loader and show error
+  useEffect(() => {
+    if (isError) {
+      setShowLoader(false);
+    }
+  }, [isError]);
+
+  // Show loader while processing or during simulation
+  if (showLoader && !isError) {
+    return (
+      <SmartLoader
+        type="growth"
+        duration={2500} // 2.5 seconds of simulated processing
+        onComplete={handleLoaderComplete}
+      />
+    );
   }
 
   if (isError) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-medical-600">
-        {error instanceof Error ? error.message : "An error occurred"}
-      </div>
+      <motion.div
+        className="flex items-center justify-center min-h-dvh-nav"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center max-w-md mx-auto p-6">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="flex justify-center mb-6"
+          >
+            <div className="p-4 bg-red-50 rounded-full">
+              <AlertTriangle className="w-12 h-12 text-red-500" />
+            </div>
+          </motion.div>
+
+          <motion.h2
+            className="text-2xl font-semibold text-gray-900 mb-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Processing Error
+          </motion.h2>
+
+          <motion.p
+            className="text-gray-600 mb-6 leading-relaxed"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            {error instanceof Error ? error.message : "An unexpected error occurred while processing your data"}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Button
+              onClick={handleRetry}
+              className="bg-medical-600 hover:bg-medical-700 text-white px-6 py-2"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
     );
   }
 
@@ -41,52 +114,126 @@ const Charts = () => {
     !data.data.height
   ) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-600">
-        Invalid chart data received.
-      </div>
+      <motion.div
+        className="flex items-center justify-center min-h-dvh-nav"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center max-w-md mx-auto p-6">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="flex justify-center mb-6"
+          >
+            <div className="p-4 bg-orange-50 rounded-full">
+              <XCircle className="w-12 h-12 text-orange-500" />
+            </div>
+          </motion.div>
+
+          <motion.h2
+            className="text-2xl font-semibold text-gray-900 mb-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Invalid Data
+          </motion.h2>
+
+          <motion.p
+            className="text-gray-600 mb-6 leading-relaxed"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            The chart data received is invalid or incomplete. Please check your inputs and try again.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Button
+              onClick={() => window.history.back()}
+              variant="outline"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2"
+            >
+              Go Back
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="my-4 md:my-6 flex flex-col gap-6 px-4">
-      <div className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2">
+    <motion.div
+      className="my-4 md:my-6 flex flex-col gap-6 px-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <motion.div
+        className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
         <h2>United States CDC Growth Charts</h2>
         <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
           Child Growth Visualization (2-20 years)
         </span>
-        <div className="flex justify-center mt-2">
-          {/* <SendChartNotification
-            chartData={data}
-            patientId={searchParams.get("patientId")!}
-            chartType="CDC Growth Chart"
-            type="GROWTH_CDC"
-          /> */}
-        </div>
-      </div>
+      </motion.div>
 
-      <ProgressionTable
-        progressionData={data.progressionData}
-        highlightCalculationId={calculationId || undefined}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        {/* <ProgressionTable
+          progressionData={data.progressionData}
+          highlightCalculationId={calculationId || undefined}
+        /> */}
+      </motion.div>
 
-      <ToggleViewChart />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <ToggleViewChart />
+      </motion.div>
 
       {/* Render Weight Chart using reusable component */}
-      <GrowthChartDisplay
-        rawData={data} // Pass the full data object
-        type="weight"
-        isFullCurveView={isFullCurveView}
-        yearRangeAround={isFullCurveView ? 18 : 4} // Adjusted range slightly
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <GrowthChartDisplay
+          rawData={data}
+          type="weight"
+          isFullCurveView={isFullCurveView}
+          yearRangeAround={isFullCurveView ? 18 : 4}
+        />
+      </motion.div>
 
       {/* Render Height Chart using reusable component */}
-      <GrowthChartDisplay
-        rawData={data} // Pass the full data object
-        type="height"
-        isFullCurveView={isFullCurveView}
-        yearRangeAround={isFullCurveView ? 18 : 4} // Adjusted range slightly
-      />
-    </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <GrowthChartDisplay
+          rawData={data}
+          type="height"
+          isFullCurveView={isFullCurveView}
+          yearRangeAround={isFullCurveView ? 18 : 4}
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 
