@@ -32,16 +32,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import DateInputs from "@/components/DateInputs";
 import GestationalSelects from "@/components/GestationalSelects";
 import { Badge } from "@/components/ui/badge";
@@ -58,8 +48,6 @@ import cdcInfantHeightHead from "@/app/data/cdc-data-infant-head.json";
 import whoHeadData from "@/app/data/who-data-head.json";
 
 import MeasurementInputIntergrowth from "@/components/MeasurementInputIntergrowth";
-import { useSubscriptionStore } from "@/stores/premiumStore";
-import PatientSelector from "@/components/premium/PatientSelector";
 import { useTranslations } from "next-intl";
 
 interface StandardRange {
@@ -208,9 +196,7 @@ export const formSchema = z
   );
 
 export function GrowthForm() {
-  const { isPremium, selectedPatient } = useSubscriptionStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const router = useRouter();
   const t = useTranslations("GrowthForm");
 
@@ -249,10 +235,8 @@ export function GrowthForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       standard: "cdc_child",
-      gender: selectedPatient?.gender || "male",
-      dateOfBirth: selectedPatient?.dateOfBirth
-        ? new Date(selectedPatient.dateOfBirth)
-        : undefined,
+      gender: "male",
+      dateOfBirth: undefined,
       dateOfMeasurement: new Date(),
     },
     mode: "onChange",
@@ -274,55 +258,10 @@ export function GrowthForm() {
       ? differenceInMonths(measurementDate, birthDate)
       : 0;
 
-  function onSubmit(
-    values: z.infer<typeof formSchema>,
-    skipSave?: boolean,
-    confirmed?: boolean
-  ) {
-    if (isPremium && selectedPatient && !skipSave && !confirmed) {
-      setShowConfirmModal(true);
-      return;
-    }
-
+  function onSubmit(values: z.infer<typeof formSchema>, skipSave?: boolean) {
     setIsSubmitting(true);
     const timeoutId = setTimeout(() => {
       try {
-        if (selectedPatient && !skipSave) {
-          // Common structure for all standards
-          const measurementData = {
-            patientId: selectedPatient.id,
-            calculatorType: selectedStandard,
-            measurement: {
-              weight: parseFloat(values.weight),
-              height: parseFloat(values.height),
-              headCircumference: values.headCircumference
-                ? parseFloat(values.headCircumference)
-                : undefined,
-              standard: selectedStandard,
-              // For WHO/CDC standards
-              ...(values.dateOfBirth && values.dateOfMeasurement
-                ? {
-                    birthDate: values.dateOfBirth,
-                    measurementDate: values.dateOfMeasurement,
-                  }
-                : {}),
-              // For Intergrowth
-              ...(values.gestationalWeeks && values.gestationalDays
-                ? {
-                    gestationalWeeks: parseInt(values.gestationalWeeks),
-                    gestationalDays: parseInt(values.gestationalDays),
-                  }
-                : {}),
-            },
-          };
-
-          fetch("/api/dashboard/patients/measurements/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(measurementData),
-          });
-        }
-
         switch (selectedStandard) {
           case "cdc_child":
           case "cdc_infant":
@@ -381,23 +320,17 @@ export function GrowthForm() {
             switch (selectedStandard) {
               case "cdc_child":
                 router.push(
-                  `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
-                    selectedPatient ? `&patientId=${selectedPatient.id}` : ""
-                  }`
+                  `/charts/cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
                 );
                 break;
               case "cdc_infant":
                 router.push(
-                  `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
-                    selectedPatient ? `&patientId=${selectedPatient.id}` : ""
-                  }`
+                  `/charts/infant-cdc-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
                 );
                 break;
               case "who":
                 router.push(
-                  `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}${
-                    selectedPatient ? `&patientId=${selectedPatient.id}` : ""
-                  }`
+                  `/charts/who-growth-chart?weightData=${encodedWeightData}&heightData=${encodedHeightData}`
                 );
                 break;
             }
@@ -432,7 +365,7 @@ export function GrowthForm() {
                     },
                   ],
                 })
-              )}${selectedPatient ? `&patientId=${selectedPatient.id}` : ""}`
+              )}`
             );
             break;
         }
@@ -573,9 +506,7 @@ export function GrowthForm() {
           {t("title")}
         </CardTitle>
       </CardHeader>
-      <CardDescription className="p-4 lg:p-6 pb-0 lg:pb-0">
-        {isPremium && <PatientSelector form={form} />}
-      </CardDescription>
+      <CardDescription className="p-4 lg:p-6 pb-0 lg:pb-0"></CardDescription>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
           <form
@@ -601,7 +532,6 @@ export function GrowthForm() {
                           data-[state=active]:text-white
                           data-[state=active]:bg-medical-600
                           data-[state=active]:shadow-sm`}
-                        disabled={!!selectedPatient}
                       >
                         <div className="flex items-center gap-2">
                           <Baby
@@ -624,7 +554,6 @@ export function GrowthForm() {
                           data-[state=active]:text-white
                           data-[state=active]:bg-medical-pink-600
                           data-[state=active]:shadow-sm`}
-                        disabled={!!selectedPatient}
                       >
                         <div className="flex items-center gap-2">
                           <Baby
@@ -720,11 +649,7 @@ export function GrowthForm() {
             {selectedStandard === "intergrowth" ? (
               <GestationalSelects form={form} />
             ) : (
-              <DateInputs
-                form={form}
-                gender={selectedGender}
-                hasSelectedPatient={!!selectedPatient}
-              />
+              <DateInputs form={form} gender={selectedGender} />
             )}
 
             {standardRecommendation ? (
@@ -915,12 +840,6 @@ export function GrowthForm() {
                 !form.watch("height")
               }
               size="lg"
-              onClick={(e) => {
-                if (!isPremium) {
-                  e.preventDefault();
-                  router.push("/premium");
-                }
-              }}
               className={cn(
                 "w-full transition-all duration-300 ease-in-out",
                 selectedGender === "male"
@@ -936,9 +855,7 @@ export function GrowthForm() {
                 </>
               ) : (
                 <>
-                  {isPremium
-                    ? t("buttons.calculate")
-                    : t("buttons.calculatePremium")}
+                  {t("buttons.calculatePremium")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -979,41 +896,6 @@ export function GrowthForm() {
                 whoHeadData={whoHeadData}
               />
             )}
-            <AlertDialog
-              open={showConfirmModal}
-              onOpenChange={setShowConfirmModal}
-            >
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    {t("alerts.savePrompt.title")}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("alerts.savePrompt.description", {
-                      name: selectedPatient?.firstName,
-                    })}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                  <AlertDialogCancel
-                    onClick={() => {
-                      setShowConfirmModal(false);
-                      onSubmit(form.getValues(), true, true);
-                    }}
-                  >
-                    {t("buttons.justView")}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      setShowConfirmModal(false);
-                      onSubmit(form.getValues(), false, true); // Call onSubmit with skipSave set to false and confirmed set to true
-                    }}
-                  >
-                    {t("buttons.saveAndView")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </form>
         </Form>
       </CardContent>

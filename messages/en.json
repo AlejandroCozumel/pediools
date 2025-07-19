@@ -101,7 +101,7 @@
     "buttons": {
       "calculate": "Graph",
       "calculating": "Calculating...",
-      "calculatePremium": "Graph (only premium users)",
+      "calculatePremium": "Graph",
       "saveAndView": "Save and View Graph",
       "justView": "Just View Graph"
     },
