@@ -9,7 +9,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <main>
       <Navbar />
-      <div className="container mx-auto px-4 max-w-5xl">{children}</div>
+      <div className="container mx-auto px-2 md:px-6 max-w-5xl">{children}</div>
     </main>
   );
 };

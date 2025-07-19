@@ -462,8 +462,8 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
 
   return (
     <Card className="w-full mt-6">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+      <CardHeader className="flex flex-col gap-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-xl font-semibold text-gray-800">
             BiliGraph Thresholds
           </CardTitle>

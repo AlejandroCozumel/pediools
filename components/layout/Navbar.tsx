@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Menu, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useSubscriptionStore } from "@/stores/premiumStore";
-import UserMenu from "./UserMenu";
+// import UserMenu from "./UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -117,7 +117,7 @@ const Navbar: React.FC = () => {
   }, [localizedItems, user, isPremium]);
 
   return (
-    <nav className="bg-white border-b-[1px] border-gray-200 p-4">
+    <nav className="bg-white border-b-[1px] border-gray-200 py-4">
       <div className="max-container flex items-center justify-between relative">
         <NavLeft setIsOpen={setIsOpen} navItems={visibleNavItems} />
         <NavRight />
@@ -152,7 +152,7 @@ const NavRight: React.FC = () => {
   return (
     <div className="flex items-center gap-4">
       <LanguageSwitcher />
-      <UserMenu />
+      {/* <UserMenu /> */}
     </div>
   );
 };

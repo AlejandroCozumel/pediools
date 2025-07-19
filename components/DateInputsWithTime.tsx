@@ -89,37 +89,20 @@ export default function DateInputsWithTime({ form }: { form: any }) {
 
   const getValidMeasurementHours = () => {
     if (!birthDateTime || !measurementDateTime) {
-      return [];
+      return hours;
     }
 
     if (!isSameDay(birthDateTime, measurementDateTime)) {
-      const potentialHours: string[] = [];
-
-      hours.forEach((hour) => {
-        const hourValue = parseInt(hour.split(":")[0]);
-        const testDate = new Date(measurementDateTime);
-        testDate.setHours(hourValue, 0, 0, 0);
-
-        const ageInHours = differenceInHours(testDate, birthDateTime);
-
-        if (ageInHours >= 12 && ageInHours <= 336) {
-          potentialHours.push(hour);
-        }
-      });
-
-      return potentialHours;
+      return hours; // Allow all hours for different days
     }
 
+    // Only filter same-day hours to prevent negative age
     const validHours: string[] = [];
+    const birthHour = birthDateTime.getHours();
 
     hours.forEach((hour) => {
       const hourValue = parseInt(hour.split(":")[0]);
-      const testDate = new Date(measurementDateTime);
-      testDate.setHours(hourValue, 0, 0, 0);
-
-      const ageInHours = differenceInHours(testDate, birthDateTime);
-
-      if (ageInHours >= 12 && ageInHours <= 336) {
+      if (hourValue >= birthHour) { // Only prevent negative age
         validHours.push(hour);
       }
     });

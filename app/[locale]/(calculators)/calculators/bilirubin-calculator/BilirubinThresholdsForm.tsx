@@ -74,10 +74,16 @@ const createFormSchema = (t: any) =>
         required_error: "Date and time of measurement are required",
       }),
       totalBilirubin: z
-        .string()
-        .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-          message: "Enter a valid bilirubin level",
-        }),
+      .string()
+      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+        message: "Enter a valid bilirubin level",
+      })
+      .refine((val) => parseFloat(val) <= 50, {
+        message: "Bilirubin level seems too high. Please verify the value (normal range: 0.1-30 mg/dL)",
+      })
+      .refine((val) => parseFloat(val) >= 0.1, {
+        message: "Bilirubin level seems too low. Please verify the value (minimum: 0.1 mg/dL)",
+      }),
       gestationalAge: z
         .string({ required_error: "Please select a gestational age" })
         .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 35, {
@@ -163,14 +169,25 @@ export function BilirubinThresholdsForm() {
       gestationalAge.trim() !== "";
 
     // Check if age is in valid range
-    const isAgeInValidRange = ageInHours !== null && ageInHours >= 12 && ageInHours <= 336;
+    const isAgeInValidRange =
+      ageInHours !== null && ageInHours >= 12 && ageInHours <= 336;
 
-    // Check if bilirubin is a valid number
-    const isBilirubinValid = totalBilirubin && !isNaN(parseFloat(totalBilirubin)) && parseFloat(totalBilirubin) > 0;
+    // Check if bilirubin is a valid number AND within reasonable range
+    const isBilirubinValid =
+      totalBilirubin &&
+      !isNaN(parseFloat(totalBilirubin)) &&
+      parseFloat(totalBilirubin) > 0 &&
+      parseFloat(totalBilirubin) >= 0.1 &&
+      parseFloat(totalBilirubin) <= 50;
 
     return hasAllRequiredFields && isAgeInValidRange && isBilirubinValid;
-  }, [birthDateTime, measurementDateTime, ageInHours, form.watch("totalBilirubin"), form.watch("gestationalAge")]);
-
+  }, [
+    birthDateTime,
+    measurementDateTime,
+    ageInHours,
+    form.watch("totalBilirubin"),
+    form.watch("gestationalAge"),
+  ]);
 
   const gestationalAgeOptions = [
     { value: "35", label: "35 weeks" },
@@ -319,7 +336,7 @@ export function BilirubinThresholdsForm() {
 
   return (
     <Card className="w-full mx-auto">
-      <CardHeader className="p-4 lg:p-6 !pb-0">
+      <CardHeader className="p-4 lg:p-6">
         <CardTitle className="text-2xl font-heading text-medical-900">
           Bilirubin Thresholds Calculator
         </CardTitle>
@@ -328,7 +345,7 @@ export function BilirubinThresholdsForm() {
           ≥35 weeks gestation (AAP 2022).
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-4 lg:p-6">
+      <CardContent className="p-4 lg:p-6 !py-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <DateInputsWithTime form={form} />
@@ -452,7 +469,7 @@ export function BilirubinThresholdsForm() {
                       Patient Summary
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="!pt-0">
                     <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
                       <div className="flex justify-between border-b py-2">
                         <span className="text-muted-foreground">
@@ -504,142 +521,420 @@ export function BilirubinThresholdsForm() {
                       Recommendations
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="!pt-0">
                     <div className="border rounded-lg overflow-hidden">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-sm table-fixed">
                         <thead>
-                          <tr className="bg-gray-100">
-                            <th className="p-3 font-semibold text-left">
+                          <tr className="bg-medical-700 text-white">
+                            <th className="p-3 font-semibold text-left w-[40%] min-w-0 truncate">
                               Intervention
                             </th>
-                            <th className="p-3 font-semibold text-center">
+                            <th className="p-3 font-semibold text-center w-[25%] px-2 truncate">
                               Recommendation
                             </th>
-                            <th className="p-3 font-semibold text-center">
+                            <th className="p-3 font-semibold text-center w-[35%] min-w-0 truncate">
                               Threshold
                             </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
+                          {/* TcB Confirmation Row */}
                           <tr
                             className={cn(
                               results.totalBilirubin >=
-                                results.confirmWithTSBThreshold && "bg-blue-50"
+                                results.confirmWithTSBThreshold
+                                ? "bg-blue-50 border-l-4 border-l-blue-500"
+                                : results.totalBilirubin >=
+                                  results.confirmWithTSBThreshold * 0.9
+                                ? "bg-yellow-50 border-l-4 border-l-yellow-500"
+                                : "bg-green-50 border-l-4 border-l-green-500"
                             )}
                           >
-                            <td className="p-3 text-left font-semibold flex items-center gap-2">
-                              <FlaskConical className="w-4 h-4" />
-                              If using TcB, confirm with TSB?
+                            <td className="p-3 text-left font-semibold flex items-center gap-2 min-w-0">
+                              <FlaskConical className="w-4 h-4 flex-shrink-0" />
+                              <span
+                                className={cn(
+                                  results.totalBilirubin >=
+                                    results.confirmWithTSBThreshold
+                                    ? "text-blue-800"
+                                    : results.totalBilirubin >=
+                                      results.confirmWithTSBThreshold * 0.9
+                                    ? "text-yellow-800"
+                                    : "text-green-800"
+                                )}
+                              >
+                                If using TcB, confirm with TSB?
+                              </span>
                             </td>
                             <td
                               className={cn(
-                                "p-3 text-center font-bold",
+                                "p-3 text-center font-bold px-2 whitespace-nowrap",
                                 results.totalBilirubin >=
                                   results.confirmWithTSBThreshold
                                   ? "text-blue-700"
-                                  : "text-gray-500"
+                                  : results.totalBilirubin >=
+                                    results.confirmWithTSBThreshold * 0.9
+                                  ? "text-yellow-700"
+                                  : "text-green-700"
                               )}
                             >
                               {results.totalBilirubin >=
                               results.confirmWithTSBThreshold
                                 ? "Yes"
+                                : results.totalBilirubin >=
+                                  results.confirmWithTSBThreshold * 0.9
+                                ? "Consider"
                                 : "No"}
                             </td>
-                            <td className="p-3 text-center font-mono">
-                              {results.confirmWithTSBThreshold.toFixed(1)} mg/dL
+                            <td className="p-3 text-center font-mono min-w-0">
+                              <span className="block truncate">
+                                {results.confirmWithTSBThreshold.toFixed(1)}{" "}
+                                mg/dL
+                              </span>
                             </td>
                           </tr>
+
+                          {/* Phototherapy Row */}
                           <tr
                             className={cn(
                               results.totalBilirubin >=
-                                results.phototherapyThreshold && "bg-red-50"
+                                results.phototherapyThreshold
+                                ? "bg-red-50 border-l-4 border-l-red-500"
+                                : results.totalBilirubin >=
+                                  results.phototherapyThreshold * 0.9
+                                ? "bg-yellow-50 border-l-4 border-l-yellow-500"
+                                : "bg-green-50 border-l-4 border-l-green-500"
                             )}
                           >
-                            <td className="p-3 text-left font-semibold flex items-center gap-2">
-                              <TrendingUp className="w-4 h-4" />
-                              Phototherapy?
+                            <td className="p-3 text-left font-semibold flex items-center gap-2 min-w-0">
+                              <TrendingUp className="w-4 h-4 flex-shrink-0" />
+                              <span
+                                className={cn(
+                                  results.totalBilirubin >=
+                                    results.phototherapyThreshold
+                                    ? "text-red-800"
+                                    : results.totalBilirubin >=
+                                      results.phototherapyThreshold * 0.9
+                                    ? "text-yellow-800"
+                                    : "text-green-800"
+                                )}
+                              >
+                                Phototherapy?
+                              </span>
                             </td>
                             <td
                               className={cn(
-                                "p-3 text-center font-bold",
+                                "p-3 text-center font-bold px-2 whitespace-nowrap",
                                 results.totalBilirubin >=
                                   results.phototherapyThreshold
                                   ? "text-red-700"
+                                  : results.totalBilirubin >=
+                                    results.phototherapyThreshold * 0.9
+                                  ? "text-yellow-700"
                                   : "text-green-700"
                               )}
                             >
                               {results.totalBilirubin >=
                               results.phototherapyThreshold
                                 ? "Yes"
+                                : results.totalBilirubin >=
+                                  results.phototherapyThreshold * 0.9
+                                ? "Consider"
                                 : "No"}
                             </td>
-                            <td className="p-3 text-center font-mono">
-                              {results.phototherapyThreshold.toFixed(1)} mg/dL
+                            <td className="p-3 text-center font-mono min-w-0">
+                              <span className="block truncate">
+                                {results.phototherapyThreshold.toFixed(1)} mg/dL
+                              </span>
                             </td>
                           </tr>
+
+                          {/* Escalation of Care Row */}
                           <tr
                             className={cn(
                               results.totalBilirubin >=
-                                results.escalationOfCareThreshold &&
-                                "bg-orange-50"
+                                results.escalationOfCareThreshold
+                                ? "bg-red-50 border-l-4 border-l-red-500"
+                                : results.totalBilirubin >=
+                                  results.escalationOfCareThreshold * 0.9
+                                ? "bg-yellow-50 border-l-4 border-l-yellow-500"
+                                : "bg-green-50 border-l-4 border-l-green-500"
                             )}
                           >
-                            <td className="p-3 text-left font-semibold flex items-center gap-2">
-                              <ChevronsUp className="w-4 h-4" />
-                              Escalation of Care?
+                            <td className="p-3 text-left font-semibold flex items-center gap-2 min-w-0">
+                              <ChevronsUp className="w-4 h-4 flex-shrink-0" />
+                              <span
+                                className={cn(
+                                  results.totalBilirubin >=
+                                    results.escalationOfCareThreshold
+                                    ? "text-red-800"
+                                    : results.totalBilirubin >=
+                                      results.escalationOfCareThreshold * 0.9
+                                    ? "text-yellow-800"
+                                    : "text-green-800"
+                                )}
+                              >
+                                Escalation of Care?
+                              </span>
                             </td>
                             <td
                               className={cn(
-                                "p-3 text-center font-bold",
+                                "p-3 text-center font-bold px-2 whitespace-nowrap",
                                 results.totalBilirubin >=
                                   results.escalationOfCareThreshold
-                                  ? "text-orange-700"
-                                  : "text-gray-500"
+                                  ? "text-red-700"
+                                  : results.totalBilirubin >=
+                                    results.escalationOfCareThreshold * 0.9
+                                  ? "text-yellow-700"
+                                  : "text-green-700"
                               )}
                             >
                               {results.totalBilirubin >=
                               results.escalationOfCareThreshold
                                 ? "Yes"
+                                : results.totalBilirubin >=
+                                  results.escalationOfCareThreshold * 0.9
+                                ? "Consider"
                                 : "No"}
                             </td>
-                            <td className="p-3 text-center font-mono">
-                              {results.escalationOfCareThreshold.toFixed(1)}{" "}
-                              mg/dL
+                            <td className="p-3 text-center font-mono min-w-0">
+                              <span className="block truncate">
+                                {results.escalationOfCareThreshold.toFixed(1)}{" "}
+                                mg/dL
+                              </span>
                             </td>
                           </tr>
+
+                          {/* Exchange Transfusion Row */}
                           <tr
                             className={cn(
                               results.totalBilirubin >=
-                                results.exchangeTransfusionThreshold &&
-                                "bg-red-50"
+                                results.exchangeTransfusionThreshold
+                                ? "bg-red-50 border-l-4 border-l-red-500"
+                                : results.totalBilirubin >=
+                                  results.exchangeTransfusionThreshold * 0.9
+                                ? "bg-yellow-50 border-l-4 border-l-yellow-500"
+                                : "bg-green-50 border-l-4 border-l-green-500"
                             )}
                           >
-                            <td className="p-3 text-left font-semibold flex items-center gap-2">
-                              <Repeat className="w-4 h-4" />
-                              Exchange Transfusion?
+                            <td className="p-3 text-left font-semibold flex items-center gap-2 min-w-0">
+                              <Repeat className="w-4 h-4 flex-shrink-0" />
+                              <span
+                                className={cn(
+                                  results.totalBilirubin >=
+                                    results.exchangeTransfusionThreshold
+                                    ? "text-red-800"
+                                    : results.totalBilirubin >=
+                                      results.exchangeTransfusionThreshold * 0.9
+                                    ? "text-yellow-800"
+                                    : "text-green-800"
+                                )}
+                              >
+                                Exchange Transfusion?
+                              </span>
                             </td>
                             <td
                               className={cn(
-                                "p-3 text-center font-bold",
+                                "p-3 text-center font-bold px-2 whitespace-nowrap",
                                 results.totalBilirubin >=
                                   results.exchangeTransfusionThreshold
                                   ? "text-red-700"
+                                  : results.totalBilirubin >=
+                                    results.exchangeTransfusionThreshold * 0.9
+                                  ? "text-yellow-700"
                                   : "text-green-700"
                               )}
                             >
                               {results.totalBilirubin >=
                               results.exchangeTransfusionThreshold
                                 ? "Yes"
+                                : results.totalBilirubin >=
+                                  results.exchangeTransfusionThreshold * 0.9
+                                ? "Consider"
                                 : "No"}
                             </td>
-                            <td className="p-3 text-center font-mono">
-                              {results.exchangeTransfusionThreshold.toFixed(1)}{" "}
-                              mg/dL
+                            <td className="p-3 text-center font-mono min-w-0">
+                              <span className="block truncate">
+                                {results.exchangeTransfusionThreshold.toFixed(
+                                  1
+                                )}{" "}
+                                mg/dL
+                              </span>
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="mt-6">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-semibold text-medical-800 flex items-center gap-2">
+                      <Activity className="w-4 h-4" />
+                      Clinical Action Plan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="!pt-0 space-y-4">
+                    {/* Compact Primary Action */}
+                    {results.totalBilirubin >=
+                    results.exchangeTransfusionThreshold ? (
+                      <div className="bg-red-100 border-l-4 border-red-500 p-3 rounded-r">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-red-900 text-sm">
+                              URGENT - Exchange Transfusion
+                            </p>
+                            <p className="text-red-800 text-xs">
+                              Consult neonatologist immediately. Continue
+                              intensive phototherapy.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : results.totalBilirubin >=
+                      results.escalationOfCareThreshold ? (
+                      <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-r">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-red-900 text-sm">
+                              Escalation Required
+                            </p>
+                            <p className="text-red-700 text-xs">
+                              Intensive phototherapy. Consider neonatology
+                              consult. Recheck in 4-6h.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : results.totalBilirubin >=
+                      results.phototherapyThreshold ? (
+                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r">
+                        <div className="flex items-start gap-2">
+                          <TrendingUp className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-yellow-900 text-sm">
+                              Start Phototherapy
+                            </p>
+                            <p className="text-yellow-800 text-xs">
+                              Begin immediately. Monitor hydration. Recheck in
+                              12-24h.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : results.totalBilirubin >=
+                      results.phototherapyThreshold * 0.85 ? (
+                      <div className="bg-yellow-50 border-l-4 border-yellow-300 p-3 rounded-r">
+                        <div className="flex items-start gap-2">
+                          <Info className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-yellow-900 text-sm">
+                              Close Monitoring
+                            </p>
+                            <p className="text-yellow-700 text-xs">
+                              Approaching threshold. Recheck in 12-24h or if
+                              clinical concerns.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-green-50 border-l-4 border-green-400 p-3 rounded-r">
+                        <div className="flex items-start gap-2">
+                          <Info className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-bold text-green-900 text-sm">
+                              Routine Care
+                            </p>
+                            <p className="text-green-700 text-xs">
+                              Levels acceptable. Continue standard newborn care.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Plan Table */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="w-full text-xs table-fixed font-semibold">
+                        <thead>
+                          <tr className="bg-medical-700 text-white">
+                            <th className="p-2 font-semibold text-left w-1/2">
+                              Next Steps
+                            </th>
+                            <th className="p-2 font-semibold text-left w-1/2">
+                              Key Points
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="divide-x divide-gray-200">
+                            <td className="p-3 align-top">
+                              <div className="space-y-1 text-gray-700">
+                                {results.totalBilirubin >=
+                                results.escalationOfCareThreshold ? (
+                                  <>
+                                    <div>• Recheck bilirubin q4-6h</div>
+                                    <div>• Vital signs monitoring</div>
+                                    <div>• Neuro checks q2-4h</div>
+                                  </>
+                                ) : results.totalBilirubin >=
+                                  results.phototherapyThreshold ? (
+                                  <>
+                                    <div>• Recheck bilirubin 12-24h</div>
+                                    <div>• Monitor hydration</div>
+                                    <div>• Assess feeding</div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div>• Follow-up 24-48h</div>
+                                    <div>• Monitor feeding/output</div>
+                                    <div>• Watch jaundice progression</div>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-3 align-top">
+                              <div className="space-y-1 text-gray-700">
+                                {results.hasRiskFactors && (
+                                  <div>• Risk factors present</div>
+                                )}
+                                {results.ageInHours < 24 && (
+                                  <div>• Early onset - check hemolysis</div>
+                                )}
+                                {results.totalBilirubin >=
+                                  results.confirmWithTSBThreshold && (
+                                  <div>• Confirm TcB with TSB</div>
+                                )}
+                                <div>• Ensure adequate feeding</div>
+                                <div>• Parent education on monitoring</div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Compact Risk Factor Alert */}
+                    {results.hasRiskFactors && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                          <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-semibold text-blue-800 text-sm">
+                              Risk Factors Present
+                            </p>
+                            <p className="text-blue-700 text-xs">
+                              Consider lower intervention thresholds and
+                              increased monitoring frequency.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
