@@ -101,7 +101,7 @@
     "buttons": {
       "calculate": "Graficar",
       "calculating": "Calculando...",
-      "calculatePremium": "Graficar (solo usuarios premium)",
+      "calculatePremium": "Graficar",
       "saveAndView": "Guardar y Ver Gráfico",
       "justView": "Solo Ver Gráfico"
     },

@@ -1,5 +1,3 @@
-// components/GrowthChartDisplay.tsx
-// ----- FULL CODE WITH DEBUG LOGS in Tooltip Handler -----
 "use client";
 import React, {
   useEffect,
@@ -25,7 +23,6 @@ import {
   Defaults,
 } from "chart.js";
 import annotationPlugin from "chartjs-plugin-annotation";
-import { format } from "date-fns";
 import {
   Card,
   CardContent,

@@ -1,38 +1,14 @@
 "use client";
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import LoaderSpinnner from "@/components/LoaderSpinnner";
 import GrowthChartDisplay from "./GrowthChartDisplay";
-// import CDCChart from "./CDCChart";
-// import CDCChartHeight from "./CDCChartHeight";
 import ProgressionTable from "@/components/ProgressionTable";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
-import SendChartNotification from "@/components/SendChartNotification ";
+// import SendChartNotification from "@/components/SendChartNotification ";
 
-const fetchGrowthChartData = async (searchParams: URLSearchParams) => {
-  const weightData = searchParams.get("weightData");
-  const heightData = searchParams.get("heightData");
-  const patientId = searchParams.get("patientId");
-  const calculationId = searchParams.get("calculationId");
-  if (!weightData || !heightData) {
-    // Keep check for both required inputs
-    throw new Error("Weight and height data are required");
-  }
-  const { data } = await axios.get("/api/charts/cdc-growth-chart", {
-    params: {
-      weightData,
-      heightData,
-      ...(patientId && { patientId }),
-      calculationId,
-    },
-  });
-  if (!data.success) {
-    throw new Error(data.error || "Failed to load chart data");
-  }
-  return data;
-};
+// Import the new client-side hook
+import { useGrowthChartData } from "@/hooks/calculations/use-growth-chart-data";
 
 const Charts = () => {
   const { isFullCurveView } = useSubscriptionStore();
@@ -41,11 +17,8 @@ const Charts = () => {
   );
   const calculationId = searchParams.get("calculationId");
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["growthChartData", searchParams.toString()],
-    queryFn: () => fetchGrowthChartData(searchParams),
-    enabled: typeof window !== "undefined",
-  });
+  // Use the new client-side hook instead of the API call
+  const { data, isLoading, isError, error } = useGrowthChartData(searchParams);
 
   if (isLoading || !data) {
     return <LoaderSpinnner />;
@@ -82,35 +55,36 @@ const Charts = () => {
           Child Growth Visualization (2-20 years)
         </span>
         <div className="flex justify-center mt-2">
-          {/* Ensure SendChartNotification can handle the combined data structure */}
-          <SendChartNotification
+          {/* <SendChartNotification
             chartData={data}
             patientId={searchParams.get("patientId")!}
             chartType="CDC Growth Chart"
             type="GROWTH_CDC"
-          />
+          /> */}
         </div>
       </div>
+
       <ProgressionTable
         progressionData={data.progressionData}
         highlightCalculationId={calculationId || undefined}
       />
+
       <ToggleViewChart />
+
       {/* Render Weight Chart using reusable component */}
       <GrowthChartDisplay
         rawData={data} // Pass the full data object
         type="weight"
         isFullCurveView={isFullCurveView}
         yearRangeAround={isFullCurveView ? 18 : 4} // Adjusted range slightly
-        // yRangeAround prop is now determined internally by config
       />
+
       {/* Render Height Chart using reusable component */}
       <GrowthChartDisplay
         rawData={data} // Pass the full data object
         type="height"
         isFullCurveView={isFullCurveView}
         yearRangeAround={isFullCurveView ? 18 : 4} // Adjusted range slightly
-        // yRangeAround prop is now determined internally by config
       />
     </div>
   );
