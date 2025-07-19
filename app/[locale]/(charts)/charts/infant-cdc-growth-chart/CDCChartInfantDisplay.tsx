@@ -671,25 +671,16 @@ const CDCChartInfantDisplay: React.FC<ChartProps> = ({
   );
 
   useEffect(() => {
-    // This effect runs only when the patient's age becomes available.
     if (chartRef.current && patientAge !== null) {
-      // The timeout gives the chart and its plugins a moment to fully initialize
-      // after being displayed, which is crucial for the first-time load.
       const timerId = setTimeout(() => {
         const chart = chartRef.current;
         if (!chart) return;
 
-        chart.data.datasets.forEach((dataset) => {
-          if (dataset.label && dataset.label.includes("Perc.")) {
-            dataset.hidden = false;
-          }
-        });
-        chart.update();
-      }, 200);
-
+        chart.update('none');
+      }, 100);
       return () => clearTimeout(timerId);
     }
-  }, [patientAge]);
+  }, [patientAge, isFullCurveView]);
 
   // Chart.js Options
   const chartJsOptions: ChartOptions<"line"> = useMemo(() => {
