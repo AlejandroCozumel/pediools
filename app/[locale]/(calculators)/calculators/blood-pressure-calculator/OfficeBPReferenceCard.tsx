@@ -395,60 +395,60 @@ export function OfficeBPReferenceCard({
 
   // Function to determine which percentile range the patient's BP falls into
   const getPatientBPCategory = (
-    patientSys: number,
-    patientDia: number,
-    milestones: any
-  ) => {
-    if (!patientSys || !patientDia) return null;
+      patientSys: number,
+      patientDia: number,
+      milestones: any
+    ): "stage2" | "p95" | "p90" | "p50" | "p10" | "p5" | "p3" | null => {
+      if (!patientSys || !patientDia) return null;
 
-    // Find the appropriate percentile range where patient falls
-    // Use the higher classification from either systolic or diastolic
+      // Find the appropriate percentile range where patient falls
+      // Use the higher classification from either systolic or diastolic
 
-    // Check if above stage 2 threshold
-    if (
-      patientSys >= milestones.stage2.systolic ||
-      patientDia >= milestones.stage2.diastolic
-    ) {
-      return "stage2";
-    }
+      // Check if above stage 2 threshold
+      if (
+        patientSys >= milestones.stage2.systolic ||
+        patientDia >= milestones.stage2.diastolic
+      ) {
+        return "stage2";
+      }
 
-    // Check if above p95 threshold
-    if (
-      patientSys >= milestones.p95.systolic ||
-      patientDia >= milestones.p95.diastolic
-    ) {
-      return "p95";
-    }
+      // Check if above p95 threshold
+      if (
+        patientSys >= milestones.p95.systolic ||
+        patientDia >= milestones.p95.diastolic
+      ) {
+        return "p95";
+      }
 
-    // Check if above p90 threshold (EXACTLY at 90th percentile = elevated)
-    if (
-      patientSys >= milestones.p90.systolic ||
-      patientDia >= milestones.p90.diastolic
-    ) {
-      return "p90";
-    }
+      // Check if above p90 threshold (EXACTLY at 90th percentile = elevated)
+      if (
+        patientSys >= milestones.p90.systolic ||
+        patientDia >= milestones.p90.diastolic
+      ) {
+        return "p90";
+      }
 
-    // Check if above p10 threshold but below p90 (normal range)
-    if (
-      patientSys >= milestones.p10.systolic &&
-      patientDia >= milestones.p10.diastolic &&
-      patientSys < milestones.p90.systolic &&
-      patientDia < milestones.p90.diastolic
-    ) {
-      return "p50"; // Normal range
-    }
+      // Check if above p10 threshold but below p90 (normal range)
+      if (
+        patientSys >= milestones.p10.systolic &&
+        patientDia >= milestones.p10.diastolic &&
+        patientSys < milestones.p90.systolic &&
+        patientDia < milestones.p90.diastolic
+      ) {
+        return "p50"; // Normal range
+      }
 
-    // Check if above p5 threshold but below p10
-    if (
-      patientSys >= milestones.p5.systolic ||
-      patientDia >= milestones.p5.diastolic
-    ) {
-      return "p5";
-    }
+      // Check if above p5 threshold but below p10
+      if (
+        patientSys >= milestones.p5.systolic ||
+        patientDia >= milestones.p5.diastolic
+      ) {
+        return "p5";
+      }
 
-    // Below p5 threshold
-    return "p3";
-  };
+      // Below p5 threshold
+      return "p3";
+    };
 
   const milestonesData = agesToShow.map(calculateMilestonesForAge);
   const isHeightOnlyMode = !ageInYears;

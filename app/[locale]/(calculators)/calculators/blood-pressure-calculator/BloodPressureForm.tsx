@@ -273,36 +273,31 @@ function calculateBPPercentile(
   gender: "male" | "female",
   t: any
 ): BPResult | null {
-  // 1. Age validation - using years for precision
+  // 1. Age validation
   if (ageInYears < 1 || ageInYears > 17) {
-    console.warn(
-      `Age ${ageInYears} years is outside valid range (1 year - 17 years)`
-    );
+    console.warn(`Age ${ageInYears} years is outside valid range`);
     return null;
   }
-  // 2. BP validation (reasonable physiological ranges)
+
+  // 2. BP validation
   if (systolic < 50 || systolic > 250 || diastolic < 30 || diastolic > 150) {
     console.warn(`BP ${systolic}/${diastolic} is outside reasonable range`);
     return null;
   }
+
   // 3. BP relationship validation
   if (diastolic >= systolic) {
-    console.warn(
-      `Diastolic (${diastolic}) should be less than systolic (${systolic})`
-    );
+    console.warn(`Diastolic should be less than systolic`);
     return null;
   }
-  // 4. Height percentile validation and capping
+
+  // 4. Height percentile validation
   const clampedHeightPercentile = Math.max(1, Math.min(99.9, heightPercentile));
-  if (heightPercentile !== clampedHeightPercentile) {
-    console.warn(
-      `Height percentile clamped from ${heightPercentile}% to ${clampedHeightPercentile}%`
-    );
-  }
-  // Get screening values with fallback logic
+
+  // ========== USE EXACT SAME LOGIC AS REFERENCE CARD ==========
+  // Get screening values (same as reference card)
   let screeningValues = aapScreeningTable[gender][String(ageInYears)];
   if (!screeningValues) {
-    // Fallback strategy: use closest age
     const availableAges = Object.keys(aapScreeningTable[gender])
       .map(Number)
       .sort((a, b) => a - b);
@@ -310,104 +305,55 @@ function calculateBPPercentile(
       Math.abs(curr - ageInYears) < Math.abs(prev - ageInYears) ? curr : prev
     );
     screeningValues = aapScreeningTable[gender][String(closestAge)];
-    console.warn(
-      `Using age ${closestAge} screening values for age ${ageInYears}`
-    );
   }
-  // Height adjustment with bounds
-  const heightZScore = Math.max(
-    -2.5,
-    Math.min(2.5, (clampedHeightPercentile - 50) / 25)
-  );
-  const heightAdjustment = heightZScore * 1.5;
-  // Calculate reference percentiles with bounds checking
-  const adjustedSystolic95 = Math.max(
-    80,
-    screeningValues.systolic + heightAdjustment + 8
-  );
-  const adjustedDiastolic95 = Math.max(
-    50,
-    screeningValues.diastolic + heightAdjustment + 6
-  );
-  const adjustedSystolic90 = Math.max(
-    75,
-    screeningValues.systolic + heightAdjustment
-  );
-  const adjustedDiastolic90 = Math.max(
-    45,
-    screeningValues.diastolic + heightAdjustment
-  );
-  const adjustedSystolic50 = Math.max(60, adjustedSystolic90 - 15);
-  const adjustedDiastolic50 = Math.max(35, adjustedDiastolic90 - 12);
-  // Enhanced percentile calculation with bounds
-  function calculatePercentileRobust(
-    value: number,
-    p50: number,
-    p90: number,
-    p95: number
-  ): number {
-    // Ensure reference points are in ascending order
-    if (p50 >= p90 || p90 >= p95) {
-      console.warn("Invalid reference percentiles, using fallback calculation");
-      // Fallback: simple linear interpolation
-      if (value <= p90) return Math.max(1, Math.min(89, 90 * (value / p90)));
-      else
-        return Math.max(
-          90,
-          Math.min(99, 90 + 9 * ((value - p90) / (p95 - p90)))
-        );
-    }
-    if (value <= p50) {
-      // Below 50th percentile
-      return Math.max(1, 50 * (value / p50));
-    } else if (value <= p90) {
-      // Between 50th and 90th percentile
-      return 50 + 40 * ((value - p50) / (p90 - p50));
-    } else if (value <= p95) {
-      // Between 90th and 95th percentile
-      return 90 + 5 * ((value - p90) / (p95 - p90));
-    } else {
-      // Above 95th percentile
-      const excessRatio = Math.min(2, (value - p95) / (p95 * 0.1));
-      return Math.min(99.9, 95 + 4 * excessRatio);
-    }
-  }
-  // Calculate percentiles
-  const systolicPercentile = calculatePercentileRobust(
-    systolic,
-    adjustedSystolic50,
-    adjustedSystolic90,
-    adjustedSystolic95
-  );
-  const diastolicPercentile = calculatePercentileRobust(
-    diastolic,
-    adjustedDiastolic50,
-    adjustedDiastolic90,
-    adjustedDiastolic95
-  );
-  // Bounded z-score calculation
-  const systolicZScore = Math.max(
-    -3,
-    Math.min(
-      5,
-      ((systolic - adjustedSystolic50) /
-        (adjustedSystolic95 - adjustedSystolic50)) *
-        1.645
-    )
-  );
-  const diastolicZScore = Math.max(
-    -3,
-    Math.min(
-      5,
-      ((diastolic - adjustedDiastolic50) /
-        (adjustedDiastolic95 - adjustedDiastolic50)) *
-        1.645
-    )
-  );
 
-  // ========== CLASSIFICATION WITH EDGE CASES ==========
-  const maxPercentile = Math.max(systolicPercentile, diastolicPercentile);
+  // Height adjustment (same as reference card)
+  let heightAdjustment = 0;
+  if (clampedHeightPercentile !== null && clampedHeightPercentile !== undefined) {
+    const heightZScore = (clampedHeightPercentile - 50) / 25;
+    heightAdjustment = heightZScore * 1.5;
+  }
+
+  // Calculate thresholds EXACTLY like reference card
+  const p90Systolic = Math.round(screeningValues.systolic + heightAdjustment);
+  const p90Diastolic = Math.round(screeningValues.diastolic + heightAdjustment);
+
+  const p50Systolic = Math.round(p90Systolic - 15);
+  const p50Diastolic = Math.round(p90Diastolic - 12);
+
+  const p10Systolic = Math.round(p50Systolic - 12);
+  const p10Diastolic = Math.round(p50Diastolic - 8);
+
+  const p5Systolic = Math.round(p50Systolic - 16);
+  const p5Diastolic = Math.round(p50Diastolic - 10);
+
+  const p3Systolic = Math.round(p50Systolic - 20);
+  const p3Diastolic = Math.round(p50Diastolic - 12);
+
+  const p95Systolic = Math.round(p90Systolic + 8);
+  const p95Diastolic = Math.round(p90Diastolic + 6);
+
+  const stage2Systolic = Math.round(p95Systolic + 12);
+  const stage2Diastolic = Math.round(p95Diastolic + 12);
+
+  // Calculate percentiles for display (simplified method)
+  function calculateDisplayPercentile(value: number, p50: number, p90: number, p95: number): number {
+    if (value <= p50) return Math.max(1, 50 * (value / p50));
+    else if (value <= p90) return 50 + 40 * ((value - p50) / (p90 - p50));
+    else if (value <= p95) return 90 + 5 * ((value - p90) / (p95 - p90));
+    else return Math.min(99.9, 95 + 4 * ((value - p95) / (p95 * 0.1)));
+  }
+
+  const systolicPercentile = calculateDisplayPercentile(systolic, p50Systolic, p90Systolic, p95Systolic);
+  const diastolicPercentile = calculateDisplayPercentile(diastolic, p50Diastolic, p90Diastolic, p95Diastolic);
+
+  // Calculate Z-scores for display
+  const systolicZScore = ((systolic - p50Systolic) / (p95Systolic - p50Systolic)) * 1.645;
+  const diastolicZScore = ((diastolic - p50Diastolic) / (p95Diastolic - p50Diastolic)) * 1.645;
+
+  // Classification using SAME logic as reference card
   let classification: BPClassification;
+
   if (ageInYears >= 13) {
     // Adolescent classification (≥13 years)
     if (systolic >= 140 || diastolic >= 90) {
@@ -450,17 +396,8 @@ function calculateBPPercentile(
       };
     }
   } else {
-    // Pediatric classification (<13 years)
-    // Stage 2 thresholds
-    const stage2SystolicThreshold = adjustedSystolic95 + 12;
-    const stage2DiastolicThreshold = adjustedDiastolic95 + 12;
-    // Additional absolute thresholds for very young children
-    const absoluteStage2Systolic = Math.min(140, stage2SystolicThreshold);
-    const absoluteStage2Diastolic = Math.min(90, stage2DiastolicThreshold);
-    if (
-      systolic >= absoluteStage2Systolic ||
-      diastolic >= absoluteStage2Diastolic
-    ) {
+    // Pediatric classification - EXACT SAME LOGIC AS REFERENCE CARD
+    if (systolic >= stage2Systolic || diastolic >= stage2Diastolic) {
       classification = {
         category: t("classifications.stage2.category"),
         description: t("classifications.stage2.description", {
@@ -469,7 +406,7 @@ function calculateBPPercentile(
         color: "text-red-700",
         bgColor: "bg-red-50 border-red-200",
       };
-    } else if (maxPercentile >= 95) {
+    } else if (systolic >= p95Systolic || diastolic >= p95Diastolic) {
       classification = {
         category: t("classifications.stage1.category"),
         description: t("classifications.stage1.description", {
@@ -479,25 +416,22 @@ function calculateBPPercentile(
         color: "text-orange-700",
         bgColor: "bg-orange-50 border-orange-200",
       };
-    } else if (maxPercentile >= 90) {
-      // This is the block for "Elevated"
-      let descriptionText = t("classifications.elevated.pediatricDescription");
-      let actionText = t("classifications.elevated.pediatricAction");
-
-      // Check which value is higher to provide a more specific reason
-      if (systolicPercentile > 90 && diastolicPercentile < 90) {
-        descriptionText = t("classifications.elevated.systolicReason");
-      } else if (diastolicPercentile > 90 && systolicPercentile < 90) {
-        descriptionText = t("classifications.elevated.diastolicReason");
-      }
-
+    } else if (systolic >= p90Systolic || diastolic >= p90Diastolic) {
       classification = {
         category: t("classifications.elevated.category"),
-        description: `${descriptionText} ${actionText}`,
+        description: t("classifications.elevated.description", {
+          description: t("classifications.elevated.pediatricDescription"),
+          action: t("classifications.elevated.pediatricAction"),
+        }),
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
-    } else {
+    } else if (
+      systolic >= p10Systolic &&
+      diastolic >= p10Diastolic &&
+      systolic < p90Systolic &&
+      diastolic < p90Diastolic
+    ) {
       classification = {
         category: t("classifications.normal.category"),
         description: t("classifications.normal.description", {
@@ -506,13 +440,28 @@ function calculateBPPercentile(
         color: "text-green-700",
         bgColor: "bg-green-50 border-green-200",
       };
+    } else if (systolic >= p5Systolic || diastolic >= p5Diastolic) {
+      classification = {
+        category: "Mild Hypotension",
+        description: "Mild hypotension - monitor closely and repeat measurement",
+        color: "text-orange-700",
+        bgColor: "bg-orange-50 border-orange-200",
+      };
+    } else {
+      classification = {
+        category: "Severe Hypotension",
+        description: "Severe hypotension - immediate evaluation needed",
+        color: "text-red-700",
+        bgColor: "bg-red-50 border-red-200",
+      };
     }
   }
+
   return {
     systolic: {
       value: systolic,
-      percentile: Math.round(systolicPercentile * 10) / 10, // Round to 1 decimal
-      zScore: Math.round(systolicZScore * 100) / 100, // Round to 2 decimals
+      percentile: Math.round(systolicPercentile * 10) / 10,
+      zScore: Math.round(systolicZScore * 100) / 100,
     },
     diastolic: {
       value: diastolic,
