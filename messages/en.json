@@ -307,6 +307,16 @@
         "description": "{description} - Requires immediate medical attention",
         "pediatricDescription": "≥95th percentile + 12mmHg or ≥140/90",
         "adolescentDescription": "≥140/90 mmHg"
+      },
+      "hypotension": {
+        "mild": {
+          "category": "Mild Hypotension",
+          "description": "Mild hypotension - monitor closely"
+        },
+        "severe": {
+          "category": "Severe Hypotension",
+          "description": "Severe hypotension - immediate evaluation needed"
+        }
       }
     },
     "referenceCategories": {

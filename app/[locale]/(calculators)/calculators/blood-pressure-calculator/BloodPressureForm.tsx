@@ -140,14 +140,13 @@ const calculateZScore = (value: number, L: number, M: number, S: number) => {
 
 // Convert Z-Score to Percentile
 const zScoreToPercentile = (zScore: number) => {
-  // Error function approximation
   const erf = (x: number) => {
-    const a1 = 0.254829592;
-    const a2 = -0.284496736;
-    const a3 = 1.421413741;
-    const a4 = -1.453152027;
-    const a5 = 1.061405429;
-    const p = 0.3275911;
+    const a1 = 0.254829592,
+      a2 = -0.284496736,
+      a3 = 1.421413741,
+      a4 = -1.453152027,
+      a5 = 1.061405429,
+      p = 0.3275911;
     const sign = x < 0 ? -1 : 1;
     x = Math.abs(x);
     const t = 1.0 / (1.0 + p * x);
@@ -166,15 +165,20 @@ const interpolateDataPoint = (
   sex: number
 ) => {
   const filteredPoints = dataPoints.filter((point) => point.Sex === sex);
+  if (filteredPoints.length === 0) return null;
   const sortedPoints = filteredPoints.sort(
     (a, b) =>
       Math.abs(a.Agemos - ageInMonths) - Math.abs(b.Agemos - ageInMonths)
   );
-  const point1 = sortedPoints[0];
-  const point2 = sortedPoints[1];
-  if (point1.Agemos === ageInMonths || point1.Agemos === point2.Agemos) {
+  const point1 = sortedPoints[0],
+    point2 = sortedPoints[1];
+  if (!point1) return null;
+  if (
+    point1.Agemos === ageInMonths ||
+    !point2 ||
+    point1.Agemos === point2.Agemos
+  )
     return point1;
-  }
   const factor =
     (ageInMonths - point1.Agemos) / (point2.Agemos - point1.Agemos);
   return {
@@ -194,23 +198,20 @@ function calculateHeightPercentile(
 ): number {
   const sex = gender === "male" ? 1 : 2;
   let heightDataPoint;
-
   if (ageInMonths < 36) {
-    // Use CDC Infant data for ages 0-36 months
     heightDataPoint = interpolateDataPoint(
       ageInMonths,
       cdcInfantHeightData as CdcDataPoint[],
       sex
     );
   } else {
-    // Use CDC Child data for ages 36+ months
     heightDataPoint = interpolateDataPoint(
       ageInMonths,
       cdcHeightData as CdcDataPoint[],
       sex
     );
   }
-
+  if (!heightDataPoint) return 50; // Fallback
   const zScore = calculateZScore(
     height,
     heightDataPoint.L,
@@ -265,6 +266,35 @@ const aapScreeningTable: Record<
   },
 };
 
+// ✅ 1. ADD THIS NEW HELPER FUNCTION
+function calculateAccuratePercentile(
+  value: number,
+  thresholds: Record<string, number>
+): number {
+  if (value <= thresholds.p3) return 3.0;
+  if (value <= thresholds.p5)
+    return 3 + 2 * ((value - thresholds.p3) / (thresholds.p5 - thresholds.p3));
+  if (value <= thresholds.p10)
+    return 5 + 5 * ((value - thresholds.p5) / (thresholds.p10 - thresholds.p5));
+  if (value <= thresholds.p50)
+    return (
+      10 + 40 * ((value - thresholds.p10) / (thresholds.p50 - thresholds.p10))
+    );
+  if (value <= thresholds.p90)
+    return (
+      50 + 40 * ((value - thresholds.p50) / (thresholds.p90 - thresholds.p50))
+    );
+  if (value <= thresholds.p95)
+    return (
+      90 + 5 * ((value - thresholds.p90) / (thresholds.p95 - thresholds.p90))
+    );
+  return Math.min(
+    99.9,
+    95 + 4.9 * ((value - thresholds.p95) / (thresholds.p95 * 0.1))
+  );
+}
+
+// ✅ 2. ADD THE FULLY CORRECTED MAIN FUNCTION
 function calculateBPPercentile(
   systolic: number,
   diastolic: number,
@@ -273,90 +303,91 @@ function calculateBPPercentile(
   gender: "male" | "female",
   t: any
 ): BPResult | null {
-  // 1. Age validation
-  if (ageInYears < 1 || ageInYears > 17) {
-    console.warn(`Age ${ageInYears} years is outside valid range`);
+  if (ageInYears < 1 || ageInYears > 17) return null;
+  if (systolic < 50 || systolic > 250 || diastolic < 30 || diastolic > 150)
     return null;
-  }
+  if (diastolic >= systolic) return null;
 
-  // 2. BP validation
-  if (systolic < 50 || systolic > 250 || diastolic < 30 || diastolic > 150) {
-    console.warn(`BP ${systolic}/${diastolic} is outside reasonable range`);
-    return null;
-  }
-
-  // 3. BP relationship validation
-  if (diastolic >= systolic) {
-    console.warn(`Diastolic should be less than systolic`);
-    return null;
-  }
-
-  // 4. Height percentile validation
   const clampedHeightPercentile = Math.max(1, Math.min(99.9, heightPercentile));
 
-  // ========== USE EXACT SAME LOGIC AS REFERENCE CARD ==========
-  // Get screening values (same as reference card)
-  let screeningValues = aapScreeningTable[gender][String(ageInYears)];
-  if (!screeningValues) {
-    const availableAges = Object.keys(aapScreeningTable[gender])
-      .map(Number)
-      .sort((a, b) => a - b);
-    const closestAge = availableAges.reduce((prev, curr) =>
-      Math.abs(curr - ageInYears) < Math.abs(prev - ageInYears) ? curr : prev
-    );
-    screeningValues = aapScreeningTable[gender][String(closestAge)];
-  }
+  const availableAges = Object.keys(aapScreeningTable[gender])
+    .map(Number)
+    .sort((a, b) => a - b);
+  const closestAge = availableAges.reduce((prev, curr) =>
+    Math.abs(curr - ageInYears) < Math.abs(prev - ageInYears) ? curr : prev
+  );
+  const screeningValues = aapScreeningTable[gender][String(closestAge)];
 
-  // Height adjustment (same as reference card)
-  let heightAdjustment = 0;
-  if (clampedHeightPercentile !== null && clampedHeightPercentile !== undefined) {
-    const heightZScore = (clampedHeightPercentile - 50) / 25;
-    heightAdjustment = heightZScore * 1.5;
-  }
+  const heightZScore = (clampedHeightPercentile - 50) / 25;
+  const heightAdjustment = heightZScore * 1.5;
 
-  // Calculate thresholds EXACTLY like reference card
   const p90Systolic = Math.round(screeningValues.systolic + heightAdjustment);
   const p90Diastolic = Math.round(screeningValues.diastolic + heightAdjustment);
-
   const p50Systolic = Math.round(p90Systolic - 15);
   const p50Diastolic = Math.round(p90Diastolic - 12);
-
   const p10Systolic = Math.round(p50Systolic - 12);
   const p10Diastolic = Math.round(p50Diastolic - 8);
-
   const p5Systolic = Math.round(p50Systolic - 16);
   const p5Diastolic = Math.round(p50Diastolic - 10);
-
   const p3Systolic = Math.round(p50Systolic - 20);
   const p3Diastolic = Math.round(p50Diastolic - 12);
-
   const p95Systolic = Math.round(p90Systolic + 8);
   const p95Diastolic = Math.round(p90Diastolic + 6);
-
   const stage2Systolic = Math.round(p95Systolic + 12);
   const stage2Diastolic = Math.round(p95Diastolic + 12);
 
-  // Calculate percentiles for display (simplified method)
-  function calculateDisplayPercentile(value: number, p50: number, p90: number, p95: number): number {
-    if (value <= p50) return Math.max(1, 50 * (value / p50));
-    else if (value <= p90) return 50 + 40 * ((value - p50) / (p90 - p50));
-    else if (value <= p95) return 90 + 5 * ((value - p90) / (p95 - p90));
-    else return Math.min(99.9, 95 + 4 * ((value - p95) / (p95 * 0.1)));
-  }
+  const systolicThresholds = {
+    p3: p3Systolic,
+    p5: p5Systolic,
+    p10: p10Systolic,
+    p50: p50Systolic,
+    p90: p90Systolic,
+    p95: p95Systolic,
+  };
+  const diastolicThresholds = {
+    p3: p3Diastolic,
+    p5: p5Diastolic,
+    p10: p10Diastolic,
+    p50: p50Diastolic,
+    p90: p90Diastolic,
+    p95: p95Diastolic,
+  };
 
-  const systolicPercentile = calculateDisplayPercentile(systolic, p50Systolic, p90Systolic, p95Systolic);
-  const diastolicPercentile = calculateDisplayPercentile(diastolic, p50Diastolic, p90Diastolic, p95Diastolic);
+  const finalSystolicPercentile = calculateAccuratePercentile(
+    systolic,
+    systolicThresholds
+  );
+  const finalDiastolicPercentile = calculateAccuratePercentile(
+    diastolic,
+    diastolicThresholds
+  );
 
-  // Calculate Z-scores for display
-  const systolicZScore = ((systolic - p50Systolic) / (p95Systolic - p50Systolic)) * 1.645;
-  const diastolicZScore = ((diastolic - p50Diastolic) / (p95Diastolic - p50Diastolic)) * 1.645;
+  const percentileToZScore = (p: number): number => {
+    if (p <= 0.0) return -4.0;
+    if (p >= 100.0) return 4.0;
+    let value = p / 100.0;
+    let isLowerTail = true;
+    if (value > 0.5) {
+      isLowerTail = false;
+      value = 1 - value;
+    }
+    const t = Math.sqrt(-2.0 * Math.log(value));
+    const c = [2.515517, 0.802853, 0.010328];
+    const d = [1.432788, 0.189269, 0.001308];
+    let z =
+      t -
+      (c[0] + c[1] * t + c[2] * t * t) /
+        (1 + d[0] * t + d[1] * t * t + d[2] * t * t * t);
+    return isLowerTail ? -z : z;
+  };
 
-  // Classification using SAME logic as reference card
+  const systolicZ = percentileToZScore(finalSystolicPercentile);
+  const diastolicZ = percentileToZScore(finalDiastolicPercentile);
+
   let classification: BPClassification;
 
   if (ageInYears >= 13) {
-    // Adolescent classification (≥13 years)
-    if (systolic >= 140 || diastolic >= 90) {
+    if (systolic >= 140 || diastolic >= 90)
       classification = {
         category: t("classifications.stage2.category"),
         description: t("classifications.stage2.description", {
@@ -365,7 +396,7 @@ function calculateBPPercentile(
         color: "text-red-700",
         bgColor: "bg-red-50 border-red-200",
       };
-    } else if (systolic >= 130 || diastolic >= 80) {
+    else if (systolic >= 130 || diastolic >= 80)
       classification = {
         category: t("classifications.stage1.category"),
         description: t("classifications.stage1.description", {
@@ -375,7 +406,7 @@ function calculateBPPercentile(
         color: "text-orange-700",
         bgColor: "bg-orange-50 border-orange-200",
       };
-    } else if (systolic >= 120 && systolic < 130 && diastolic < 80) {
+    else if (systolic >= 120 && diastolic < 80)
       classification = {
         category: t("classifications.elevated.category"),
         description: t("classifications.elevated.description", {
@@ -385,7 +416,7 @@ function calculateBPPercentile(
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
-    } else {
+    else
       classification = {
         category: t("classifications.normal.category"),
         description: t("classifications.normal.description", {
@@ -394,10 +425,8 @@ function calculateBPPercentile(
         color: "text-green-700",
         bgColor: "bg-green-50 border-green-200",
       };
-    }
   } else {
-    // Pediatric classification - EXACT SAME LOGIC AS REFERENCE CARD
-    if (systolic >= stage2Systolic || diastolic >= stage2Diastolic) {
+    if (systolic >= stage2Systolic || diastolic >= stage2Diastolic)
       classification = {
         category: t("classifications.stage2.category"),
         description: t("classifications.stage2.description", {
@@ -406,7 +435,7 @@ function calculateBPPercentile(
         color: "text-red-700",
         bgColor: "bg-red-50 border-red-200",
       };
-    } else if (systolic >= p95Systolic || diastolic >= p95Diastolic) {
+    else if (systolic >= p95Systolic || diastolic >= p95Diastolic)
       classification = {
         category: t("classifications.stage1.category"),
         description: t("classifications.stage1.description", {
@@ -416,7 +445,7 @@ function calculateBPPercentile(
         color: "text-orange-700",
         bgColor: "bg-orange-50 border-orange-200",
       };
-    } else if (systolic >= p90Systolic || diastolic >= p90Diastolic) {
+    else if (systolic >= p90Systolic || diastolic >= p90Diastolic)
       classification = {
         category: t("classifications.elevated.category"),
         description: t("classifications.elevated.description", {
@@ -426,12 +455,29 @@ function calculateBPPercentile(
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
-    } else if (
-      systolic >= p10Systolic &&
-      diastolic >= p10Diastolic &&
-      systolic < p90Systolic &&
-      diastolic < p90Diastolic
-    ) {
+    else if (systolic < p5Systolic || diastolic < p5Diastolic)
+      classification = {
+        category: t("classifications.hypotension.severe.category", {
+          defaultValue: "Severe Hypotension",
+        }),
+        description: t("classifications.hypotension.severe.description", {
+          defaultValue: "Severe hypotension - immediate evaluation needed",
+        }),
+        color: "text-red-700",
+        bgColor: "bg-red-50 border-red-200",
+      };
+    else if (systolic < p10Systolic || diastolic < p10Diastolic)
+      classification = {
+        category: t("classifications.hypotension.mild.category", {
+          defaultValue: "Mild Hypotension",
+        }),
+        description: t("classifications.hypotension.mild.description", {
+          defaultValue: "Mild hypotension - monitor closely",
+        }),
+        color: "text-orange-700",
+        bgColor: "bg-orange-50 border-orange-200",
+      };
+    else
       classification = {
         category: t("classifications.normal.category"),
         description: t("classifications.normal.description", {
@@ -440,33 +486,18 @@ function calculateBPPercentile(
         color: "text-green-700",
         bgColor: "bg-green-50 border-green-200",
       };
-    } else if (systolic >= p5Systolic || diastolic >= p5Diastolic) {
-      classification = {
-        category: "Mild Hypotension",
-        description: "Mild hypotension - monitor closely and repeat measurement",
-        color: "text-orange-700",
-        bgColor: "bg-orange-50 border-orange-200",
-      };
-    } else {
-      classification = {
-        category: "Severe Hypotension",
-        description: "Severe hypotension - immediate evaluation needed",
-        color: "text-red-700",
-        bgColor: "bg-red-50 border-red-200",
-      };
-    }
   }
 
   return {
     systolic: {
       value: systolic,
-      percentile: Math.round(systolicPercentile * 10) / 10,
-      zScore: Math.round(systolicZScore * 100) / 100,
+      percentile: Math.round(finalSystolicPercentile * 10) / 10,
+      zScore: Math.round(systolicZ * 100) / 100,
     },
     diastolic: {
       value: diastolic,
-      percentile: Math.round(diastolicPercentile * 10) / 10,
-      zScore: Math.round(diastolicZScore * 100) / 100,
+      percentile: Math.round(finalDiastolicPercentile * 10) / 10,
+      zScore: Math.round(diastolicZ * 100) / 100,
     },
     classification,
     heightPercentile: clampedHeightPercentile,
@@ -479,7 +510,6 @@ function isAgeInRange(
   minYears: number,
   maxYears: number
 ) {
-  // Normalize both dates to avoid timezone/hour issues
   const birth = new Date(
     birthDate.getFullYear(),
     birthDate.getMonth(),
@@ -490,7 +520,6 @@ function isAgeInRange(
     measurementDate.getMonth(),
     measurementDate.getDate()
   );
-
   const ageInYears = differenceInYears(measurement, birth);
   return ageInYears >= minYears && ageInYears <= maxYears;
 }
@@ -939,24 +968,72 @@ export function BloodPressureForm() {
                           <div
                             className={cn(
                               "flex items-center gap-3 p-4 rounded-lg border mb-4",
+                              // Normal BP
                               results.classification.category ===
                                 t("classifications.normal.category") &&
                                 "bg-green-50 border-green-200",
+                              // Elevated BP
                               results.classification.category ===
                                 t("classifications.elevated.category") &&
                                 "bg-yellow-50 border-yellow-200",
+                              // Stage 1 Hypertension
                               results.classification.category ===
                                 t("classifications.stage1.category") &&
                                 "bg-orange-50 border-orange-200",
+                              // Stage 2 Hypertension
                               results.classification.category ===
                                 t("classifications.stage2.category") &&
-                                "bg-red-50 border-red-200"
+                                "bg-red-50 border-red-200",
+                              // ✅ ADD THESE: Hypotension categories
+                              results.classification.category ===
+                                t(
+                                  "classifications.hypotension.mild.category"
+                                ) && "bg-orange-50 border-orange-200",
+                              results.classification.category ===
+                                t(
+                                  "classifications.hypotension.severe.category"
+                                ) && "bg-red-50 border-red-200",
+                              // Fallback for any unmapped categories
+                              ![
+                                t("classifications.normal.category"),
+                                t("classifications.elevated.category"),
+                                t("classifications.stage1.category"),
+                                t("classifications.stage2.category"),
+                                t("classifications.hypotension.mild.category"),
+                                t(
+                                  "classifications.hypotension.severe.category"
+                                ),
+                              ].includes(results.classification.category) &&
+                                "bg-gray-50 border-gray-200"
                             )}
                           >
+                            {/* Icon logic */}
                             {results.classification.category ===
                               t("classifications.normal.category") && (
                               <CheckCircle className="w-6 h-6 text-green-600" />
                             )}
+
+                            {(results.classification.category ===
+                              t("classifications.hypotension.mild.category") ||
+                              results.classification.category ===
+                                t(
+                                  "classifications.hypotension.severe.category"
+                                )) && (
+                              <AlertTriangle
+                                className={cn(
+                                  "w-6 h-6",
+                                  results.classification.category ===
+                                    t(
+                                      "classifications.hypotension.mild.category"
+                                    ) && "text-orange-600",
+                                  results.classification.category ===
+                                    t(
+                                      "classifications.hypotension.severe.category"
+                                    ) && "text-red-600"
+                                )}
+                              />
+                            )}
+
                             {(results.classification.category ===
                               t("classifications.elevated.category") ||
                               results.classification.category ===
@@ -978,6 +1055,7 @@ export function BloodPressureForm() {
                                 )}
                               />
                             )}
+
                             <div>
                               <div
                                 className={cn(
@@ -993,7 +1071,15 @@ export function BloodPressureForm() {
                                     "text-orange-800",
                                   results.classification.category ===
                                     t("classifications.stage2.category") &&
-                                    "text-red-800"
+                                    "text-red-800",
+                                  results.classification.category ===
+                                    t(
+                                      "classifications.hypotension.mild.category"
+                                    ) && "text-orange-800",
+                                  results.classification.category ===
+                                    t(
+                                      "classifications.hypotension.severe.category"
+                                    ) && "text-red-800"
                                 )}
                               >
                                 {results.classification.category}
@@ -1012,7 +1098,15 @@ export function BloodPressureForm() {
                                     "text-orange-700",
                                   results.classification.category ===
                                     t("classifications.stage2.category") &&
-                                    "text-red-700"
+                                    "text-red-700",
+                                  results.classification.category ===
+                                    t(
+                                      "classifications.hypotension.mild.category"
+                                    ) && "text-orange-700",
+                                  results.classification.category ===
+                                    t(
+                                      "classifications.hypotension.severe.category"
+                                    ) && "text-red-700"
                                 )}
                               >
                                 {results.classification.description}
