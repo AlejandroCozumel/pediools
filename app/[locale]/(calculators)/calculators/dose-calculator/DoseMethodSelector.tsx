@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Calculator, Weight, Activity, Maximize } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -48,9 +48,7 @@ export function DoseMethodSelector() {
           <Calculator className="h-6 w-6" />
           {t('title')}
         </CardTitle>
-        <p className="text-muted-foreground mt-2">
-          {t('subtitle')}
-        </p>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
 
       <CardContent className="p-4 lg:p-6">

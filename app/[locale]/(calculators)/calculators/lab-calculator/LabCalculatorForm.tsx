@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -663,7 +663,15 @@ const LabCalculatorForm: React.FC = () => {
   // ... existing code ...
 
   return (
-    <div className="container mx-auto space-y-6">
+    <Card className="w-full mx-auto">
+      <CardHeader className="p-4 lg:p-6 !pb-0">
+        <CardTitle className="text-2xl font-heading text-medical-900">
+          {t("title")}
+        </CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
+      </CardHeader>
+      <CardContent className="p-4 lg:p-6">
+        <div className="container mx-auto space-y-6">
       {/* Patient Selector - Outside Form Component */}
       <Card
         className={cn(
@@ -1044,6 +1052,8 @@ const LabCalculatorForm: React.FC = () => {
       {/* Results */}
       <LabResults results={results} gender={gender} isPremium={isPremium} />
     </div>
+    </CardContent>
+    </Card>
   );
 };
 

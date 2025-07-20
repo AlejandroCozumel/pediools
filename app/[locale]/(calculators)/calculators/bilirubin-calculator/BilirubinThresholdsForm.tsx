@@ -68,26 +68,28 @@ const createFormSchema = (t: any) =>
   z
     .object({
       birthDateTime: z.date({
-        required_error: "Date and time of birth are required",
+        required_error: t("validation.dateTimeRequired.birth"),
       }),
       measurementDateTime: z.date({
-        required_error: "Date and time of measurement are required",
+        required_error: t("validation.dateTimeRequired.measurement"),
       }),
       totalBilirubin: z
-      .string()
-      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-        message: "Enter a valid bilirubin level",
-      })
-      .refine((val) => parseFloat(val) <= 50, {
-        message: "Bilirubin level seems too high. Please verify the value (normal range: 0.1-30 mg/dL)",
-      })
-      .refine((val) => parseFloat(val) >= 0.1, {
-        message: "Bilirubin level seems too low. Please verify the value (minimum: 0.1 mg/dL)",
-      }),
+        .string()
+        .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+          message: t("validation.bilirubinValidation.validLevel"),
+        })
+        .refine((val) => parseFloat(val) <= 50, {
+          message: t("validation.bilirubinValidation.tooHigh"),
+        })
+        .refine((val) => parseFloat(val) >= 0.1, {
+          message: t("validation.bilirubinValidation.tooLow"),
+        }),
       gestationalAge: z
-        .string({ required_error: "Please select a gestational age" })
+        .string({
+          required_error: t("validation.gestationalAgeValidation.required"),
+        })
         .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 35, {
-          message: "Must be ≥35 weeks",
+          message: t("validation.gestationalAgeValidation.minimum"),
         }),
       ETCOc: z.string().optional(),
       isoimmuneDisease: z.boolean().default(false),
@@ -100,7 +102,7 @@ const createFormSchema = (t: any) =>
       lowAlbumen: z.boolean().default(false),
     })
     .refine((data) => data.measurementDateTime >= data.birthDateTime, {
-      message: "Measurement time must be after birth time",
+      message: t("validation.timeValidation.measurementAfterBirth"),
       path: ["measurementDateTime"],
     })
     .refine(
@@ -112,8 +114,7 @@ const createFormSchema = (t: any) =>
         return ageInHours >= 12 && ageInHours <= 336;
       },
       {
-        message:
-          "Age at measurement must be between 12 and 336 hours (14 days). AAP 2022 guidelines do not provide data outside this range.",
+        message: t("validation.timeValidation.ageRange"),
         path: ["measurementDateTime"],
       }
     );
@@ -121,7 +122,6 @@ const createFormSchema = (t: any) =>
 export function BilirubinThresholdsForm() {
   const t = useTranslations("BilirubinCalculator");
   const formSchema = useMemo(() => createFormSchema(t), [t]);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BilirubinResult | null>(null);
   const isMounted = useRef(false);
@@ -190,12 +190,12 @@ export function BilirubinThresholdsForm() {
   ]);
 
   const gestationalAgeOptions = [
-    { value: "35", label: "35 weeks" },
-    { value: "36", label: "36 weeks" },
-    { value: "37", label: "37 weeks" },
-    { value: "38", label: "38 weeks" },
-    { value: "39", label: "39 weeks" },
-    { value: "40", label: "40+ weeks" },
+    { value: "35", label: t("form.gestationalAgeOptions.35weeks") },
+    { value: "36", label: t("form.gestationalAgeOptions.36weeks") },
+    { value: "37", label: t("form.gestationalAgeOptions.37weeks") },
+    { value: "38", label: t("form.gestationalAgeOptions.38weeks") },
+    { value: "39", label: t("form.gestationalAgeOptions.39weeks") },
+    { value: "40", label: t("form.gestationalAgeOptions.40weeks") },
   ];
 
   function getRiskCategory2022(
@@ -208,9 +208,7 @@ export function BilirubinThresholdsForm() {
     } else {
       gestGroup = gestationalAge.toString();
     }
-
     const riskSuffix = hasRiskFactors ? "_withRisk" : "_noRisk";
-
     return gestGroup + riskSuffix;
   }
 
@@ -283,7 +281,6 @@ export function BilirubinThresholdsForm() {
         confirmWithTSBThreshold: Math.min(phototherapyThreshold - 3, 15.0),
         ETCOc: values.ETCOc || undefined,
       });
-
       setIsSubmitting(false);
     }, 1000);
   }
@@ -300,10 +297,10 @@ export function BilirubinThresholdsForm() {
         <Alert className="bg-red-50 border-red-200 text-red-800">
           <AlertTriangle className="h-4 w-4 text-red-700" />
           <AlertDescription>
-            <strong>Age too young:</strong> The baby is only {ageInHours} hours
-            old. AAP 2022 guidelines only provide recommendations for babies ≥12
-            hours old. Please wait until the baby is at least 12 hours old
-            before using this calculator.
+            <strong>{t("alerts.ageValidation.tooYoung.title")}</strong>{" "}
+            {t("alerts.ageValidation.tooYoung.description", {
+              hours: ageInHours,
+            })}
           </AlertDescription>
         </Alert>
       );
@@ -314,10 +311,11 @@ export function BilirubinThresholdsForm() {
         <Alert className="bg-red-50 border-red-200 text-red-800">
           <AlertTriangle className="h-4 w-4 text-red-700" />
           <AlertDescription>
-            <strong>Age too old:</strong> The baby is {ageInHours} hours old (
-            {Math.floor(ageInHours / 24)} days). AAP 2022 guidelines only
-            provide recommendations up to 336 hours (14 days) of age. Please
-            consult with a pediatrician for babies older than 14 days.
+            <strong>{t("alerts.ageValidation.tooOld.title")}</strong>{" "}
+            {t("alerts.ageValidation.tooOld.description", {
+              hours: ageInHours,
+              days: Math.floor(ageInHours / 24),
+            })}
           </AlertDescription>
         </Alert>
       );
@@ -327,8 +325,9 @@ export function BilirubinThresholdsForm() {
       <Alert className="bg-blue-50 border-blue-200 text-blue-800">
         <Info className="h-4 w-4 text-blue-700" />
         <AlertDescription>
-          Calculated age at time of measurement:{" "}
-          <strong>{ageInHours} hours</strong>.
+          {t("alerts.ageValidation.validAge.description", {
+            hours: ageInHours,
+          })}
         </AlertDescription>
       </Alert>
     );
@@ -336,39 +335,45 @@ export function BilirubinThresholdsForm() {
 
   return (
     <Card className="w-full mx-auto">
-      <CardHeader className="p-4 lg:p-6">
+      <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
-          Bilirubin Thresholds Calculator
+          {t("title")}
         </CardTitle>
-        <CardDescription>
-          Assess hyperbilirubinemia and determine phototherapy need for newborns
-          ≥35 weeks gestation (AAP 2022).
-        </CardDescription>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 lg:p-6 !py-0">
+      <CardContent className="p-4 lg:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <DateInputsWithTime form={form} />
+            <DateInputsWithTime
+              form={form}
+              translationNamespace="BilirubinCalculator"
+            />
+
             {ageInHours !== null && (
               <AgeValidationAlert ageInHours={ageInHours} />
             )}
+
             <Card className="p-4 border-medical-100">
               <CardTitle className="text-lg font-semibold flex items-center gap-2 mb-4 text-medical-800">
                 <Droplet className="w-5 h-5" />
-                Patient Data & Risk Factors
+                {t("form.patientData.title")}
               </CardTitle>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
                 <FormField
                   control={form.control}
                   name="totalBilirubin"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Total Serum Bilirubin (mg/dL)</FormLabel>
+                    <FormItem className="flex flex-col justify-between h-full">
+                      <FormLabel>
+                        {t("form.patientData.totalBilirubin")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.1"
-                          placeholder="e.g., 15.2"
+                          placeholder={t(
+                            "form.patientData.totalBilirubinPlaceholder"
+                          )}
                           {...field}
                           className="border-medical-100"
                         />
@@ -381,15 +386,21 @@ export function BilirubinThresholdsForm() {
                   control={form.control}
                   name="gestationalAge"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gestational Age at Birth</FormLabel>
+                    <FormItem className="flex flex-col justify-between h-full">
+                      <FormLabel>
+                        {t("form.patientData.gestationalAge")}
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="border-medical-100">
-                            <SelectValue placeholder="Choose weeks..." />
+                            <SelectValue
+                              placeholder={t(
+                                "form.patientData.gestationalAgePlaceholder"
+                              )}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -408,13 +419,13 @@ export function BilirubinThresholdsForm() {
                   control={form.control}
                   name="ETCOc"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ETCOc (ppm) - Optional</FormLabel>
+                    <FormItem className="flex flex-col justify-between h-full">
+                      <FormLabel>{t("form.patientData.ETCOc")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.1"
-                          placeholder="e.g., 1.2"
+                          placeholder={t("form.patientData.ETCOcPlaceholder")}
                           {...field}
                           className="border-medical-100"
                         />
@@ -426,7 +437,7 @@ export function BilirubinThresholdsForm() {
               </div>
               <div className="mt-6">
                 <FormLabel className="font-semibold text-base text-medical-800">
-                  Neurotoxicity Risk Factors
+                  {t("form.patientData.neurotoxicityRiskFactors")}
                 </FormLabel>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3 mt-3">
                   {[
@@ -461,45 +472,48 @@ export function BilirubinThresholdsForm() {
                 </div>
               </div>
             </Card>
+
             {results && (
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold text-medical-800">
-                      Patient Summary
+                      {t("results.patientSummary.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="!pt-0">
                     <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
                       <div className="flex justify-between border-b py-2">
                         <span className="text-muted-foreground">
-                          Age at sampling:
+                          {t("results.patientSummary.ageAtSampling")}
                         </span>
                         <strong>{results.ageInHours} hours</strong>
                       </div>
                       <div className="flex justify-between border-b py-2">
                         <span className="text-muted-foreground">
-                          Total Bilirubin:
+                          {t("results.patientSummary.totalBilirubin")}
                         </span>
                         <strong>{results.totalBilirubin} mg/dL</strong>
                       </div>
                       <div className="flex justify-between border-b py-2">
                         <span className="text-muted-foreground">
-                          Gestational Age (GA):
+                          {t("results.patientSummary.gestationalAge")}
                         </span>
                         <strong>{results.gestationalAge} weeks</strong>
                       </div>
                       <div className="flex justify-between border-b py-2">
-                        <span className="text-muted-foreground">ETCOc:</span>
+                        <span className="text-muted-foreground">
+                          {t("results.patientSummary.ETCOc")}
+                        </span>
                         <strong>
                           {results.ETCOc
                             ? `${results.ETCOc} ppm`
-                            : "Not provided"}
+                            : t("results.patientSummary.notProvided")}
                         </strong>
                       </div>
                       <div className="flex justify-between border-b py-2 col-span-2">
                         <span className="text-muted-foreground">
-                          Neurotoxicity Risk Factors Present:
+                          {t("results.patientSummary.neurotoxicityRiskFactors")}
                         </span>
                         <strong
                           className={cn(
@@ -508,7 +522,9 @@ export function BilirubinThresholdsForm() {
                               : "text-green-600"
                           )}
                         >
-                          {results.hasRiskFactors ? "Yes" : "No"}
+                          {results.hasRiskFactors
+                            ? t("results.patientSummary.yes")
+                            : t("results.patientSummary.no")}
                         </strong>
                       </div>
                     </div>
@@ -518,7 +534,7 @@ export function BilirubinThresholdsForm() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold text-medical-800">
-                      Recommendations
+                      {t("results.recommendations.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="!pt-0">
@@ -527,13 +543,19 @@ export function BilirubinThresholdsForm() {
                         <thead>
                           <tr className="bg-medical-700 text-white">
                             <th className="p-3 font-semibold text-left w-[40%] min-w-0 truncate">
-                              Intervention
+                              {t(
+                                "results.recommendations.interventions.intervention"
+                              )}
                             </th>
                             <th className="p-3 font-semibold text-center w-[25%] px-2 truncate">
-                              Recommendation
+                              {t(
+                                "results.recommendations.interventions.recommendation"
+                              )}
                             </th>
                             <th className="p-3 font-semibold text-center w-[35%] min-w-0 truncate">
-                              Threshold
+                              {t(
+                                "results.recommendations.interventions.threshold"
+                              )}
                             </th>
                           </tr>
                         </thead>
@@ -563,7 +585,9 @@ export function BilirubinThresholdsForm() {
                                     : "text-green-800"
                                 )}
                               >
-                                If using TcB, confirm with TSB?
+                                {t(
+                                  "results.recommendations.interventions.confirmTSB"
+                                )}
                               </span>
                             </td>
                             <td
@@ -580,11 +604,11 @@ export function BilirubinThresholdsForm() {
                             >
                               {results.totalBilirubin >=
                               results.confirmWithTSBThreshold
-                                ? "Yes"
+                                ? t("results.recommendations.actions.yes")
                                 : results.totalBilirubin >=
                                   results.confirmWithTSBThreshold * 0.9
-                                ? "Consider"
-                                : "No"}
+                                ? t("results.recommendations.actions.consider")
+                                : t("results.recommendations.actions.no")}
                             </td>
                             <td className="p-3 text-center font-mono min-w-0">
                               <span className="block truncate">
@@ -593,7 +617,6 @@ export function BilirubinThresholdsForm() {
                               </span>
                             </td>
                           </tr>
-
                           {/* Phototherapy Row */}
                           <tr
                             className={cn(
@@ -619,7 +642,9 @@ export function BilirubinThresholdsForm() {
                                     : "text-green-800"
                                 )}
                               >
-                                Phototherapy?
+                                {t(
+                                  "results.recommendations.interventions.phototherapy"
+                                )}
                               </span>
                             </td>
                             <td
@@ -636,11 +661,11 @@ export function BilirubinThresholdsForm() {
                             >
                               {results.totalBilirubin >=
                               results.phototherapyThreshold
-                                ? "Yes"
+                                ? t("results.recommendations.actions.yes")
                                 : results.totalBilirubin >=
                                   results.phototherapyThreshold * 0.9
-                                ? "Consider"
-                                : "No"}
+                                ? t("results.recommendations.actions.consider")
+                                : t("results.recommendations.actions.no")}
                             </td>
                             <td className="p-3 text-center font-mono min-w-0">
                               <span className="block truncate">
@@ -648,7 +673,6 @@ export function BilirubinThresholdsForm() {
                               </span>
                             </td>
                           </tr>
-
                           {/* Escalation of Care Row */}
                           <tr
                             className={cn(
@@ -674,7 +698,9 @@ export function BilirubinThresholdsForm() {
                                     : "text-green-800"
                                 )}
                               >
-                                Escalation of Care?
+                                {t(
+                                  "results.recommendations.interventions.escalationOfCare"
+                                )}
                               </span>
                             </td>
                             <td
@@ -691,11 +717,11 @@ export function BilirubinThresholdsForm() {
                             >
                               {results.totalBilirubin >=
                               results.escalationOfCareThreshold
-                                ? "Yes"
+                                ? t("results.recommendations.actions.yes")
                                 : results.totalBilirubin >=
                                   results.escalationOfCareThreshold * 0.9
-                                ? "Consider"
-                                : "No"}
+                                ? t("results.recommendations.actions.consider")
+                                : t("results.recommendations.actions.no")}
                             </td>
                             <td className="p-3 text-center font-mono min-w-0">
                               <span className="block truncate">
@@ -704,7 +730,6 @@ export function BilirubinThresholdsForm() {
                               </span>
                             </td>
                           </tr>
-
                           {/* Exchange Transfusion Row */}
                           <tr
                             className={cn(
@@ -730,7 +755,9 @@ export function BilirubinThresholdsForm() {
                                     : "text-green-800"
                                 )}
                               >
-                                Exchange Transfusion?
+                                {t(
+                                  "results.recommendations.interventions.exchangeTransfusion"
+                                )}
                               </span>
                             </td>
                             <td
@@ -747,11 +774,11 @@ export function BilirubinThresholdsForm() {
                             >
                               {results.totalBilirubin >=
                               results.exchangeTransfusionThreshold
-                                ? "Yes"
+                                ? t("results.recommendations.actions.yes")
                                 : results.totalBilirubin >=
                                   results.exchangeTransfusionThreshold * 0.9
-                                ? "Consider"
-                                : "No"}
+                                ? t("results.recommendations.actions.consider")
+                                : t("results.recommendations.actions.no")}
                             </td>
                             <td className="p-3 text-center font-mono min-w-0">
                               <span className="block truncate">
@@ -767,12 +794,11 @@ export function BilirubinThresholdsForm() {
                     </div>
                   </CardContent>
                 </Card>
-
                 <Card className="mt-6">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg font-semibold text-medical-800 flex items-center gap-2">
                       <Activity className="w-4 h-4" />
-                      Clinical Action Plan
+                      {t("results.clinicalActionPlan.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="!pt-0 space-y-4">
@@ -784,11 +810,14 @@ export function BilirubinThresholdsForm() {
                           <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="font-bold text-red-900 text-sm">
-                              URGENT - Exchange Transfusion
+                              {t(
+                                "results.clinicalActionPlan.urgentExchangeTransfusion.title"
+                              )}
                             </p>
                             <p className="text-red-800 text-xs">
-                              Consult neonatologist immediately. Continue
-                              intensive phototherapy.
+                              {t(
+                                "results.clinicalActionPlan.urgentExchangeTransfusion.description"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -800,11 +829,14 @@ export function BilirubinThresholdsForm() {
                           <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="font-bold text-red-900 text-sm">
-                              Escalation Required
+                              {t(
+                                "results.clinicalActionPlan.escalationRequired.title"
+                              )}
                             </p>
                             <p className="text-red-700 text-xs">
-                              Intensive phototherapy. Consider neonatology
-                              consult. Recheck in 4-6h.
+                              {t(
+                                "results.clinicalActionPlan.escalationRequired.description"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -816,11 +848,14 @@ export function BilirubinThresholdsForm() {
                           <TrendingUp className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="font-bold text-yellow-900 text-sm">
-                              Start Phototherapy
+                              {t(
+                                "results.clinicalActionPlan.startPhototherapy.title"
+                              )}
                             </p>
                             <p className="text-yellow-800 text-xs">
-                              Begin immediately. Monitor hydration. Recheck in
-                              12-24h.
+                              {t(
+                                "results.clinicalActionPlan.startPhototherapy.description"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -832,11 +867,14 @@ export function BilirubinThresholdsForm() {
                           <Info className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="font-bold text-yellow-900 text-sm">
-                              Close Monitoring
+                              {t(
+                                "results.clinicalActionPlan.closeMonitoring.title"
+                              )}
                             </p>
                             <p className="text-yellow-700 text-xs">
-                              Approaching threshold. Recheck in 12-24h or if
-                              clinical concerns.
+                              {t(
+                                "results.clinicalActionPlan.closeMonitoring.description"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -847,26 +885,29 @@ export function BilirubinThresholdsForm() {
                           <Info className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="font-bold text-green-900 text-sm">
-                              Routine Care
+                              {t(
+                                "results.clinicalActionPlan.routineCare.title"
+                              )}
                             </p>
                             <p className="text-green-700 text-xs">
-                              Levels acceptable. Continue standard newborn care.
+                              {t(
+                                "results.clinicalActionPlan.routineCare.description"
+                              )}
                             </p>
                           </div>
                         </div>
                       </div>
                     )}
-
                     {/* Action Plan Table */}
                     <div className="border rounded-lg overflow-hidden">
                       <table className="w-full text-xs table-fixed font-semibold">
                         <thead>
                           <tr className="bg-medical-700 text-white">
                             <th className="p-2 font-semibold text-left w-1/2">
-                              Next Steps
+                              {t("results.clinicalActionPlan.nextSteps.title")}
                             </th>
                             <th className="p-2 font-semibold text-left w-1/2">
-                              Key Points
+                              {t("results.clinicalActionPlan.keyPoints.title")}
                             </th>
                           </tr>
                         </thead>
@@ -877,22 +918,58 @@ export function BilirubinThresholdsForm() {
                                 {results.totalBilirubin >=
                                 results.escalationOfCareThreshold ? (
                                   <>
-                                    <div>• Recheck bilirubin q4-6h</div>
-                                    <div>• Vital signs monitoring</div>
-                                    <div>• Neuro checks q2-4h</div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.recheckQ4_6h"
+                                      )}
+                                    </div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.vitalSigns"
+                                      )}
+                                    </div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.neuroChecks"
+                                      )}
+                                    </div>
                                   </>
                                 ) : results.totalBilirubin >=
                                   results.phototherapyThreshold ? (
                                   <>
-                                    <div>• Recheck bilirubin 12-24h</div>
-                                    <div>• Monitor hydration</div>
-                                    <div>• Assess feeding</div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.recheck12_24h"
+                                      )}
+                                    </div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.monitorHydration"
+                                      )}
+                                    </div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.assessFeeding"
+                                      )}
+                                    </div>
                                   </>
                                 ) : (
                                   <>
-                                    <div>• Follow-up 24-48h</div>
-                                    <div>• Monitor feeding/output</div>
-                                    <div>• Watch jaundice progression</div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.followUp24_48h"
+                                      )}
+                                    </div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.monitorFeedingOutput"
+                                      )}
+                                    </div>
+                                    <div>
+                                      {t(
+                                        "results.clinicalActionPlan.nextSteps.watchJaundice"
+                                      )}
+                                    </div>
                                   </>
                                 )}
                               </div>
@@ -900,24 +977,43 @@ export function BilirubinThresholdsForm() {
                             <td className="p-3 align-top">
                               <div className="space-y-1 text-gray-700">
                                 {results.hasRiskFactors && (
-                                  <div>• Risk factors present</div>
+                                  <div>
+                                    {t(
+                                      "results.clinicalActionPlan.keyPoints.riskFactorsPresent"
+                                    )}
+                                  </div>
                                 )}
                                 {results.ageInHours < 24 && (
-                                  <div>• Early onset - check hemolysis</div>
+                                  <div>
+                                    {t(
+                                      "results.clinicalActionPlan.keyPoints.earlyOnset"
+                                    )}
+                                  </div>
                                 )}
                                 {results.totalBilirubin >=
                                   results.confirmWithTSBThreshold && (
-                                  <div>• Confirm TcB with TSB</div>
+                                  <div>
+                                    {t(
+                                      "results.clinicalActionPlan.keyPoints.confirmTcB"
+                                    )}
+                                  </div>
                                 )}
-                                <div>• Ensure adequate feeding</div>
-                                <div>• Parent education on monitoring</div>
+                                <div>
+                                  {t(
+                                    "results.clinicalActionPlan.keyPoints.ensureFeeding"
+                                  )}
+                                </div>
+                                <div>
+                                  {t(
+                                    "results.clinicalActionPlan.keyPoints.parentEducation"
+                                  )}
+                                </div>
                               </div>
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-
                     {/* Compact Risk Factor Alert */}
                     {results.hasRiskFactors && (
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -925,11 +1021,14 @@ export function BilirubinThresholdsForm() {
                           <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="font-semibold text-blue-800 text-sm">
-                              Risk Factors Present
+                              {t(
+                                "results.clinicalActionPlan.riskFactorAlert.title"
+                              )}
                             </p>
                             <p className="text-blue-700 text-xs">
-                              Consider lower intervention thresholds and
-                              increased monitoring frequency.
+                              {t(
+                                "results.clinicalActionPlan.riskFactorAlert.description"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -937,7 +1036,6 @@ export function BilirubinThresholdsForm() {
                     )}
                   </CardContent>
                 </Card>
-
                 <BilirubinChart
                   results={results}
                   phototherapyThresholds={phototherapyThresholds}

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import ambulatoryBPData from "@/app/data/ambulatory-bp-reference.json";
 
 interface ReferenceData {
@@ -16,6 +17,8 @@ interface ReferenceData {
 }
 
 export function AmbulatoryReferenceCard() {
+  const t = useTranslations("BloodPressureCalculator.ambulatoryReference");
+  const genderT = useTranslations("BloodPressureCalculator.gender");
   const [gender, setGender] = useState<'boys' | 'girls'>('boys');
   const [height, setHeight] = useState<string>('');
   const [referenceData, setReferenceData] = useState<ReferenceData | null>(null);
@@ -96,12 +99,12 @@ export function AmbulatoryReferenceCard() {
           <TabsList className="grid w-full grid-cols-2 bg-transparent border rounded-lg">
             <TabsTrigger value="boys" className="data-[state=active]:bg-medical-600 data-[state=active]:text-white data-[state=active]:shadow-sm">
               <div className="flex items-center gap-2">
-                <Baby className="w-5 h-5" /> Boy
+                <Baby className="w-5 h-5" /> {genderT("male")}
               </div>
             </TabsTrigger>
             <TabsTrigger value="girls" className="data-[state=active]:bg-medical-pink-600 data-[state=active]:text-white data-[state=active]:shadow-sm">
               <div className="flex items-center gap-2">
-                <Baby className="w-5 h-5" /> Girl
+                <Baby className="w-5 h-5" /> {genderT("female")}
               </div>
             </TabsTrigger>
           </TabsList>
@@ -109,20 +112,20 @@ export function AmbulatoryReferenceCard() {
 
         <div className="space-y-2">
           <Label htmlFor="height" className="flex items-center gap-2 font-semibold">
-            <Ruler className="w-4 h-4" /> Patient Height (cm)
+            <Ruler className="w-4 h-4" /> {t("patientHeight")}
           </Label>
           <Input
             id="height"
             type="number"
             value={height}
             onChange={(e) => setHeight(e.target.value)}
-            placeholder="e.g., 150"
+            placeholder={t("heightPlaceholder")}
             className="border-medical-100"
           />
         </div>
 
         <Button onClick={handleGenerateCard} disabled={!height} className={cn("w-full transition-all duration-300", buttonColorClass)}>
-          Generate Reference Card
+          {t("generateCard")}
         </Button>
       </div>
 
@@ -130,14 +133,14 @@ export function AmbulatoryReferenceCard() {
         <div className="mt-6 space-y-4" id="ambulatory-bp-reference-card">
           <div className="flex justify-center print:hidden">
             <Button onClick={handlePrint} variant="outline" className="flex items-center gap-2">
-              <Printer className="w-4 h-4" /> Print Card
+              <Printer className="w-4 h-4" /> {t("printCard")}
             </Button>
           </div>
 
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-4">
-                <h2 className="text-xl font-bold">ABPM Reference for a {gender === 'boys' ? 'Boy' : 'Girl'} of ~{referenceData.closestHeight}cm</h2>
-                <p className="text-sm text-gray-600">Source: Wühl et al. 2002 | Note: Values ≥95th percentile indicate ambulatory hypertension.</p>
+                <h2 className="text-xl font-bold">{t("cardTitle", { gender: gender === 'boys' ? genderT("male") : genderT("female"), height: referenceData.closestHeight })}</h2>
+                <p className="text-sm text-gray-600">{t("source")}</p>
             </div>
             {/* ✨ UPDATED TABLE WITH MATCHING UI ✨ */}
             <div className="border rounded-lg overflow-hidden">
@@ -147,17 +150,17 @@ export function AmbulatoryReferenceCard() {
                         "text-white",
                         gender === 'boys' ? "bg-medical-600" : "bg-medical-pink-600"
                       )}>
-                        <th className="p-3 font-semibold text-left">Period</th>
-                        <th className="p-3 font-semibold text-center">5th %ile</th>
-                        <th className="p-3 font-semibold text-center">50th %ile</th>
-                        <th className="p-3 font-semibold text-center">90th %ile</th>
-                        <th className="p-3 font-semibold text-center">95th %ile</th>
-                        <th className="p-3 font-semibold text-center">99th %ile</th>
+                        <th className="p-3 font-semibold text-left">{t("period")}</th>
+                        <th className="p-3 font-semibold text-center">{t("percentile5")}</th>
+                        <th className="p-3 font-semibold text-center">{t("percentile50")}</th>
+                        <th className="p-3 font-semibold text-center">{t("percentile90")}</th>
+                        <th className="p-3 font-semibold text-center">{t("percentile95")}</th>
+                        <th className="p-3 font-semibold text-center">{t("percentile99")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       <tr className="bg-white hover:bg-gray-50">
-                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Sun className="w-5 h-5 text-yellow-500"/>Daytime</td>
+                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Sun className="w-5 h-5 text-yellow-500"/>{t("daytime")}</td>
                         <td className="p-3 text-center font-mono">{referenceData.day.p5}</td>
                         <td className="p-3 text-center font-mono">{referenceData.day.p50}</td>
                         <td className="p-3 text-center font-mono">{referenceData.day.p90}</td>
@@ -165,7 +168,7 @@ export function AmbulatoryReferenceCard() {
                         <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData.day.p99}</td>
                       </tr>
                       <tr className="bg-white hover:bg-gray-50">
-                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Moon className="w-5 h-5 text-blue-500"/>Nighttime</td>
+                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Moon className="w-5 h-5 text-blue-500"/>{t("nighttime")}</td>
                         <td className="p-3 text-center font-mono">{referenceData.night.p5}</td>
                         <td className="p-3 text-center font-mono">{referenceData.night.p50}</td>
                         <td className="p-3 text-center font-mono">{referenceData.night.p90}</td>
@@ -173,7 +176,7 @@ export function AmbulatoryReferenceCard() {
                         <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData.night.p99}</td>
                       </tr>
                        <tr className="bg-white hover:bg-gray-50">
-                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Clock className="w-5 h-5 text-gray-500"/>24-Hour</td>
+                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Clock className="w-5 h-5 text-gray-500"/>{t("hour24")}</td>
                         <td className="p-3 text-center font-mono">{referenceData['24h'].p5}</td>
                         <td className="p-3 text-center font-mono">{referenceData['24h'].p50}</td>
                         <td className="p-3 text-center font-mono">{referenceData['24h'].p90}</td>

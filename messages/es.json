@@ -42,6 +42,10 @@
       "lab": {
         "title": "Referencia de Laboratorio",
         "description": "Interprete valores de laboratorio pediátricos con rangos de referencia por edad."
+      },
+      "dose": {
+        "title": "Calculadora de Dosis Pediátrica",
+        "description": "Calcula dosis seguras y efectivas de medicamentos para niños basadas en peso y edad."
       }
     },
     "premiumFeatures": {
@@ -58,6 +62,7 @@
   },
   "GrowthForm": {
     "title": "Calculadora de Percentiles de Crecimiento",
+    "description": "Calcula y rastrea mediciones de crecimiento usando estándares WHO, CDC e INTERGROWTH-21st",
     "gender": {
       "male": "Niño",
       "female": "Niña"
@@ -166,14 +171,16 @@
   },
   "BloodPressureCalculator": {
     "title": "Calculadora de Presión Arterial",
-    "description": "Calcule percentiles de presión arterial pediátrica usando las guías AAP 2017 (Edades 1 año - 17 años)",
+    "description": "Calcula percentiles de presión arterial pediátrica usando guías AAP 2017 (Edades 1 año - 17 años)",
     "gender": {
       "male": "Niño",
       "female": "Niña"
     },
     "form": {
+      "bpSection": "Mediciones de Presión Arterial (Opcional)",
       "height": "Altura (cm)",
       "heightPlaceholder": "150",
+      "heightRequired": "La estatura es requerida",
       "systolicBP": "Presión Sistólica (mmHg)",
       "systolicPlaceholder": "120",
       "diastolicBP": "Presión Diastólica (mmHg)",
@@ -183,16 +190,30 @@
       "selectGender": "Por favor seleccione un género",
       "dobRequired": "La fecha de nacimiento es requerida",
       "measurementRequired": "La fecha de medición es requerida",
+      "heightRequired": "La estatura es requerida",
       "heightInvalid": "Por favor ingrese una altura válida en cm",
       "systolicRange": "La presión sistólica debe estar entre 50-250 mmHg",
       "diastolicRange": "La presión diastólica debe estar entre 30-150 mmHg",
       "systolicHigher": "La presión sistólica debe ser mayor que la diastólica",
-      "ageRange": "La edad del paciente debe estar entre 1 y 17 años al momento de la medición."
+      "ageRange": "La edad del paciente debe estar entre 1 y 17 años al momento de la medición.",
+      "bpBothRequired": "Se requieren ambos valores de presión arterial o ninguno"
     },
     "alerts": {
       "startHere": {
         "title": "Comience Aquí",
         "description": "Por favor seleccione tanto una fecha de nacimiento como una fecha de medición para comenzar."
+      },
+      "ageOptional": {
+        "title": "La Edad es Opcional",
+        "description": "Si no conoce la edad del paciente, aún puede obtener valores de referencia usando solo la estatura."
+      },
+      "bpOptional": {
+        "title": "La Presión Arterial es Opcional",
+        "description": "Se requieren tanto los valores sistólicos como diastólicos para el análisis de PA. Deje vacío para mostrar solo valores de referencia."
+      },
+      "incompleteBP": {
+        "title": "Presión Arterial Incompleta",
+        "description": "Por favor proporcione tanto valores sistólicos como diastólicos, o deje ambos vacíos."
       },
       "invalidAge": {
         "title": "Rango de Edad Inválido",
@@ -201,6 +222,11 @@
       "invalidBP": {
         "title": "Presión Arterial Inválida",
         "description": "La presión sistólica debe ser mayor que la diastólica. Actual: {systolic}/{diastolic} - Por favor revise sus valores."
+      },
+      "bpOutOfRange": {
+        "title": "Valores de Presión Arterial Fuera del Rango",
+        "systolicRange": "La presión sistólica debe estar entre 50-250 mmHg (actual: {value})",
+        "diastolicRange": "La presión diastólica debe estar entre 30-150 mmHg (actual: {value})"
       }
     },
     "info": {
@@ -291,7 +317,43 @@
     },
     "button": {
       "calculate": "Calcular Presión Arterial",
-      "calculating": "Calculando..."
+      "calculating": "Calculando...",
+      "showReference": "Mostrar Valores de Referencia"
+    },
+    "tabs": {
+      "calculator": "Calculadora PA",
+      "bedside": "Tarjeta PA Ambulatoria"
+    },
+    "officeBPReference": {
+      "title": "Referencia de PA de Consultorio",
+      "subtitle": "Para un {gender} de {age} años con una altura de {height}cm ({percentile} percentil).",
+      "subtitleHeightOnly": "Niño/a de {height} cm de estatura (edad estimada: {ageRange} años)",
+      "heightOnlyWarning": "Valores estimados basados en estatura. Para mayor precisión, proporcione la edad exacta.",
+      "print": "Imprimir",
+      "age": "Edad",
+      "years": "años",
+      "milestone": "Hito",
+      "bpValue": "Valor de PA (mmHg)",
+      "clinicalMeaning": "Significado Clínico",
+      "percentile3": "3º Percentil",
+      "percentile5": "5º Percentil",
+      "percentile10": "10º Percentil",
+      "percentile50": "50º Percentil",
+      "percentile90": "90º Percentil",
+      "percentile95": "95º Percentil",
+      "stage2Threshold": "95º %ile + 12mmHg",
+      "criticalHypotension": "Hipotensión Crítica",
+      "severeHypotension": "Hipotensión Severa",
+      "mildHypotension": "Hipotensión Leve",
+      "averageBP": "La PA promedio estadística para este paciente.",
+      "elevatedBP": "La PA Elevada comienza en este valor.",
+      "stage1Hypertension": "La Hipertensión Etapa 1 comienza en este valor.",
+      "stage2Hypertension": "La Hipertensión Etapa 2 comienza en este valor.",
+      "footer": "Estos umbrales se calculan basándose en las guías AAP 2017, ajustados para la edad, género y percentil de altura específicos de este paciente.",
+      "heightAdjustment": "Valores ajustados por percentil de estatura ({percentile}%)",
+      "heightOnlyDisclaimer": "Valores aproximados basados en estatura. La edad exacta proporcionaría mayor precisión.",
+      "hypotensionNote": "Los percentiles más bajos ayudan a identificar hipotensión y asegurar una evaluación clínica integral.",
+      "dataSource": "Los percentiles de estatura se calculan utilizando estándares de crecimiento CDC cuando están disponibles."
     }
   },
   "PatientSelector": {
@@ -771,6 +833,7 @@
   },
   "BMICalculator": {
     "title": "Calculadora de IMC",
+    "description": "Calcula el Índice de Masa Corporal y rastrea percentiles de IMC para pacientes pediátricos",
     "gender": {
       "male": "Niño",
       "female": "Niña"
@@ -821,8 +884,60 @@
       "graph": "Graficar"
     }
   },
+  "LabCalculator": {
+    "title": "Calculadora de Referencia de Laboratorio",
+    "description": "Interpreta valores de laboratorio pediátricos con rangos de referencia basados en edad",
+    "noResults": "Por favor ingrese valores de laboratorio e información del paciente para ver los resultados.",
+    "resultsTitle": "Análisis de Resultados de Laboratorio",
+    "premium": "Premium",
+    "basic": "Conjunto Básico",
+    "criticalValues": "Valores Críticos Detectados:",
+    "result": "resultado",
+    "criticalResultsAttention": "resultado(s) requieren atención inmediata.",
+    "basicPlan": "El plan básico incluye pruebas de laboratorio comunes. Actualice a Premium para el conjunto completo de referencias Harriet Lane con más de 200 pruebas especializadas.",
+    "completeHarrietLaneReferenceDataset": "conjunto completo de referencias Harriet Lane",
+    "with200SpecializedTests": "con más de 200 pruebas especializadas",
+    "patientInfo": "Información del Paciente",
+    "searchPatient": "Buscar Paciente",
+    "patientInfoHint": "Ingrese la información del paciente para calcular los rangos de referencia apropiados para la edad.",
+    "gender": "Género",
+    "selectGender": "Seleccione género",
+    "male": "Niño",
+    "female": "Niña",
+    "labValues": "Valores de Laboratorio",
+    "addLabValue": "Agregar Valor de Laboratorio",
+    "manualEntry": "Entrada Manual",
+    "commonTests": "Pruebas Comunes",
+    "testName": "Nombre de la Prueba",
+    "selectTest": "Seleccione prueba",
+    "value": "Valor",
+    "enterValue": "Ingrese valor",
+    "unit": "Unidad",
+    "example": "ej., mg/dL",
+    "remove": "Eliminar",
+    "ageGroup": "Grupo de Edad",
+    "referenceDataSources": "Fuentes de Datos de Referencia:",
+    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorios CHOP",
+    "childrensHospitalOfPhiladelphia": "Hospital Infantil de Filadelfia",
+    "disclaimer": "Aviso:",
+    "disclaimerText": "Los valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden variar según la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
+    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados",
+    "compiledFromMultipleSources": "compilados de múltiples fuentes",
+    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar",
+    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "según la edad, sexo, condición clínica y metodología de laboratorio utilizada",
+    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio",
+    "referenceRange": "Rango de Referencia",
+    "patientValue": "Valor del Paciente",
+    "interpretation": "Interpretación",
+    "interpretationNormal": "Dentro de los límites normales",
+    "interpretationLow": "Por debajo del rango de referencia",
+    "interpretationHigh": "Por encima del rango de referencia",
+    "interpretationCritical": "Valor crítico - requiere atención inmediata",
+    "interpretationUnknown": "Rango de referencia no disponible"
+  },
   "DoseCalculator": {
     "title": "Calculadora de Dosis",
+    "description": "Calcula dosis de medicamentos basadas en peso, edad y parámetros clínicos",
     "subtitle": "Seleccione un método de dosificación y calcule dosis de medicamentos según los parámetros del paciente",
     "methods": {
       "weight": {
@@ -934,74 +1049,177 @@
       "placeholder": "Ingrese la concentración"
     }
   },
-  "LabCalculator": {
-    "noResults": "Por favor ingrese valores de laboratorio e información del paciente para ver los resultados.",
-    "resultsTitle": "Análisis de Resultados de Laboratorio",
-    "premium": "Premium",
-    "basic": "Conjunto Básico",
-    "criticalValues": "Valores Críticos Detectados:",
-    "result": "resultado",
-    "criticalResultsAttention": "resultado(s) requieren atención inmediata.",
-    "basicPlan": "El plan básico incluye pruebas de laboratorio comunes. Actualice a Premium para el conjunto completo de referencias Harriet Lane con más de 200 pruebas especializadas.",
-    "completeHarrietLaneReferenceDataset": "conjunto completo de referencias Harriet Lane",
-    "with200SpecializedTests": "con más de 200 pruebas especializadas",
-    "patientInfo": "Información del Paciente",
-    "searchPatient": "Buscar Paciente",
-    "patientInfoHint": "Ingrese la información del paciente para calcular los rangos de referencia apropiados para la edad.",
-    "gender": "Género",
-    "selectGender": "Seleccione género",
-    "male": "Niño",
-    "female": "Niña",
-    "labValues": "Valores de Laboratorio",
-    "addLabValue": "Agregar Valor de Laboratorio",
-    "manualEntry": "Entrada Manual",
-    "commonTests": "Pruebas Comunes",
-    "testName": "Nombre de la Prueba",
-    "selectTest": "Seleccione prueba",
-    "value": "Valor",
-    "enterValue": "Ingrese valor",
-    "unit": "Unidad",
-    "example": "ej., mg/dL",
-    "remove": "Eliminar",
-    "ageGroup": "Grupo de Edad",
-    "referenceDataSources": "Fuentes de Datos de Referencia:",
-    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorios CHOP",
-    "childrensHospitalOfPhiladelphia": "Hospital Infantil de Filadelfia",
-    "disclaimer": "Aviso:",
-    "disclaimerText": "Los valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden variar según la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
-    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados",
-    "compiledFromMultipleSources": "compilados de múltiples fuentes",
-    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar",
-    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "según la edad, sexo, condición clínica y metodología de laboratorio utilizada",
-    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio",
-    "referenceRange": "Rango de Referencia",
-    "patientValue": "Valor del Paciente",
-    "interpretation": "Interpretación",
-    "interpretationNormal": "Dentro de los límites normales",
-    "interpretationLow": "Por debajo del rango de referencia",
-    "interpretationHigh": "Por encima del rango de referencia",
-    "interpretationCritical": "Valor crítico - requiere atención inmediata",
-    "interpretationUnknown": "Rango de referencia no disponible"
-  },
   "BilirubinCalculator": {
+    "title": "Calculadora de Umbrales de Bilirrubina",
+    "description": "Evalúa la hiperbilirrubinemia y determina la necesidad de fototerapia para recién nacidos ≥35 semanas de gestación (AAP 2022).",
+    "form": {
+      "dateInputs": {
+        "birthDateTime": "Fecha y Hora de Nacimiento",
+        "measurementDateTime": "Fecha y Hora de Medición",
+        "pickDate": "Elegir fecha",
+        "time": "Hora",
+        "noValidTimes": "No hay horas válidas disponibles para esta fecha"
+      },
+      "patientData": {
+        "title": "Datos del Paciente y Factores de Riesgo",
+        "totalBilirubin": "Bilirrubina Sérica Total (mg/dL)",
+        "totalBilirubinPlaceholder": "ej., 15.2",
+        "gestationalAge": "Edad Gestacional al Nacer",
+        "gestationalAgePlaceholder": "Elegir semanas...",
+        "ETCOc": "ETCOc (ppm) - Opcional",
+        "ETCOcPlaceholder": "ej., 1.2",
+        "neurotoxicityRiskFactors": "Factores de Riesgo de Neurotoxicidad"
+      },
+      "gestationalAgeOptions": {
+        "35weeks": "35 semanas",
+        "36weeks": "36 semanas",
+        "37weeks": "37 semanas",
+        "38weeks": "38 semanas",
+        "39weeks": "39 semanas",
+        "40weeks": "40+ semanas"
+      }
+    },
+    "validation": {
+      "dateTimeRequired": {
+        "birth": "Se requiere fecha y hora de nacimiento",
+        "measurement": "Se requiere fecha y hora de medición"
+      },
+      "bilirubinValidation": {
+        "validLevel": "Ingrese un nivel válido de bilirrubina",
+        "tooHigh": "El nivel de bilirrubina parece demasiado alto. Verifique el valor (rango normal: 0.1-30 mg/dL)",
+        "tooLow": "El nivel de bilirrubina parece demasiado bajo. Verifique el valor (mínimo: 0.1 mg/dL)"
+      },
+      "gestationalAgeValidation": {
+        "required": "Por favor seleccione una edad gestacional",
+        "minimum": "Debe ser ≥35 semanas"
+      },
+      "timeValidation": {
+        "measurementAfterBirth": "La hora de medición debe ser posterior a la hora de nacimiento",
+        "ageRange": "La edad al momento de la medición debe estar entre 12 y 336 horas (14 días). Las guías AAP 2022 no proporcionan datos fuera de este rango."
+      }
+    },
+    "alerts": {
+      "ageValidation": {
+        "tooYoung": {
+          "title": "Edad demasiado joven:",
+          "description": "El bebé tiene solo {hours} horas de edad. Las guías AAP 2022 solo proporcionan recomendaciones para bebés ≥12 horas de edad. Espere hasta que el bebé tenga al menos 12 horas antes de usar esta calculadora."
+        },
+        "tooOld": {
+          "title": "Edad demasiado avanzada:",
+          "description": "El bebé tiene {hours} horas de edad ({days} días). Las guías AAP 2022 solo proporcionan recomendaciones hasta 336 horas (14 días) de edad. Consulte con un pediatra para bebés mayores de 14 días."
+        },
+        "validAge": {
+          "description": "Edad calculada al momento de la medición: {hours} horas."
+        }
+      }
+    },
+    "results": {
+      "patientSummary": {
+        "title": "Resumen del Paciente",
+        "ageAtSampling": "Edad al tomar la muestra:",
+        "totalBilirubin": "Bilirrubina Total:",
+        "gestationalAge": "Edad Gestacional (EG):",
+        "ETCOc": "ETCOc:",
+        "neurotoxicityRiskFactors": "Factores de Riesgo de Neurotoxicidad Presentes:",
+        "notProvided": "No proporcionado",
+        "yes": "Sí",
+        "no": "No"
+      },
+      "recommendations": {
+        "title": "Recomendaciones",
+        "interventions": {
+          "intervention": "Intervención",
+          "recommendation": "Recomendación",
+          "threshold": "Umbral",
+          "confirmTSB": "Si usa TcB, ¿confirmar con TSB?",
+          "phototherapy": "¿Fototerapia?",
+          "escalationOfCare": "¿Escalamiento de Atención?",
+          "exchangeTransfusion": "¿Exanguinotransfusión?"
+        },
+        "actions": {
+          "yes": "Sí",
+          "no": "No",
+          "consider": "Considerar"
+        }
+      },
+      "clinicalActionPlan": {
+        "title": "Plan de Acción Clínica",
+        "urgentExchangeTransfusion": {
+          "title": "URGENTE - Exanguinotransfusión",
+          "description": "Consultar neonatólogo inmediatamente. Continuar fototerapia intensiva."
+        },
+        "escalationRequired": {
+          "title": "Escalamiento Requerido",
+          "description": "Fototerapia intensiva. Considerar consulta de neonatología. Revisar en 4-6h."
+        },
+        "startPhototherapy": {
+          "title": "Iniciar Fototerapia",
+          "description": "Comenzar inmediatamente. Monitorear hidratación. Revisar en 12-24h."
+        },
+        "closeMonitoring": {
+          "title": "Monitoreo Estrecho",
+          "description": "Acercándose al umbral. Revisar en 12-24h o ante preocupaciones clínicas."
+        },
+        "routineCare": {
+          "title": "Cuidado de Rutina",
+          "description": "Niveles aceptables. Continuar cuidado estándar del recién nacido."
+        },
+        "nextSteps": {
+          "title": "Próximos Pasos",
+          "recheckQ4_6h": "• Revisar bilirrubina c/4-6h",
+          "vitalSigns": "• Monitoreo de signos vitales",
+          "neuroChecks": "• Evaluaciones neurológicas c/2-4h",
+          "recheck12_24h": "• Revisar bilirrubina 12-24h",
+          "monitorHydration": "• Monitorear hidratación",
+          "assessFeeding": "• Evaluar alimentación",
+          "followUp24_48h": "• Seguimiento 24-48h",
+          "monitorFeedingOutput": "• Monitorear alimentación/eliminación",
+          "watchJaundice": "• Observar progresión de ictericia"
+        },
+        "keyPoints": {
+          "title": "Puntos Clave",
+          "riskFactorsPresent": "• Factores de riesgo presentes",
+          "earlyOnset": "• Inicio temprano - verificar hemólisis",
+          "confirmTcB": "• Confirmar TcB con TSB",
+          "ensureFeeding": "• Asegurar alimentación adecuada",
+          "parentEducation": "• Educación parental sobre monitoreo"
+        },
+        "riskFactorAlert": {
+          "title": "Factores de Riesgo Presentes",
+          "description": "Considerar umbrales de intervención más bajos y mayor frecuencia de monitoreo."
+        }
+      },
+      "chart": {
+        "title": "Umbrales Bilirrubina",
+        "riskStatus": {
+          "exchangeTransfusionRequired": "Exanguinotransfusión Requerida",
+          "escalationOfCareRequired": "Escalamiento de Atención Requerido",
+          "phototherapyRequired": "Fototerapia Requerida",
+          "belowTreatmentThreshold": "Por Debajo del Umbral de Tratamiento"
+        },
+        "patientInfo": "@ {hours} horas | EG: {weeks} semanas | Factores de riesgo neurotóx: {riskFactors}",
+        "dataSource": "Basado en las Guías de Práctica Clínica AAP 2022 para Hiperbilirrubinemia",
+        "thresholdLines": {
+          "phototherapy": "Fototerapia",
+          "escalationOfCare": "Escalamiento de Atención",
+          "exchangeTransfusion": "Exanguinotransfusión",
+          "patient": "Paciente"
+        },
+        "tooltip": {
+          "age": "Edad: {hours} horas",
+          "mgPerDL": "mg/dL"
+        }
+      }
+    },
     "riskFactors": {
       "isoimmuneDisease": "Enfermedad hemolítica isoinmune",
       "g6pdDeficiency": "Deficiencia de G6PD",
       "asphyxia": "Asfixia significativa",
       "lethargy": "Letargo significativo",
-      "temperatureInstability": "Inestabilidad térmica",
+      "temperatureInstability": "Inestabilidad de temperatura",
       "sepsis": "Sepsis",
       "acidosis": "Acidosis",
       "lowAlbumen": "Albúmina < 3.0 g/dL"
-    },
-    "riskCategories": {
-      "lowerRisk": "riesgo bajo",
-      "mediumRisk": "riesgo intermedio",
-      "higherRisk": "riesgo alto"
-    },
-    "results": {
-      "phototherapyRecommended": "Fototerapia Recomendada",
-      "phototherapyNotRecommended": "Fototerapia No Recomendada"
     },
     "buttons": {
       "calculate": "Calcular Umbral",

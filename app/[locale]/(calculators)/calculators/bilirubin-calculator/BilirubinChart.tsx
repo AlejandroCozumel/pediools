@@ -18,6 +18,7 @@ import {
 import annotationPlugin from "chartjs-plugin-annotation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 ChartJS.register(
   CategoryScale,
@@ -106,6 +107,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
   phototherapyThresholds,
   exchangeTransfusionThresholds,
 }) => {
+  const t = useTranslations("BilirubinCalculator");
   const chartRef = useRef<ChartJS<"line"> | null>(null);
   const [tooltipState, setTooltipState] = useState<CustomHtmlTooltipProps>({
     visible: false,
@@ -178,7 +180,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
 
     const datasets: ChartDataset<"line">[] = [
       {
-        label: "Phototherapy",
+        label: t("results.chart.thresholdLines.phototherapy"),
         data: phototherapyData,
         borderColor: "#00BCD4", // Cyan - similar to bilitool
         backgroundColor: "rgba(0, 188, 212, 0.1)",
@@ -188,7 +190,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         tension: 0.4,
       },
       {
-        label: "Escalation of Care",
+        label: t("results.chart.thresholdLines.escalationOfCare"),
         data: escalationData,
         borderColor: "#FFC107", // Amber - similar to bilitool
         backgroundColor: "rgba(255, 193, 7, 0.1)",
@@ -198,7 +200,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         tension: 0.4,
       },
       {
-        label: "Exchange Transfusion",
+        label: t("results.chart.thresholdLines.exchangeTransfusion"),
         data: exchangeData,
         borderColor: "#F44336", // Red - similar to bilitool
         backgroundColor: "rgba(244, 67, 54, 0.1)",
@@ -208,7 +210,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         tension: 0.4,
       },
       {
-        label: "Patient",
+        label: t("results.chart.thresholdLines.patient"),
         data: [{
           x: results.ageInHours,
           y: results.totalBilirubin
@@ -232,7 +234,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       chartData: { datasets },
       patientPoint,
     };
-  }, [results, phototherapyThresholds, exchangeTransfusionThresholds]);
+  }, [results, phototherapyThresholds, exchangeTransfusionThresholds, t]);
 
   // Custom tooltip handler
   const externalTooltipHandler = useCallback(
@@ -256,19 +258,19 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         return;
       }
 
-      const title = `Age: ${Math.round(hour)} hours`;
+      const title = t("results.chart.tooltip.age", { hours: Math.round(hour) });
       const dataPoints: CustomTooltipDataPoint[] = [];
 
       // Add threshold values at this hour
       const datasets = chart.data.datasets;
       datasets.forEach((dataset, index) => {
-        if (dataset.label === "Patient") {
+        if (dataset.label === t("results.chart.thresholdLines.patient")) {
           // Check if patient point is close to hover position
           const patientHour = results.ageInHours;
           if (Math.abs(patientHour - hour) < 6) { // Within 6 hours tolerance
             dataPoints.push({
-              label: "Patient",
-              value: `${results.totalBilirubin.toFixed(1)} mg/dL`,
+              label: t("results.chart.thresholdLines.patient"),
+              value: `${results.totalBilirubin.toFixed(1)} ${t("results.chart.tooltip.mgPerDL")}`,
               color: "#DC2626", // Red like your growth charts
               isPatient: true,
             });
@@ -301,7 +303,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
 
             dataPoints.push({
               label: dataset.label || "",
-              value: `${value.toFixed(1)} mg/dL`,
+              value: `${value.toFixed(1)} ${t("results.chart.tooltip.mgPerDL")}`,
               color: dataset.borderColor as string,
               isPatient: false,
             });
@@ -325,7 +327,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         dataPoints,
       });
     },
-    [results]
+    [results, t]
   );
 
   // Chart options
@@ -340,7 +342,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         max: 336,
         title: {
           display: true,
-          text: "Age (hours)",
+          text: t("results.chart.tooltip.age", { hours: "" }).replace(": ", " (hours)"),
           font: { size: 14 },
           color: "#374151",
         },
@@ -364,7 +366,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         max: 30,
         title: {
           display: true,
-          text: "Total Bilirubin (mg/dL)",
+          text: `Total Bilirubin (${t("results.chart.tooltip.mgPerDL")})`,
           font: { size: 14 },
           color: "#374151",
         },
@@ -434,7 +436,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       line: { tension: 0.4 },
       point: { hoverRadius: 8 },
     },
-  }), [results, externalTooltipHandler]);
+  }), [results, externalTooltipHandler, t]);
 
   const getRiskStatusColor = () => {
     if (results.totalBilirubin >= results.exchangeTransfusionThreshold) {
@@ -450,13 +452,13 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
 
   const getRiskStatusText = () => {
     if (results.totalBilirubin >= results.exchangeTransfusionThreshold) {
-      return "Exchange Transfusion Required";
+      return t("results.chart.riskStatus.exchangeTransfusionRequired");
     } else if (results.totalBilirubin >= results.escalationOfCareThreshold) {
-      return "Escalation of Care Required";
+      return t("results.chart.riskStatus.escalationOfCareRequired");
     } else if (results.totalBilirubin >= results.phototherapyThreshold) {
-      return "Phototherapy Required";
+      return t("results.chart.riskStatus.phototherapyRequired");
     } else {
-      return "Below Treatment Threshold";
+      return t("results.chart.riskStatus.belowTreatmentThreshold");
     }
   };
 
@@ -465,16 +467,18 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       <CardHeader className="flex flex-col gap-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-xl font-semibold text-gray-800">
-            BiliGraph Thresholds
+            {t("results.chart.title")}
           </CardTitle>
           <Badge className={`${getRiskStatusColor()} font-semibold`}>
             {getRiskStatusText()}
           </Badge>
         </div>
         <div className="text-sm text-gray-600 mt-2">
-          <span className="font-medium">{results.totalBilirubin} mg/dL</span> @ <span className="font-medium">{results.ageInHours} hours</span> |
-          GA: <span className="font-medium">{results.gestationalAge} weeks</span> |
-          Neurotox risk factors: <span className="font-medium">{results.hasRiskFactors ? "Yes" : "No"}</span>
+          {t("results.chart.patientInfo", {
+            hours: results.ageInHours,
+            weeks: results.gestationalAge,
+            riskFactors: results.hasRiskFactors ? t("results.patientSummary.yes") : t("results.patientSummary.no")
+          }).replace("{mg/dL}", `${results.totalBilirubin} mg/dL`)}
         </div>
       </CardHeader>
       <CardContent className="relative">
@@ -487,7 +491,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
           <CustomHtmlTooltip {...tooltipState} />
         </div>
         <div className="mt-4 text-xs text-gray-500 text-center">
-          Based on AAP 2022 Clinical Practice Guidelines for Hyperbilirubinemia
+          {t("results.chart.dataSource")}
         </div>
       </CardContent>
     </Card>

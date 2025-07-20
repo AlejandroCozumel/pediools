@@ -42,6 +42,10 @@
       "lab": {
         "title": "Lab Reference",
         "description": "Interpret pediatric lab values with age-based reference ranges."
+      },
+      "dose": {
+        "title": "Pediatric Dose Calculator",
+        "description": "Calculate safe and effective medication doses for children based on weight and age."
       }
     },
     "premiumFeatures": {
@@ -58,6 +62,7 @@
   },
   "GrowthForm": {
     "title": "Growth Percentile Calculator",
+    "description": "Calculate and track growth measurements using WHO, CDC, and INTERGROWTH-21st standards",
     "gender": {
       "male": "Boy",
       "female": "Girl"
@@ -172,8 +177,10 @@
       "female": "Girl"
     },
     "form": {
+      "bpSection": "Blood Pressure Measurements (Optional)",
       "height": "Height (cm)",
       "heightPlaceholder": "150",
+      "heightRequired": "Height is required",
       "systolicBP": "Systolic BP (mmHg)",
       "systolicPlaceholder": "120",
       "diastolicBP": "Diastolic BP (mmHg)",
@@ -183,24 +190,43 @@
       "selectGender": "Please select a gender",
       "dobRequired": "Date of birth is required",
       "measurementRequired": "Measurement date is required",
+      "heightRequired": "Height is required",
       "heightInvalid": "Please enter a valid height in cm",
-      "systolicRange": "Systolic BP must be between 50-250 mmHg",
-      "diastolicRange": "Diastolic BP must be between 30-150 mmHg",
-      "systolicHigher": "Systolic BP must be higher than diastolic BP",
-      "ageRange": "Patient age must be between 1 and 17 years at the time of measurement."
+      "systolicRange": "Systolic pressure must be between 50-250 mmHg",
+      "diastolicRange": "Diastolic pressure must be between 30-150 mmHg",
+      "systolicHigher": "Systolic pressure must be higher than diastolic",
+      "ageRange": "Patient age must be between 1 and 17 years at time of measurement.",
+      "bpBothRequired": "Both blood pressure values are required or neither"
     },
     "alerts": {
       "startHere": {
         "title": "Start Here",
-        "description": "Please select both a date of birth and a date of measurement to begin."
+        "description": "Please select both a birth date and measurement date to begin."
+      },
+      "ageOptional": {
+        "title": "Age is Optional",
+        "description": "If you don't know the patient's age, you can still get reference values using height only."
+      },
+      "bpOptional": {
+        "title": "Blood Pressure is Optional",
+        "description": "Both systolic and diastolic values are required for BP analysis. Leave empty to show reference values only."
+      },
+      "incompleteBP": {
+        "title": "Incomplete Blood Pressure",
+        "description": "Please provide both systolic and diastolic values, or leave both empty."
       },
       "invalidAge": {
         "title": "Invalid Age Range",
-        "description": "Please select a date of birth and measurement date so that the patient is between 1 and 17 years old at the time of measurement."
+        "description": "Please select birth and measurement dates so the patient is between 1 and 17 years old at measurement time."
       },
       "invalidBP": {
         "title": "Invalid Blood Pressure",
-        "description": "Systolic pressure must be higher than diastolic pressure. Current: {systolic}/{diastolic} - Please check your values."
+        "description": "Systolic pressure must be higher than diastolic. Current: {systolic}/{diastolic} - Please check your values."
+      },
+      "bpOutOfRange": {
+        "title": "Blood Pressure Values Out of Range",
+        "systolicRange": "Systolic pressure must be between 50-250 mmHg (current: {value})",
+        "diastolicRange": "Diastolic pressure must be between 30-150 mmHg (current: {value})"
       }
     },
     "info": {
@@ -234,9 +260,9 @@
       },
       "clinicalInterpretation": {
         "title": "Clinical Interpretation",
-        "currentBP": "Current BP:",
-        "classification": "Classification: Based on the higher percentile (systolic: {systolic}%, diastolic: {diastolic}%)",
-        "heightAdjustment": "Height adjustment: Applied based on {height}th percentile height"
+        "currentBP": "Current Blood Pressure:",
+        "classification": "Classification: Based on highest percentile (systolic: {systolic}%, diastolic: {diastolic}%)",
+        "heightAdjustment": "Height adjustment: Applied based on {height} height percentile"
       },
       "referenceRanges": {
         "title": "Reference Ranges for Age {age} ({gender})",
@@ -259,7 +285,7 @@
         "adolescentDescription": "<120/<80 mmHg"
       },
       "elevated": {
-        "category": "Elevated BP",
+        "category": "Elevated Blood Pressure",
         "description": "{description} - {action}",
         "pediatricDescription": "90th-95th percentile",
         "pediatricAction": "Monitoring recommended",
@@ -269,7 +295,7 @@
         "diastolicReason": "Your child's diastolic pressure is elevated."
       },
       "stage1": {
-        "category": "Stage 1 HTN",
+        "category": "Stage 1 Hypertension",
         "description": "{description} - {action}",
         "pediatricDescription": "≥95th percentile",
         "pediatricAction": "Requires medical evaluation",
@@ -277,7 +303,7 @@
         "adolescentAction": "Lifestyle modifications and monitoring needed"
       },
       "stage2": {
-        "category": "Stage 2 HTN",
+        "category": "Stage 2 Hypertension",
         "description": "{description} - Requires immediate medical attention",
         "pediatricDescription": "≥95th percentile + 12mmHg or ≥140/90",
         "adolescentDescription": "≥140/90 mmHg"
@@ -291,7 +317,43 @@
     },
     "button": {
       "calculate": "Calculate Blood Pressure",
-      "calculating": "Calculating..."
+      "calculating": "Calculating...",
+      "showReference": "Show Reference Values"
+    },
+    "tabs": {
+      "calculator": "BP Calculator",
+      "bedside": "Ambulatory BP Card"
+    },
+    "officeBPReference": {
+      "title": "Office BP Reference",
+      "subtitle": "For a {age}-year-old {gender} with height {height}cm ({percentile} percentile).",
+      "subtitleHeightOnly": "Child with height {height}cm (estimated age: {ageRange} years)",
+      "heightOnlyWarning": "Values estimated based on height. For greater accuracy, provide exact age.",
+      "print": "Print",
+      "age": "Age",
+      "years": "years",
+      "milestone": "Milestone",
+      "bpValue": "BP Value (mmHg)",
+      "clinicalMeaning": "Clinical Meaning",
+      "percentile3": "3rd Percentile",
+      "percentile5": "5th Percentile",
+      "percentile10": "10th Percentile",
+      "percentile50": "50th Percentile",
+      "percentile90": "90th Percentile",
+      "percentile95": "95th Percentile",
+      "stage2Threshold": "95th %ile + 12mmHg",
+      "criticalHypotension": "Critical Hypotension",
+      "severeHypotension": "Severe Hypotension",
+      "mildHypotension": "Mild Hypotension",
+      "averageBP": "Average statistical BP for this patient.",
+      "elevatedBP": "Elevated BP begins at this value.",
+      "stage1Hypertension": "Stage 1 Hypertension begins at this value.",
+      "stage2Hypertension": "Stage 2 Hypertension begins at this value.",
+      "footer": "These thresholds are calculated based on 2017 AAP guidelines, adjusted for this patient's specific age, gender, and height percentile.",
+      "heightAdjustment": "Values adjusted for height percentile ({percentile}%)",
+      "heightOnlyDisclaimer": "Approximate values based on height. Exact age would provide greater accuracy.",
+      "hypotensionNote": "Lower percentiles help identify hypotension and ensure comprehensive clinical assessment.",
+      "dataSource": "Height percentiles calculated using CDC growth standards when available."
     }
   },
   "PatientSelector": {
@@ -781,6 +843,7 @@
   },
   "BMICalculator": {
     "title": "BMI Calculator",
+    "description": "Calculate Body Mass Index and track BMI percentiles for pediatric patients",
     "gender": {
       "male": "Boy",
       "female": "Girl"
@@ -810,7 +873,7 @@
     "validation": {
       "selectDob": "Please select a Date of Birth to enter measurements",
       "whoAgeError": "WHO BMI Standard is only valid for 0-24 months.",
-      "cdcAgeError": "CDC BMI Standard is only valid for 2ars (24-240 months)."
+      "cdcAgeError": "CDC BMI Standard is only valid for 2-20 years (24-240 months)."
     },
     "alerts": {
       "invalidStandard": {
@@ -823,7 +886,7 @@
       "referenceRange": "Reference range for age/sex/standard:",
       "dataSource": "Data source",
       "dataSources": {
-        "who": "WHO Growth Standards (ages 0 months)",
+        "who": "WHO Growth Standards (ages 0-24 months)",
         "cdc": "United States CDC Growth Charts (ages 2 to 20)"
       }
     },
@@ -831,120 +894,9 @@
       "graph": "Graph"
     }
   },
-  "DoseCalculator": {
-    "title": "Dose Calculator",
-    "subtitle": "Select a dosing method and calculate medication dosages based on patient parameters",
-    "methods": {
-      "weight": {
-        "name": "Weight-based",
-        "description": "mg/kg dosing",
-        "details": "Based only on patient weight, note: Most common pediatric dosing method"
-      },
-      "bsa": {
-        "name": "BSA-based",
-        "description": "mg/m² dosing",
-        "details": "Based on weight and height (BSA)",
-        "note": "Used for chemotherapy and high-risk medications"
-      },
-      "bsa_normalized": {
-        "name": "BSA-normalized",
-        "description": "Normalized to 1.73 m²",
-        "details": "Uses total BSA, normalized to standard adult BSA",
-        "note": "Common for renal function adjustments"
-      }
-    },
-    "weightBased": {
-      "title": "Weight-Based Dosage Prescribed",
-      "dose": {
-        "label": "Dose",
-        "placeholder": "Enter dose"
-      },
-      "doseUnit": {
-        "label": "Dose Unit",
-        "mg": "mg",
-        "ml": "l",
-        "tablet": "tablet"
-      },
-      "dosageType": {
-        "label": "Age Type",
-        "perKgPerDay": {
-          "value": "/kg/day",
-          "label": "/kg/day",
-          "description": "Per kilogram per day"
-        },
-        "perKgPerDose": {
-          "value": "/kg/dose",
-          "label": "/kg/dose",
-          "description": "Per kilogram per dose"
-        },
-        "perDay": {
-          "value": "/day",
-          "label": "/day",
-          "description": "Total per day"
-        },
-        "perDose": {
-          "value": "/dose",
-          "label": "/dose",
-          "description": "Total per dose"
-        }
-      },
-      "frequency": {
-        "label": "Frequency",
-        "options": {
-          "qD": "qD (once a day)",
-          "BID": "BID (twice a day)",
-          "TID": "TID (thrice a day)",
-          "QID": "QID (four times a day)",
-          "q4hr": "q4(every 4 hours)",
-          "q6hr": "q6(every 6 hours)",
-          "q8hr": "q8 (every8hours)"
-        }
-      },
-      "patientWeight": {
-        "label": "Patient Weight",
-        "placeholder": "Enter weight"
-      },
-      "weightUnit": {
-        "label": "Weight Unit",
-        "kg": "kg",
-        "lb": "lb"
-      },
-      "medication": {
-        "title": "Medication Information",
-        "mass": {
-          "label": "Mass",
-          "placeholder": "Enter mass"
-        },
-        "massUnit": {
-          "label": "Mass Unit",
-          "mg": "mg",
-          "g": "g"
-        },
-        "volume": {
-          "label": "Volume",
-          "placeholder": "Enter volume"
-        },
-        "volumeUnit": {
-          "label": "Volume Unit",
-          "ml": "ml",
-          "tablet": "tablet"
-        }
-      },
-      "results": {
-        "title": "Dosage Results",
-        "dailyDosage": "Daily Dosage",
-        "perDose": "Per Dose",
-        "dailyVolume": "Daily Volume",
-        "concentration": "Concentration"
-      }
-    },
-    "drugConcentration": {
-      "title": "Drug Concentration",
-      "label": "Concentration",
-      "placeholder": "Enter concentration"
-    }
-  },
   "LabCalculator": {
+    "title": "Lab Reference Calculator",
+    "description": "Interpret pediatric lab values with age-based reference ranges",
     "noResults": "Please enter lab values and patient information to see results.",
     "resultsTitle": "Lab Results Analysis",
     "premium": "Premium",
@@ -993,7 +945,282 @@
     "interpretationCritical": "Critical value - requires immediate attention",
     "interpretationUnknown": "Reference range not available"
   },
+  "DoseCalculator": {
+    "title": "Dose Calculator",
+    "description": "Calculate medication dosages based on weight, age, and clinical parameters",
+    "subtitle": "Select a dosing method and calculate medication dosages based on patient parameters",
+    "methods": {
+      "weight": {
+        "name": "Weight-based",
+        "description": "mg/kg dosing",
+        "details": "Based only on patient weight, note: Most common pediatric dosing method"
+      },
+      "bsa": {
+        "name": "BSA-based",
+        "description": "mg/m² dosing",
+        "details": "Based on weight and height (BSA)",
+        "note": "Used for chemotherapy and high-risk medications"
+      },
+      "bsa_normalized": {
+        "name": "BSA-normalized",
+        "description": "Normalized to 1.73 m²",
+        "details": "Uses total BSA, normalized to standard adult BSA",
+        "note": "Common for renal function adjustments"
+      }
+    },
+    "weightBased": {
+      "title": "Weight-Based Dosage Prescribed",
+      "dose": {
+        "label": "Dose",
+        "placeholder": "Enter dose"
+      },
+      "doseUnit": {
+        "label": "Dose Unit",
+        "mg": "mg",
+        "ml": "ml",
+        "tablet": "tablet"
+      },
+      "dosageType": {
+        "label": "Age Type",
+        "perKgPerDay": {
+          "value": "/kg/day",
+          "label": "/kg/day",
+          "description": "Per kilogram per day"
+        },
+        "perKgPerDose": {
+          "value": "/kg/dose",
+          "label": "/kg/dose",
+          "description": "Per kilogram per dose"
+        },
+        "perDay": {
+          "value": "/day",
+          "label": "/day",
+          "description": "Total per day"
+        },
+        "perDose": {
+          "value": "/dose",
+          "label": "/dose",
+          "description": "Total per dose"
+        }
+      },
+      "frequency": {
+        "label": "Frequency",
+        "options": {
+          "qD": "qD (once a day)",
+          "BID": "BID (twice a day)",
+          "TID": "TID (thrice a day)",
+          "QID": "QID (four times a day)",
+          "q4hr": "q4h (every 4 hours)",
+          "q6hr": "q6h (every 6 hours)",
+          "q8hr": "q8h (every 8 hours)"
+        }
+      },
+      "patientWeight": {
+        "label": "Patient Weight",
+        "placeholder": "Enter weight"
+      },
+      "weightUnit": {
+        "label": "Weight Unit",
+        "kg": "kg",
+        "lb": "lb"
+      },
+      "medication": {
+        "title": "Medication Information",
+        "mass": {
+          "label": "Mass",
+          "placeholder": "Enter mass"
+        },
+        "massUnit": {
+          "label": "Mass Unit",
+          "mg": "mg",
+          "g": "g"
+        },
+        "volume": {
+          "label": "Volume",
+          "placeholder": "Enter volume"
+        },
+        "volumeUnit": {
+          "label": "Volume Unit",
+          "ml": "ml",
+          "tablet": "tablet"
+        }
+      },
+      "results": {
+        "title": "Dosage Results",
+        "dailyDosage": "Daily Dosage",
+        "perDose": "Per Dose",
+        "dailyVolume": "Daily Volume",
+        "concentration": "Concentration"
+      }
+    },
+    "drugConcentration": {
+      "title": "Drug Concentration",
+      "label": "Concentration",
+      "placeholder": "Enter concentration"
+    }
+  },
   "BilirubinCalculator": {
+    "title": "Bilirubin Thresholds Calculator",
+    "description": "Assess hyperbilirubinemia and determine phototherapy need for newborns ≥35 weeks gestation (AAP 2022).",
+    "form": {
+      "dateInputs": {
+        "birthDateTime": "Date and Time of Birth",
+        "measurementDateTime": "Date and Time of Measurement",
+        "pickDate": "Pick a date",
+        "time": "Time",
+        "noValidTimes": "No valid times available for this date"
+      },
+      "patientData": {
+        "title": "Patient Data & Risk Factors",
+        "totalBilirubin": "Total Serum Bilirubin (mg/dL)",
+        "totalBilirubinPlaceholder": "e.g., 15.2",
+        "gestationalAge": "Gestational Age at Birth",
+        "gestationalAgePlaceholder": "Choose weeks...",
+        "ETCOc": "ETCOc (ppm) - Optional",
+        "ETCOcPlaceholder": "e.g., 1.2",
+        "neurotoxicityRiskFactors": "Neurotoxicity Risk Factors"
+      },
+      "gestationalAgeOptions": {
+        "35weeks": "35 weeks",
+        "36weeks": "36 weeks",
+        "37weeks": "37 weeks",
+        "38weeks": "38 weeks",
+        "39weeks": "39 weeks",
+        "40weeks": "40+ weeks"
+      }
+    },
+    "validation": {
+      "dateTimeRequired": {
+        "birth": "Date and time of birth are required",
+        "measurement": "Date and time of measurement are required"
+      },
+      "bilirubinValidation": {
+        "validLevel": "Enter a valid bilirubin level",
+        "tooHigh": "Bilirubin level seems too high. Please verify the value (normal range: 0.1-30 mg/dL)",
+        "tooLow": "Bilirubin level seems too low. Please verify the value (minimum: 0.1 mg/dL)"
+      },
+      "gestationalAgeValidation": {
+        "required": "Please select a gestational age",
+        "minimum": "Must be ≥35 weeks"
+      },
+      "timeValidation": {
+        "measurementAfterBirth": "Measurement time must be after birth time",
+        "ageRange": "Age at measurement must be between 12 and 336 hours (14 days). AAP 2022 guidelines do not provide data outside this range."
+      }
+    },
+    "alerts": {
+      "ageValidation": {
+        "tooYoung": {
+          "title": "Age too young:",
+          "description": "The baby is only {hours} hours old. AAP 2022 guidelines only provide recommendations for babies ≥12 hours old. Please wait until the baby is at least 12 hours old before using this calculator."
+        },
+        "tooOld": {
+          "title": "Age too old:",
+          "description": "The baby is {hours} hours old ({days} days). AAP 2022 guidelines only provide recommendations up to 336 hours (14 days) of age. Please consult with a pediatrician for babies older than 14 days."
+        },
+        "validAge": {
+          "description": "Calculated age at time of measurement: {hours} hours."
+        }
+      }
+    },
+    "results": {
+      "patientSummary": {
+        "title": "Patient Summary",
+        "ageAtSampling": "Age at sampling:",
+        "totalBilirubin": "Total Bilirubin:",
+        "gestationalAge": "Gestational Age (GA):",
+        "ETCOc": "ETCOc:",
+        "neurotoxicityRiskFactors": "Neurotoxicity Risk Factors Present:",
+        "notProvided": "Not provided",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "recommendations": {
+        "title": "Recommendations",
+        "interventions": {
+          "intervention": "Intervention",
+          "recommendation": "Recommendation",
+          "threshold": "Threshold",
+          "confirmTSB": "If using TcB, confirm with TSB?",
+          "phototherapy": "Phototherapy?",
+          "escalationOfCare": "Escalation of Care?",
+          "exchangeTransfusion": "Exchange Transfusion?"
+        },
+        "actions": {
+          "yes": "Yes",
+          "no": "No",
+          "consider": "Consider"
+        }
+      },
+      "clinicalActionPlan": {
+        "title": "Clinical Action Plan",
+        "urgentExchangeTransfusion": {
+          "title": "URGENT - Exchange Transfusion",
+          "description": "Consult neonatologist immediately. Continue intensive phototherapy."
+        },
+        "escalationRequired": {
+          "title": "Escalation Required",
+          "description": "Intensive phototherapy. Consider neonatology consult. Recheck in 4-6h."
+        },
+        "startPhototherapy": {
+          "title": "Start Phototherapy",
+          "description": "Begin immediately. Monitor hydration. Recheck in 12-24h."
+        },
+        "closeMonitoring": {
+          "title": "Close Monitoring",
+          "description": "Approaching threshold. Recheck in 12-24h or if clinical concerns."
+        },
+        "routineCare": {
+          "title": "Routine Care",
+          "description": "Levels acceptable. Continue standard newborn care."
+        },
+        "nextSteps": {
+          "title": "Next Steps",
+          "recheckQ4_6h": "• Recheck bilirubin q4-6h",
+          "vitalSigns": "• Vital signs monitoring",
+          "neuroChecks": "• Neuro checks q2-4h",
+          "recheck12_24h": "• Recheck bilirubin 12-24h",
+          "monitorHydration": "• Monitor hydration",
+          "assessFeeding": "• Assess feeding",
+          "followUp24_48h": "• Follow-up 24-48h",
+          "monitorFeedingOutput": "• Monitor feeding/output",
+          "watchJaundice": "• Watch jaundice progression"
+        },
+        "keyPoints": {
+          "title": "Key Points",
+          "riskFactorsPresent": "• Risk factors present",
+          "earlyOnset": "• Early onset - check hemolysis",
+          "confirmTcB": "• Confirm TcB with TSB",
+          "ensureFeeding": "• Ensure adequate feeding",
+          "parentEducation": "• Parent education on monitoring"
+        },
+        "riskFactorAlert": {
+          "title": "Risk Factors Present",
+          "description": "Consider lower intervention thresholds and increased monitoring frequency."
+        }
+      },
+      "chart": {
+        "title": "Bilirubin Thresholds",
+        "riskStatus": {
+          "exchangeTransfusionRequired": "Exchange Transfusion Required",
+          "escalationOfCareRequired": "Escalation of Care Required",
+          "phototherapyRequired": "Phototherapy Required",
+          "belowTreatmentThreshold": "Below Treatment Threshold"
+        },
+        "patientInfo": "@ {hours} hours | GA: {weeks} weeks | Neurotox risk factors: {riskFactors}",
+        "dataSource": "Based on AAP 2022 Clinical Practice Guidelines for Hyperbilirubinemia",
+        "thresholdLines": {
+          "phototherapy": "Phototherapy",
+          "escalationOfCare": "Escalation of Care",
+          "exchangeTransfusion": "Exchange Transfusion",
+          "patient": "Patient"
+        },
+        "tooltip": {
+          "age": "Age: {hours} hours",
+          "mgPerDL": "mg/dL"
+        }
+      }
+    },
     "riskFactors": {
       "isoimmuneDisease": "Isoimmune hemolytic disease",
       "g6pdDeficiency": "G6PD deficiency",
@@ -1003,15 +1230,6 @@
       "sepsis": "Sepsis",
       "acidosis": "Acidosis",
       "lowAlbumen": "Albumin < 3.0 g/dL"
-    },
-    "riskCategories": {
-      "lowerRisk": "lower risk",
-      "mediumRisk": "medium risk",
-      "higherRisk": "higher risk"
-    },
-    "results": {
-      "phototherapyRecommended": "Phototherapy is Recommended",
-      "phototherapyNotRecommended": "Phototherapy Not Recommended"
     },
     "buttons": {
       "calculate": "Calculate Threshold",

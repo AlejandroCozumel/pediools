@@ -216,10 +216,8 @@ export function BMIForm() {
         <CardTitle className="text-2xl font-heading text-medical-900">
           {t('title')}
         </CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
-      <CardDescription className="p-4 lg:p-6 pb-0 lg:pb-0">
-        {/* Optionally add a subtitle or info here */}
-      </CardDescription>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -442,7 +440,7 @@ export function BMIForm() {
                 </div>
               )}
             {/* Graph button (disabled if errors or missing fields) */}
-            <Button
+            {/* <Button
               type="button"
               className="w-full mt-6"
               disabled={
@@ -455,11 +453,10 @@ export function BMIForm() {
                 isNaN(parseFloat(height))
               }
               onClick={() => {
-                /* TODO: implement graph endpoint */
               }}
             >
               {t('buttons.graph')}
-            </Button>
+            </Button> */}
           </form>
         </Form>
         {result && (
