@@ -455,7 +455,7 @@ function calculateBPPercentile(
         color: "text-yellow-700",
         bgColor: "bg-yellow-50 border-yellow-200",
       };
-    else if (systolic < p5Systolic || diastolic < p5Diastolic)
+    else if (systolic <= p5Systolic || diastolic <= p5Diastolic)
       classification = {
         category: t("classifications.hypotension.severe.category", {
           defaultValue: "Severe Hypotension",
@@ -466,7 +466,7 @@ function calculateBPPercentile(
         color: "text-red-700",
         bgColor: "bg-red-50 border-red-200",
       };
-    else if (systolic < p10Systolic || diastolic < p10Diastolic)
+    else if (systolic <= p10Systolic || diastolic <= p10Diastolic)
       classification = {
         category: t("classifications.hypotension.mild.category", {
           defaultValue: "Mild Hypotension",

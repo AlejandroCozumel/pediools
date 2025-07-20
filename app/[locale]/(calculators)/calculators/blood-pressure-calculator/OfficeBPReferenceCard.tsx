@@ -290,6 +290,7 @@ export function OfficeBPReferenceCard({
   ): "stage2" | "p95" | "p90" | "p50" | "p10" | "p5" | "p3" | null => {
     if (!patientSys || !patientDia) return null;
 
+    // Hypertension checks...
     if (
       patientSys >= milestones.stage2.systolic ||
       patientDia >= milestones.stage2.diastolic
@@ -306,25 +307,24 @@ export function OfficeBPReferenceCard({
     )
       return "p90";
 
-    // Check hypotensive ranges before defaulting to normal.
-    // Use `<` to catch values *below* the threshold.
     if (
-      patientSys < milestones.p3.systolic ||
-      patientDia < milestones.p3.diastolic
+      patientSys <= milestones.p3.systolic ||
+      patientDia <= milestones.p3.diastolic
     )
       return "p3";
+
     if (
-      patientSys < milestones.p5.systolic ||
-      patientDia < milestones.p5.diastolic
+      patientSys <= milestones.p5.systolic ||
+      patientDia <= milestones.p5.diastolic
     )
       return "p5";
+
     if (
-      patientSys < milestones.p10.systolic ||
-      patientDia < milestones.p10.diastolic
+      patientSys <= milestones.p10.systolic ||
+      patientDia <= milestones.p10.diastolic
     )
       return "p10";
 
-    // If none of the above conditions are met, the BP is in the normal range.
     return "p50";
   };
 
