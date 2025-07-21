@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import harrietLaneData from "@/app/data/lab-philadelphia.json";
+import chopLabData from "@/app/data/lab-philadelphia.json";
 import { differenceInMonths, differenceInDays } from "date-fns";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
@@ -47,7 +47,7 @@ import {
 import DateInputs from "@/components/DateInputs";
 import { useLocale } from "next-intl";
 
-// TypeScript interfaces for Harriet Lane data
+// TypeScript interfaces for CHOP Labs data
 interface AgeRange {
   age: string;
   range: {
@@ -63,7 +63,7 @@ interface TestData {
   ageRanges: AgeRange[];
 }
 
-interface HarrietLaneData {
+interface ChopLabData {
   metadata: {
     title: string;
     description: string;
@@ -78,7 +78,7 @@ interface HarrietLaneData {
 }
 
 // Type assertion for the imported JSON
-const typedHarrietLaneData = harrietLaneData as HarrietLaneData;
+const typedChopLabData = chopLabData as ChopLabData;
 
 // Form schema for lab calculator - simplified to only what we need
 const labFormSchema = z.object({
@@ -300,21 +300,11 @@ const LabResults: React.FC<{
           >
             {t("resultsTitle")}
           </span>
-          <Badge
-            variant="secondary"
-            className={cn(
-              gender === "male"
-                ? "bg-medical-100 text-medical-700"
-                : "bg-medical-pink-100 text-medical-pink-700"
-            )}
-          >
-            {t("basic")}
-          </Badge>
         </CardTitle>
 
         {/* Critical Values Alert */}
         {criticalResults.length > 0 && (
-          <Alert className="bg-red-50 border-red-200">
+          <Alert className="!mt-4 bg-red-50 border-red-200">
             <AlertTriangle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">
               <strong>{t("criticalValues")}:</strong> {criticalResults.length}{" "}
@@ -465,11 +455,11 @@ const LabCalculatorForm: React.FC = () => {
   // Helper function to get display name based on locale
   const getDisplayName = (testKey: string) => {
     const testData =
-      typedHarrietLaneData.serumChemistries[
-        testKey as keyof typeof typedHarrietLaneData.serumChemistries
+      typedChopLabData.serumChemistries[
+        testKey as keyof typeof typedChopLabData.serumChemistries
       ] ||
-      typedHarrietLaneData.hematology[
-        testKey as keyof typeof typedHarrietLaneData.hematology
+      typedChopLabData.hematology[
+        testKey as keyof typeof typedChopLabData.hematology
       ];
 
     if (testData) {
@@ -516,7 +506,7 @@ const LabCalculatorForm: React.FC = () => {
           };
         }
 
-        // Find the test in our Harriet Lane dataset
+        // Find the test in our CHOP Labs dataset
         const testKey = labValue.testName
           .toLowerCase()
           .replace(/[^a-z0-9]/g, "_");
@@ -524,24 +514,24 @@ const LabCalculatorForm: React.FC = () => {
 
         // Search in serum chemistry first
         if (
-          typedHarrietLaneData.serumChemistries[
-            testKey as keyof typeof typedHarrietLaneData.serumChemistries
+          typedChopLabData.serumChemistries[
+            testKey as keyof typeof typedChopLabData.serumChemistries
           ]
         ) {
           testData =
-            typedHarrietLaneData.serumChemistries[
-              testKey as keyof typeof typedHarrietLaneData.serumChemistries
+            typedChopLabData.serumChemistries[
+              testKey as keyof typeof typedChopLabData.serumChemistries
             ];
         }
         // Then search in hematology
         else if (
-          typedHarrietLaneData.hematology[
-            testKey as keyof typeof typedHarrietLaneData.hematology
+          typedChopLabData.hematology[
+            testKey as keyof typeof typedChopLabData.hematology
           ]
         ) {
           testData =
-            typedHarrietLaneData.hematology[
-              testKey as keyof typeof typedHarrietLaneData.hematology
+            typedChopLabData.hematology[
+              testKey as keyof typeof typedChopLabData.hematology
             ];
         }
         // Search for common test name variations
@@ -568,11 +558,11 @@ const LabCalculatorForm: React.FC = () => {
           const mappedKey = commonMappings[testKey];
           if (mappedKey) {
             testData =
-              typedHarrietLaneData.serumChemistries[
-                mappedKey as keyof typeof typedHarrietLaneData.serumChemistries
+              typedChopLabData.serumChemistries[
+                mappedKey as keyof typeof typedChopLabData.serumChemistries
               ] ||
-              typedHarrietLaneData.hematology[
-                mappedKey as keyof typeof typedHarrietLaneData.hematology
+              typedChopLabData.hematology[
+                mappedKey as keyof typeof typedChopLabData.hematology
               ];
           }
         }
@@ -613,7 +603,7 @@ const LabCalculatorForm: React.FC = () => {
     }
   };
 
-  // Common test keys that exist in Harriet Lane data
+  // Common test keys that exist in CHOP Labs data
   const commonTestKeys = [
     "glucose",
     "creatinine",
@@ -635,11 +625,11 @@ const LabCalculatorForm: React.FC = () => {
   // Get common tests with localized names
   const commonTests = commonTestKeys.map((testKey) => {
     const testData =
-      typedHarrietLaneData.serumChemistries[
-        testKey as keyof typeof typedHarrietLaneData.serumChemistries
+      typedChopLabData.serumChemistries[
+        testKey as keyof typeof typedChopLabData.serumChemistries
       ] ||
-      typedHarrietLaneData.hematology[
-        testKey as keyof typeof typedHarrietLaneData.hematology
+      typedChopLabData.hematology[
+        testKey as keyof typeof typedChopLabData.hematology
       ];
 
     return {
@@ -658,8 +648,8 @@ const LabCalculatorForm: React.FC = () => {
   // };
 
   const allTestNames = [
-    ...Object.keys(typedHarrietLaneData.serumChemistries),
-    ...Object.keys(typedHarrietLaneData.hematology),
+    ...Object.keys(typedChopLabData.serumChemistries),
+    ...Object.keys(typedChopLabData.hematology),
   ].sort();
 
   // 1. Patient removal logic
@@ -669,10 +659,10 @@ const LabCalculatorForm: React.FC = () => {
   // ...
 
   // 2. Manual entry improvements
-  // Get all test names from Harriet Lane data
+  // Get all test names from CHOP Labs data
   // const allTestNames = [
-  //   ...Object.keys(typedHarrietLaneData.serumChemistries),
-  //   ...Object.keys(typedHarrietLaneData.hematology),
+  //   ...Object.keys(typedChopLabData.serumChemistries),
+  //   ...Object.keys(typedChopLabData.hematology),
   // ].sort();
 
   // In the manual entry section, change Test Name to a select:
@@ -873,11 +863,11 @@ const LabCalculatorForm: React.FC = () => {
                                     onValueChange={(value) => {
                                       field.onChange(value);
                                       const testData =
-                                        typedHarrietLaneData.serumChemistries[
-                                          value as keyof typeof typedHarrietLaneData.serumChemistries
+                                        typedChopLabData.serumChemistries[
+                                          value as keyof typeof typedChopLabData.serumChemistries
                                         ] ||
-                                        typedHarrietLaneData.hematology[
-                                          value as keyof typeof typedHarrietLaneData.hematology
+                                        typedChopLabData.hematology[
+                                          value as keyof typeof typedChopLabData.hematology
                                         ];
                                       if (testData) {
                                         form.setValue(
@@ -1063,6 +1053,17 @@ const LabCalculatorForm: React.FC = () => {
           <LabResults results={results} gender={gender} />
         </div>
       </CardContent>
+      <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+        <strong>{t("disclaimer")}</strong>
+        <p>{t("disclaimerText")}</p>
+        <ul className="list-disc ml-6 text-sm">
+          <li>{t("valuesAreCommonlyAcceptedReferenceRanges")}</li>
+          <li>{t("compiledFromMultipleSources")}</li>
+          <li>{t("patientSpecificGoalsMayDiffer")}</li>
+          <li>{t("dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed")}</li>
+          <li>{t("alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults")}</li>
+        </ul>
+      </div>
     </Card>
   );
 };
