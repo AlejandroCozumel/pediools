@@ -421,7 +421,12 @@
     "dashboard": "Dashboard",
     "patients": "Patients",
     "appointments": "Appointments",
-    "calculations": "Calculations"
+    "calculations": "Calculations",
+    "calculators": "Calculators",
+    "about": "About",
+    "faq": "FAQ",
+    "disclaimer": "Disclaimer",
+    "contact": "Contact"
   },
   "Footer": {
     "title": "Footer",

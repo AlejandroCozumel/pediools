@@ -421,7 +421,12 @@
     "dashboard": "Panel",
     "patients": "Pacientes",
     "appointments": "Citas",
-    "calculations": "Cálculos"
+    "calculations": "Cálculos",
+    "calculators": "Calculadoras",
+    "about": "Acerca de",
+    "faq": "Preguntas frecuentes",
+    "disclaimer": "Aviso legal",
+    "contact": "Contacto"
   },
   "Footer": {
     "title": "Pie de página",

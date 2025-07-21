@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
-import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -45,23 +43,19 @@ export default async function RootLayout({
   const messages = await getMessages({ locale });
 
   return (
-    <ClerkProvider>
-      <SubscriptionProvider>
-        <html lang={locale}>
-          <body
-            className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
-          >
-            <NextIntlClientProvider messages={messages} locale={locale}>
-              <ProvidersQuery>
-                <ServerPremiumStatusProvider>
-                  {children}
-                </ServerPremiumStatusProvider>
-              </ProvidersQuery>
-              <Toaster />
-            </NextIntlClientProvider>
-          </body>
-        </html>
-      </SubscriptionProvider>
-    </ClerkProvider>
+      <html lang={locale}>
+        <body
+          className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
+        >
+          <NextIntlClientProvider messages={messages} locale={locale}>
+            <ProvidersQuery>
+              <ServerPremiumStatusProvider>
+                {children}
+              </ServerPremiumStatusProvider>
+            </ProvidersQuery>
+            <Toaster />
+          </NextIntlClientProvider>
+        </body>
+      </html>
   );
 }
