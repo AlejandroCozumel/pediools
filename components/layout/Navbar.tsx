@@ -58,15 +58,19 @@ const NavLink: React.FC<{
   href: string;
 }> = ({ text, href }) => {
   const pathname = usePathname();
-  // Use startsWith to support i18n routes like /es, /en, etc.
-  const isActive = pathname === href || pathname.startsWith(href + '/') || (href !== '/' && pathname.startsWith(href));
+
+  // Fixed active detection logic
+  const isActive = href === '/'
+    ? pathname === '/' || pathname === '/es' || pathname === '/en'
+    : pathname === href || pathname.startsWith(href + '/') || pathname.endsWith(href);
+
   return (
     <Link
       href={href}
-      className={`hidden lg:block h-[30px] overflow-hidden font-medium px-2 transition-colors duration-200 border-b-4 ${
+      className={`hidden lg:block h-[30px] overflow-hidden font-medium px-2 transition-colors duration-200 ${
         isActive
-          ? 'border-medical-600 text-medical-600 font-bold bg-white'
-          : 'border-transparent text-gray-500 hover:text-medical-600'
+          ? 'text-medical-600 font-bold bg-white'
+          : 'text-gray-500 hover:text-medical-600'
       }`}
     >
       <motion.div whileHover={{ y: -30 }}>
@@ -84,6 +88,7 @@ const NavLink: React.FC<{
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations("Navigation");
+
   const localizedItems = useMemo(() => {
     return navigationItems.map((item) => ({
       ...item,
@@ -157,15 +162,19 @@ const MenuLink: React.FC<{
   href: string;
 }> = ({ text, href }) => {
   const pathname = usePathname();
-  // Use startsWith to support i18n routes like /es, /en, etc.
-  const isActive = pathname === href || pathname.startsWith(href + '/') || (href !== '/' && pathname.startsWith(href));
+
+  // Fixed active detection logic - same as NavLink
+  const isActive = href === '/'
+    ? pathname === '/' || pathname === '/es' || pathname === '/en'
+    : pathname === href || pathname.startsWith(href + '/') || pathname.endsWith(href);
+
   return (
     <Link
       href={href}
-      className={`h-[30px] overflow-hidden font-medium text-lg flex items-start gap-2 px-2 transition-colors duration-200 border-b-4 ${
+      className={`h-[30px] overflow-hidden font-medium text-lg flex items-start gap-2 px-2 transition-colors duration-200 ${
         isActive
-          ? 'border-medical-600 text-medical-600 font-bold bg-white'
-          : 'border-transparent text-gray-500 hover:text-medical-600'
+          ? 'text-medical-600 font-bold bg-white'
+          : 'text-gray-500 hover:text-medical-600'
       }`}
     >
       <span>
