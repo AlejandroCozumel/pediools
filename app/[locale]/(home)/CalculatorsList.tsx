@@ -121,7 +121,7 @@ const CalculatorsList = () => {
           </Link>
         ))}
       </div>
-      <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
+      {/* <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
         <Card className="w-full lg:w-2/3 border-medical-100 bg-gradient-to-br from-white to-medical-50">
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-3">
@@ -148,7 +148,7 @@ const CalculatorsList = () => {
             </ul>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -1,7 +1,8 @@
 import React from "react";
+import AppDisclaimer from "@/components/AppDisclaimer";
 
 const Disclaimer = () => {
-  return <div>Disclaimer</div>;
+  return <AppDisclaimer />;
 };
 
 export default Disclaimer;
