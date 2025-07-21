@@ -1,26 +1,21 @@
-import React from "react";
 import CalculatorsList from "./CalculatorsList";
-import SeoMeta from "@/components/SeoMeta";
-import { useTranslations, useLocale } from "next-intl";
+import { getSeoMetadata } from "@/lib/seo";
+import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-const Home = () => {
-  const t = useTranslations("CalculatorsList");
-  const locale = useLocale();
-  const title = t("dashboardTitle");
-  const description = t("dashboardSubtitle");
-  const image = "/og-image.jpg";
-  const url = "https://www.pedimath.com/" + locale;
-  return (
-    <>
-      <SeoMeta
-        title={title}
-        description={description}
-        image={image}
-        url={url}
-      />
-      <CalculatorsList />
-    </>
-  );
+export const generateMetadata = async ({ params }: { params: { locale?: string } }): Promise<Metadata> => {
+  const locale = params?.locale || "en";
+  const t = await getTranslations({ locale, namespace: "CalculatorsList" });
+  return getSeoMetadata({
+    title: t("dashboardTitle", { defaultValue: "Pediatric Calculators" }),
+    description: t("dashboardSubtitle", { defaultValue: "Professional tools for pediatric assessment and monitoring" }),
+    url: `https://www.pedimath.com/${locale}`,
+    image: "/og-image.jpg",
+    locale,
+    keywords: ["pediatric calculators", "growth chart", "BMI calculator", "dose calculator"]
+  });
 };
 
-export default Home;
+export default function Home() {
+  return <CalculatorsList />;
+}

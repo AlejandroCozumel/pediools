@@ -1,21 +1,20 @@
-import React from 'react'
-import SeoMeta from "@/components/SeoMeta";
-import { useTranslations, useLocale } from "next-intl";
+import { getSeoMetadata } from "@/lib/seo";
+import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-const Contact = () => {
-  const t = useTranslations("Contact");
-  const locale = useLocale();
-  return (
-    <>
-      <SeoMeta
-        title={t("title", { defaultValue: "Contact - PediMath" })}
-        description={t("description", { defaultValue: "Contact PediMath for support, feedback, or partnership inquiries." })}
-        image="/og-image.jpg"
-        url={`https://www.pedimath.com/${locale}/contact`}
-      />
-      <div>Contact</div>
-    </>
-  );
+export const generateMetadata = async ({ params }: { params: { locale?: string } }): Promise<Metadata> => {
+  const locale = params?.locale || "en";
+  const t = await getTranslations({ locale, namespace: "Contact" });
+  return getSeoMetadata({
+    title: t("title", { defaultValue: "Contact - PediMath" }),
+    description: t("description", { defaultValue: "Contact PediMath for support, feedback, or partnership inquiries." }),
+    url: `https://www.pedimath.com/${locale}/contact`,
+    image: "/og-image.jpg",
+    locale,
+    keywords: ["contact PediMath", "support", "medical calculators"]
+  });
+};
+
+export default function Contact() {
+  return <div>Contact</div>;
 }
-
-export default Contact

@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, XCircle, RefreshCw } from "lucide-react";
@@ -8,8 +7,23 @@ import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
 import { useWHOChartData } from "@/hooks/calculations/use-who-chart-data";
 import { Button } from "@/components/ui/button";
+import { getSeoMetadata } from "@/lib/seo";
+import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { useTranslations, useLocale } from 'next-intl';
-import SeoMeta from "@/components/SeoMeta";
+
+export const generateMetadata = async ({ params }: { params: { locale?: string } }): Promise<Metadata> => {
+  const locale = params?.locale || "en";
+  const t = await getTranslations({ locale, namespace: "WHOChartPage" });
+  return getSeoMetadata({
+    title: t('whoGrowthStandardsTitle', { defaultValue: 'WHO Growth Standards - PediMath' }),
+    description: t('infantGrowthVisualizationSubtitle', { defaultValue: 'Infant Growth Visualization (0-24 months)' }),
+    url: `https://www.pedimath.com/${locale}/charts/who-growth-chart`,
+    image: "/og-image.jpg",
+    locale,
+    keywords: ["WHO growth chart", "infant growth", "child height", "child weight"]
+  });
+};
 
 const Charts = () => {
   const t = useTranslations('WHOChartPage');
@@ -173,63 +187,55 @@ const Charts = () => {
   }
 
   return (
-    <>
-      <SeoMeta
-        title={t('whoGrowthStandardsTitle', { defaultValue: 'WHO Growth Standards - PediMath' })}
-        description={t('infantGrowthVisualizationSubtitle', { defaultValue: 'Infant Growth Visualization (0-24 months)' })}
-        image="/og-image.jpg"
-        url={`https://www.pedimath.com/${locale}/charts/who-growth-chart`}
-      />
-      <div className="my-4 md:my-6 flex flex-col gap-6 px-4">
-        <motion.div
-          className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <h2>{t('whoGrowthStandardsTitle')}</h2>
-          <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
-            {t('infantGrowthVisualizationSubtitle')}
-          </span>
-        </motion.div>
+    <div className="my-4 md:my-6 flex flex-col gap-6 px-4">
+      <motion.div
+        className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        <h2>{t('whoGrowthStandardsTitle')}</h2>
+        <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
+          {t('infantGrowthVisualizationSubtitle')}
+        </span>
+      </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <ToggleViewChart />
-        </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <ToggleViewChart />
+      </motion.div>
 
-        {/* Render Weight Chart using reusable component */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <WHOChartDisplay
-            rawData={data}
-            type="weight"
-            isFullCurveView={isFullCurveView}
-            monthRangeAround={isFullCurveView ? 24 : 6}
-          />
-        </motion.div>
+      {/* Render Weight Chart using reusable component */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <WHOChartDisplay
+          rawData={data}
+          type="weight"
+          isFullCurveView={isFullCurveView}
+          monthRangeAround={isFullCurveView ? 24 : 6}
+        />
+      </motion.div>
 
-        {/* Render Height Chart using reusable component */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <WHOChartDisplay
-            rawData={data}
-            type="height"
-            isFullCurveView={isFullCurveView}
-            monthRangeAround={isFullCurveView ? 24 : 6}
-          />
-        </motion.div>
-      </div>
-    </>
+      {/* Render Height Chart using reusable component */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <WHOChartDisplay
+          rawData={data}
+          type="height"
+          isFullCurveView={isFullCurveView}
+          monthRangeAround={isFullCurveView ? 24 : 6}
+        />
+      </motion.div>
+    </div>
   );
 };
 

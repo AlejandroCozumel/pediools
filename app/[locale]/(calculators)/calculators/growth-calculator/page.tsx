@@ -1,3 +1,4 @@
+// app/[locale]/(calculators)/calculators/growth-calculator/page.tsx
 import { GrowthForm } from "./GrowthForm";
 import { getSeoMetadata } from "@/lib/seo";
 import { Metadata } from "next";
