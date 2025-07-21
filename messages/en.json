@@ -1405,5 +1405,14 @@
     "fullCurve": "Full Curve",
     "focusedViewDescription": "Focused on patient's current measurement range",
     "fullCurveDescription": "Viewing complete growth progression"
+  },
+  "AppDisclaimer": {
+    "title": "Disclaimer:",
+    "referenceAid": "The User acknowledges and agrees that these tools will be used only as a reference aid, and that the information contained in the products are not intended to be (nor should it be used as) a substitute for the exercise of professional judgement.",
+    "confirmInformation": "In view of the possibility of human error or changes in medical science, the User should confirm the information in the products through independent sources.",
+    "noWarranties": "The products are provided without warranties of any kind, express or implied, and the author disclaim any liability, loss, or damage caused by it or its content.",
+    "acceptance": "By continuing to use these products, you have indicated your acceptance of these terms.",
+    "short": "For reference only.",
+    "seeFullDisclaimer": "See full disclaimer"
   }
 }

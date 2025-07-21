@@ -1395,5 +1395,14 @@
     "fullCurve": "Curva completa",
     "focusedViewDescription": "Enfocado en el rango de medición actual del paciente",
     "fullCurveDescription": "Visualizando toda la progresión de crecimiento"
+  },
+  "AppDisclaimer": {
+    "title": "Aviso:",
+    "referenceAid": "El usuario reconoce y acepta que estas herramientas se utilizarán solo como una ayuda de referencia, y que la información contenida en los productos no está destinada a ser (ni debe usarse como) un sustituto del juicio profesional.",
+    "confirmInformation": "En vista de la posibilidad de errores humanos o cambios en la ciencia médica, el usuario debe confirmar la información de los productos a través de fuentes independientes.",
+    "noWarranties": "Los productos se proporcionan sin garantías de ningún tipo, expresas o implícitas, y el autor declina cualquier responsabilidad, pérdida o daño causado por ellos o su contenido.",
+    "acceptance": "Al continuar utilizando estos productos, usted indica su aceptación de estos términos.",
+    "short": "Solo para referencia.",
+    "seeFullDisclaimer": "Ver aviso completo"
   }
 }
