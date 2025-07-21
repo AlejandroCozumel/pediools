@@ -5,7 +5,6 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
 import ProvidersQuery from "@/providers/ProviderQuery";
-import ServerPremiumStatusProvider from "@/components/premium/ServerPremiumStatusProvider";
 import { routing } from "@/i18n/routing";
 import "./globals.css";
 
@@ -43,19 +42,15 @@ export default async function RootLayout({
   const messages = await getMessages({ locale });
 
   return (
-      <html lang={locale}>
-        <body
-          className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
-        >
-          <NextIntlClientProvider messages={messages} locale={locale}>
-            <ProvidersQuery>
-              <ServerPremiumStatusProvider>
-                {children}
-              </ServerPremiumStatusProvider>
-            </ProvidersQuery>
-            <Toaster />
-          </NextIntlClientProvider>
-        </body>
-      </html>
+    <html lang={locale}>
+      <body
+        className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
+      >
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <ProvidersQuery>{children}</ProvidersQuery>
+          <Toaster />
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

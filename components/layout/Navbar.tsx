@@ -58,21 +58,22 @@ const NavLink: React.FC<{
   href: string;
 }> = ({ text, href }) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  // Use startsWith to support i18n routes like /es, /en, etc.
+  const isActive = pathname === href || pathname.startsWith(href + '/') || (href !== '/' && pathname.startsWith(href));
   return (
     <Link
       href={href}
       className={`hidden lg:block h-[30px] overflow-hidden font-medium px-2 transition-colors duration-200 border-b-4 ${
         isActive
-          ? 'border-indigo-600 text-indigo-700 bg-indigo-50 font-bold'
-          : 'border-transparent text-gray-500 hover:text-indigo-600'
+          ? 'border-medical-600 text-medical-600 font-bold bg-white'
+          : 'border-transparent text-gray-500 hover:text-medical-600'
       }`}
     >
       <motion.div whileHover={{ y: -30 }}>
         <span className="flex items-center h-[30px] font-semibold">
           {text}
         </span>
-        <span className="flex items-center h-[30px] text-indigo-600 font-semibold">
+        <span className="flex items-center h-[30px] text-medical-600 font-semibold">
           {text}
         </span>
       </motion.div>
@@ -156,14 +157,15 @@ const MenuLink: React.FC<{
   href: string;
 }> = ({ text, href }) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  // Use startsWith to support i18n routes like /es, /en, etc.
+  const isActive = pathname === href || pathname.startsWith(href + '/') || (href !== '/' && pathname.startsWith(href));
   return (
     <Link
       href={href}
       className={`h-[30px] overflow-hidden font-medium text-lg flex items-start gap-2 px-2 transition-colors duration-200 border-b-4 ${
         isActive
-          ? 'border-indigo-600 text-indigo-700 bg-indigo-50 font-bold'
-          : 'border-transparent text-gray-500 hover:text-indigo-600'
+          ? 'border-medical-600 text-medical-600 font-bold bg-white'
+          : 'border-transparent text-gray-500 hover:text-medical-600'
       }`}
     >
       <span>
@@ -173,7 +175,7 @@ const MenuLink: React.FC<{
         <span className="flex items-center h-[30px]">
           {text}
         </span>
-        <span className="flex items-center h-[30px] text-indigo-600">
+        <span className="flex items-center h-[30px] text-medical-600">
           {text}
         </span>
       </div>
