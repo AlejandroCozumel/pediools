@@ -259,8 +259,7 @@ const getInterpretation = (status: string): string => {
 const LabResults: React.FC<{
   results: LabResult[];
   gender: "male" | "female";
-  isPremium: boolean;
-}> = ({ results, gender, isPremium }) => {
+}> = ({ results, gender }) => {
   const t = useTranslations("LabCalculator");
 
   if (!results.length) {
@@ -302,14 +301,14 @@ const LabResults: React.FC<{
             {t("resultsTitle")}
           </span>
           <Badge
-            variant={isPremium ? "default" : "secondary"}
+            variant="secondary"
             className={cn(
               gender === "male"
                 ? "bg-medical-100 text-medical-700"
                 : "bg-medical-pink-100 text-medical-pink-700"
             )}
           >
-            {isPremium ? t("premium") : t("basic")}
+            {t("basic")}
           </Badge>
         </CardTitle>
 
@@ -320,16 +319,6 @@ const LabResults: React.FC<{
             <AlertDescription className="text-red-800">
               <strong>{t("criticalValues")}:</strong> {criticalResults.length}{" "}
               {t("result")}(s) {t("criticalResultsAttention")}.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {!isPremium && (
-          <Alert className="bg-medical-50 border-medical-200">
-            <Info className="h-4 w-4 text-medical-600" />
-            <AlertDescription className="text-medical-700">
-              {t("basicPlan")} {t("completeHarrietLaneReferenceDataset")}{" "}
-              {t("with200SpecializedTests")}.
             </AlertDescription>
           </Alert>
         )}
