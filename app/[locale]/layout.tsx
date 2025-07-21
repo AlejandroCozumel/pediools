@@ -24,6 +24,13 @@ export const metadata: Metadata = {
   title: "PediCalc - Pediatric Calculator Suite",
   description:
     "Professional pediatric calculation tools for healthcare providers",
+  icons: {
+    icon: [
+      { url: "/pedimathLogo.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    shortcut: "/pedimathLogo.svg",
+  },
 };
 
 export default async function RootLayout({
@@ -43,9 +50,6 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
-      <head>
-        <link rel="icon" href="/pedimathLogo.svg" type="image/svg+xml" />
-      </head>
       <body
         className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
       >
