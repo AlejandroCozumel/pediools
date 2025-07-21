@@ -33,6 +33,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import cdcWeightData from "@/app/data/cdc-data-weight.json";
 import cdcHeightData from "@/app/data/cdc-data-height.json";
+import { useTranslations } from 'next-intl';
 
 ChartJS.register(
   CategoryScale,
@@ -128,35 +129,6 @@ interface CustomHtmlTooltipProps {
   dataPoints: CustomTooltipDataPoint[];
 }
 
-const chartConfigs = {
-  weight: {
-    cdcSourceData: cdcWeightData,
-    dataKey: "weight" as const,
-    inputGenderKey: "weight" as const,
-    title: "Weight For Age Chart",
-    yAxisLabel: "Weight (kg)",
-    yAxisUnit: "kg",
-    yAxisDomainFull: [0, 105] as [number, number],
-    defaultRangeAround: 20,
-    valueAccessor: (m: any) => m?.weight?.value,
-    percentileAccessor: (m: any) =>
-      m?.weight?.percentiles?.calculatedPercentile,
-  },
-  height: {
-    cdcSourceData: cdcHeightData,
-    dataKey: "height" as const,
-    inputGenderKey: "height" as const,
-    title: "Height For Age Chart",
-    yAxisLabel: "Height (cm)",
-    yAxisUnit: "cm",
-    yAxisDomainFull: [70, 200] as [number, number],
-    defaultRangeAround: 60,
-    valueAccessor: (m: any) => m?.height?.value,
-    percentileAccessor: (m: any) =>
-      m?.height?.percentiles?.calculatedPercentile,
-  },
-};
-
 const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   visible,
   position,
@@ -212,6 +184,36 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
   isFullCurveView,
   yearRangeAround,
 }) => {
+  const t = useTranslations('CDCChartDisplay');
+
+  const chartConfigs = {
+    weight: {
+      cdcSourceData: cdcWeightData,
+      dataKey: "weight" as const,
+      inputGenderKey: "weight" as const,
+      title: t('weightForAgeChartTitle'),
+      yAxisLabel: t('weightYAxisLabel'),
+      yAxisUnit: t('kgUnit'),
+      yAxisDomainFull: [0, 105] as [number, number],
+      defaultRangeAround: 20,
+      valueAccessor: (m: any) => m?.weight?.value,
+      percentileAccessor: (m: any) =>
+        m?.weight?.percentiles?.calculatedPercentile,
+    },
+    height: {
+      cdcSourceData: cdcHeightData,
+      dataKey: "height" as const,
+      inputGenderKey: "height" as const,
+      title: t('heightForAgeChartTitle'),
+      yAxisLabel: t('heightYAxisLabel'),
+      yAxisUnit: t('cmUnit'),
+      yAxisDomainFull: [70, 200] as [number, number],
+      defaultRangeAround: 60,
+      valueAccessor: (m: any) => m?.height?.value,
+      percentileAccessor: (m: any) =>
+        m?.height?.percentiles?.calculatedPercentile,
+    },
+  };
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const chartRef = useRef<ChartJS<
     "line",
@@ -397,7 +399,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
           ].includes(key),
         })),
         {
-          label: `Patient ${config.title.split(" ")[0]}`,
+          label: `${t('patientChartLabel', { gender: gender === 'male' ? t('boys') : t('girls') })} ${type === 'weight' ? t('weightLabel') : t('heightLabel')}`,
           data: patientPoints,
           borderColor: "#DC2626",
           backgroundColor: "#DC2626",
@@ -415,7 +417,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
       chartJsData: chartData,
       patientDataPointsWithPercentile: patientPoints,
     };
-  }, [rawData, config, generateChartDataPoints]);
+  }, [rawData, config, generateChartDataPoints, type, t]);
 
   const currentPatientMeasurement =
     rawData.data[config.dataKey]?.length > 0
@@ -513,7 +515,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
         setTooltipState((prev) => ({ ...prev, visible: false }));
         return;
       }
-      const title = `Age: ${age.toFixed(1)} years`;
+      const title = `${t('ageTooltip', { age: age.toFixed(1) })}`;
 
       // --- Rest of your data gathering logic ---
       let dataIndex = -1;
@@ -575,7 +577,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
 
       if (patientPointAtHover) {
         allValuesForAge.push({
-          label: `Patient (P${patientPointAtHover.percentile.toFixed(1)})`,
+          label: `${t('patientTooltip', { percentile: patientPointAtHover.percentile.toFixed(1) })}`,
           value: `${patientPointAtHover.y.toFixed(1)} ${config.yAxisUnit}`,
           color: "#DC2626",
           isPatient: true,
@@ -602,7 +604,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
       };
       setTooltipState(newState);
     },
-    [patientDataPointsWithPercentile, config.yAxisUnit] // Dependencies
+    [patientDataPointsWithPercentile, config.yAxisUnit, t] // Dependencies
   );
 
   // Chart.js Options
@@ -640,7 +642,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
           max: maxAge,
           title: {
             display: true,
-            text: "Age (years)",
+            text: t('ageAxisLabel'),
             font: { size: 14 },
             color: "#374151",
           },
@@ -738,7 +740,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
                   borderWidth: 1.5,
                   borderDash: [6, 6],
                   label: {
-                    content: "Current Age",
+                    content: t('currentAgeAnnotation'),
                     display: true,
                     position: "end",
                     yAdjust: -10,
@@ -764,6 +766,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
     isFullCurveView,
     config,
     externalTooltipHandler,
+    t,
   ]);
 
   return (
@@ -774,9 +777,9 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
             <div className="space-y-2">
               <CardTitle className="text-start bg-gradient-to-r from-medical-700 to-medical-900 bg-clip-text text-transparent text-base md:text-lg lg:text-xl font-bold tracking-tight">
                 {rawData.originalInput[config.inputGenderKey].gender === "male"
-                  ? "Boys"
-                  : "Girls"}
-                {type === "weight" ? " (Weight)" : " (Height)"}
+                  ? t('boys')
+                  : t('girls')}
+                {type === "weight" ? t('weightLabel') : t('heightLabel')}
                 <span className="block text-sm md:text-base text-medical-90 font-medium">
                   {" "}
                   {config.title}{" "}
@@ -807,7 +810,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">
           <p className="text-xs text-gray-500">
             {" "}
-            Data source: CDC Growth Charts (2-20 years){" "}
+            {t('dataSource')}{" "}
           </p>
         </CardFooter>
       </Card>

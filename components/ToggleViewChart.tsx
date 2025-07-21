@@ -1,7 +1,9 @@
 import React from "react";
 import { useSubscriptionStore } from "@/stores/premiumStore";
+import { useTranslations } from 'next-intl';
 
 export const ToggleViewChart = () => {
+  const t = useTranslations('ToggleViewChart');
   const { isFullCurveView, toggleFullCurveView } = useSubscriptionStore();
 
   return (
@@ -15,7 +17,7 @@ export const ToggleViewChart = () => {
           }`}
           onClick={() => toggleFullCurveView()}
         >
-          Focused View
+          {t('focusedView')}
         </button>
         <button
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${
@@ -25,13 +27,13 @@ export const ToggleViewChart = () => {
           }`}
           onClick={() => toggleFullCurveView()}
         >
-          Full Curve
+          {t('fullCurve')}
         </button>
       </div>
       <p className="text-xs text-medical-500 text-center">
         {isFullCurveView
-          ? "Viewing complete growth progression"
-          : "Focused on patient's current measurement range"}
+          ? t('fullCurveDescription')
+          : t('focusedViewDescription')}
       </p>
     </div>
   );

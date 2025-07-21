@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import intergrowthWeightData from "@/app/data/intergrowht-weight.json";
 import intergrowthHeightData from "@/app/data/intergrowht-lenght.json";
+import { useTranslations } from 'next-intl';
 
 ChartJS.register(
   CategoryScale,
@@ -120,33 +121,6 @@ interface CustomHtmlTooltipProps {
   dataPoints: CustomTooltipDataPoint[];
 }
 
-const chartConfigs = {
-  weight: {
-    sourceData: intergrowthWeightData,
-    dataKey: "weight" as const,
-    inputGenderKey: "weight" as const,
-    title: "Weight For Gestational Age Chart",
-    yAxisLabel: "Weight (kg)",
-    yAxisUnit: "kg",
-    yAxisDomainFull: [0, 5] as [number, number],
-    defaultRangeAround: 2,
-    valueAccessor: (m: any) => m?.weight?.value,
-    percentileAccessor: (m: any) => m?.weight?.percentiles?.calculatedPercentile,
-  },
-  height: {
-    sourceData: intergrowthHeightData,
-    dataKey: "height" as const,
-    inputGenderKey: "height" as const,
-    title: "Length For Gestational Age Chart",
-    yAxisLabel: "Length (cm)",
-    yAxisUnit: "cm",
-    yAxisDomainFull: [20, 60] as [number, number],
-    defaultRangeAround: 15,
-    valueAccessor: (m: any) => m?.height?.value,
-    percentileAccessor: (m: any) => m?.height?.percentiles?.calculatedPercentile,
-  },
-};
-
 const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   visible,
   position,
@@ -197,6 +171,34 @@ const IntergrowthChartDisplay: React.FC<ChartProps> = ({
   isFullCurveView,
   weekRangeAround,
 }) => {
+  const t = useTranslations('IntergrowthChartDisplay');
+
+  const chartConfigs = {
+    weight: {
+      sourceData: intergrowthWeightData,
+      dataKey: "weight" as const,
+      inputGenderKey: "weight" as const,
+      title: t('weightForGAChartTitle'),
+      yAxisLabel: t('weightYAxisLabel'),
+      yAxisUnit: t('kgUnit'),
+      yAxisDomainFull: [0, 5] as [number, number],
+      defaultRangeAround: 2,
+      valueAccessor: (m: any) => m?.weight?.value,
+      percentileAccessor: (m: any) => m?.weight?.percentiles?.calculatedPercentile,
+    },
+    height: {
+      sourceData: intergrowthHeightData,
+      dataKey: "height" as const,
+      inputGenderKey: "height" as const,
+      title: t('lengthForGAChartTitle'),
+      yAxisLabel: t('lengthYAxisLabel'),
+      yAxisUnit: t('cmUnit'),
+      yAxisDomainFull: [20, 60] as [number, number],
+      defaultRangeAround: 15,
+      valueAccessor: (m: any) => m?.height?.value,
+      percentileAccessor: (m: any) => m?.height?.percentiles?.calculatedPercentile,
+    },
+  };
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const chartRef = useRef<ChartJS<"line", (number | Point | null)[], number> | null>(null);
   const [tooltipState, setTooltipState] = useState<CustomHtmlTooltipProps>({
@@ -355,7 +357,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         hidden: false,
       })),
       {
-        label: `Patient ${config.title.split(" ")[0]}`,
+        label: `${t('patientChartLabel')} ${rawData.originalInput[config.inputGenderKey].gender === "male" ? t('boys') : t('girls')}`,
         data: patientPoints,
         borderColor: "#DC2626",
         backgroundColor: "#DC2626",
@@ -374,7 +376,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
     chartJsData: chartData,
     patientDataPointsWithPercentile: patientPoints,
   };
-}, [rawData, config, generateChartDataPoints, convertToDecimalWeeks]);
+}, [rawData, config, generateChartDataPoints, convertToDecimalWeeks, t]);
 
   const currentPatientMeasurement =
     rawData.data[config.dataKey]?.length > 0
@@ -483,7 +485,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
 
       // Ensure gestational age is within valid range
       const clampedWeeks = Math.max(24, Math.min(42, actualGestationalWeeks));
-      const title = `Gestational Age: ${formatGestationalAge(clampedWeeks)}`;
+      const title = `${t('gestationalAgeTooltipTitle')}: ${formatGestationalAge(clampedWeeks)}`;
 
       // Find the exact gestational age string (weeks+days format)
       const weeks = Math.floor(clampedWeeks);
@@ -495,7 +497,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
 
       // Get percentile data for the actual hovered gestational age
       currentDatasets.forEach((dataset: any, i: number) => {
-        if (!chart.isDatasetVisible(i) || dataset.label?.startsWith("Patient"))
+        if (!chart.isDatasetVisible(i) || dataset.label?.startsWith(t('patientChartLabel')))
           return;
 
         // Find the data point for this exact gestational age (with small tolerance for decimal precision)
@@ -507,7 +509,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
           let label = dataset.label || "";
           let color = dataset.borderColor || "#000";
           const match = label.match(/(\d+(\.\d+)?)th Perc./);
-          label = match ? `P${match[1]}` : label;
+          label = match ? `${t('percentileLabel')}${match[1]}` : label;
           allValuesForAge.push({
             label,
             value: `${dataPoint.y.toFixed(1)} ${config.yAxisUnit}`,
@@ -525,7 +527,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
 
       if (patientPointAtHover) {
         allValuesForAge.push({
-          label: `Patient (P${patientPointAtHover.percentile.toFixed(1)})`,
+          label: `${t('patientTooltipLabel')} (${patientPointAtHover.percentile.toFixed(1)}${t('percentileLabel')})`,
           value: `${patientPointAtHover.y.toFixed(1)} ${config.yAxisUnit}`,
           color: "#DC2626",
           isPatient: true,
@@ -552,7 +554,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
       };
       setTooltipState(newState);
     },
-    [patientDataPointsWithPercentile, config.yAxisUnit, formatGestationalAge]
+    [patientDataPointsWithPercentile, config.yAxisUnit, formatGestationalAge, t]
   );
 
   // Chart.js Options
@@ -568,7 +570,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
           max: maxWeeks,
           title: {
             display: true,
-            text: "Gestational Age (weeks)",
+            text: t('gestationalAgeAxisTitle'),
             font: { size: 14 },
             color: "#374151",
           },
@@ -642,7 +644,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
                   borderWidth: 1.5,
                   borderDash: [6, 6],
                   label: {
-                    content: "Current GA",
+                    content: t('currentGAAnnotation'),
                     display: true,
                     position: "end",
                     yAdjust: -10,
@@ -668,6 +670,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
     isFullCurveView,
     config,
     externalTooltipHandler,
+    t,
   ]);
 
   return (
@@ -678,9 +681,9 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
             <div className="space-y-2">
               <CardTitle className="text-start bg-gradient-to-r from-medical-700 to-medical-900 bg-clip-text text-transparent text-base md:text-lg lg:text-xl font-bold tracking-tight">
                 {rawData.originalInput[config.inputGenderKey].gender === "male"
-                  ? "Boys"
-                  : "Girls"}
-                {type === "weight" ? " (Weight)" : " (Length)"}
+                  ? t('boys')
+                  : t('girls')}
+                {type === "weight" ? t('weightChartType') : t('lengthChartType')}
                 <span className="block text-sm md:text-base text-medical-90 font-medium">
                   {config.title}
                 </span>
@@ -700,7 +703,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
                 {latestCalculatedPercentile !== undefined &&
                   latestCalculatedPercentile !== null && (
                     <Badge variant="outline" className="text-xs md:text-sm">
-                      {latestCalculatedPercentile.toFixed(1)}th percentile
+                      {latestCalculatedPercentile.toFixed(1)}{t('percentileLabel')}
                     </Badge>
                   )}
               </div>
@@ -714,7 +717,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         </CardContent>
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">
           <p className="text-xs text-gray-500">
-            Data source: Intergrowth-21st Growth Standards (24-42 weeks)
+            {t('dataSource')}
           </p>
         </CardFooter>
       </Card>
