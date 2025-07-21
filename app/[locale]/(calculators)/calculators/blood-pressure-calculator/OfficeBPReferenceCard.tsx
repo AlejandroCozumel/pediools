@@ -12,11 +12,54 @@ interface OfficeBPReferenceCardProps {
   heightPercentile?: number | null;
   cdcChildHeightData?: any[];
   cdcInfantHeightData?: any[];
+  aapBPData?: any;
   patientSystolic?: number;
   patientDiastolic?: number;
 }
 
-export const aapScreeningTable: Record<
+// Helper function to get BP thresholds from complete AAP data
+function getBPThresholdsFromAAP(
+  ageInYears: number,
+  heightPercentile: number,
+  gender: "male" | "female",
+  aapBPData: any
+) {
+  if (!aapBPData) return null;
+
+  const genderData = gender === "male" ? aapBPData.boys : aapBPData.girls;
+  const ageData = genderData[String(ageInYears)];
+
+  if (!ageData) return null;
+
+  // Find closest height percentile from available data (5th, 10th, 25th, 50th, 75th, 90th, 95th)
+  const heightPercentiles = [5, 10, 25, 50, 75, 90, 95];
+  const closestHeightIndex = heightPercentiles.reduce(
+    (prev, curr, index) =>
+      Math.abs(curr - heightPercentile) <
+      Math.abs(heightPercentiles[prev] - heightPercentile)
+        ? index
+        : prev,
+    0
+  );
+
+  return {
+    p50: {
+      systolic: ageData.bp["50th"].systolic[closestHeightIndex],
+      diastolic: ageData.bp["50th"].diastolic[closestHeightIndex],
+    },
+    p90: {
+      systolic: ageData.bp["90th"].systolic[closestHeightIndex],
+      diastolic: ageData.bp["90th"].diastolic[closestHeightIndex],
+    },
+    p95: {
+      systolic: ageData.bp["95th"].systolic[closestHeightIndex],
+      diastolic: ageData.bp["95th"].diastolic[closestHeightIndex],
+    },
+  };
+}
+
+// Fallback screening table for when AAP data is not available
+const fallbackScreeningTable: Record<
   "male" | "female",
   Record<string, { systolic: number; diastolic: number }>
 > = {
@@ -70,7 +113,6 @@ function calculateHeightPercentileFromData(
   const sexCode = gender === "male" ? 1 : 2;
   let data: any[] | undefined;
   let source: string;
-
   if (ageInMonths <= 36 && cdcInfantHeightData) {
     data = cdcInfantHeightData;
     source = "CDC Growth Charts (Infant)";
@@ -80,11 +122,9 @@ function calculateHeightPercentileFromData(
   } else {
     return null;
   }
-
   const ageEntry = data.find(
     (entry) => entry.Sex === sexCode && entry.Agemos === ageInMonths
   );
-
   if (!ageEntry) {
     const sameGenderEntries = data.filter((entry) => entry.Sex === sexCode);
     if (sameGenderEntries.length === 0) return null;
@@ -97,7 +137,6 @@ function calculateHeightPercentileFromData(
     if (!closestEntry) return null;
     return calculatePercentileFromEntry(height, closestEntry, source);
   }
-
   return calculatePercentileFromEntry(height, ageEntry, source);
 }
 
@@ -122,16 +161,13 @@ function calculatePercentileFromEntry(
     "P97",
     "P99",
   ];
-
   for (const field of possibleFields) {
     if (entry[field] !== undefined && entry[field] !== null) {
       percentileFields.push(parseInt(field.substring(1)));
       percentileValues.push(entry[field]);
     }
   }
-
   if (percentileValues.length < 2) return { percentile: 50, source };
-
   if (height <= percentileValues[0])
     return { percentile: percentileFields[0], source };
   if (height >= percentileValues[percentileValues.length - 1])
@@ -139,7 +175,6 @@ function calculatePercentileFromEntry(
       percentile: percentileFields[percentileFields.length - 1],
       source,
     };
-
   for (let i = 0; i < percentileValues.length - 1; i++) {
     if (height >= percentileValues[i] && height <= percentileValues[i + 1]) {
       const lowerPercentile = percentileFields[i];
@@ -155,7 +190,6 @@ function calculatePercentileFromEntry(
       };
     }
   }
-
   return { percentile: 50, source };
 }
 
@@ -171,7 +205,6 @@ function getEstimatedAgesFromHeightData(
     ...(cdcInfantHeightData || []),
     ...(cdcChildHeightData || []),
   ].filter((entry) => entry.Sex === sexCode);
-
   for (const entry of allData) {
     const p10 = entry.P10 || entry.P5 || entry.P3;
     const p90 = entry.P90 || entry.P95 || entry.P97;
@@ -186,12 +219,10 @@ function getEstimatedAgesFromHeightData(
       }
     }
   }
-
   if (possibleAges.length === 0) {
     // Fallback can be implemented here if needed
     return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
   }
-
   return possibleAges.sort((a, b) => a - b);
 }
 
@@ -202,11 +233,11 @@ export function OfficeBPReferenceCard({
   heightPercentile,
   cdcChildHeightData,
   cdcInfantHeightData,
+  aapBPData,
   patientSystolic,
   patientDiastolic,
 }: OfficeBPReferenceCardProps) {
   const t = useTranslations("BloodPressureCalculator.officeBPReference");
-
   const agesToShow = ageInYears
     ? [ageInYears]
     : getEstimatedAgesFromHeightData(
@@ -215,10 +246,8 @@ export function OfficeBPReferenceCard({
         cdcChildHeightData,
         cdcInfantHeightData
       );
-
   let actualHeightPercentile = heightPercentile;
   let heightSource = "";
-
   if (
     !heightPercentile &&
     ageInYears &&
@@ -239,35 +268,63 @@ export function OfficeBPReferenceCard({
   }
 
   const calculateMilestonesForAge = (age: number) => {
-    const screeningValues =
-      aapScreeningTable[gender][String(age)] || aapScreeningTable[gender]["17"];
-    let heightAdjustment = 0;
-    if (
-      actualHeightPercentile !== null &&
-      actualHeightPercentile !== undefined
-    ) {
-      const clampedHeightPercentile = Math.max(
-        1,
-        Math.min(99.9, actualHeightPercentile)
-      );
-      const heightZScore = (clampedHeightPercentile - 50) / 25;
-      heightAdjustment = heightZScore * 1.5;
+    // Try to get BP thresholds from AAP data first
+    const bpThresholds = getBPThresholdsFromAAP(
+      age,
+      actualHeightPercentile || 50,
+      gender,
+      aapBPData
+    );
+
+    let p50Systolic,
+      p50Diastolic,
+      p90Systolic,
+      p90Diastolic,
+      p95Systolic,
+      p95Diastolic;
+
+    if (bpThresholds) {
+      // Use exact AAP data
+      p50Systolic = bpThresholds.p50.systolic;
+      p50Diastolic = bpThresholds.p50.diastolic;
+      p90Systolic = bpThresholds.p90.systolic;
+      p90Diastolic = bpThresholds.p90.diastolic;
+      p95Systolic = bpThresholds.p95.systolic;
+      p95Diastolic = bpThresholds.p95.diastolic;
+    } else {
+      // Fallback to old calculation method
+      const screeningValues =
+        fallbackScreeningTable[gender][String(age)] ||
+        fallbackScreeningTable[gender]["17"];
+
+      let heightAdjustment = 0;
+      if (
+        actualHeightPercentile !== null &&
+        actualHeightPercentile !== undefined
+      ) {
+        const clampedHeightPercentile = Math.max(
+          1,
+          Math.min(99.9, actualHeightPercentile)
+        );
+        const heightZScore = (clampedHeightPercentile - 50) / 25;
+        heightAdjustment = heightZScore * 1.5;
+      }
+
+      p90Systolic = Math.round(screeningValues.systolic + heightAdjustment);
+      p90Diastolic = Math.round(screeningValues.diastolic + heightAdjustment);
+      p50Systolic = Math.round(p90Systolic - 15);
+      p50Diastolic = Math.round(p90Diastolic - 12);
+      p95Systolic = Math.round(p90Systolic + 8);
+      p95Diastolic = Math.round(p90Diastolic + 6);
     }
 
-    const p90Systolic = Math.round(screeningValues.systolic + heightAdjustment);
-    const p90Diastolic = Math.round(
-      screeningValues.diastolic + heightAdjustment
-    );
-    const p50Systolic = Math.round(p90Systolic - 15);
-    const p50Diastolic = Math.round(p90Diastolic - 12);
+    // Calculate derived percentiles
     const p10Systolic = Math.round(p50Systolic - 12);
     const p10Diastolic = Math.round(p50Diastolic - 8);
     const p5Systolic = Math.round(p50Systolic - 16);
     const p5Diastolic = Math.round(p50Diastolic - 10);
     const p3Systolic = Math.round(p50Systolic - 20);
     const p3Diastolic = Math.round(p50Diastolic - 12);
-    const p95Systolic = Math.round(p90Systolic + 8);
-    const p95Diastolic = Math.round(p90Diastolic + 6);
     const stage2Systolic = Math.round(p95Systolic + 12);
     const stage2Diastolic = Math.round(p95Diastolic + 12);
 
@@ -289,7 +346,6 @@ export function OfficeBPReferenceCard({
     milestones: any
   ): "stage2" | "p95" | "p90" | "p50" | "p10" | "p5" | "p3" | null => {
     if (!patientSys || !patientDia) return null;
-
     // Hypertension checks...
     if (
       patientSys >= milestones.stage2.systolic ||
@@ -306,31 +362,26 @@ export function OfficeBPReferenceCard({
       patientDia >= milestones.p90.diastolic
     )
       return "p90";
-
     if (
       patientSys <= milestones.p3.systolic ||
       patientDia <= milestones.p3.diastolic
     )
       return "p3";
-
     if (
       patientSys <= milestones.p5.systolic ||
       patientDia <= milestones.p5.diastolic
     )
       return "p5";
-
     if (
       patientSys <= milestones.p10.systolic ||
       patientDia <= milestones.p10.diastolic
     )
       return "p10";
-
     return "p50";
   };
 
   const milestonesData = agesToShow.map(calculateMilestonesForAge);
   const isHeightOnlyMode = !ageInYears;
-
   const patientBPCategory =
     patientSystolic && patientDiastolic
       ? getPatientBPCategory(
@@ -388,7 +439,6 @@ export function OfficeBPReferenceCard({
           {t("print")}
         </Button>
       </div>
-
       <div className="border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead>
@@ -424,7 +474,6 @@ export function OfficeBPReferenceCard({
                     </td>
                   </tr>
                 )}
-
                 {/* Rows for each milestone */}
                 <tr
                   className={cn(
@@ -557,16 +606,8 @@ export function OfficeBPReferenceCard({
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 flex-shrink-0 text-medical-600 mt-0.5" />
                   <div>
-                    <p>{t("footer")}</p>
-                    {actualHeightPercentile && (
-                      <p className="mt-1 text-blue-600">
-                        {t("heightAdjustment", {
-                          percentile: actualHeightPercentile.toFixed(1),
-                        })}
-                      </p>
-                    )}
-                    <p className="mt-1 text-blue-600">{t("hypotensionNote")}</p>
-                    <p className="mt-1 text-gray-500">{t("dataSource")}</p>
+                    <p className="text-xs text-medical-600">{t("footer")}</p>
+                    <p className="mt-1 text-gray-500">{t("hypotensionNote")}</p>
                   </div>
                 </div>
               </td>

@@ -244,7 +244,7 @@
       "warning": "Calculator is designed for ages 1 year - 17 years (12-215 months)"
     },
     "dataSource": {
-      "whoHeight": "Height percentiles use WHO growth standards for ages 1–2 years.",
+      "cdcHeightInfant": "Height percentiles use CDC growth infant charts for 1-36 months.",
       "cdcHeight": "Height percentiles use CDC growth charts for ages 2–17 years."
     },
     "results": {
@@ -260,9 +260,9 @@
       },
       "clinicalInterpretation": {
         "title": "Clinical Interpretation",
-        "currentBP": "Current Blood Pressure:",
-        "classification": "Classification: Based on highest percentile (systolic: {systolic}%, diastolic: {diastolic}%)",
-        "heightAdjustment": "Height adjustment: Applied based on {height} height percentile"
+        "currentBP": "Current BP",
+        "classification": "Classification Percentile",
+        "heightAdjustment": "Height Percentile Adjustment"
       },
       "referenceRanges": {
         "title": "Reference Ranges for Age {age} ({gender})",
@@ -274,7 +274,7 @@
         "whoSource": "WHO (1–2 years)",
         "cdcSource": "CDC (2–17 years)",
         "reference": "Reference: 2017 American Academy of Pediatrics Clinical Practice Guideline",
-        "note": "Note: Uses 2017 AAP screening table with quantile regression approximation"
+        "note": "Note: Uses 2017 AAP table with quantile regression approximation"
       }
     },
     "classifications": {
@@ -309,13 +309,17 @@
         "adolescentDescription": "≥140/90 mmHg"
       },
       "hypotension": {
-        "mild": {
-          "category": "Mild Hypotension",
-          "description": "Mild hypotension - monitor closely"
-        },
         "severe": {
           "category": "Severe Hypotension",
-          "description": "Severe hypotension - immediate evaluation needed"
+          "description": "Severe hypotension detected. Immediate evaluation recommended, especially if symptomatic."
+        },
+        "mild": {
+          "category": "Mild Hypotension",
+          "description": "Mild hypotension. Monitor closely and assess for symptoms."
+        },
+        "borderline": {
+          "category": "Borderline Hypotension",
+          "description": "Blood pressure is at the low end of normal. Monitor and assess clinical context."
         }
       }
     },

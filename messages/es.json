@@ -244,7 +244,7 @@
       "warning": "La calculadora está diseñada para edades de 1 año - 17 años (12-215 meses)"
     },
     "dataSource": {
-      "whoHeight": "Los percentiles de altura usan estándares de crecimiento OMS para edades 1–2 años.",
+      "cdcHeightInfant": "Los percentiles de altura usan gráficas de crecimiento infantil CDC para edades 0-36 meses.",
       "cdcHeight": "Los percentiles de altura usan gráficas de crecimiento CDC para edades 2–17 años."
     },
     "results": {
@@ -259,10 +259,10 @@
         "zScore": "Puntuación Z"
       },
       "clinicalInterpretation": {
-        "title": "Interpretación Clínica",
-        "currentBP": "Presión Arterial Actual:",
-        "classification": "Clasificación: Basada en el percentil más alto (sistólica: {systolic}%, diastólica: {diastolic}%)",
-        "heightAdjustment": "Ajuste por altura: Aplicado basado en el percentil {height} de altura"
+        "title": "Interpretación clínica",
+        "currentBP": "PA actual",
+        "classification": "Percentil de clasificación",
+        "heightAdjustment": "Ajuste por percentil de talla"
       },
       "referenceRanges": {
         "title": "Rangos de Referencia para Edad {age} ({gender})",
@@ -274,7 +274,7 @@
         "whoSource": "OMS (1–2 años)",
         "cdcSource": "CDC (2–17 años)",
         "reference": "Referencia: Guía de Práctica Clínica 2017 de la Academia Americana de Pediatría",
-        "note": "Nota: Usa tabla de detección AAP 2017 con aproximación de regresión cuantil"
+        "note": "Nota: Usa tabla AAP 2017 con aproximación de regresión cuantil"
       }
     },
     "classifications": {
@@ -309,13 +309,17 @@
         "adolescentDescription": "≥140/90 mmHg"
       },
       "hypotension": {
-        "mild": {
-          "category": "Mild Hypotension",
-          "description": "Mild hypotension - monitor closely"
-        },
         "severe": {
-          "category": "Severe Hypotension",
-          "description": "Severe hypotension - immediate evaluation needed"
+          "category": "Hipotensión Severa",
+          "description": "Hipotensión severa detectada. Se recomienda evaluación inmediata, especialmente si hay síntomas."
+        },
+        "mild": {
+          "category": "Hipotensión Leve",
+          "description": "Hipotensión leve. Monitorear de cerca y evaluar síntomas."
+        },
+        "borderline": {
+          "category": "Hipotensión Límite",
+          "description": "La presión arterial está en el límite inferior de lo normal. Monitorear y evaluar el contexto clínico."
         }
       }
     },
