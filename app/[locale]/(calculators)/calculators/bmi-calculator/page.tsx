@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import { BMIForm } from "./BMIForm";
 
 export default function BMIPage() {

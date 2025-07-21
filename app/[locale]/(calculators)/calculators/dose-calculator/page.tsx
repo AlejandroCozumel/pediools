@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import { DoseMethodSelector } from "./DoseMethodSelector";
 import { TooltipProvider } from '@/components/ui/tooltip';
 

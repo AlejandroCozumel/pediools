@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 import { GrowthForm } from "@/app/[locale]/(calculators)/calculators/growth-calculator/GrowthForm";
 
 export default function GrowthPage() {
