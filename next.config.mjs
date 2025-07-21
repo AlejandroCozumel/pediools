@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    runtime: 'edge', // This should apply globally
+  },
   images: {
     remotePatterns: [
       {
@@ -19,6 +22,4 @@ const nextConfig = {
   },
 };
 
-// Apply Next.js plugins first, then Cloudflare config
-const configWithIntl = withNextIntl(nextConfig);
-export default defineCloudflareConfig(configWithIntl);
+export default defineCloudflareConfig(withNextIntl(nextConfig));
