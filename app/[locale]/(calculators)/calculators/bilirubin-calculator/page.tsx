@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 
 export const generateMetadata = async ({ params }: { params: { locale?: string } }): Promise<Metadata> => {
   const locale = params?.locale || "en";
-  const t = await getTranslations({ locale, namespace: "BilirubinThresholdsForm" });
+  const t = await getTranslations({ locale, namespace: "BilirubinCalculator" });
   return getSeoMetadata({
     title: t("title", { defaultValue: "Bilirubin Calculator - PediMath" }),
     description: t("description", { defaultValue: "Assess neonatal jaundice and bilirubin thresholds for treatment." }),
