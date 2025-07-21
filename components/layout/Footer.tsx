@@ -25,6 +25,7 @@ const navigation = {
 
 export default function Footer() {
   const t = useTranslations("Footer");
+  const s = useTranslations("CalculatorsList");
   const year = new Date().getFullYear();
 
   return (
@@ -36,7 +37,8 @@ export default function Footer() {
         {t("title")}
       </h2>
       <div className="max-container">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Branding/About/Social */}
           <div className="space-y-4">
             <h3 className="text-medical-600 text-xl font-bold">
               {t("mainHeading")}
@@ -57,28 +59,34 @@ export default function Footer() {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            {(["solutions", "company"] as const).map((section) => (
-              <div key={section}>
-                <h4 className="text-base font-semibold text-medical-900 mb-2">
-                  {t(`sections.${section}`)}
-                </h4>
-                <ul className="space-y-1">
-                  {navigation[section].map((item) => (
-                    <li key={item.nameKey}>
-                      <Link
-                        href={item.href}
-                        className="text-[14px] text-gray-600 hover:text-gray-900"
-                      >
-                        {t(`links.${item.nameKey}`)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          {/* Calculators Grid (Soluciones) - spans 2 columns on md+ */}
+          <div className="md:col-span-2">
+            <h4 className="text-base font-semibold text-medical-900 mb-2">
+              {t("sections.solutions")}
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/calculators/growth-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.growthPercentiles.title")}
+              </Link>
+              <Link href="/calculators/blood-pressure-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.bloodPressure.title")}
+              </Link>
+              <Link href="/calculators/bilirubin-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.bilirubin.title")}
+              </Link>
+              <Link href="/calculators/bmi-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.bmi.title")}
+              </Link>
+              <Link href="/calculators/lab-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.lab.title")}
+              </Link>
+              <Link href="/calculators/dose-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.dose.title")}
+              </Link>
+            </div>
           </div>
-          <div className="space-y-2">
+          {/* Contact */}
+          <div className="space-y-2 flex flex-col justify-center">
             <h4 className="text-base font-semibold text-medical-900">
               {t("contactTitle")}
             </h4>
