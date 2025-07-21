@@ -1,4 +1,5 @@
 import createNextIntlPlugin from "next-intl/plugin";
+import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -18,4 +19,6 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Apply Next.js plugins first, then Cloudflare config
+const configWithIntl = withNextIntl(nextConfig);
+export default defineCloudflareConfig(configWithIntl);
