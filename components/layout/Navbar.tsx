@@ -3,48 +3,36 @@ import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Menu, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { useSubscriptionStore } from "@/stores/premiumStore";
-// import UserMenu from "./UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useUser } from "@clerk/nextjs";
+import { usePathname } from 'next/navigation';
 
 const navigationItems = [
   {
-    textKey: "premium",
-    href: "/premium",
-    premiumOnly: false,
-    freeOnly: true,
+    textKey: "calculators",
+    href: "/",
+    mobileOrder: 0,
+  },
+  {
+    textKey: "about",
+    href: "/about",
     mobileOrder: 1,
   },
   {
-    textKey: "dashboard",
-    href: "/dashboard",
-    premiumOnly: true,
-    freeOnly: false,
+    textKey: "faq",
+    href: "/faq",
     mobileOrder: 2,
   },
   {
-    textKey: "patients",
-    href: "/dashboard/patients",
-    premiumOnly: true,
-    freeOnly: false,
+    textKey: "disclaimer",
+    href: "/disclaimer",
     mobileOrder: 3,
   },
   {
-    textKey: "appointments",
-    href: "/dashboard/appointments",
-    premiumOnly: true,
-    freeOnly: false,
+    textKey: "contact",
+    href: "/contact",
     mobileOrder: 4,
-  },
-  {
-    textKey: "calculations",
-    href: "/dashboard/calculations",
-    premiumOnly: true,
-    freeOnly: false,
-    mobileOrder: 5,
   },
 ];
 
@@ -68,19 +56,29 @@ const Logo: React.FC = () => {
 const NavLink: React.FC<{
   text: string;
   href: string;
-  isPremium?: boolean;
-}> = ({ text, href, isPremium }) => {
+}> = ({ text, href }) => {
+  const pathname = usePathname();
+
+  // Fixed active detection logic
+  const isActive = href === '/'
+    ? pathname === '/' || pathname === '/es' || pathname === '/en'
+    : pathname === href || pathname.startsWith(href + '/') || pathname.endsWith(href);
+
   return (
     <Link
       href={href}
-      className="hidden lg:block h-[30px] overflow-hidden font-medium"
+      className={`hidden lg:block h-[30px] overflow-hidden font-medium px-2 transition-colors duration-200 ${
+        isActive
+          ? 'text-medical-600 font-bold bg-white'
+          : 'text-gray-500 hover:text-medical-600'
+      }`}
     >
       <motion.div whileHover={{ y: -30 }}>
-        <span className="flex items-center h-[30px] text-gray-500 font-semibold">
-          {isPremium ? `Premium: ${text}` : text}
+        <span className="flex items-center h-[30px] font-semibold">
+          {text}
         </span>
-        <span className="flex items-center h-[30px] text-indigo-600 font-semibold">
-          {isPremium ? `Premium: ${text}` : text}
+        <span className="flex items-center h-[30px] text-medical-600 font-semibold">
+          {text}
         </span>
       </motion.div>
     </Link>
@@ -89,13 +87,8 @@ const NavLink: React.FC<{
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isPremium, subscriptionPlan, subscriptionStatus } =
-    useSubscriptionStore();
-  const { user } = useUser();
   const t = useTranslations("Navigation");
-  // console.log("isPremium", isPremium);
-  // console.log("subscriptionPlan", subscriptionPlan);
-  // console.log("subscriptionStatus", subscriptionStatus);
+
   const localizedItems = useMemo(() => {
     return navigationItems.map((item) => ({
       ...item,
@@ -103,25 +96,12 @@ const Navbar: React.FC = () => {
     }));
   }, [t]);
 
-  const visibleNavItems = useMemo(() => {
-    return localizedItems.filter((item) => {
-      // Hide "Premium" tab for premium users
-      if (item.freeOnly && isPremium) return false;
-
-      // Handle premium-only items
-      if (item.premiumOnly) return !!user && isPremium;
-
-      // Show other items to everyone
-      return true;
-    });
-  }, [localizedItems, user, isPremium]);
-
   return (
     <nav className="bg-white border-b-[1px] border-gray-200 py-4">
       <div className="max-container flex items-center justify-between relative">
-        <NavLeft setIsOpen={setIsOpen} navItems={visibleNavItems} />
+        <NavLeft setIsOpen={setIsOpen} navItems={localizedItems} />
         <NavRight />
-        <NavMenu isOpen={isOpen} navItems={visibleNavItems} />
+        <NavMenu isOpen={isOpen} navItems={localizedItems} />
       </div>
     </nav>
   );
@@ -180,22 +160,32 @@ const NavMenu: React.FC<{
 const MenuLink: React.FC<{
   text: string;
   href: string;
-  isPremium?: boolean;
-}> = ({ text, href, isPremium }) => {
+}> = ({ text, href }) => {
+  const pathname = usePathname();
+
+  // Fixed active detection logic - same as NavLink
+  const isActive = href === '/'
+    ? pathname === '/' || pathname === '/es' || pathname === '/en'
+    : pathname === href || pathname.startsWith(href + '/') || pathname.endsWith(href);
+
   return (
     <Link
       href={href}
-      className="h-[30px] overflow-hidden font-medium text-lg flex items-start gap-2"
+      className={`h-[30px] overflow-hidden font-medium text-lg flex items-start gap-2 px-2 transition-colors duration-200 ${
+        isActive
+          ? 'text-medical-600 font-bold bg-white'
+          : 'text-gray-500 hover:text-medical-600'
+      }`}
     >
       <span>
         <ChevronRight className="h-[30px] text-gray-950" />
       </span>
       <div className="w-full">
-        <span className="flex items-center h-[30px] text-gray-500">
-          {isPremium ? `${text}` : text}
+        <span className="flex items-center h-[30px]">
+          {text}
         </span>
-        <span className="flex items-center h-[30px] text-indigo-600">
-          {isPremium ? `${text}` : text}
+        <span className="flex items-center h-[30px] text-medical-600">
+          {text}
         </span>
       </div>
     </Link>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 interface SmartLoaderProps {
   type?: 'growth' | 'analysis' | 'calculation' | 'processing';
@@ -14,30 +15,31 @@ const SmartLoader: React.FC<SmartLoaderProps> = ({
   duration = 2000,
   onComplete
 }) => {
+  const t = useTranslations('SmartLoader');
   const [currentStep, setCurrentStep] = useState(0);
 
-  // Two-step messages
+  // Two-step messages with translation
   const getMessages = (type: string) => {
     switch (type) {
       case 'growth':
         return [
-          "Processing growth algorithms...",
-          "Generating the chart..."
+          t('growth.step1'),
+          t('growth.step2')
         ];
       case 'analysis':
         return [
-          "Running analysis...",
-          "Generating results..."
+          t('analysis.step1'),
+          t('analysis.step2')
         ];
       case 'calculation':
         return [
-          "Computing results...",
-          "Finalizing data..."
+          t('calculation.step1'),
+          t('calculation.step2')
         ];
       default:
         return [
-          "Processing data...",
-          "Almost ready..."
+          t('processing.step1'),
+          t('processing.step2')
         ];
     }
   };

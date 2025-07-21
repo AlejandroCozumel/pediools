@@ -244,7 +244,7 @@
       "warning": "La calculadora está diseñada para edades de 1 año - 17 años (12-215 meses)"
     },
     "dataSource": {
-      "whoHeight": "Los percentiles de altura usan estándares de crecimiento OMS para edades 1–2 años.",
+      "cdcHeightInfant": "Los percentiles de altura usan gráficas de crecimiento infantil CDC para edades 0-36 meses.",
       "cdcHeight": "Los percentiles de altura usan gráficas de crecimiento CDC para edades 2–17 años."
     },
     "results": {
@@ -259,10 +259,10 @@
         "zScore": "Puntuación Z"
       },
       "clinicalInterpretation": {
-        "title": "Interpretación Clínica",
-        "currentBP": "Presión Arterial Actual:",
-        "classification": "Clasificación: Basada en el percentil más alto (sistólica: {systolic}%, diastólica: {diastolic}%)",
-        "heightAdjustment": "Ajuste por altura: Aplicado basado en el percentil {height} de altura"
+        "title": "Interpretación clínica",
+        "currentBP": "PA actual",
+        "classification": "Percentil de clasificación",
+        "heightAdjustment": "Ajuste por percentil de talla"
       },
       "referenceRanges": {
         "title": "Rangos de Referencia para Edad {age} ({gender})",
@@ -274,7 +274,7 @@
         "whoSource": "OMS (1–2 años)",
         "cdcSource": "CDC (2–17 años)",
         "reference": "Referencia: Guía de Práctica Clínica 2017 de la Academia Americana de Pediatría",
-        "note": "Nota: Usa tabla de detección AAP 2017 con aproximación de regresión cuantil"
+        "note": "Nota: Usa tabla AAP 2017 con aproximación de regresión cuantil"
       }
     },
     "classifications": {
@@ -309,13 +309,17 @@
         "adolescentDescription": "≥140/90 mmHg"
       },
       "hypotension": {
-        "mild": {
-          "category": "Mild Hypotension",
-          "description": "Mild hypotension - monitor closely"
-        },
         "severe": {
-          "category": "Severe Hypotension",
-          "description": "Severe hypotension - immediate evaluation needed"
+          "category": "Hipotensión Severa",
+          "description": "Hipotensión severa detectada. Se recomienda evaluación inmediata, especialmente si hay síntomas."
+        },
+        "mild": {
+          "category": "Hipotensión Leve",
+          "description": "Hipotensión leve. Monitorear de cerca y evaluar síntomas."
+        },
+        "borderline": {
+          "category": "Hipotensión Límite",
+          "description": "La presión arterial está en el límite inferior de lo normal. Monitorear y evaluar el contexto clínico."
         }
       }
     },
@@ -362,8 +366,25 @@
       "footer": "Estos umbrales se calculan basándose en las guías AAP 2017, ajustados para la edad, género y percentil de altura específicos de este paciente.",
       "heightAdjustment": "Valores ajustados por percentil de estatura ({percentile}%)",
       "heightOnlyDisclaimer": "Valores aproximados basados en estatura. La edad exacta proporcionaría mayor precisión.",
-      "hypotensionNote": "Los percentiles más bajos ayudan a identificar hipotensión y asegurar una evaluación clínica integral.",
+      "hypotensionNote": "Los percentiles bajos ayudan a identificar la hipotensión y respaldan una evaluación clínica integral. Sin embargo, los percentiles de presión arterial no deben usarse de forma aislada. La evaluación clínica —incluyendo la valoración de síntomas, perfusión y el estado general del paciente— es esencial para un diagnóstico y manejo precisos. Siempre interprete los valores bajos de presión arterial en el contexto de la presentación clínica del paciente, ya que las guías recomiendan considerar tanto los umbrales numéricos como los hallazgos clínicos.",
       "dataSource": "Los percentiles de estatura se calculan utilizando estándares de crecimiento CDC cuando están disponibles."
+    },
+    "ambulatoryReference": {
+      "patientHeight": "Estatura del paciente (cm)",
+      "heightPlaceholder": "Ingrese la estatura en cm",
+      "generateCard": "Generar tarjeta de referencia",
+      "printCard": "Imprimir tarjeta de referencia",
+      "cardTitle": "Referencia de PA ambulatoria para {gender}, Estatura: {height} cm",
+      "source": "Fuente: Guía AAP 2014 para Monitoreo Ambulatorio de Presión Arterial",
+      "period": "Periodo",
+      "percentile5": "Percentil 5",
+      "percentile50": "Percentil 50",
+      "percentile90": "Percentil 90",
+      "percentile95": "Percentil 95",
+      "percentile99": "Percentil 99",
+      "daytime": "Día (despierto)",
+      "nighttime": "Noche (dormido)",
+      "hour24": "Promedio 24 horas"
     }
   },
   "PatientSelector": {
@@ -400,7 +421,12 @@
     "dashboard": "Panel",
     "patients": "Pacientes",
     "appointments": "Citas",
-    "calculations": "Cálculos"
+    "calculations": "Cálculos",
+    "calculators": "Calculadoras",
+    "about": "Acerca de",
+    "faq": "Preguntas frecuentes",
+    "disclaimer": "Aviso legal",
+    "contact": "Contacto"
   },
   "Footer": {
     "title": "Pie de página",
@@ -899,14 +925,9 @@
     "description": "Interpreta valores de laboratorio pediátricos con rangos de referencia basados en edad",
     "noResults": "Por favor ingrese valores de laboratorio e información del paciente para ver los resultados.",
     "resultsTitle": "Análisis de Resultados de Laboratorio",
-    "premium": "Premium",
-    "basic": "Conjunto Básico",
     "criticalValues": "Valores Críticos Detectados:",
     "result": "resultado",
     "criticalResultsAttention": "resultado(s) requieren atención inmediata.",
-    "basicPlan": "El plan básico incluye pruebas de laboratorio comunes. Actualice a Premium para el conjunto completo de referencias Harriet Lane con más de 200 pruebas especializadas.",
-    "completeHarrietLaneReferenceDataset": "conjunto completo de referencias Harriet Lane",
-    "with200SpecializedTests": "con más de 200 pruebas especializadas",
     "patientInfo": "Información del Paciente",
     "searchPatient": "Buscar Paciente",
     "patientInfoHint": "Ingrese la información del paciente para calcular los rangos de referencia apropiados para la edad.",
@@ -916,7 +937,7 @@
     "female": "Niña",
     "labValues": "Valores de Laboratorio",
     "addLabValue": "Agregar Valor de Laboratorio",
-    "manualEntry": "Entrada Manual",
+    "manualEntry": "Ingreso Manual",
     "commonTests": "Pruebas Comunes",
     "testName": "Nombre de la Prueba",
     "selectTest": "Seleccione prueba",
@@ -927,17 +948,16 @@
     "remove": "Eliminar",
     "ageGroup": "Grupo de Edad",
     "referenceDataSources": "Fuentes de Datos de Referencia:",
-    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorios CHOP",
-    "childrensHospitalOfPhiladelphia": "Hospital Infantil de Filadelfia",
+    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorio CHOP",
     "disclaimer": "Aviso:",
     "disclaimerText": "Los valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden variar según la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
-    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados",
-    "compiledFromMultipleSources": "compilados de múltiples fuentes",
-    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar",
-    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "según la edad, sexo, condición clínica y metodología de laboratorio utilizada",
-    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio",
-    "referenceRange": "Rango de Referencia",
+    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados.",
+    "compiledFromMultipleSources": "Compilados de múltiples fuentes.",
+    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar.",
+    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "Según la edad, sexo, condición clínica y metodología de laboratorio utilizada.",
+    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
     "patientValue": "Valor del Paciente",
+    "referenceRange": "Rango de Referencia",
     "interpretation": "Interpretación",
     "interpretationNormal": "Dentro de los límites normales",
     "interpretationLow": "Por debajo del rango de referencia",
@@ -1235,5 +1255,154 @@
       "calculate": "Calcular Umbral",
       "calculating": "Calculando..."
     }
+  },
+  "SmartLoader": {
+    "growth": {
+      "step1": "Procesando algoritmos de crecimiento...",
+      "step2": "Generando la gráfica..."
+    },
+    "analysis": {
+      "step1": "Ejecutando análisis...",
+      "step2": "Generando resultados..."
+    },
+    "calculation": {
+      "step1": "Calculando resultados...",
+      "step2": "Finalizando datos..."
+    },
+    "processing": {
+      "step1": "Procesando datos...",
+      "step2": "Casi listo..."
+    }
+  },
+  "CDCChartPage": {
+    "growthChartsTitle": "Gráficas de Crecimiento CDC de EE.UU.",
+    "growthChartsSubtitle": "Visualización del crecimiento infantil (2-20 años)",
+    "processingErrorTitle": "Error de procesamiento",
+    "processingErrorDescription": "Ocurrió un error inesperado al procesar sus datos.",
+    "tryAgainButton": "Intentar de nuevo",
+    "invalidDataTitle": "Datos inválidos",
+    "invalidDataDescription": "Los datos recibidos para la gráfica son inválidos o están incompletos. Por favor, revise sus entradas e intente nuevamente.",
+    "goBackButton": "Regresar"
+  },
+  "InfantCDCChartPage": {
+    "growthChartsTitle": "Gráficas de Crecimiento CDC de EE.UU.",
+    "growthVisualizationSubtitle": "Visualización del crecimiento infantil (2-20 años)",
+    "processingErrorTitle": "Error de procesamiento",
+    "processingErrorDescription": "Ocurrió un error inesperado al procesar sus datos.",
+    "tryAgainButton": "Intentar de nuevo",
+    "invalidDataTitle": "Datos inválidos",
+    "invalidDataDescription": "Los datos recibidos para la gráfica son inválidos o están incompletos. Por favor, revise sus entradas e intente nuevamente.",
+    "goBackButton": "Regresar"
+  },
+  "IntergrowthChartPage": {
+    "growthStandardsTitle": "Estándares de Crecimiento Intergrowth-21st",
+    "pretermInfantGrowthVisualizationSubtitle": "Visualización del crecimiento de prematuros (24-42 semanas)",
+    "processingErrorTitle": "Error de procesamiento",
+    "processingErrorDescription": "Ocurrió un error inesperado al procesar sus datos.",
+    "tryAgainButton": "Intentar de nuevo",
+    "invalidDataTitle": "Datos inválidos",
+    "invalidDataDescription": "Los datos recibidos para la gráfica son inválidos o están incompletos. Por favor, revise sus entradas e intente nuevamente.",
+    "goBackButton": "Regresar"
+  },
+  "WHOChartPage": {
+    "whoGrowthStandardsTitle": "Estándares de Crecimiento de la OMS",
+    "infantGrowthVisualizationSubtitle": "Visualización del crecimiento infantil (0-24 meses)",
+    "processingErrorTitle": "Error de procesamiento",
+    "processingErrorDescription": "Ocurrió un error inesperado al procesar sus datos.",
+    "tryAgainButton": "Intentar de nuevo",
+    "invalidDataTitle": "Datos inválidos",
+    "invalidDataDescription": "Los datos recibidos para la gráfica son inválidos o están incompletos. Por favor, revise sus entradas e intente nuevamente.",
+    "goBackButton": "Regresar"
+  },
+  "CDCChartDisplay": {
+    "boys": "Niños",
+    "girls": "Niñas",
+    "weightLabel": "(Peso)",
+    "heightLabel": "(Talla)",
+    "patientChartLabel": "Paciente",
+    "ageTooltip": "Edad: {age} años",
+    "patientTooltip": "Paciente (P{percentile})",
+    "ageAxisLabel": "Edad (años)",
+    "currentAgeAnnotation": "Edad actual",
+    "dataSource": "Fuente: Gráficas de Crecimiento CDC (2-20 años)",
+    "weightForAgeChartTitle": "Gráfica de peso para la edad",
+    "heightForAgeChartTitle": "Gráfica de talla para la edad",
+    "weightYAxisLabel": "Peso (kg)",
+    "heightYAxisLabel": "Talla (cm)",
+    "kgUnit": "kg",
+    "cmUnit": "cm"
+  },
+  "InfantCDCChartDisplay": {
+    "boys": "Niños",
+    "girls": "Niñas",
+    "weightLabel": "(Peso)",
+    "heightLabel": "(Talla)",
+    "patientChartLabel": "Paciente",
+    "ageTooltip": "Edad: {age} meses",
+    "patientTooltip": "Paciente (P{percentile})",
+    "ageAxisLabel": "Edad (meses)",
+    "currentAgeAnnotation": "Edad actual",
+    "dataSource": "Fuente: Gráficas de Crecimiento CDC para infantes (0-36 meses)",
+    "weightForAgeChartTitle": "Gráfica de peso para la edad",
+    "heightForAgeChartTitle": "Gráfica de talla para la edad",
+    "weightYAxisLabel": "Peso (kg)",
+    "heightYAxisLabel": "Talla (cm)",
+    "kgUnit": "kg",
+    "cmUnit": "cm"
+  },
+  "IntergrowthChartDisplay": {
+    "boys": "Niños",
+    "girls": "Niñas",
+    "weightChartType": "(Peso)",
+    "lengthChartType": "(Longitud)",
+    "patientChartLabel": "Paciente",
+    "gestationalAgeTooltipTitle": "Edad gestacional",
+    "percentileLabel": "P",
+    "patientTooltipLabel": "Paciente",
+    "gestationalAgeAxisTitle": "Edad gestacional (semanas)",
+    "currentGAAnnotation": "EG actual",
+    "dataSource": "Fuente: Estándares de Crecimiento Intergrowth-21st (24-42 semanas)",
+    "weightForGAChartTitle": "Gráfica de peso para la edad gestacional",
+    "lengthForGAChartTitle": "Gráfica de longitud para la edad gestacional",
+    "weightYAxisLabel": "Peso (kg)",
+    "lengthYAxisLabel": "Longitud (cm)",
+    "kgUnit": "kg",
+    "cmUnit": "cm"
+  },
+  "WHOChartDisplay": {
+    "boysLabel": "Niños",
+    "girlsLabel": "Niñas",
+    "weightLabel": "(Peso)",
+    "heightLabel": "(Talla)",
+    "patientLabel": "Paciente",
+    "genderLabel": "",
+    "ageLabel": "Edad",
+    "monthsLabel": "meses",
+    "currentAgeLabel": "Edad actual",
+    "patientValueLabel": "Valor",
+    "patientAgeLabel": "Edad",
+    "percentileLabel": " percentil",
+    "dataSourceLabel": "Fuente: Estándares de Crecimiento de la OMS (0-24 meses)",
+    "weightForAgeChartTitle": "Gráfica de peso para la edad",
+    "heightForAgeChartTitle": "Gráfica de talla para la edad",
+    "weightYAxisLabel": "Peso (kg)",
+    "heightYAxisLabel": "Talla (cm)",
+    "kgUnit": "kg",
+    "cmUnit": "cm"
+  },
+  "ToggleViewChart": {
+    "focusedView": "Vista enfocada",
+    "fullCurve": "Curva completa",
+    "focusedViewDescription": "Enfocado en el rango de medición actual del paciente",
+    "fullCurveDescription": "Visualizando toda la progresión de crecimiento"
+  },
+  "AppDisclaimer": {
+    "title": "Aviso:",
+    "referenceAid": "El usuario reconoce y acepta que estas herramientas se utilizarán solo como una ayuda de referencia, y que la información contenida en los productos no está destinada a ser (ni debe usarse como) un sustituto del juicio profesional.",
+    "confirmInformation": "En vista de la posibilidad de errores humanos o cambios en la ciencia médica, el usuario debe confirmar la información de los productos a través de fuentes independientes.",
+    "noWarranties": "Los productos se proporcionan sin garantías de ningún tipo, expresas o implícitas, y el autor declina cualquier responsabilidad, pérdida o daño causado por ellos o su contenido.",
+    "acceptance": "Al continuar utilizando estos productos, usted indica su aceptación de estos términos.",
+    "short": "Solo para referencia.",
+    "seeFullDisclaimer": "Ver aviso completo"
   }
 }

@@ -8,8 +8,10 @@ import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
 import { useWHOChartData } from "@/hooks/calculations/use-who-chart-data";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from 'next-intl';
 
 const Charts = () => {
+  const t = useTranslations('WHOChartPage');
   const { isFullCurveView } = useSubscriptionStore();
   const [showLoader, setShowLoader] = useState(true);
 
@@ -73,7 +75,7 @@ const Charts = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Processing Error
+            {t('processingErrorTitle')}
           </motion.h2>
 
           <motion.p
@@ -84,7 +86,7 @@ const Charts = () => {
           >
             {error instanceof Error
               ? error.message
-              : "An unexpected error occurred while processing your data"}
+              : t('processingErrorDescription')}
           </motion.p>
 
           <motion.div
@@ -97,7 +99,7 @@ const Charts = () => {
               className="bg-medical-600 hover:bg-medical-700 text-white px-6 py-2"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
+              {t('tryAgainButton')}
             </Button>
           </motion.div>
         </div>
@@ -138,7 +140,7 @@ const Charts = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Invalid Data
+            {t('invalidDataTitle')}
           </motion.h2>
 
           <motion.p
@@ -147,8 +149,7 @@ const Charts = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            The chart data received is invalid or incomplete. Please check your
-            inputs and try again.
+            {t('invalidDataDescription')}
           </motion.p>
 
           <motion.div
@@ -161,7 +162,7 @@ const Charts = () => {
               variant="outline"
               className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2"
             >
-              Go Back
+              {t('goBackButton')}
             </Button>
           </motion.div>
         </div>
@@ -177,9 +178,9 @@ const Charts = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <h2>WHO Growth Standards</h2>
+        <h2>{t('whoGrowthStandardsTitle')}</h2>
         <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
-          Infant Growth Visualization (0-24 months)
+          {t('infantGrowthVisualizationSubtitle')}
         </span>
       </motion.div>
 

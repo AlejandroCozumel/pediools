@@ -38,6 +38,7 @@ import { differenceInMonths, differenceInYears } from "date-fns";
 import cdcHeightData from "@/app/data/cdc-data-height.json";
 import cdcChildHeightData from "@/app/data/cdc-data-height.json";
 import cdcInfantHeightData from "@/app/data/cdc-data-infant-height.json";
+import aapBPData from "@/app/data/aap-blood-pressure-data.json";
 import DateInputs from "@/components/DateInputs";
 import { AmbulatoryReferenceCard } from "./AmbulatoryReferenceCard";
 import { OfficeBPReferenceCard } from "./OfficeBPReferenceCard";
@@ -110,15 +111,12 @@ const createFormSchema = (t: any) =>
       if (data.systolicBP && data.diastolicBP) {
         const systolic = parseFloat(data.systolicBP);
         const diastolic = parseFloat(data.diastolicBP);
-
         // Check ranges
         if (isNaN(systolic) || systolic < 50 || systolic > 250) return false;
         if (isNaN(diastolic) || diastolic < 30 || diastolic > 150) return false;
-
         // Check relationship
         if (systolic <= diastolic) return false;
       }
-
       // If only one BP value is provided, it's invalid
       if (
         (data.systolicBP && !data.diastolicBP) ||
@@ -126,7 +124,6 @@ const createFormSchema = (t: any) =>
       ) {
         return false;
       }
-
       return true;
     });
 
@@ -190,7 +187,7 @@ const interpolateDataPoint = (
   };
 };
 
-// Calculate height percentile using combined WHO/CDC data
+// Calculate height percentile using CDC data
 function calculateHeightPercentile(
   height: number,
   ageInMonths: number,
@@ -198,7 +195,7 @@ function calculateHeightPercentile(
 ): number {
   const sex = gender === "male" ? 1 : 2;
   let heightDataPoint;
-  if (ageInMonths < 36) {
+  if (ageInMonths < 24) {
     heightDataPoint = interpolateDataPoint(
       ageInMonths,
       cdcInfantHeightData as CdcDataPoint[],
@@ -221,52 +218,46 @@ function calculateHeightPercentile(
   return zScoreToPercentile(zScore);
 }
 
-// 2017 AAP Screening Table (Simplified screening values)
-const aapScreeningTable: Record<
-  "male" | "female",
-  Record<string, { systolic: number; diastolic: number }>
-> = {
-  male: {
-    "1": { systolic: 98, diastolic: 52 },
-    "2": { systolic: 100, diastolic: 55 },
-    "3": { systolic: 101, diastolic: 58 },
-    "4": { systolic: 102, diastolic: 60 },
-    "5": { systolic: 103, diastolic: 63 },
-    "6": { systolic: 105, diastolic: 66 },
-    "7": { systolic: 106, diastolic: 68 },
-    "8": { systolic: 107, diastolic: 69 },
-    "9": { systolic: 107, diastolic: 70 },
-    "10": { systolic: 108, diastolic: 72 },
-    "11": { systolic: 110, diastolic: 74 },
-    "12": { systolic: 113, diastolic: 75 },
-    "13": { systolic: 120, diastolic: 80 },
-    "14": { systolic: 120, diastolic: 80 },
-    "15": { systolic: 120, diastolic: 80 },
-    "16": { systolic: 120, diastolic: 80 },
-    "17": { systolic: 120, diastolic: 80 },
-  },
-  female: {
-    "1": { systolic: 98, diastolic: 54 },
-    "2": { systolic: 101, diastolic: 58 },
-    "3": { systolic: 102, diastolic: 60 },
-    "4": { systolic: 103, diastolic: 62 },
-    "5": { systolic: 104, diastolic: 64 },
-    "6": { systolic: 105, diastolic: 67 },
-    "7": { systolic: 106, diastolic: 68 },
-    "8": { systolic: 107, diastolic: 69 },
-    "9": { systolic: 108, diastolic: 71 },
-    "10": { systolic: 109, diastolic: 72 },
-    "11": { systolic: 111, diastolic: 74 },
-    "12": { systolic: 114, diastolic: 75 },
-    "13": { systolic: 120, diastolic: 80 },
-    "14": { systolic: 120, diastolic: 80 },
-    "15": { systolic: 120, diastolic: 80 },
-    "16": { systolic: 120, diastolic: 80 },
-    "17": { systolic: 120, diastolic: 80 },
-  },
-};
+// Helper function to get BP thresholds from complete AAP data
+function getBPThresholdsFromAAP(
+  ageInYears: number,
+  heightPercentile: number,
+  gender: "male" | "female"
+) {
+  const genderData = (
+    gender === "male" ? aapBPData.boys : aapBPData.girls
+  ) as any;
+  const ageData = genderData[String(ageInYears)];
 
-// ✅ 1. ADD THIS NEW HELPER FUNCTION
+  if (!ageData) return null;
+
+  // Find closest height percentile from available data (5th, 10th, 25th, 50th, 75th, 90th, 95th)
+  const heightPercentiles = [5, 10, 25, 50, 75, 90, 95];
+  const closestHeightIndex = heightPercentiles.reduce(
+    (prev, curr, index) =>
+      Math.abs(curr - heightPercentile) <
+      Math.abs(heightPercentiles[prev] - heightPercentile)
+        ? index
+        : prev,
+    0
+  );
+
+  return {
+    p50: {
+      systolic: ageData.bp["50th"].systolic[closestHeightIndex],
+      diastolic: ageData.bp["50th"].diastolic[closestHeightIndex],
+    },
+    p90: {
+      systolic: ageData.bp["90th"].systolic[closestHeightIndex],
+      diastolic: ageData.bp["90th"].diastolic[closestHeightIndex],
+    },
+    p95: {
+      systolic: ageData.bp["95th"].systolic[closestHeightIndex],
+      diastolic: ageData.bp["95th"].diastolic[closestHeightIndex],
+    },
+  };
+}
+
 function calculateAccuratePercentile(
   value: number,
   thresholds: Record<string, number>
@@ -294,7 +285,6 @@ function calculateAccuratePercentile(
   );
 }
 
-// ✅ 2. ADD THE FULLY CORRECTED MAIN FUNCTION
 function calculateBPPercentile(
   systolic: number,
   diastolic: number,
@@ -310,29 +300,28 @@ function calculateBPPercentile(
 
   const clampedHeightPercentile = Math.max(1, Math.min(99.9, heightPercentile));
 
-  const availableAges = Object.keys(aapScreeningTable[gender])
-    .map(Number)
-    .sort((a, b) => a - b);
-  const closestAge = availableAges.reduce((prev, curr) =>
-    Math.abs(curr - ageInYears) < Math.abs(prev - ageInYears) ? curr : prev
+  // Get BP thresholds from AAP data
+  const bpThresholds = getBPThresholdsFromAAP(
+    ageInYears,
+    clampedHeightPercentile,
+    gender
   );
-  const screeningValues = aapScreeningTable[gender][String(closestAge)];
+  if (!bpThresholds) return null;
 
-  const heightZScore = (clampedHeightPercentile - 50) / 25;
-  const heightAdjustment = heightZScore * 1.5;
+  const p50Systolic = bpThresholds.p50.systolic;
+  const p50Diastolic = bpThresholds.p50.diastolic;
+  const p90Systolic = bpThresholds.p90.systolic;
+  const p90Diastolic = bpThresholds.p90.diastolic;
+  const p95Systolic = bpThresholds.p95.systolic;
+  const p95Diastolic = bpThresholds.p95.diastolic;
 
-  const p90Systolic = Math.round(screeningValues.systolic + heightAdjustment);
-  const p90Diastolic = Math.round(screeningValues.diastolic + heightAdjustment);
-  const p50Systolic = Math.round(p90Systolic - 15);
-  const p50Diastolic = Math.round(p90Diastolic - 12);
+  // Calculate derived percentiles
   const p10Systolic = Math.round(p50Systolic - 12);
   const p10Diastolic = Math.round(p50Diastolic - 8);
   const p5Systolic = Math.round(p50Systolic - 16);
   const p5Diastolic = Math.round(p50Diastolic - 10);
   const p3Systolic = Math.round(p50Systolic - 20);
   const p3Diastolic = Math.round(p50Diastolic - 12);
-  const p95Systolic = Math.round(p90Systolic + 8);
-  const p95Diastolic = Math.round(p90Diastolic + 6);
   const stage2Systolic = Math.round(p95Systolic + 12);
   const stage2Diastolic = Math.round(p95Diastolic + 12);
 
@@ -344,6 +333,7 @@ function calculateBPPercentile(
     p90: p90Systolic,
     p95: p95Systolic,
   };
+
   const diastolicThresholds = {
     p3: p3Diastolic,
     p5: p5Diastolic,
@@ -385,7 +375,6 @@ function calculateBPPercentile(
   const diastolicZ = percentileToZScore(finalDiastolicPercentile);
 
   let classification: BPClassification;
-
   if (ageInYears >= 13) {
     if (systolic >= 140 || diastolic >= 90)
       classification = {
@@ -526,10 +515,7 @@ function isAgeInRange(
 
 export function BloodPressureForm() {
   const t = useTranslations("BloodPressureCalculator");
-
-  // Create form schema with translations
   const formSchema = useMemo(() => createFormSchema(t), [t]);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BPResult | null>(null);
   const [ageError, setAgeError] = useState<string>("");
@@ -555,7 +541,6 @@ export function BloodPressureForm() {
   // Calculate age in months and years
   const ageInMonths = useMemo(() => {
     if (!birthDate || !measurementDate) return 0;
-
     // Normalize both dates to avoid timezone/hour issues
     const birth = new Date(
       birthDate.getFullYear(),
@@ -567,13 +552,11 @@ export function BloodPressureForm() {
       measurementDate.getMonth(),
       measurementDate.getDate()
     );
-
     return differenceInMonths(measurement, birth);
   }, [birthDate, measurementDate]);
 
   const ageInYears = useMemo(() => {
     if (!birthDate || !measurementDate) return 0;
-
     // Normalize both dates to avoid timezone/hour issues
     const birth = new Date(
       birthDate.getFullYear(),
@@ -585,7 +568,6 @@ export function BloodPressureForm() {
       measurementDate.getMonth(),
       measurementDate.getDate()
     );
-
     return differenceInYears(measurement, birth);
   }, [birthDate, measurementDate]);
 
@@ -617,6 +599,7 @@ export function BloodPressureForm() {
   const systolicValue = parseFloat(systolicBP || "0");
   const diastolicValue = parseFloat(diastolicBP || "0");
   const isBPInvalid = hasBothBP && diastolicValue >= systolicValue;
+
   const systolicOutOfRange =
     systolicBP && (parseFloat(systolicBP) < 50 || parseFloat(systolicBP) > 250);
   const diastolicOutOfRange =
@@ -633,7 +616,7 @@ export function BloodPressureForm() {
     setIsSubmitting(true);
     setAgeError("");
 
-    // Age range check (dates are now required)
+    // Age range check (dates are required)
     const birthDate = values.dateOfBirth;
     const measurementDate = values.dateOfMeasurement;
     const inRange = isAgeInRange(birthDate, measurementDate, 1, 17);
@@ -645,7 +628,7 @@ export function BloodPressureForm() {
       return;
     }
 
-    // Calculate height percentile (age is always available now)
+    // Calculate height percentile (age is always available)
     const heightPercentile = calculateHeightPercentile(
       parseFloat(values.height),
       ageInMonths,
@@ -945,11 +928,11 @@ export function BloodPressureForm() {
 
                 {/* Real-time Results */}
                 {results && (
-                  <>
+                  <div className="results-section">
                     {/* Growth Chart Source Info Banner */}
-                    {ageInMonths >= 12 && ageInMonths < 24 && (
+                    {ageInMonths >= 0 && ageInMonths < 24 && (
                       <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                        {t("dataSource.whoHeight")}
+                        {t("dataSource.cdcHeightInfant")}
                       </div>
                     )}
                     {ageInMonths >= 24 && ageInMonths <= 215 && (
@@ -1196,6 +1179,7 @@ export function BloodPressureForm() {
                             cdcInfantHeightData={cdcInfantHeightData}
                             patientSystolic={results.systolic.value}
                             patientDiastolic={results.diastolic.value}
+                            aapBPData={aapBPData}
                           />
 
                           {/* Clinical Interpretation */}
@@ -1205,36 +1189,30 @@ export function BloodPressureForm() {
                             </h4>
                             <div className="text-xs text-blue-700">
                               <p>
+                                {t("results.clinicalInterpretation.currentBP")}
+                                {": "}
                                 <strong>
-                                  {t(
-                                    "results.clinicalInterpretation.currentBP"
-                                  )}
-                                </strong>{" "}
-                                {results.systolic.value}/
-                                {results.diastolic.value} mmHg
-                              </p>
-                              <p>
-                                <strong>
-                                  {t(
-                                    "results.clinicalInterpretation.classification",
-                                    {
-                                      systolic:
-                                        results.systolic.percentile.toFixed(1),
-                                      diastolic:
-                                        results.diastolic.percentile.toFixed(1),
-                                    }
-                                  )}
+                                  {results.systolic.value}/
+                                  {results.diastolic.value} mmHg
                                 </strong>
                               </p>
                               <p>
+                                {t(
+                                  "results.clinicalInterpretation.classification"
+                                )}
+                                {": "}
                                 <strong>
-                                  {t(
-                                    "results.clinicalInterpretation.heightAdjustment",
-                                    {
-                                      height:
-                                        results.heightPercentile.toFixed(1),
-                                    }
-                                  )}
+                                  {results.systolic.percentile.toFixed(1)}/
+                                  {results.diastolic.percentile.toFixed(1)}%
+                                </strong>
+                              </p>
+                              <p>
+                                {t(
+                                  "results.clinicalInterpretation.heightAdjustment"
+                                )}
+                                {": "}
+                                <strong>
+                                  {results.heightPercentile.toFixed(1)}%
                                 </strong>
                               </p>
                             </div>
@@ -1249,8 +1227,8 @@ export function BloodPressureForm() {
                               {t("results.footer.heightData", {
                                 source:
                                   ageInMonths < 24
-                                    ? t("results.footer.whoSource")
-                                    : t("results.footer.cdcSource"),
+                                    ? t("dataSource.cdcHeightInfant")
+                                    : t("dataSource.cdcHeight"),
                               })}
                             </p>
                             <p>{t("results.footer.reference")}</p>
@@ -1259,7 +1237,7 @@ export function BloodPressureForm() {
                         </div>
                       </CardContent>
                     </Card>
-                  </>
+                  </div>
                 )}
                 {ageError && (
                   <Alert variant="destructive" className="mb-4">
@@ -1272,18 +1250,21 @@ export function BloodPressureForm() {
                   ageIsValid &&
                   hasHeight &&
                   !isSubmitting && (
-                    <OfficeBPReferenceCard
-                      ageInYears={ageInYears}
-                      gender={selectedGender}
-                      heightPercentile={calculateHeightPercentile(
-                        parseFloat(height),
-                        ageInMonths,
-                        selectedGender
-                      )}
-                      height={parseFloat(height)}
-                      cdcChildHeightData={cdcHeightData}
-                      cdcInfantHeightData={cdcInfantHeightData}
-                    />
+                    <div className="results-section">
+                      <OfficeBPReferenceCard
+                        ageInYears={ageInYears}
+                        gender={selectedGender}
+                        heightPercentile={calculateHeightPercentile(
+                          parseFloat(height),
+                          ageInMonths,
+                          selectedGender
+                        )}
+                        height={parseFloat(height)}
+                        cdcChildHeightData={cdcHeightData}
+                        cdcInfantHeightData={cdcInfantHeightData}
+                        aapBPData={aapBPData}
+                      />
+                    </div>
                   )}
                 <Button
                   type="submit"

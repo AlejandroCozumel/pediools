@@ -144,47 +144,49 @@ export function AmbulatoryReferenceCard() {
             </div>
             {/* ✨ UPDATED TABLE WITH MATCHING UI ✨ */}
             <div className="border rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead>
-                      <tr className={cn(
-                        "text-white",
-                        gender === 'boys' ? "bg-medical-600" : "bg-medical-pink-600"
-                      )}>
-                        <th className="p-3 font-semibold text-left">{t("period")}</th>
-                        <th className="p-3 font-semibold text-center">{t("percentile5")}</th>
-                        <th className="p-3 font-semibold text-center">{t("percentile50")}</th>
-                        <th className="p-3 font-semibold text-center">{t("percentile90")}</th>
-                        <th className="p-3 font-semibold text-center">{t("percentile95")}</th>
-                        <th className="p-3 font-semibold text-center">{t("percentile99")}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr className="bg-white hover:bg-gray-50">
-                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Sun className="w-5 h-5 text-yellow-500"/>{t("daytime")}</td>
-                        <td className="p-3 text-center font-mono">{referenceData.day.p5}</td>
-                        <td className="p-3 text-center font-mono">{referenceData.day.p50}</td>
-                        <td className="p-3 text-center font-mono">{referenceData.day.p90}</td>
-                        <td className="p-3 text-center font-mono font-bold text-orange-600">{referenceData.day.p95}</td>
-                        <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData.day.p99}</td>
-                      </tr>
-                      <tr className="bg-white hover:bg-gray-50">
-                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Moon className="w-5 h-5 text-blue-500"/>{t("nighttime")}</td>
-                        <td className="p-3 text-center font-mono">{referenceData.night.p5}</td>
-                        <td className="p-3 text-center font-mono">{referenceData.night.p50}</td>
-                        <td className="p-3 text-center font-mono">{referenceData.night.p90}</td>
-                        <td className="p-3 text-center font-mono font-bold text-orange-600">{referenceData.night.p95}</td>
-                        <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData.night.p99}</td>
-                      </tr>
-                       <tr className="bg-white hover:bg-gray-50">
-                        <td className="p-3 text-left font-semibold flex items-center gap-2"><Clock className="w-5 h-5 text-gray-500"/>{t("hour24")}</td>
-                        <td className="p-3 text-center font-mono">{referenceData['24h'].p5}</td>
-                        <td className="p-3 text-center font-mono">{referenceData['24h'].p50}</td>
-                        <td className="p-3 text-center font-mono">{referenceData['24h'].p90}</td>
-                        <td className="p-3 text-center font-mono font-bold text-orange-600">{referenceData['24h'].p95}</td>
-                        <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData['24h'].p99}</td>
-                      </tr>
-                    </tbody>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px] text-sm">
+                  <thead>
+                    <tr className={cn(
+                      "text-white",
+                      gender === 'boys' ? "bg-medical-600" : "bg-medical-pink-600"
+                    )}>
+                      <th className="p-3 font-semibold text-left">{t("period")}</th>
+                      <th className="p-3 font-semibold text-center">{t("percentile5")}</th>
+                      <th className="p-3 font-semibold text-center">{t("percentile50")}</th>
+                      <th className="p-3 font-semibold text-center">{t("percentile90")}</th>
+                      <th className="p-3 font-semibold text-center">{t("percentile95")}</th>
+                      <th className="p-3 font-semibold text-center">{t("percentile99")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    <tr className="bg-white hover:bg-gray-50">
+                      <td className="p-3 text-left font-semibold flex items-center gap-2"><Sun className="w-5 h-5 text-yellow-500"/>{t("daytime")}</td>
+                      <td className="p-3 text-center font-mono">{referenceData.day.p5}</td>
+                      <td className="p-3 text-center font-mono">{referenceData.day.p50}</td>
+                      <td className="p-3 text-center font-mono">{referenceData.day.p90}</td>
+                      <td className="p-3 text-center font-mono font-bold text-orange-600">{referenceData.day.p95}</td>
+                      <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData.day.p99}</td>
+                    </tr>
+                    <tr className="bg-white hover:bg-gray-50">
+                      <td className="p-3 text-left font-semibold flex items-center gap-2"><Moon className="w-5 h-5 text-blue-500"/>{t("nighttime")}</td>
+                      <td className="p-3 text-center font-mono">{referenceData.night.p5}</td>
+                      <td className="p-3 text-center font-mono">{referenceData.night.p50}</td>
+                      <td className="p-3 text-center font-mono">{referenceData.night.p90}</td>
+                      <td className="p-3 text-center font-mono font-bold text-orange-600">{referenceData.night.p95}</td>
+                      <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData.night.p99}</td>
+                    </tr>
+                    <tr className="bg-white hover:bg-gray-50">
+                      <td className="p-3 text-left font-semibold flex items-center gap-2"><Clock className="w-5 h-5 text-gray-500"/>{t("hour24")}</td>
+                      <td className="p-3 text-center font-mono">{referenceData['24h'].p5}</td>
+                      <td className="p-3 text-center font-mono">{referenceData['24h'].p50}</td>
+                      <td className="p-3 text-center font-mono">{referenceData['24h'].p90}</td>
+                      <td className="p-3 text-center font-mono font-bold text-orange-600">{referenceData['24h'].p95}</td>
+                      <td className="p-3 text-center font-mono font-bold text-red-600">{referenceData['24h'].p99}</td>
+                    </tr>
+                  </tbody>
                 </table>
+              </div>
             </div>
           </div>
         </div>

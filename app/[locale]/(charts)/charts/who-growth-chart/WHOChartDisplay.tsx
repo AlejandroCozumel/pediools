@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import whoWeightData from "@/app/data/who-data-weight.json";
 import whoHeightData from "@/app/data/who-data-height.json";
+import { useTranslations } from 'next-intl';
 
 ChartJS.register(
   CategoryScale,
@@ -125,33 +126,6 @@ interface CustomHtmlTooltipProps {
   dataPoints: CustomTooltipDataPoint[];
 }
 
-const chartConfigs = {
-  weight: {
-    sourceData: whoWeightData,
-    dataKey: "weight" as const,
-    inputGenderKey: "weight" as const,
-    title: "Weight For Age Chart",
-    yAxisLabel: "Weight (kg)",
-    yAxisUnit: "kg",
-    yAxisDomainFull: [0, 20] as [number, number],
-    defaultRangeAround: 8,
-    valueAccessor: (m: any) => m?.weight?.value,
-    percentileAccessor: (m: any) => m?.weight?.percentiles?.calculatedPercentile,
-  },
-  height: {
-    sourceData: whoHeightData,
-    dataKey: "height" as const,
-    inputGenderKey: "height" as const,
-    title: "Height For Age Chart",
-    yAxisLabel: "Height (cm)",
-    yAxisUnit: "cm",
-    yAxisDomainFull: [40, 100] as [number, number],
-    defaultRangeAround: 25,
-    valueAccessor: (m: any) => m?.height?.value,
-    percentileAccessor: (m: any) => m?.height?.percentiles?.calculatedPercentile,
-  },
-};
-
 const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   visible,
   position,
@@ -202,6 +176,34 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
   isFullCurveView,
   monthRangeAround,
 }) => {
+  const t = useTranslations('WHOChartDisplay');
+
+  const chartConfigs = {
+    weight: {
+      sourceData: whoWeightData,
+      dataKey: "weight" as const,
+      inputGenderKey: "weight" as const,
+      title: t('weightForAgeChartTitle'),
+      yAxisLabel: t('weightYAxisLabel'),
+      yAxisUnit: t('kgUnit'),
+      yAxisDomainFull: [0, 20] as [number, number],
+      defaultRangeAround: 8,
+      valueAccessor: (m: any) => m?.weight?.value,
+      percentileAccessor: (m: any) => m?.weight?.percentiles?.calculatedPercentile,
+    },
+    height: {
+      sourceData: whoHeightData,
+      dataKey: "height" as const,
+      inputGenderKey: "height" as const,
+      title: t('heightForAgeChartTitle'),
+      yAxisLabel: t('heightYAxisLabel'),
+      yAxisUnit: t('cmUnit'),
+      yAxisDomainFull: [40, 100] as [number, number],
+      defaultRangeAround: 25,
+      valueAccessor: (m: any) => m?.height?.value,
+      percentileAccessor: (m: any) => m?.height?.percentiles?.calculatedPercentile,
+    },
+  };
   const [isMediumScreen, setIsMediumScreen] = useState(false);
   const chartRef = useRef<ChartJS<"line", (number | Point | null)[], number> | null>(null);
   const [tooltipState, setTooltipState] = useState<CustomHtmlTooltipProps>({
@@ -404,7 +406,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
           ].includes(key),
         })),
         {
-          label: `Patient ${config.title.split(" ")[0]}`,
+          label: `${t('patientLabel')} ${t('genderLabel')}`,
           data: patientPoints,
           borderColor: "#DC2626",
           backgroundColor: "#DC2626",
@@ -423,7 +425,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
       chartJsData: chartData,
       patientDataPointsWithPercentile: patientPoints,
     };
-  }, [rawData, config, generateChartDataPoints]);
+  }, [rawData, config, generateChartDataPoints, t]);
 
   const currentPatientMeasurement =
     rawData.data[config.dataKey]?.length > 0
@@ -533,14 +535,14 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
       const clampedAge = Math.max(0, Math.min(24, actualAge));
       const roundedAge = Math.round(clampedAge);
 
-      const title = `Age: ${formatAge(clampedAge)}`;
+      const title = `${t('ageLabel')}: ${formatAge(clampedAge)}`;
 
       const allValuesForAge: CustomTooltipDataPoint[] = [];
       const currentDatasets = chart.data.datasets;
 
       // Get percentile data for the actual hovered monthly age
       currentDatasets.forEach((dataset: any, i: number) => {
-        if (!chart.isDatasetVisible(i) || dataset.label?.startsWith("Patient"))
+        if (!chart.isDatasetVisible(i) || dataset.label?.startsWith(t('patientLabel')))
           return;
 
         // Find the data point for this exact monthly age
@@ -552,7 +554,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
           let label = dataset.label || "";
           let color = dataset.borderColor || "#000";
           const match = label.match(/(\d+(\.\d+)?)th Perc./);
-          label = match ? `P${match[1]}` : label;
+          label = match ? `${t('percentileLabel')}${match[1]}` : label;
           allValuesForAge.push({
             label,
             value: `${dataPoint.y.toFixed(1)} ${config.yAxisUnit}`,
@@ -570,7 +572,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
 
       if (patientPointAtHover) {
         allValuesForAge.push({
-          label: `Patient (P${patientPointAtHover.percentile.toFixed(1)})`,
+          label: `${t('patientLabel')} (P${patientPointAtHover.percentile.toFixed(1)})`,
           value: `${patientPointAtHover.y.toFixed(1)} ${config.yAxisUnit}`,
           color: "#DC2626",
           isPatient: true,
@@ -597,7 +599,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
       };
       setTooltipState(newState);
     },
-    [patientDataPointsWithPercentile, config.yAxisUnit, formatAge]
+    [patientDataPointsWithPercentile, config.yAxisUnit, formatAge, t]
   );
 
   // Chart.js Options
@@ -613,7 +615,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
           max: maxMonths,
           title: {
             display: true,
-            text: "Age (months)",
+            text: `${t('ageLabel')} (${t('monthsLabel')})`,
             font: { size: 14 },
             color: "#374151",
           },
@@ -685,7 +687,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
                   borderWidth: 1.5,
                   borderDash: [6, 6],
                   label: {
-                    content: "Current Age",
+                    content: `${t('currentAgeLabel')}`,
                     display: true,
                     position: "end",
                     yAdjust: -10,
@@ -711,6 +713,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
     isFullCurveView,
     config,
     externalTooltipHandler,
+    t,
   ]);
 
   return (
@@ -721,9 +724,9 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
             <div className="space-y-2">
               <CardTitle className="text-start bg-gradient-to-r from-medical-700 to-medical-900 bg-clip-text text-transparent text-base md:text-lg lg:text-xl font-bold tracking-tight">
                 {rawData.originalInput[config.inputGenderKey].gender === "male"
-                  ? "Boys"
-                  : "Girls"}
-                {type === "weight" ? " (Weight)" : " (Height)"}
+                  ? t('boysLabel')
+                  : t('girlsLabel')}
+                {type === "weight" ? t('weightLabel') : t('heightLabel')}
                 <span className="block text-sm md:text-base text-medical-90 font-medium">
                   {config.title}
                 </span>
@@ -731,19 +734,19 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
               <div className="flex flex-wrap gap-2 md:gap-4">
                 {patientValue !== null && (
                   <Badge variant="outline" className="text-xs md:text-sm">
-                    {config.title.split(" ")[0]}: {patientValue}{" "}
+                    {t('patientValueLabel')}: {patientValue}{" "}
                     {config.yAxisUnit}
                   </Badge>
                 )}
                 {patientAge !== null && (
                   <Badge variant="outline" className="text-xs md:text-sm">
-                    Age: {formatAge(patientAge)}
+                    {t('patientAgeLabel')}: {formatAge(patientAge)}
                   </Badge>
                 )}
                 {latestCalculatedPercentile !== undefined &&
                   latestCalculatedPercentile !== null && (
                     <Badge variant="outline" className="text-xs md:text-sm">
-                      {latestCalculatedPercentile.toFixed(1)}th percentile
+                      {t('percentileLabel')}${latestCalculatedPercentile.toFixed(1)}
                     </Badge>
                   )}
               </div>
@@ -757,7 +760,7 @@ const WHOChartDisplay: React.FC<ChartProps> = ({
         </CardContent>
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">
           <p className="text-xs text-gray-500">
-            Data source: WHO Growth Standards (0-24 months)
+            {t('dataSourceLabel')}
           </p>
         </CardFooter>
       </Card>

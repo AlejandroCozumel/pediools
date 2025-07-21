@@ -203,7 +203,7 @@ export function BSABasedDoseForm() {
                 BSA-Based Dosage Prescribed
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 !pt-0">
 
               {/* First Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -432,7 +432,7 @@ export function BSABasedDoseForm() {
                 Drug Concentration
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 !pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* Mass */}
@@ -551,7 +551,7 @@ export function BSABasedDoseForm() {
                   Calculated BSA-Based Dosage
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 !pt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                   {/* Per Dose Volume */}

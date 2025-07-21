@@ -1,6 +1,12 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -22,20 +28,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import harrietLaneData from "@/app/data/lab-philadelphia.json";
+import chopLabData from "@/app/data/lab-philadelphia.json";
 import { differenceInMonths, differenceInDays } from "date-fns";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
-import { Info, Trash2, Plus, AlertTriangle, Search, User, Baby } from "lucide-react";
+import {
+  Info,
+  Trash2,
+  Plus,
+  AlertTriangle,
+  Search,
+  User,
+  Baby,
+} from "lucide-react";
 import DateInputs from "@/components/DateInputs";
-import { useSubscriptionStore } from "@/stores/premiumStore";
-import PatientSelector from "@/components/premium/PatientSelector";
 import { useLocale } from "next-intl";
 
-// TypeScript interfaces for Harriet Lane data
+// TypeScript interfaces for CHOP Labs data
 interface AgeRange {
   age: string;
   range: {
@@ -51,7 +63,7 @@ interface TestData {
   ageRanges: AgeRange[];
 }
 
-interface HarrietLaneData {
+interface ChopLabData {
   metadata: {
     title: string;
     description: string;
@@ -66,7 +78,7 @@ interface HarrietLaneData {
 }
 
 // Type assertion for the imported JSON
-const typedHarrietLaneData = harrietLaneData as HarrietLaneData;
+const typedChopLabData = chopLabData as ChopLabData;
 
 // Form schema for lab calculator - simplified to only what we need
 const labFormSchema = z.object({
@@ -247,17 +259,14 @@ const getInterpretation = (status: string): string => {
 const LabResults: React.FC<{
   results: LabResult[];
   gender: "male" | "female";
-  isPremium: boolean;
-}> = ({ results, gender, isPremium }) => {
+}> = ({ results, gender }) => {
   const t = useTranslations("LabCalculator");
 
   if (!results.length) {
     return (
       <Alert className="border-medical-200 bg-medical-50">
         <Info className="h-4 w-4 text-medical-500" />
-        <AlertDescription>
-          {t("noResults")}
-        </AlertDescription>
+        <AlertDescription>{t("noResults")}</AlertDescription>
       </Alert>
     );
   }
@@ -291,34 +300,15 @@ const LabResults: React.FC<{
           >
             {t("resultsTitle")}
           </span>
-          <Badge
-            variant={isPremium ? "default" : "secondary"}
-            className={cn(
-              gender === "male"
-                ? "bg-medical-100 text-medical-700"
-                : "bg-medical-pink-100 text-medical-pink-700"
-            )}
-          >
-            {isPremium ? t("premium") : t("basic")}
-          </Badge>
         </CardTitle>
 
         {/* Critical Values Alert */}
         {criticalResults.length > 0 && (
-          <Alert className="bg-red-50 border-red-200">
+          <Alert className="!mt-4 bg-red-50 border-red-200">
             <AlertTriangle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">
-              <strong>{t("criticalValues")}:</strong>{" "}
-              {criticalResults.length} {t("result")}(s) {t("criticalResultsAttention")}.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {!isPremium && (
-          <Alert className="bg-medical-50 border-medical-200">
-            <Info className="h-4 w-4 text-medical-600" />
-            <AlertDescription className="text-medical-700">
-              {t("basicPlan")} {t("completeHarrietLaneReferenceDataset")} {t("with200SpecializedTests")}.
+              <strong>{t("criticalValues")}:</strong> {criticalResults.length}{" "}
+              {t("result")}(s) {t("criticalResultsAttention")}.
             </AlertDescription>
           </Alert>
         )}
@@ -350,8 +340,8 @@ const LabResults: React.FC<{
                     {result.displayName}
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    {t("ageGroup")}: {result.ageGroup.replace(/_/g, " ")} • {t("gender")}:{" "}
-                    {gender}
+                    {t("ageGroup")}: {result.ageGroup.replace(/_/g, " ")} •{" "}
+                    {t("gender")}: {gender}
                   </p>
                 </div>
                 <Badge className={cn("border", getStatusColor(result.status))}>
@@ -419,12 +409,24 @@ const LabResults: React.FC<{
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 underline"
                 >
-                  {t("chopLabsReferenceRanges")} - {t("childrensHospitalOfPhiladelphia")}
+                  {t("chopLabsReferenceRanges")} -{" "}
+                  {t("childrensHospitalOfPhiladelphia")}
                 </a>
               </li>
             </ul>
             <p className="mt-2 text-xs">
-              <strong>{t("disclaimer")}:</strong> {t("disclaimerText")}. {t("valuesAreCommonlyAcceptedReferenceRanges")} {t("compiledFromMultipleSources")}. {t("patientSpecificGoalsMayDiffer")} {t("dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed")}. {t("alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults")}.
+              <strong>{t("disclaimer")}:</strong> {t("disclaimerText")}.{" "}
+              {t("valuesAreCommonlyAcceptedReferenceRanges")}{" "}
+              {t("compiledFromMultipleSources")}.{" "}
+              {t("patientSpecificGoalsMayDiffer")}{" "}
+              {t(
+                "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed"
+              )}
+              .{" "}
+              {t(
+                "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults"
+              )}
+              .
             </p>
           </div>
         </div>
@@ -436,7 +438,6 @@ const LabResults: React.FC<{
 // Main form component
 const LabCalculatorForm: React.FC = () => {
   const t = useTranslations("LabCalculator");
-  const { isPremium } = useSubscriptionStore();
   const locale = useLocale(); // Add this to get current locale
 
   const form = useForm<z.infer<typeof labFormSchema>>({
@@ -448,16 +449,18 @@ const LabCalculatorForm: React.FC = () => {
     },
   });
 
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-
   const watchedValues = form.watch();
   const { dateOfBirth, dateOfMeasurement, gender, labValues } = watchedValues;
 
   // Helper function to get display name based on locale
   const getDisplayName = (testKey: string) => {
     const testData =
-      typedHarrietLaneData.serumChemistries[testKey as keyof typeof typedHarrietLaneData.serumChemistries] ||
-      typedHarrietLaneData.hematology[testKey as keyof typeof typedHarrietLaneData.hematology];
+      typedChopLabData.serumChemistries[
+        testKey as keyof typeof typedChopLabData.serumChemistries
+      ] ||
+      typedChopLabData.hematology[
+        testKey as keyof typeof typedChopLabData.hematology
+      ];
 
     if (testData) {
       // Use nombre for Spanish, name for English, fallback to testKey
@@ -470,7 +473,7 @@ const LabCalculatorForm: React.FC = () => {
     // Fallback: convert snake_case to Title Case
     return testKey
       .split("_")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
 
@@ -503,19 +506,33 @@ const LabCalculatorForm: React.FC = () => {
           };
         }
 
-        // Find the test in our Harriet Lane dataset
+        // Find the test in our CHOP Labs dataset
         const testKey = labValue.testName
           .toLowerCase()
           .replace(/[^a-z0-9]/g, "_");
         let testData: TestData | undefined = undefined;
 
         // Search in serum chemistry first
-        if (typedHarrietLaneData.serumChemistries[testKey as keyof typeof typedHarrietLaneData.serumChemistries]) {
-          testData = typedHarrietLaneData.serumChemistries[testKey as keyof typeof typedHarrietLaneData.serumChemistries];
+        if (
+          typedChopLabData.serumChemistries[
+            testKey as keyof typeof typedChopLabData.serumChemistries
+          ]
+        ) {
+          testData =
+            typedChopLabData.serumChemistries[
+              testKey as keyof typeof typedChopLabData.serumChemistries
+            ];
         }
         // Then search in hematology
-        else if (typedHarrietLaneData.hematology[testKey as keyof typeof typedHarrietLaneData.hematology]) {
-          testData = typedHarrietLaneData.hematology[testKey as keyof typeof typedHarrietLaneData.hematology];
+        else if (
+          typedChopLabData.hematology[
+            testKey as keyof typeof typedChopLabData.hematology
+          ]
+        ) {
+          testData =
+            typedChopLabData.hematology[
+              testKey as keyof typeof typedChopLabData.hematology
+            ];
         }
         // Search for common test name variations
         else {
@@ -541,8 +558,12 @@ const LabCalculatorForm: React.FC = () => {
           const mappedKey = commonMappings[testKey];
           if (mappedKey) {
             testData =
-              typedHarrietLaneData.serumChemistries[mappedKey as keyof typeof typedHarrietLaneData.serumChemistries] ||
-              typedHarrietLaneData.hematology[mappedKey as keyof typeof typedHarrietLaneData.hematology];
+              typedChopLabData.serumChemistries[
+                mappedKey as keyof typeof typedChopLabData.serumChemistries
+              ] ||
+              typedChopLabData.hematology[
+                mappedKey as keyof typeof typedChopLabData.hematology
+              ];
           }
         }
 
@@ -582,7 +603,7 @@ const LabCalculatorForm: React.FC = () => {
     }
   };
 
-  // Common test keys that exist in Harriet Lane data
+  // Common test keys that exist in CHOP Labs data
   const commonTestKeys = [
     "glucose",
     "creatinine",
@@ -602,10 +623,14 @@ const LabCalculatorForm: React.FC = () => {
   ];
 
   // Get common tests with localized names
-  const commonTests = commonTestKeys.map(testKey => {
+  const commonTests = commonTestKeys.map((testKey) => {
     const testData =
-      typedHarrietLaneData.serumChemistries[testKey as keyof typeof typedHarrietLaneData.serumChemistries] ||
-      typedHarrietLaneData.hematology[testKey as keyof typeof typedHarrietLaneData.hematology];
+      typedChopLabData.serumChemistries[
+        testKey as keyof typeof typedChopLabData.serumChemistries
+      ] ||
+      typedChopLabData.hematology[
+        testKey as keyof typeof typedChopLabData.hematology
+      ];
 
     return {
       key: testKey,
@@ -622,9 +647,9 @@ const LabCalculatorForm: React.FC = () => {
   //     .join(" ");
   // };
 
-    const allTestNames = [
-    ...Object.keys(typedHarrietLaneData.serumChemistries),
-    ...Object.keys(typedHarrietLaneData.hematology),
+  const allTestNames = [
+    ...Object.keys(typedChopLabData.serumChemistries),
+    ...Object.keys(typedChopLabData.hematology),
   ].sort();
 
   // 1. Patient removal logic
@@ -634,10 +659,10 @@ const LabCalculatorForm: React.FC = () => {
   // ...
 
   // 2. Manual entry improvements
-  // Get all test names from Harriet Lane data
+  // Get all test names from CHOP Labs data
   // const allTestNames = [
-  //   ...Object.keys(typedHarrietLaneData.serumChemistries),
-  //   ...Object.keys(typedHarrietLaneData.hematology),
+  //   ...Object.keys(typedChopLabData.serumChemistries),
+  //   ...Object.keys(typedChopLabData.hematology),
   // ].sort();
 
   // In the manual entry section, change Test Name to a select:
@@ -664,395 +689,381 @@ const LabCalculatorForm: React.FC = () => {
 
   return (
     <Card className="w-full mx-auto">
-      <CardHeader className="p-4 lg:p-6 !pb-0">
+      <CardHeader className="p-4 lg:p-6">
         <CardTitle className="text-2xl font-heading text-medical-900">
           {t("title")}
         </CardTitle>
         <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 lg:p-6">
+      <CardContent className="p-4 lg:p-6 !pt-0">
         <div className="container mx-auto space-y-6">
-      {/* Patient Selector - Outside Form Component */}
-      <Card
-        className={cn(
-          "transition-colors duration-300",
-          gender === "male"
-            ? "border-medical-200 bg-medical-10"
-            : "border-medical-pink-200 bg-medical-pink-50"
-        )}
-      >
-        <CardHeader>
-          <CardTitle
-            className={cn(
-              "transition-colors duration-300",
-              gender === "male"
-                ? "text-medical-700"
-                : "text-medical-pink-700"
-            )}
-          >
-            {t("patientInfo")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Patient Selector for Lab Calculator */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">{t("searchPatient")}</Label>
-            <PatientSelector
-              form={form as any}
-              onPatientSelect={(patient) => {
-                setSelectedPatient(patient);
-                if (patient) {
-                  const birthDate = typeof patient.dateOfBirth === 'string'
-                    ? new Date(patient.dateOfBirth)
-                    : patient.dateOfBirth;
-                  form.setValue("dateOfBirth", birthDate);
-                  form.setValue("gender", patient.gender);
-                } else {
-                  form.setValue("dateOfBirth", undefined);
-                  form.setValue("gender", "male");
-                  setSelectedPatient(null); // ensure fields are enabled
-                }
-              }}
-            />
-          </div>
-          {/* Patient Information - Simplified for Lab Calculator */}
-          <div className="text-sm text-muted-foreground mb-4">
-            {t("patientInfoHint")}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Form {...form}>
-        <form className="space-y-6">
-          {/* Patient Demographics */}
-          <Card
-            className={cn(
-              "transition-colors duration-300",
-              gender === "male"
-                ? "border-medical-200 bg-medical-10"
-                : "border-medical-pink-200 bg-medical-pink-50"
-            )}
-          >
-            <CardHeader>
-              <CardTitle
+          <Form {...form}>
+            <form className="space-y-6">
+              {/* Patient Demographics */}
+              <Card
                 className={cn(
                   "transition-colors duration-300",
                   gender === "male"
-                    ? "text-medical-700"
-                    : "text-medical-pink-700"
+                    ? "border-medical-200 bg-medical-10"
+                    : "border-medical-pink-200 bg-medical-pink-50"
                 )}
               >
-                {t("patientInfo")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Gender Selection as Tabs */}
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem className="space-y-0 mb-6">
-                    <Tabs
-                      value={field.value}
-                      defaultValue="male"
-                      className="w-full"
-                      onValueChange={field.onChange}
-                    >
-                      <TabsList className="grid w-full grid-cols-2 bg-transparent border rounded-lg">
-                        <TabsTrigger
-                          value="male"
-                          className={`rounded-md transition-colors duration-300 ease-in-out
+                <CardHeader>
+                  <CardTitle
+                    className={cn(
+                      "transition-colors duration-300",
+                      gender === "male"
+                        ? "text-medical-700"
+                        : "text-medical-pink-700"
+                    )}
+                  >
+                    {t("patientInfo")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6 !pt-0">
+                  {/* Gender Selection as Tabs */}
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0 mb-6">
+                        <Tabs
+                          value={field.value}
+                          defaultValue="male"
+                          className="w-full"
+                          onValueChange={field.onChange}
+                        >
+                          <TabsList className="grid w-full grid-cols-2 bg-transparent border rounded-lg">
+                            <TabsTrigger
+                              value="male"
+                              className={`rounded-md transition-colors duration-300 ease-in-out
                             hover:bg-medical-50/80
                             data-[state=active]:text-white
                             data-[state=active]:bg-medical-600
                             data-[state=active]:shadow-sm`}
-                          disabled={!!selectedPatient}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Baby
-                              className={`h-5 w-5 transition-colors duration-300 ease-in-out
-                                ${field.value === "male" ? "text-white" : "text-medical-600"}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Baby
+                                  className={`h-5 w-5 transition-colors duration-300 ease-in-out
+                                ${
+                                  field.value === "male"
+                                    ? "text-white"
+                                    : "text-medical-600"
+                                }
                               `}
-                            />
-                            <span className="font-medium">{t("male")}</span>
-                          </div>
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="female"
-                          className={`rounded-md transition-colors duration-300 ease-in-out
+                                />
+                                <span className="font-medium">{t("male")}</span>
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="female"
+                              className={`rounded-md transition-colors duration-300 ease-in-out
                             hover:bg-medical-pink-50/80
                             data-[state=active]:text-white
                             data-[state=active]:bg-medical-pink-600
                             data-[state=active]:shadow-sm`}
-                          disabled={!!selectedPatient}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Baby
-                              className={`h-5 w-5 transition-colors duration-300 ease-in-out
-                                ${field.value === "female" ? "text-white" : "text-medical-pink-600"}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Baby
+                                  className={`h-5 w-5 transition-colors duration-300 ease-in-out
+                                ${
+                                  field.value === "female"
+                                    ? "text-white"
+                                    : "text-medical-pink-600"
+                                }
                               `}
-                            />
-                            <span className="font-medium">{t("female")}</span>
-                          </div>
-                        </TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                                />
+                                <span className="font-medium">
+                                  {t("female")}
+                                </span>
+                              </div>
+                            </TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Date Inputs */}
-              <DateInputs
-                form={form}
-                gender={gender}
-                hasSelectedPatient={!!selectedPatient}
-              />
-            </CardContent>
-          </Card>
+                  {/* Date Inputs */}
+                  <DateInputs form={form} gender={gender} />
+                </CardContent>
+              </Card>
 
-          {/* Lab Values Input */}
-          <Card
-            className={cn(
-              "transition-colors duration-300",
-              gender === "male"
-                ? "border-medical-200"
-                : "border-medical-pink-200"
-            )}
-          >
-            <CardHeader>
-              <CardTitle
+              {/* Lab Values Input */}
+              <Card
                 className={cn(
-                  "flex justify-between items-center transition-colors duration-300",
+                  "transition-colors duration-300",
                   gender === "male"
-                    ? "text-medical-700"
-                    : "text-medical-pink-700"
+                    ? "border-medical-200"
+                    : "border-medical-pink-200"
                 )}
               >
-                {t("labValues")}
-                <Button
-                  type="button"
-                  onClick={addLabValue}
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "transition-colors duration-300",
-                    gender === "male"
-                      ? "border-medical-300 text-medical-600 hover:bg-medical-50"
-                      : "border-medical-pink-300 text-medical-pink-600 hover:bg-medical-pink-50"
-                  )}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t("addLabValue")}
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="manual" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="manual">{t("manualEntry")}</TabsTrigger>
-                  <TabsTrigger value="common">{t("commonTests")}</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="manual" className="space-y-4 mt-4">
-                  {labValues.map((_, index) => (
-                    <div
-                      key={index}
+                <CardHeader>
+                  <CardTitle
+                    className={cn(
+                      "flex justify-between items-center transition-colors duration-300",
+                      gender === "male"
+                        ? "text-medical-700"
+                        : "text-medical-pink-700"
+                    )}
+                  >
+                    {t("labValues")}
+                    <Button
+                      type="button"
+                      onClick={addLabValue}
+                      variant="outline"
+                      size="sm"
                       className={cn(
-                        "grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-lg border transition-colors duration-300",
+                        "transition-colors duration-300",
                         gender === "male"
-                          ? "border-medical-200 bg-medical-50"
-                          : "border-medical-pink-200 bg-medical-pink-50"
+                          ? "border-medical-300 text-medical-600 hover:bg-medical-50"
+                          : "border-medical-pink-300 text-medical-pink-600 hover:bg-medical-pink-50"
                       )}
                     >
-                      {/* Test Name as Select */}
-                      <FormField
-                        control={form.control}
-                        name={`labValues.${index}.testName`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm">{t("testName")}</FormLabel>
-                            <FormControl>
-                              <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                  const testData =
-                                    typedHarrietLaneData.serumChemistries[value as keyof typeof typedHarrietLaneData.serumChemistries] ||
-                                    typedHarrietLaneData.hematology[value as keyof typeof typedHarrietLaneData.hematology];
-                                  if (testData) {
-                                    form.setValue(`labValues.${index}.unit`, testData.unit);
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t("addLabValue")}
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="!pt-0">
+                  <Tabs defaultValue="manual" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="manual">
+                        {t("manualEntry")}
+                      </TabsTrigger>
+                      <TabsTrigger value="common">
+                        {t("commonTests")}
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="manual" className="space-y-4 mt-4">
+                      {labValues.map((_, index) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            "grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-lg border transition-colors duration-300",
+                            gender === "male"
+                              ? "border-medical-200 bg-medical-50"
+                              : "border-medical-pink-200 bg-medical-pink-50"
+                          )}
+                        >
+                          {/* Test Name as Select */}
+                          <FormField
+                            control={form.control}
+                            name={`labValues.${index}.testName`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm">
+                                  {t("testName")}
+                                </FormLabel>
+                                <FormControl>
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={(value) => {
+                                      field.onChange(value);
+                                      const testData =
+                                        typedChopLabData.serumChemistries[
+                                          value as keyof typeof typedChopLabData.serumChemistries
+                                        ] ||
+                                        typedChopLabData.hematology[
+                                          value as keyof typeof typedChopLabData.hematology
+                                        ];
+                                      if (testData) {
+                                        form.setValue(
+                                          `labValues.${index}.unit`,
+                                          testData.unit
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue
+                                        placeholder={t("selectTest")}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {allTestNames.map((name) => (
+                                        <SelectItem key={name} value={name}>
+                                          {getDisplayName(name)}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {/* Value */}
+                          <FormField
+                            control={form.control}
+                            name={`labValues.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm">
+                                  {t("value")}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    type="number"
+                                    step="0.01"
+                                    placeholder={t("enterValue")}
+                                    className={cn(
+                                      "transition-colors duration-300",
+                                      gender === "male"
+                                        ? "border-medical-200 focus:ring-medical-500"
+                                        : "border-medical-pink-200 focus:ring-medical-pink-500"
+                                    )}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {/* Unit (auto-filled and read-only) */}
+                          <FormField
+                            control={form.control}
+                            name={`labValues.${index}.unit`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm">
+                                  {t("unit")}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder={t("example")}
+                                    readOnly={true}
+                                    className={cn(
+                                      "transition-colors duration-300",
+                                      gender === "male"
+                                        ? "border-medical-200 focus:ring-medical-500"
+                                        : "border-medical-pink-200 focus:ring-medical-pink-500"
+                                    )}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {/* Remove button */}
+                          <div className="flex items-end">
+                            <Button
+                              type="button"
+                              onClick={() => removeLabValue(index)}
+                              variant="destructive"
+                              size="sm"
+                              disabled={labValues.length === 1}
+                              className="w-full"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              {t("remove")}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </TabsContent>
+
+                    <TabsContent value="common" className="space-y-4 mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {commonTests.map((test, index) => (
+                          <div
+                            key={index}
+                            className={cn(
+                              "p-4 rounded-lg border transition-colors duration-300",
+                              gender === "male"
+                                ? "border-medical-200 bg-medical-50"
+                                : "border-medical-pink-200 bg-medical-pink-50"
+                            )}
+                          >
+                            <h4
+                              className={cn(
+                                "font-medium transition-colors duration-300",
+                                gender === "male"
+                                  ? "text-medical-700"
+                                  : "text-medical-pink-700"
+                              )}
+                            >
+                              {test.name}
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {t("unit")}: {test.unit}
+                            </p>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder={t("enterValue")}
+                              className={cn(
+                                "transition-colors duration-300",
+                                gender === "male"
+                                  ? "border-medical-200 focus:ring-medical-500"
+                                  : "border-medical-pink-200 focus:ring-medical-pink-500"
+                              )}
+                              onChange={(e) => {
+                                const currentValues =
+                                  form.getValues("labValues");
+                                const existingIndex = currentValues.findIndex(
+                                  (lv) => lv.testName === test.key
+                                );
+
+                                if (existingIndex >= 0) {
+                                  const updatedValues = [...currentValues];
+                                  updatedValues[existingIndex].value =
+                                    e.target.value;
+                                  form.setValue("labValues", updatedValues);
+                                } else {
+                                  const firstEmptyIndex =
+                                    currentValues.findIndex(
+                                      (lv) => !lv.testName
+                                    );
+                                  if (firstEmptyIndex >= 0) {
+                                    const updatedValues = [...currentValues];
+                                    updatedValues[firstEmptyIndex] = {
+                                      testName: test.key,
+                                      value: e.target.value,
+                                      unit: test.unit,
+                                    };
+                                    form.setValue("labValues", updatedValues);
+                                  } else {
+                                    form.setValue("labValues", [
+                                      ...currentValues,
+                                      {
+                                        testName: test.key,
+                                        value: e.target.value,
+                                        unit: test.unit,
+                                      },
+                                    ]);
                                   }
-                                }}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t("selectTest")} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {allTestNames.map((name) => (
-                                    <SelectItem key={name} value={name}>
-                                      {getDisplayName(name)}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {/* Value */}
-                      <FormField
-                        control={form.control}
-                        name={`labValues.${index}.value`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm">{t("value")}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                type="number"
-                                step="0.01"
-                                placeholder={t("enterValue")}
-                                className={cn(
-                                  "transition-colors duration-300",
-                                  gender === "male"
-                                    ? "border-medical-200 focus:ring-medical-500"
-                                    : "border-medical-pink-200 focus:ring-medical-pink-500"
-                                )}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {/* Unit (auto-filled and read-only) */}
-                      <FormField
-                        control={form.control}
-                        name={`labValues.${index}.unit`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm">{t("unit")}</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder={t("example")}
-                                readOnly={true}
-                                className={cn(
-                                  "transition-colors duration-300",
-                                  gender === "male"
-                                    ? "border-medical-200 focus:ring-medical-500"
-                                    : "border-medical-pink-200 focus:ring-medical-pink-500"
-                                )}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {/* Remove button */}
-                      <div className="flex items-end">
-                        <Button
-                          type="button"
-                          onClick={() => removeLabValue(index)}
-                          variant="destructive"
-                          size="sm"
-                          disabled={labValues.length === 1}
-                          className="w-full"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          {t("remove")}
-                        </Button>
+                                }
+                              }}
+                            />
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  ))}
-                </TabsContent>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </form>
+          </Form>
 
-                <TabsContent value="common" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {commonTests.map((test, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          "p-4 rounded-lg border transition-colors duration-300",
-                          gender === "male"
-                            ? "border-medical-200 bg-medical-50"
-                            : "border-medical-pink-200 bg-medical-pink-50"
-                        )}
-                      >
-                        <h4
-                          className={cn(
-                            "font-medium transition-colors duration-300",
-                            gender === "male"
-                              ? "text-medical-700"
-                              : "text-medical-pink-700"
-                          )}
-                        >
-                          {test.name}
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {t("unit")}: {test.unit}
-                        </p>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder={t("enterValue")}
-                          className={cn(
-                            "transition-colors duration-300",
-                            gender === "male"
-                              ? "border-medical-200 focus:ring-medical-500"
-                              : "border-medical-pink-200 focus:ring-medical-pink-500"
-                          )}
-                          onChange={(e) => {
-                            const currentValues = form.getValues("labValues");
-                            const existingIndex = currentValues.findIndex(
-                              (lv) => lv.testName === test.key
-                            );
-
-                            if (existingIndex >= 0) {
-                              const updatedValues = [...currentValues];
-                              updatedValues[existingIndex].value =
-                                e.target.value;
-                              form.setValue("labValues", updatedValues);
-                            } else {
-                              const firstEmptyIndex = currentValues.findIndex(
-                                (lv) => !lv.testName
-                              );
-                              if (firstEmptyIndex >= 0) {
-                                const updatedValues = [...currentValues];
-                                updatedValues[firstEmptyIndex] = {
-                                  testName: test.key,
-                                  value: e.target.value,
-                                  unit: test.unit,
-                                };
-                                form.setValue("labValues", updatedValues);
-                              } else {
-                                form.setValue("labValues", [
-                                  ...currentValues,
-                                  {
-                                    testName: test.key,
-                                    value: e.target.value,
-                                    unit: test.unit,
-                                  },
-                                ]);
-                              }
-                            }
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </form>
-      </Form>
-
-      {/* Results */}
-      <LabResults results={results} gender={gender} isPremium={isPremium} />
-    </div>
-    </CardContent>
+          {/* Results */}
+          <LabResults results={results} gender={gender} />
+        </div>
+      </CardContent>
+      <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+        <strong>{t("disclaimer")}</strong>
+        <p>{t("disclaimerText")}</p>
+        <ul className="list-disc ml-6 text-sm">
+          <li>{t("valuesAreCommonlyAcceptedReferenceRanges")}</li>
+          <li>{t("compiledFromMultipleSources")}</li>
+          <li>{t("patientSpecificGoalsMayDiffer")}</li>
+          <li>{t("dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed")}</li>
+          <li>{t("alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults")}</li>
+        </ul>
+      </div>
     </Card>
   );
 };
