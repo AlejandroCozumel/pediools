@@ -121,3 +121,44 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+@media print {
+  /* Hide everything by default when printing */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the printable sections */
+  #office-bp-reference-card,
+  #office-bp-reference-card *,
+  .results-section,
+  .results-section * {
+    visibility: visible;
+  }
+
+  /* Position the printable content */
+  #office-bp-reference-card,
+  .results-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide print button and other non-essential elements during print */
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .results-section {
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows and borders that don't print well */
+  * {
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+}

@@ -366,8 +366,25 @@
       "footer": "These thresholds are calculated based on 2017 AAP guidelines, adjusted for this patient's specific age, gender, and height percentile.",
       "heightAdjustment": "Values adjusted for height percentile ({percentile}%)",
       "heightOnlyDisclaimer": "Approximate values based on height. Exact age would provide greater accuracy.",
-      "hypotensionNote": "Lower percentiles help identify hypotension and ensure comprehensive clinical assessment.",
+      "hypotensionNote": "Lower percentiles help identify hypotension and support comprehensive clinical assessment. However, blood pressure percentiles should not be used in isolation. Clinical evaluation—including assessment of symptoms, perfusion, and overall patient status—is essential for accurate diagnosis and management. Always interpret low blood pressure values in the context of the patient’s clinical presentation, as guidelines recommend considering both numerical thresholds and clinical findings.",
       "dataSource": "Height percentiles calculated using CDC growth standards when available."
+    },
+    "ambulatoryReference": {
+      "patientHeight": "Patient Height (cm)",
+      "heightPlaceholder": "Enter height in cm",
+      "generateCard": "Generate Reference Card",
+      "printCard": "Print Reference Card",
+      "cardTitle": "Ambulatory BP Reference for {gender}, Height: {height} cm",
+      "source": "Source: AAP 2014 Ambulatory Blood Pressure Monitoring Guidelines",
+      "period": "Period",
+      "percentile5": "5th Percentile",
+      "percentile50": "50th Percentile",
+      "percentile90": "90th Percentile",
+      "percentile95": "95th Percentile",
+      "percentile99": "99th Percentile",
+      "daytime": "Daytime (awake)",
+      "nighttime": "Nighttime (asleep)",
+      "hour24": "24-hour Average"
     }
   },
   "PatientSelector": {
@@ -1249,5 +1266,63 @@
       "calculate": "Calculate Threshold",
       "calculating": "Calculating..."
     }
+  },
+  "SmartLoader": {
+    "growth": {
+      "step1": "Processing growth algorithms...",
+      "step2": "Generating the chart..."
+    },
+    "analysis": {
+      "step1": "Running analysis...",
+      "step2": "Generating results..."
+    },
+    "calculation": {
+      "step1": "Computing results...",
+      "step2": "Finalizing data..."
+    },
+    "processing": {
+      "step1": "Processing data...",
+      "step2": "Almost ready..."
+    }
+  },
+  "CDCChartPage": {
+    "growthChartsTitle": "United States CDC Growth Charts",
+    "growthChartsSubtitle": "Child Growth Visualization (2-20 years)",
+    "processingErrorTitle": "Processing Error",
+    "processingErrorDescription": "An unexpected error occurred while processing your data.",
+    "tryAgainButton": "Try Again",
+    "invalidDataTitle": "Invalid Data",
+    "invalidDataDescription": "The chart data received is invalid or incomplete. Please check your inputs and try again.",
+    "goBackButton": "Go Back"
+  },
+  "InfantCDCChartPage": {
+    "growthChartsTitle": "United States CDC Growth Charts",
+    "growthVisualizationSubtitle": "Child Growth Visualization (2-20 years)",
+    "processingErrorTitle": "Processing Error",
+    "processingErrorDescription": "An unexpected error occurred while processing your data.",
+    "tryAgainButton": "Try Again",
+    "invalidDataTitle": "Invalid Data",
+    "invalidDataDescription": "The chart data received is invalid or incomplete. Please check your inputs and try again.",
+    "goBackButton": "Go Back"
+  },
+  "IntergrowthChartPage": {
+    "growthStandardsTitle": "Intergrowth-21st Growth Standards",
+    "pretermInfantGrowthVisualizationSubtitle": "Preterm Infant Growth Visualization (24-42 weeks)",
+    "processingErrorTitle": "Processing Error",
+    "processingErrorDescription": "An unexpected error occurred while processing your data.",
+    "tryAgainButton": "Try Again",
+    "invalidDataTitle": "Invalid Data",
+    "invalidDataDescription": "The chart data received is invalid or incomplete. Please check your inputs and try again.",
+    "goBackButton": "Go Back"
+  },
+  "WHOChartPage": {
+    "whoGrowthStandardsTitle": "WHO Growth Standards",
+    "infantGrowthVisualizationSubtitle": "Infant Growth Visualization (0-24 months)",
+    "processingErrorTitle": "Processing Error",
+    "processingErrorDescription": "An unexpected error occurred while processing your data.",
+    "tryAgainButton": "Try Again",
+    "invalidDataTitle": "Invalid Data",
+    "invalidDataDescription": "The chart data received is invalid or incomplete. Please check your inputs and try again.",
+    "goBackButton": "Go Back"
   }
 }

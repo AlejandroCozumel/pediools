@@ -716,7 +716,7 @@ const LabCalculatorForm: React.FC = () => {
         </CardTitle>
         <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
-      <CardContent className="p-4 lg:p-6 pt-0">
+      <CardContent className="p-4 lg:p-6 !pt-0">
         <div className="container mx-auto space-y-6">
           <Form {...form}>
             <form className="space-y-6">
@@ -741,7 +741,7 @@ const LabCalculatorForm: React.FC = () => {
                     {t("patientInfo")}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 !pt-0">
                   {/* Gender Selection as Tabs */}
                   <FormField
                     control={form.control}
@@ -847,7 +847,7 @@ const LabCalculatorForm: React.FC = () => {
                     </Button>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="!pt-0">
                   <Tabs defaultValue="manual" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="manual">

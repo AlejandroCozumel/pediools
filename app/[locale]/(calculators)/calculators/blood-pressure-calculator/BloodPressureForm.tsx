@@ -928,7 +928,7 @@ export function BloodPressureForm() {
 
                 {/* Real-time Results */}
                 {results && (
-                  <>
+                  <div className="results-section">
                     {/* Growth Chart Source Info Banner */}
                     {ageInMonths >= 0 && ageInMonths < 24 && (
                       <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
@@ -1237,7 +1237,7 @@ export function BloodPressureForm() {
                         </div>
                       </CardContent>
                     </Card>
-                  </>
+                  </div>
                 )}
                 {ageError && (
                   <Alert variant="destructive" className="mb-4">
@@ -1250,19 +1250,21 @@ export function BloodPressureForm() {
                   ageIsValid &&
                   hasHeight &&
                   !isSubmitting && (
-                    <OfficeBPReferenceCard
-                      ageInYears={ageInYears}
-                      gender={selectedGender}
-                      heightPercentile={calculateHeightPercentile(
-                        parseFloat(height),
-                        ageInMonths,
-                        selectedGender
-                      )}
-                      height={parseFloat(height)}
-                      cdcChildHeightData={cdcHeightData}
-                      cdcInfantHeightData={cdcInfantHeightData}
-                      aapBPData={aapBPData}
-                    />
+                    <div className="results-section">
+                      <OfficeBPReferenceCard
+                        ageInYears={ageInYears}
+                        gender={selectedGender}
+                        heightPercentile={calculateHeightPercentile(
+                          parseFloat(height),
+                          ageInMonths,
+                          selectedGender
+                        )}
+                        height={parseFloat(height)}
+                        cdcChildHeightData={cdcHeightData}
+                        cdcInfantHeightData={cdcInfantHeightData}
+                        aapBPData={aapBPData}
+                      />
+                    </div>
                   )}
                 <Button
                   type="submit"

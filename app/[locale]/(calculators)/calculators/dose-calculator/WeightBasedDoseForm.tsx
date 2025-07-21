@@ -191,7 +191,7 @@ export function WeightBasedDoseForm() {
                 {t('weightBased.title')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 !pt-0">
 
               {/* First Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -364,7 +364,7 @@ export function WeightBasedDoseForm() {
                 {t('drugConcentration.title')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 !pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* Mass */}
@@ -481,7 +481,7 @@ export function WeightBasedDoseForm() {
                   {t('weightBased.results.title')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 !pt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                   {/* Per Dose Volume */}
