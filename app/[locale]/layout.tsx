@@ -43,6 +43,9 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        <link rel="icon" href="/pedimathLogo.svg" type="image/svg+xml" />
+      </head>
       <body
         className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
       >

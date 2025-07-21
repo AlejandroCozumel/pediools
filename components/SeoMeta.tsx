@@ -8,7 +8,7 @@ interface SeoMetaProps {
   extraMeta?: React.ReactNode;
 }
 
-const DEFAULT_IMAGE = 'https://www.pedimath.com/og-image.png';
+const DEFAULT_IMAGE = 'https://www.pedimath.com/og-image.jpg';
 const DEFAULT_URL = 'https://www.pedimath.com';
 
 export default function SeoMeta({
@@ -18,6 +18,14 @@ export default function SeoMeta({
   url = DEFAULT_URL,
   extraMeta,
 }: SeoMetaProps) {
+  const defaultJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "PediMath",
+    "url": url,
+    "description": description,
+    "image": image,
+  };
   return (
     <Head>
       <title>{title}</title>
@@ -33,6 +41,8 @@ export default function SeoMeta({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+      {/* Structured Data (JSON-LD) */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(defaultJsonLd) }} />
       {/* Extra meta tags if needed */}
       {extraMeta}
     </Head>
