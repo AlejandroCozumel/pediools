@@ -9,10 +9,12 @@ import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
 import { useInfantGrowthChartData } from "@/hooks/calculations/use-infant-growth-chart-data";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import SeoMeta from "@/components/SeoMeta";
 
 const Charts = () => {
   const t = useTranslations('InfantCDCChartPage');
+  const locale = useLocale();
   const { isFullCurveView } = useSubscriptionStore();
   const [showLoader, setShowLoader] = useState(true);
 
@@ -174,68 +176,76 @@ const Charts = () => {
   }
 
   return (
-    <div
-      className="my-4 md:my-6 flex flex-col gap-6 px-4"
-    >
-      <motion.div
-        className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
+    <>
+      <SeoMeta
+        title={t('growthChartsTitle', { defaultValue: 'CDC Growth Charts (Infant) - PediMath' })}
+        description={t('growthVisualizationSubtitle', { defaultValue: 'Child Growth Visualization (2-20 years)' })}
+        image="/og-image.jpg"
+        url={`https://www.pedimath.com/${locale}/charts/infant-cdc-growth-chart`}
+      />
+      <div
+        className="my-4 md:my-6 flex flex-col gap-6 px-4"
       >
-        <h2>{t('growthChartsTitle')}</h2>
-        <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
-          {t('growthVisualizationSubtitle')}
-        </span>
-      </motion.div>
+        <motion.div
+          className="my-0 md:my-4 flex flex-col gap-1 text-center bg-gradient-to-r from-medical-800 to-medical-600 bg-clip-text text-transparent text-lg md:text-2xl lg:text-4xl font-bold tracking-tight leading-tight py-2"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <h2>{t('growthChartsTitle')}</h2>
+          <span className="block text-sm md:text-base lg:text-xl text-medical-500 font-medium mt-1">
+            {t('growthVisualizationSubtitle')}
+          </span>
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        {/* <ProgressionTable
-          progressionData={data.progressionData}
-          highlightCalculationId={calculationId || undefined}
-        /> */}
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {/* <ProgressionTable
+            progressionData={data.progressionData}
+            highlightCalculationId={calculationId || undefined}
+          /> */}
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <ToggleViewChart />
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <ToggleViewChart />
+        </motion.div>
 
-      {/* Render Weight Chart using reusable component */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        <CDCChartInfantDisplay
-          rawData={data}
-          type="weight"
-          isFullCurveView={isFullCurveView}
-          monthRangeAround={isFullCurveView ? 18 : 4}
-        />
-      </motion.div>
+        {/* Render Weight Chart using reusable component */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <CDCChartInfantDisplay
+            rawData={data}
+            type="weight"
+            isFullCurveView={isFullCurveView}
+            monthRangeAround={isFullCurveView ? 18 : 4}
+          />
+        </motion.div>
 
-      {/* Render Height Chart using reusable component */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-      >
-        <CDCChartInfantDisplay
-          rawData={data}
-          type="height"
-          isFullCurveView={isFullCurveView}
-          monthRangeAround={isFullCurveView ? 18 : 4}
-        />
-      </motion.div>
-    </div>
+        {/* Render Height Chart using reusable component */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <CDCChartInfantDisplay
+            rawData={data}
+            type="height"
+            isFullCurveView={isFullCurveView}
+            monthRangeAround={isFullCurveView ? 18 : 4}
+          />
+        </motion.div>
+      </div>
+    </>
   );
 };
 

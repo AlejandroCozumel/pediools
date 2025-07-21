@@ -8,7 +8,7 @@ interface SeoMetaProps {
   extraMeta?: React.ReactNode;
 }
 
-const DEFAULT_IMAGE = 'https://www.pedimath.com/og-image.png';
+const DEFAULT_IMAGE = 'https://www.pedimath.com/og-image.jpg';
 const DEFAULT_URL = 'https://www.pedimath.com';
 
 export default function SeoMeta({
