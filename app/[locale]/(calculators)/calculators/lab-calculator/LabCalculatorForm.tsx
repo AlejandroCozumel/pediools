@@ -1053,17 +1053,6 @@ const LabCalculatorForm: React.FC = () => {
           <LabResults results={results} gender={gender} />
         </div>
       </CardContent>
-      <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-        <strong>{t("disclaimer")}</strong>
-        <p>{t("disclaimerText")}</p>
-        <ul className="list-disc ml-6 text-sm">
-          <li>{t("valuesAreCommonlyAcceptedReferenceRanges")}</li>
-          <li>{t("compiledFromMultipleSources")}</li>
-          <li>{t("patientSpecificGoalsMayDiffer")}</li>
-          <li>{t("dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed")}</li>
-          <li>{t("alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults")}</li>
-        </ul>
-      </div>
     </Card>
   );
 };
