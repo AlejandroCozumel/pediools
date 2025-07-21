@@ -9,21 +9,34 @@ import ToggleViewChart from "@/components/ToggleViewChart";
 import { useIntergrowthChartData } from "@/hooks/calculations/use-intergrowth-chart-data";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from 'next-intl';
-import { getSeoMetadata } from "@/lib/seo";
-import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 
-export const generateMetadata = async ({ params }: { params: { locale?: string } }): Promise<Metadata> => {
-  const locale = params?.locale || "en";
-  const t = await getTranslations({ locale, namespace: "IntergrowthChartPage" });
-  return getSeoMetadata({
-    title: t('growthStandardsTitle', { defaultValue: 'Intergrowth-21st Growth Standards - PediMath' }),
-    description: t('pretermInfantGrowthVisualizationSubtitle', { defaultValue: 'Preterm Infant Growth Visualization (24-42 weeks)' }),
-    url: `https://www.pedimath.com/${locale}/charts/intergrowth-growth-chart`,
-    image: "/og-image.jpg",
-    locale,
-    keywords: ["intergrowth chart", "preterm infant growth", "growth standards", "pediatrics"]
-  });
+// For client components, use static metadata (no async/await)
+export const metadata = {
+  title: "Intergrowth-21st Growth Standards - PediMath", // t('growthStandardsTitle')
+  description: "Preterm Infant Growth Visualization (24-42 weeks)", // t('pretermInfantGrowthVisualizationSubtitle')
+  openGraph: {
+    title: "Intergrowth-21st Growth Standards - PediMath", // t('growthStandardsTitle')
+    description: "Preterm Infant Growth Visualization (24-42 weeks)", // t('pretermInfantGrowthVisualizationSubtitle')
+    images: ["/og-image.jpg"],
+    url: "https://www.pedimath.com/charts/intergrowth-growth-chart",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Intergrowth-21st Growth Standards - PediMath", // t('growthStandardsTitle')
+    description: "Preterm Infant Growth Visualization (24-42 weeks)", // t('pretermInfantGrowthVisualizationSubtitle')
+    images: ["/og-image.jpg"],
+  },
+  other: {
+    'application/ld+json': JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PediMath",
+      "url": "https://www.pedimath.com/charts/intergrowth-growth-chart",
+      "description": "Preterm Infant Growth Visualization (24-42 weeks)",
+      "image": "/og-image.jpg",
+    })
+  }
 };
 
 const Charts = () => {

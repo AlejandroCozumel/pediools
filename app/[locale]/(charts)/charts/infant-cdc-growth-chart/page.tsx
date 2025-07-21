@@ -9,22 +9,35 @@ import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
 import { useInfantGrowthChartData } from "@/hooks/calculations/use-infant-growth-chart-data";
 import { Button } from "@/components/ui/button";
-import { getSeoMetadata } from "@/lib/seo";
-import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import { useTranslations, useLocale } from 'next-intl';
 
-export const generateMetadata = async ({ params }: { params: { locale?: string } }): Promise<Metadata> => {
-  const locale = params?.locale || "en";
-  const t = await getTranslations({ locale, namespace: "InfantCDCChartPage" });
-  return getSeoMetadata({
-    title: t('growthChartsTitle', { defaultValue: 'CDC Growth Charts (Infant) - PediMath' }),
-    description: t('growthVisualizationSubtitle', { defaultValue: 'Child Growth Visualization (2-20 years)' }),
-    url: `https://www.pedimath.com/${locale}/charts/infant-cdc-growth-chart`,
-    image: "/og-image.jpg",
-    locale,
-    keywords: ["CDC infant growth chart", "pediatric growth", "child height", "child weight"]
-  });
+// For client components, use static metadata (no async/await)
+export const metadata = {
+  title: "CDC Growth Charts (Infant) - PediMath", // t('growthChartsTitle')
+  description: "Child Growth Visualization (2-20 years)", // t('growthVisualizationSubtitle')
+  openGraph: {
+    title: "CDC Growth Charts (Infant) - PediMath", // t('growthChartsTitle')
+    description: "Child Growth Visualization (2-20 years)", // t('growthVisualizationSubtitle')
+    images: ["/og-image.jpg"],
+    url: "https://www.pedimath.com/charts/infant-cdc-growth-chart",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CDC Growth Charts (Infant) - PediMath", // t('growthChartsTitle')
+    description: "Child Growth Visualization (2-20 years)", // t('growthVisualizationSubtitle')
+    images: ["/og-image.jpg"],
+  },
+  other: {
+    'application/ld+json': JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PediMath",
+      "url": "https://www.pedimath.com/charts/infant-cdc-growth-chart",
+      "description": "Child Growth Visualization (2-20 years)",
+      "image": "/og-image.jpg",
+    })
+  }
 };
 
 const Charts = () => {
