@@ -65,22 +65,22 @@ export default function Footer() {
               {t("sections.solutions")}
             </h4>
             <div className="grid grid-cols-2 gap-2">
-              <Link href="/calculators/growth-calculator" className="text-[14px] text-gray-600 hover:text-gray-900 font-medium block">
+              <Link href="/calculators/growth-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.growthPercentiles.title")}
               </Link>
-              <Link href="/calculators/blood-pressure-calculator" className="text-[14px] text-gray-600 hover:text-gray-900 font-medium block">
+              <Link href="/calculators/blood-pressure-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.bloodPressure.title")}
               </Link>
-              <Link href="/calculators/bilirubin-calculator" className="text-[14px] text-gray-600 hover:text-gray-900 font-medium block">
+              <Link href="/calculators/bilirubin-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.bilirubin.title")}
               </Link>
-              <Link href="/calculators/bmi-calculator" className="text-[14px] text-gray-600 hover:text-gray-900 font-medium block">
+              <Link href="/calculators/bmi-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.bmi.title")}
               </Link>
-              <Link href="/calculators/lab-calculator" className="text-[14px] text-gray-600 hover:text-gray-900 font-medium block">
+              <Link href="/calculators/lab-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.lab.title")}
               </Link>
-              <Link href="/calculators/dose-calculator" className="text-[14px] text-gray-600 hover:text-gray-900 font-medium block">
+              <Link href="/calculators/dose-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.dose.title")}
               </Link>
             </div>
