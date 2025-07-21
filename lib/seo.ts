@@ -84,6 +84,13 @@ export function getSeoMetadata({
     creator: SITE_CONFIG.author,
     publisher: SITE_CONFIG.siteName,
 
+    icons: {
+      icon: [
+        { url: "/pedimathLogo.svg", type: "image/svg+xml" },
+        { url: "/favicon.ico", type: "image/x-icon" },
+      ],
+      shortcut: "/pedimathLogo.svg",
+    },
     // Open Graph
     openGraph: {
       title: fullTitle,
