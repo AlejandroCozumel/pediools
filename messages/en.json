@@ -1414,5 +1414,9 @@
     "acceptance": "By continuing to use these products, you have indicated your acceptance of these terms.",
     "short": "For reference only.",
     "seeFullDisclaimer": "See full disclaimer"
+  },
+  "Contact": {
+    "title": "Contact - PediMath",
+    "description": "Contact PediMath for support, feedback, or partnership inquiries."
   }
 }
