@@ -349,9 +349,9 @@
       "milestone": "Milestone",
       "bpValue": "BP Value (mmHg)",
       "clinicalMeaning": "Clinical Meaning",
-      "percentile3": "3rd Percentile",
-      "percentile5": "5th Percentile",
-      "percentile10": "10th Percentile",
+      "percentile3": "3rd Percentile*",
+      "percentile5": "5th Percentile*",
+      "percentile10": "10th Percentile*",
       "percentile50": "50th Percentile",
       "percentile90": "90th Percentile",
       "percentile95": "95th Percentile",
@@ -363,11 +363,22 @@
       "elevatedBP": "Elevated BP begins at this value.",
       "stage1Hypertension": "Stage 1 Hypertension begins at this value.",
       "stage2Hypertension": "Stage 2 Hypertension begins at this value.",
-      "footer": "These thresholds are calculated based on 2017 AAP guidelines, adjusted for this patient's specific age, gender, and height percentile.",
+      "footer": "Based on 2017 AAP Clinical Practice Guidelines (50th, 90th, 95th percentiles). Lower percentiles marked with * are mathematically derived estimates and not part of official AAP recommendations.",
       "heightAdjustment": "Values adjusted for height percentile ({percentile}%)",
       "heightOnlyDisclaimer": "Approximate values based on height. Exact age would provide greater accuracy.",
-      "hypotensionNote": "Lower percentiles help identify hypotension and support comprehensive clinical assessment. However, blood pressure percentiles should not be used in isolation. Clinical evaluation—including assessment of symptoms, perfusion, and overall patient status—is essential for accurate diagnosis and management. Always interpret low blood pressure values in the context of the patient’s clinical presentation, as guidelines recommend considering both numerical thresholds and clinical findings.",
-      "dataSource": "Height percentiles calculated using CDC growth standards when available."
+      "hypotensionNote": "Lower percentiles (3rd-10th) are calculated using normal distribution statistics from AAP 50th/90th/95th percentile data. These are statistical estimates, not validated clinical thresholds. Clinical evaluation—including assessment of symptoms, perfusion, and overall patient status—is essential for accurate diagnosis and management.",
+      "dataSource": "Height percentiles calculated using CDC growth standards when available.",
+      "estimatedPercentiles": {
+        "title": "Estimated Percentiles (Not Official AAP Data)",
+        "description": "The following percentiles are calculated estimates based on our formula using AAP 50th percentile data."
+      },
+      "officialAAPData": {
+        "title": "Official AAP 2017 Guidelines Data"
+      },
+      "heightMatch": "Height matched to {percentile}th percentile ({heightCm} cm) - AAP Guidelines",
+      "patientBP": "Patient BP: {systolic}/{diastolic} mmHg (highlighted below)",
+      "highlightNote": "Patient's current BP reading is highlighted above.",
+      "noDataAvailable": "No BP reference data available for this age/height combination."
     },
     "ambulatoryReference": {
       "patientHeight": "Patient Height (cm)",

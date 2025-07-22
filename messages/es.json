@@ -349,9 +349,9 @@
       "milestone": "Hito",
       "bpValue": "Valor de PA (mmHg)",
       "clinicalMeaning": "Significado Clínico",
-      "percentile3": "3º Percentil",
-      "percentile5": "5º Percentil",
-      "percentile10": "10º Percentil",
+      "percentile3": "3º Percentil*",
+      "percentile5": "5º Percentil*",
+      "percentile10": "10º Percentil*",
       "percentile50": "50º Percentil",
       "percentile90": "90º Percentil",
       "percentile95": "95º Percentil",
@@ -363,11 +363,22 @@
       "elevatedBP": "La PA Elevada comienza en este valor.",
       "stage1Hypertension": "La Hipertensión Etapa 1 comienza en este valor.",
       "stage2Hypertension": "La Hipertensión Etapa 2 comienza en este valor.",
-      "footer": "Estos umbrales se calculan basándose en las guías AAP 2017, ajustados para la edad, género y percentil de altura específicos de este paciente.",
+      "footer": "Basado en las Guías de Práctica Clínica AAP 2017 (percentiles 50, 90, 95). Los percentiles inferiores marcados con * son estimaciones matemáticamente derivadas y no forman parte de las recomendaciones oficiales de AAP.",
       "heightAdjustment": "Valores ajustados por percentil de estatura ({percentile}%)",
       "heightOnlyDisclaimer": "Valores aproximados basados en estatura. La edad exacta proporcionaría mayor precisión.",
-      "hypotensionNote": "Los percentiles bajos ayudan a identificar la hipotensión y respaldan una evaluación clínica integral. Sin embargo, los percentiles de presión arterial no deben usarse de forma aislada. La evaluación clínica —incluyendo la valoración de síntomas, perfusión y el estado general del paciente— es esencial para un diagnóstico y manejo precisos. Siempre interprete los valores bajos de presión arterial en el contexto de la presentación clínica del paciente, ya que las guías recomiendan considerar tanto los umbrales numéricos como los hallazgos clínicos.",
-      "dataSource": "Los percentiles de estatura se calculan utilizando estándares de crecimiento CDC cuando están disponibles."
+      "hypotensionNote": "Los percentiles inferiores (3º-10º) se calculan utilizando estadísticas de distribución normal a partir de los datos del percentil 50º/90º/95º de la AAP. Estas son estimaciones estadísticas, no umbrales clínicos validados. La evaluación clínica—incluyendo la valoración de síntomas, perfusión y estado general del paciente—es esencial para un diagnóstico y manejo precisos.",
+      "dataSource": "Los percentiles de estatura se calculan utilizando estándares de crecimiento CDC cuando están disponibles.",
+      "estimatedPercentiles": {
+        "title": "Percentiles Estimados (No son Datos Oficiales de AAP)",
+        "description": "Los siguientes percentiles son estimaciones calculadas basadas en nuestra fórmula usando datos del percentil 50 de AAP."
+      },
+      "officialAAPData": {
+        "title": "Datos Oficiales de las Guías AAP 2017"
+      },
+      "heightMatch": "Altura ajustada al percentil {percentile} ({heightCm} cm) - Guías AAP",
+      "patientBP": "PA del Paciente: {systolic}/{diastolic} mmHg (resaltado abajo)",
+      "highlightNote": "La lectura actual de PA del paciente está resaltada arriba.",
+      "noDataAvailable": "No hay datos de referencia de PA disponibles para esta combinación de edad/altura."
     },
     "ambulatoryReference": {
       "patientHeight": "Estatura del paciente (cm)",
