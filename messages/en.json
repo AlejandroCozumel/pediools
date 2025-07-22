@@ -281,7 +281,7 @@
       "normal": {
         "category": "Normal",
         "description": "Blood pressure is within normal range - {description}",
-        "pediatricDescription": "<90th percentile Normal range",
+        "pediatricDescription": "<90th percentile - Normal range",
         "adolescentDescription": "<120/<80 mmHg"
       },
       "elevated": {
