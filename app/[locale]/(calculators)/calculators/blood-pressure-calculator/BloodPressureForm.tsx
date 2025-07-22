@@ -191,6 +191,24 @@ function calculateAccuratePercentile(
   );
 }
 
+const calculateScientificPercentiles = (
+  p50: number,
+  p90: number,
+  p95: number
+) => {
+  // Calculate SD from AAP data
+  const sd90 = (p90 - p50) / 1.28;
+  const sd95 = (p95 - p50) / 1.645;
+  const avgSD = (sd90 + sd95) / 2;
+
+  // Ensure minimum reasonable values
+  const p10 = Math.max(Math.round(p50 - 1.28 * avgSD), 60); // Don't go below 60
+  const p5 = Math.max(Math.round(p50 - 1.645 * avgSD), 55);
+  const p3 = Math.max(Math.round(p50 - 1.88 * avgSD), 50);
+
+  return { p3, p5, p10 };
+};
+
 function calculateBPPercentile(
   systolic: number,
   diastolic: number,
@@ -218,29 +236,30 @@ function calculateBPPercentile(
   const p95Systolic = p95.systolic;
   const p95Diastolic = p95.diastolic;
 
-  // Calculate derived percentiles
-  const p10Systolic = Math.round(p50Systolic - 12);
-  const p10Diastolic = Math.round(p50Diastolic - 8);
-  const p5Systolic = Math.round(p50Systolic - 16);
-  const p5Diastolic = Math.round(p50Diastolic - 10);
-  const p3Systolic = Math.round(p50Systolic - 20);
-  const p3Diastolic = Math.round(p50Diastolic - 12);
-  const stage2Systolic = Math.round(p95Systolic + 12);
-  const stage2Diastolic = Math.round(p95Diastolic + 12);
+  const scientificSystolic = calculateScientificPercentiles(
+    p50Systolic,
+    p90Systolic,
+    p95Systolic
+  );
+  const scientificDiastolic = calculateScientificPercentiles(
+    p50Diastolic,
+    p90Diastolic,
+    p95Diastolic
+  );
 
   const systolicThresholds = {
-    p3: p3Systolic,
-    p5: p5Systolic,
-    p10: p10Systolic,
+    p3: scientificSystolic.p3,
+    p5: scientificSystolic.p5,
+    p10: scientificSystolic.p10,
     p50: p50Systolic,
     p90: p90Systolic,
     p95: p95Systolic,
   };
 
   const diastolicThresholds = {
-    p3: p3Diastolic,
-    p5: p5Diastolic,
-    p10: p10Diastolic,
+    p3: scientificDiastolic.p3,
+    p5: scientificDiastolic.p5,
+    p10: scientificDiastolic.p10,
     p50: p50Diastolic,
     p90: p90Diastolic,
     p95: p95Diastolic,
@@ -278,107 +297,75 @@ function calculateBPPercentile(
   const diastolicZ = percentileToZScore(finalDiastolicPercentile);
 
   let classification: BPClassification;
-  if (ageInYears >= 13) {
-    if (systolic >= 140 || diastolic >= 90)
-      classification = {
-        category: t("classifications.stage2.category"),
-        description: t("classifications.stage2.description", {
-          description: t("classifications.stage2.adolescentDescription"),
-        }),
-        color: "text-red-700",
-        bgColor: "bg-red-50 border-red-200",
-      };
-    else if (systolic >= 130 || diastolic >= 80)
-      classification = {
-        category: t("classifications.stage1.category"),
-        description: t("classifications.stage1.description", {
-          description: t("classifications.stage1.adolescentDescription"),
-          action: t("classifications.stage1.adolescentAction"),
-        }),
-        color: "text-orange-700",
-        bgColor: "bg-orange-50 border-orange-200",
-      };
-    else if (systolic >= 120 && diastolic < 80)
-      classification = {
-        category: t("classifications.elevated.category"),
-        description: t("classifications.elevated.description", {
-          description: t("classifications.elevated.adolescentDescription"),
-          action: t("classifications.elevated.adolescentAction"),
-        }),
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-50 border-yellow-200",
-      };
-    else
-      classification = {
-        category: t("classifications.normal.category"),
-        description: t("classifications.normal.description", {
-          description: t("classifications.normal.adolescentDescription"),
-        }),
-        color: "text-green-700",
-        bgColor: "bg-green-50 border-green-200",
-      };
-  } else {
-    if (systolic >= stage2Systolic || diastolic >= stage2Diastolic)
-      classification = {
-        category: t("classifications.stage2.category"),
-        description: t("classifications.stage2.description", {
-          description: t("classifications.stage2.pediatricDescription"),
-        }),
-        color: "text-red-700",
-        bgColor: "bg-red-50 border-red-200",
-      };
-    else if (systolic >= p95Systolic || diastolic >= p95Diastolic)
-      classification = {
-        category: t("classifications.stage1.category"),
-        description: t("classifications.stage1.description", {
-          description: t("classifications.stage1.pediatricDescription"),
-          action: t("classifications.stage1.pediatricAction"),
-        }),
-        color: "text-orange-700",
-        bgColor: "bg-orange-50 border-orange-200",
-      };
-    else if (systolic >= p90Systolic || diastolic >= p90Diastolic)
-      classification = {
-        category: t("classifications.elevated.category"),
-        description: t("classifications.elevated.description", {
-          description: t("classifications.elevated.pediatricDescription"),
-          action: t("classifications.elevated.pediatricAction"),
-        }),
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-50 border-yellow-200",
-      };
-    else if (systolic <= p5Systolic || diastolic <= p5Diastolic)
-      classification = {
-        category: t("classifications.hypotension.severe.category", {
-          defaultValue: "Severe Hypotension",
-        }),
-        description: t("classifications.hypotension.severe.description", {
-          defaultValue: "Severe hypotension - immediate evaluation needed",
-        }),
-        color: "text-red-700",
-        bgColor: "bg-red-50 border-red-200",
-      };
-    else if (systolic <= p10Systolic || diastolic <= p10Diastolic)
-      classification = {
-        category: t("classifications.hypotension.mild.category", {
-          defaultValue: "Mild Hypotension",
-        }),
-        description: t("classifications.hypotension.mild.description", {
-          defaultValue: "Mild hypotension - monitor closely",
-        }),
-        color: "text-orange-700",
-        bgColor: "bg-orange-50 border-orange-200",
-      };
-    else
-      classification = {
-        category: t("classifications.normal.category"),
-        description: t("classifications.normal.description", {
-          description: t("classifications.normal.pediatricDescription"),
-        }),
-        color: "text-green-700",
-        bgColor: "bg-green-50 border-green-200",
-      };
-  }
+  const stage2Systolic = Math.round(p95Systolic + 12);
+  const stage2Diastolic = Math.round(p95Diastolic + 12);
+
+  if (systolic >= stage2Systolic || diastolic >= stage2Diastolic)
+    classification = {
+      category: t("classifications.stage2.category"),
+      description: t("classifications.stage2.description", {
+        description: t("classifications.stage2.pediatricDescription"),
+      }),
+      color: "text-red-700",
+      bgColor: "bg-red-50 border-red-200",
+    };
+  else if (systolic >= p95Systolic || diastolic >= p95Diastolic)
+    classification = {
+      category: t("classifications.stage1.category"),
+      description: t("classifications.stage1.description", {
+        description: t("classifications.stage1.pediatricDescription"),
+        action: t("classifications.stage1.pediatricAction"),
+      }),
+      color: "text-orange-700",
+      bgColor: "bg-orange-50 border-orange-200",
+    };
+  else if (systolic >= p90Systolic || diastolic >= p90Diastolic)
+    classification = {
+      category: t("classifications.elevated.category"),
+      description: t("classifications.elevated.description", {
+        description: t("classifications.elevated.pediatricDescription"),
+        action: t("classifications.elevated.pediatricAction"),
+      }),
+      color: "text-yellow-700",
+      bgColor: "bg-yellow-50 border-yellow-200",
+    };
+  else if (
+    systolic <= scientificSystolic.p5 ||
+    diastolic <= scientificDiastolic.p5
+  )
+    classification = {
+      category: t("classifications.hypotension.severe.category", {
+        defaultValue: "Severe Hypotension",
+      }),
+      description: t("classifications.hypotension.severe.description", {
+        defaultValue: "Severe hypotension - immediate evaluation needed",
+      }),
+      color: "text-red-700",
+      bgColor: "bg-red-50 border-red-200",
+    };
+  else if (
+    systolic <= scientificSystolic.p10 ||
+    diastolic <= scientificDiastolic.p10
+  )
+    classification = {
+      category: t("classifications.hypotension.mild.category", {
+        defaultValue: "Mild Hypotension",
+      }),
+      description: t("classifications.hypotension.mild.description", {
+        defaultValue: "Mild hypotension - monitor closely",
+      }),
+      color: "text-orange-700",
+      bgColor: "bg-orange-50 border-orange-200",
+    };
+  else
+    classification = {
+      category: t("classifications.normal.category"),
+      description: t("classifications.normal.description", {
+        description: t("classifications.normal.pediatricDescription"),
+      }),
+      color: "text-green-700",
+      bgColor: "bg-green-50 border-green-200",
+    };
 
   return {
     systolic: {

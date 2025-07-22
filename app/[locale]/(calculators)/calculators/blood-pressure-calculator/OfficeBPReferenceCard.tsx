@@ -102,25 +102,57 @@ export function OfficeBPReferenceCard({
     );
   }
 
+  const calculateScientificPercentiles = (
+    p50: number,
+    p90: number,
+    p95: number
+  ) => {
+    // Calculate SD from AAP data
+    const sd90 = (p90 - p50) / 1.28;
+    const sd95 = (p95 - p50) / 1.645;
+    const avgSD = (sd90 + sd95) / 2;
+
+    // Ensure minimum reasonable values
+    const p10 = Math.max(Math.round(p50 - 1.28 * avgSD), 60); // Don't go below 60
+    const p5 = Math.max(Math.round(p50 - 1.645 * avgSD), 55);
+    const p3 = Math.max(Math.round(p50 - 1.88 * avgSD), 50);
+
+    return { p3, p5, p10 };
+  };
+
   const { thresholds, heightPercentile, actualHeightCm } = aapData;
   const { p50, p90, p95 } = thresholds;
 
   // Calculate all milestones
   const calculateMilestones = () => {
-    // Calculate derived percentiles based on AAP data
-    const p10Systolic = Math.round(p50.systolic - 12);
-    const p10Diastolic = Math.round(p50.diastolic - 8);
-    const p5Systolic = Math.round(p50.systolic - 16);
-    const p5Diastolic = Math.round(p50.diastolic - 10);
-    const p3Systolic = Math.round(p50.systolic - 20);
-    const p3Diastolic = Math.round(p50.diastolic - 12);
+    // Use scientific calculation instead of hardcoded offsets
+    const scientificPercentiles = calculateScientificPercentiles(
+      p50.systolic,
+      p90.systolic,
+      p95.systolic
+    );
+    const scientificPercentilesDiastolic = calculateScientificPercentiles(
+      p50.diastolic,
+      p90.diastolic,
+      p95.diastolic
+    );
+
     const stage2Systolic = Math.round(p95.systolic + 12);
     const stage2Diastolic = Math.round(p95.diastolic + 12);
 
     return {
-      p3: { systolic: p3Systolic, diastolic: p3Diastolic },
-      p5: { systolic: p5Systolic, diastolic: p5Diastolic },
-      p10: { systolic: p10Systolic, diastolic: p10Diastolic },
+      p3: {
+        systolic: scientificPercentiles.p3,
+        diastolic: scientificPercentilesDiastolic.p3,
+      },
+      p5: {
+        systolic: scientificPercentiles.p5,
+        diastolic: scientificPercentilesDiastolic.p5,
+      },
+      p10: {
+        systolic: scientificPercentiles.p10,
+        diastolic: scientificPercentilesDiastolic.p10,
+      },
       p50: { systolic: p50.systolic, diastolic: p50.diastolic },
       p90: { systolic: p90.systolic, diastolic: p90.diastolic },
       p95: { systolic: p95.systolic, diastolic: p95.diastolic },
@@ -130,53 +162,52 @@ export function OfficeBPReferenceCard({
 
   const milestones = calculateMilestones();
 
-  // Determine patient's BP category for highlighting
   const getPatientBPCategory = (
     patientSys: number,
     patientDia: number
   ): "stage2" | "p95" | "p90" | "p50" | "p10" | "p5" | "p3" | null => {
     if (!patientSys || !patientDia) return null;
 
-    // For adolescents (13+), use absolute values
-    if (ageInYears >= 13) {
-      if (patientSys >= 140 || patientDia >= 90) return "stage2";
-      if (patientSys >= 130 || patientDia >= 80) return "p95";
-      if (patientSys >= 120 && patientDia < 80) return "p90";
-      return "p50";
-    }
-
-    // For children, use percentile-based classification
+    // Always use percentile-based classification for ages 1-17 (AAP data range)
+    // Check highest categories first
     if (
       patientSys >= milestones.stage2.systolic ||
       patientDia >= milestones.stage2.diastolic
     )
       return "stage2";
+
     if (
       patientSys >= milestones.p95.systolic ||
       patientDia >= milestones.p95.diastolic
     )
       return "p95";
+
     if (
       patientSys >= milestones.p90.systolic ||
       patientDia >= milestones.p90.diastolic
     )
       return "p90";
+
+    // Check hypotension categories (lowest values first)
     if (
       patientSys <= milestones.p3.systolic ||
       patientDia <= milestones.p3.diastolic
     )
       return "p3";
+
     if (
       patientSys <= milestones.p5.systolic ||
       patientDia <= milestones.p5.diastolic
     )
       return "p5";
+
     if (
       patientSys <= milestones.p10.systolic ||
       patientDia <= milestones.p10.diastolic
     )
       return "p10";
 
+    // If none of the above, patient is in normal range (around 50th percentile)
     return "p50";
   };
 
