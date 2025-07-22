@@ -258,9 +258,9 @@ const calculateScientificPercentiles = (
   const avgSD = (sd90 + sd95) / 2;
 
   // Ensure minimum reasonable values
-  const p10 = Math.max(Math.round(p50 - 1.28 * avgSD), 60); // Don't go below 60
-  const p5 = Math.max(Math.round(p50 - 1.645 * avgSD), 55);
-  const p3 = Math.max(Math.round(p50 - 1.88 * avgSD), 50);
+  const p10 = Math.round(p50 - 1.28 * avgSD);
+  const p5 = Math.round(p50 - 1.645 * avgSD);
+  const p3 = Math.round(p50 - 1.88 * avgSD);
 
   return { p3, p5, p10 };
 };
@@ -461,6 +461,10 @@ function isAgeInRange(
 
 export function BloodPressureForm() {
   const t = useTranslations("BloodPressureCalculator");
+  console.log("Current locale:", t("gender.male")); // Should show "Niño" for Spanish
+  console.log("Normal category:", t("classifications.normal.category"));
+  console.log("Normal description template:", t("classifications.normal.description"));
+  console.log("Pediatric description:", t("classifications.normal.pediatricDescription"));
   const formSchema = useMemo(() => createFormSchema(t), [t]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BPResult | null>(null);
