@@ -35,9 +35,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { differenceInMonths, differenceInYears } from "date-fns";
-import cdcHeightData from "@/app/data/cdc-data-height.json";
-import cdcChildHeightData from "@/app/data/cdc-data-height.json";
-import cdcInfantHeightData from "@/app/data/cdc-data-infant-height.json";
 import aapBPData from "@/app/data/aap-blood-pressure-data.json";
 import DateInputs from "@/components/DateInputs";
 import { AmbulatoryReferenceCard } from "./AmbulatoryReferenceCard";
@@ -63,23 +60,6 @@ interface BPResult {
   };
   classification: BPClassification;
   heightPercentile: number;
-}
-
-interface CdcDataPoint {
-  Sex: number;
-  Agemos: number;
-  L: number;
-  M: number;
-  S: number;
-  P3: number;
-  P5: number;
-  P10: number;
-  P25: number;
-  P50: number;
-  P75: number;
-  P90: number;
-  P95: number;
-  P97: number;
 }
 
 const createFormSchema = (t: any) =>
@@ -127,134 +107,60 @@ const createFormSchema = (t: any) =>
       return true;
     });
 
-// Calculate Z-Score using LMS method
-const calculateZScore = (value: number, L: number, M: number, S: number) => {
-  if (L === 0) {
-    return Math.log(value / M) / S;
-  }
-  return (Math.pow(value / M, L) - 1) / (L * S);
-};
-
-// Convert Z-Score to Percentile
-const zScoreToPercentile = (zScore: number) => {
-  const erf = (x: number) => {
-    const a1 = 0.254829592,
-      a2 = -0.284496736,
-      a3 = 1.421413741,
-      a4 = -1.453152027,
-      a5 = 1.061405429,
-      p = 0.3275911;
-    const sign = x < 0 ? -1 : 1;
-    x = Math.abs(x);
-    const t = 1.0 / (1.0 + p * x);
-    const y =
-      1.0 -
-      ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-    return sign * y;
-  };
-  return 0.5 * (1 + erf(zScore / Math.sqrt(2))) * 100;
-};
-
-// Interpolate data point for exact age
-const interpolateDataPoint = (
-  ageInMonths: number,
-  dataPoints: any[],
-  sex: number
-) => {
-  const filteredPoints = dataPoints.filter((point) => point.Sex === sex);
-  if (filteredPoints.length === 0) return null;
-  const sortedPoints = filteredPoints.sort(
-    (a, b) =>
-      Math.abs(a.Agemos - ageInMonths) - Math.abs(b.Agemos - ageInMonths)
-  );
-  const point1 = sortedPoints[0],
-    point2 = sortedPoints[1];
-  if (!point1) return null;
-  if (
-    point1.Agemos === ageInMonths ||
-    !point2 ||
-    point1.Agemos === point2.Agemos
-  )
-    return point1;
-  const factor =
-    (ageInMonths - point1.Agemos) / (point2.Agemos - point1.Agemos);
-  return {
-    Sex: sex,
-    Agemos: ageInMonths,
-    L: point1.L + (point2.L - point1.L) * factor,
-    M: point1.M + (point2.M - point1.M) * factor,
-    S: point1.S + (point2.S - point1.S) * factor,
-  };
-};
-
-// Calculate height percentile using CDC data
-function calculateHeightPercentile(
-  height: number,
-  ageInMonths: number,
-  gender: "male" | "female"
-): number {
-  const sex = gender === "male" ? 1 : 2;
-  let heightDataPoint;
-  if (ageInMonths < 24) {
-    heightDataPoint = interpolateDataPoint(
-      ageInMonths,
-      cdcInfantHeightData as CdcDataPoint[],
-      sex
-    );
-  } else {
-    heightDataPoint = interpolateDataPoint(
-      ageInMonths,
-      cdcHeightData as CdcDataPoint[],
-      sex
-    );
-  }
-  if (!heightDataPoint) return 50; // Fallback
-  const zScore = calculateZScore(
-    height,
-    heightDataPoint.L,
-    heightDataPoint.M,
-    heightDataPoint.S
-  );
-  return zScoreToPercentile(zScore);
-}
-
-// Helper function to get BP thresholds from complete AAP data
-function getBPThresholdsFromAAP(
+function getAAPDataByHeight(
   ageInYears: number,
-  heightPercentile: number,
+  heightCm: number,
   gender: "male" | "female"
 ) {
-  const genderData = (
-    gender === "male" ? aapBPData.boys : aapBPData.girls
-  ) as any;
-  const ageData = genderData[String(ageInYears)];
+  const genderKey = gender === "male" ? "boys" : "girls";
+  const ageData =
+    aapBPData[genderKey]?.[
+      String(ageInYears) as keyof (typeof aapBPData)[typeof genderKey]
+    ];
 
   if (!ageData) return null;
 
-  // Find closest height percentile from available data (5th, 10th, 25th, 50th, 75th, 90th, 95th)
-  const heightPercentiles = [5, 10, 25, 50, 75, 90, 95];
-  const closestHeightIndex = heightPercentiles.reduce(
-    (prev, curr, index) =>
-      Math.abs(curr - heightPercentile) <
-      Math.abs(heightPercentiles[prev] - heightPercentile)
-        ? index
-        : prev,
-    0
-  );
+  const heightPercentileKeys = [
+    "5th",
+    "10th",
+    "25th",
+    "50th",
+    "75th",
+    "90th",
+    "95th",
+  ];
+  const heightPercentileNumeric = [5, 10, 25, 50, 75, 90, 95];
 
+  let closestHeightIndex = 0;
+  let smallestDifference = Infinity;
+
+  heightPercentileKeys.forEach((key, index) => {
+    const percentileHeightCm =
+      ageData.heights[key as keyof typeof ageData.heights].cm;
+    const difference = Math.abs(heightCm - percentileHeightCm);
+    if (difference < smallestDifference) {
+      smallestDifference = difference;
+      closestHeightIndex = index;
+    }
+  });
+
+  const bp = ageData.bp;
   return {
-    p50: {
-      systolic: ageData.bp["50th"].systolic[closestHeightIndex],
-      diastolic: ageData.bp["50th"].diastolic[closestHeightIndex],
+    thresholds: {
+      p50: {
+        systolic: bp["50th"].systolic[closestHeightIndex],
+        diastolic: bp["50th"].diastolic[closestHeightIndex],
+      },
+      p90: {
+        systolic: bp["90th"].systolic[closestHeightIndex],
+        diastolic: bp["90th"].diastolic[closestHeightIndex],
+      },
+      p95: {
+        systolic: bp["95th"].systolic[closestHeightIndex],
+        diastolic: bp["95th"].diastolic[closestHeightIndex],
+      },
     },
-    p90: {
-      systolic: ageData.bp["90th"].systolic[closestHeightIndex],
-      diastolic: ageData.bp["90th"].diastolic[closestHeightIndex],
-    },
-    p95: {
-      systolic: ageData.bp["95th"].systolic[closestHeightIndex],
-      diastolic: ageData.bp["95th"].diastolic[closestHeightIndex],
-    },
+    heightPercentile: heightPercentileNumeric[closestHeightIndex],
   };
 }
 
@@ -289,7 +195,7 @@ function calculateBPPercentile(
   systolic: number,
   diastolic: number,
   ageInYears: number,
-  heightPercentile: number,
+  heightCm: number,
   gender: "male" | "female",
   t: any
 ): BPResult | null {
@@ -298,22 +204,19 @@ function calculateBPPercentile(
     return null;
   if (diastolic >= systolic) return null;
 
-  const clampedHeightPercentile = Math.max(1, Math.min(99.9, heightPercentile));
+  const aapData = getAAPDataByHeight(ageInYears, heightCm, gender);
+  if (!aapData) return null;
 
   // Get BP thresholds from AAP data
-  const bpThresholds = getBPThresholdsFromAAP(
-    ageInYears,
-    clampedHeightPercentile,
-    gender
-  );
-  if (!bpThresholds) return null;
+  const { thresholds, heightPercentile } = aapData;
+  const { p50, p90, p95 } = thresholds;
 
-  const p50Systolic = bpThresholds.p50.systolic;
-  const p50Diastolic = bpThresholds.p50.diastolic;
-  const p90Systolic = bpThresholds.p90.systolic;
-  const p90Diastolic = bpThresholds.p90.diastolic;
-  const p95Systolic = bpThresholds.p95.systolic;
-  const p95Diastolic = bpThresholds.p95.diastolic;
+  const p50Systolic = p50.systolic;
+  const p50Diastolic = p50.diastolic;
+  const p90Systolic = p90.systolic;
+  const p90Diastolic = p90.diastolic;
+  const p95Systolic = p95.systolic;
+  const p95Diastolic = p95.diastolic;
 
   // Calculate derived percentiles
   const p10Systolic = Math.round(p50Systolic - 12);
@@ -489,7 +392,7 @@ function calculateBPPercentile(
       zScore: Math.round(diastolicZ * 100) / 100,
     },
     classification,
-    heightPercentile: clampedHeightPercentile,
+    heightPercentile: heightPercentile,
   };
 }
 
@@ -628,13 +531,6 @@ export function BloodPressureForm() {
       return;
     }
 
-    // Calculate height percentile (age is always available)
-    const heightPercentile = calculateHeightPercentile(
-      parseFloat(values.height),
-      ageInMonths,
-      values.gender
-    );
-
     // Simulate processing
     setTimeout(() => {
       // If we have BP values, calculate full analysis
@@ -643,7 +539,7 @@ export function BloodPressureForm() {
           parseFloat(values.systolicBP),
           parseFloat(values.diastolicBP),
           ageInYears,
-          heightPercentile,
+          parseFloat(values.height),
           values.gender,
           t
         );
@@ -929,17 +825,6 @@ export function BloodPressureForm() {
                 {/* Real-time Results */}
                 {results && (
                   <div className="results-section">
-                    {/* Growth Chart Source Info Banner */}
-                    {ageInMonths >= 0 && ageInMonths < 24 && (
-                      <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                        {t("dataSource.cdcHeightInfant")}
-                      </div>
-                    )}
-                    {ageInMonths >= 24 && ageInMonths <= 215 && (
-                      <div className="text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded px-2 py-2 mb-2 w-fit">
-                        {t("dataSource.cdcHeight")}
-                      </div>
-                    )}
                     <Card>
                       <CardContent className="pt-6">
                         <div className="space-y-4">
@@ -1174,9 +1059,6 @@ export function BloodPressureForm() {
                             ageInYears={ageInYears}
                             gender={selectedGender}
                             height={parseFloat(height)}
-                            heightPercentile={results.heightPercentile}
-                            cdcChildHeightData={cdcChildHeightData}
-                            cdcInfantHeightData={cdcInfantHeightData}
                             patientSystolic={results.systolic.value}
                             patientDiastolic={results.diastolic.value}
                             aapBPData={aapBPData}
@@ -1223,14 +1105,6 @@ export function BloodPressureForm() {
                                 percentile: results.heightPercentile.toFixed(1),
                               })}
                             </p>
-                            <p>
-                              {t("results.footer.heightData", {
-                                source:
-                                  ageInMonths < 24
-                                    ? t("dataSource.cdcHeightInfant")
-                                    : t("dataSource.cdcHeight"),
-                              })}
-                            </p>
                             <p>{t("results.footer.reference")}</p>
                             <p>{t("results.footer.note")}</p>
                           </div>
@@ -1254,14 +1128,7 @@ export function BloodPressureForm() {
                       <OfficeBPReferenceCard
                         ageInYears={ageInYears}
                         gender={selectedGender}
-                        heightPercentile={calculateHeightPercentile(
-                          parseFloat(height),
-                          ageInMonths,
-                          selectedGender
-                        )}
                         height={parseFloat(height)}
-                        cdcChildHeightData={cdcHeightData}
-                        cdcInfantHeightData={cdcInfantHeightData}
                         aapBPData={aapBPData}
                       />
                     </div>
