@@ -210,9 +210,9 @@ export function OfficeBPReferenceCard({
     const avgSD = (sd90 + sd95) / 2;
 
     // Ensure minimum reasonable values
-    const p10 = Math.max(Math.round(p50 - 1.28 * avgSD), 60); // Don't go below 60
-    const p5 = Math.max(Math.round(p50 - 1.645 * avgSD), 55);
-    const p3 = Math.max(Math.round(p50 - 1.88 * avgSD), 50);
+    const p10 = Math.round(p50 - 1.28 * avgSD);
+    const p5 = Math.round(p50 - 1.645 * avgSD);
+    const p3 = Math.round(p50 - 1.88 * avgSD);
 
     return { p3, p5, p10 };
   };
@@ -374,11 +374,22 @@ export function OfficeBPReferenceCard({
 
   return (
     <div className="mt-6" id="office-bp-reference-card">
-      <div className="flex justify-between items-center mb-4 print-hidden">
-        <div>
-          <h3 className="text-lg font-semibold">
-            {t("title", { defaultValue: "BP Reference Values" })}
-          </h3>
+      <div className="w-full justify-between items-center mb-4 print-hidden">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap justify-between gap-2 w-full">
+            <h3 className="text-lg font-semibold">
+              {t("title", { defaultValue: "BP Reference Values" })}
+            </h3>
+            <Button
+              onClick={handlePrint}
+              size="sm"
+              variant="outline"
+              className="print-hidden"
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              {t("print", { defaultValue: "Print" })}
+            </Button>
+          </div>
           <div
             className={cn(
               "text-xs mt-2 p-2 rounded",
@@ -421,15 +432,6 @@ export function OfficeBPReferenceCard({
             </p>
           )}
         </div>
-        <Button
-          onClick={handlePrint}
-          size="sm"
-          variant="outline"
-          className="print-hidden"
-        >
-          <Printer className="w-4 h-4 mr-2" />
-          {t("print", { defaultValue: "Print" })}
-        </Button>
       </div>
 
       <div className="border rounded-lg overflow-hidden">

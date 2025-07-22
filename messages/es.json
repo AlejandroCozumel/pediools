@@ -280,8 +280,8 @@
     "classifications": {
       "normal": {
         "category": "Normal",
-        "description": "{description} - La presión arterial está dentro del rango normal",
-        "pediatricDescription": "<percentil 90 - Rango normal",
+        "description": "La presión arterial está dentro del rango normal - {description}",
+        "pediatricDescription": "<90th percentil - Rango normal",
         "adolescentDescription": "<120/<80 mmHg"
       },
       "elevated": {
