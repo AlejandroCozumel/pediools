@@ -18,12 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { differenceInDays } from "date-fns";
 import { useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
@@ -41,6 +36,9 @@ import {
   Droplets,
   Activity,
   Calendar,
+  Check,
+  CheckCheckIcon,
+  CheckCircleIcon,
 } from "lucide-react";
 import DateInputs from "@/components/DateInputs";
 import { useLocale } from "next-intl";
@@ -234,7 +232,11 @@ const findReferenceRange = (
   patientAgeDays: number | null,
   gender: "male" | "female"
 ): { min: number | null; max: number | null } => {
-  if (!testData?.ageRanges || !Array.isArray(testData.ageRanges) || testData.ageRanges.length === 0) {
+  if (
+    !testData?.ageRanges ||
+    !Array.isArray(testData.ageRanges) ||
+    testData.ageRanges.length === 0
+  ) {
     return { min: null, max: null };
   }
 
@@ -290,9 +292,11 @@ const findReferenceRange = (
     let diff = Infinity;
     if (parsed.minDays !== null && parsed.maxDays !== null) {
       // If patient is below min, diff is minDays - patient
-      if (patientAgeDays < parsed.minDays) diff = parsed.minDays - patientAgeDays;
+      if (patientAgeDays < parsed.minDays)
+        diff = parsed.minDays - patientAgeDays;
       // If patient is above max, diff is patient - maxDays
-      else if (patientAgeDays > parsed.maxDays) diff = patientAgeDays - parsed.maxDays;
+      else if (patientAgeDays > parsed.maxDays)
+        diff = patientAgeDays - parsed.maxDays;
       else diff = 0; // Shouldn't happen, would have matched
     } else if (parsed.minDays !== null) {
       diff = Math.abs(patientAgeDays - parsed.minDays);
@@ -306,7 +310,8 @@ const findReferenceRange = (
   }
   if (closestRange) {
     if (closestRange.male && closestRange.female) {
-      const genderData = gender === "male" ? closestRange.male : closestRange.female;
+      const genderData =
+        gender === "male" ? closestRange.male : closestRange.female;
       return { min: genderData.min, max: genderData.max };
     } else if (closestRange.range) {
       return { min: closestRange.range.min, max: closestRange.range.max };
@@ -393,23 +398,35 @@ const LabResults: React.FC<{
     );
   }
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case "normal":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "low":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "high":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "critical":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   const criticalResults = results.filter((r) => r.status === "critical");
   const resultsWithDateIssues = results.filter((r) => r.hasDateIssue);
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "high":
+      case "low":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
+            <AlertTriangle className="w-3 h-3" />
+            LOW
+          </span>
+        );
+      case "critical":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold">
+            <AlertTriangle className="w-3 h-3" />
+            CRITICAL
+          </span>
+        );
+      case "normal":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+            <CheckCircleIcon className="w-3 h-3" />
+            NORMAL
+          </span>
+        );
+    }
+  };
 
   return (
     <Card className="mt-6">
@@ -454,11 +471,7 @@ const LabResults: React.FC<{
               key={index}
               className={cn(
                 "border rounded-lg p-4 transition-all duration-200",
-                result.status === "critical" && "border-red-300 bg-red-50",
-                result.hasDateIssue && "border-yellow-300 bg-yellow-50",
-                gender === "male"
-                  ? "border-medical-200"
-                  : "border-medical-pink-200"
+                getCardBg(result.status)
               )}
             >
               <div className="flex justify-between items-start mb-3">
@@ -490,11 +503,7 @@ const LabResults: React.FC<{
                       NO AGE
                     </Badge>
                   )}
-                  <Badge
-                    className={cn("border", getStatusColor(result.status))}
-                  >
-                    {result.status.toUpperCase()}
-                  </Badge>
+                  {getStatusBadge(result.status)}
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -580,7 +589,7 @@ const LabResults: React.FC<{
                   // Sex label
                   let sexLabel = "";
                   if (matchedRange?.male && matchedRange?.female) {
-                    sexLabel = `Sex: ${gender === "male" ? "Male" : "Female"}`;
+                    sexLabel = `Sex: ${gender === "male" ? "Boy" : "Girl"}`;
                   } else if (matchedRange?.range) {
                     sexLabel = "Sex: All";
                   }
@@ -596,21 +605,23 @@ const LabResults: React.FC<{
                         {ageOutOfRange ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
                             <AlertTriangle className="w-3 h-3" />
-                            Closest range: {matchedRange?.age || t("LabCalculator.noAgeBadge")}
+                            Closest range:{" "}
+                            {matchedRange?.age || t("LabCalculator.noAgeBadge")}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-                            <Calendar className="w-3 h-3" /> {matchedRange?.age || t("LabCalculator.noAgeBadge")}
+                            <Calendar className="w-3 h-3" />{" "}
+                            {matchedRange?.age || t("LabCalculator.noAgeBadge")}
                           </span>
                         )}
                         {matchedRange?.male && matchedRange?.female ? (
                           gender === "male" ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-medical-100 text-medical-800 text-xs font-semibold">
-                              <Baby className="w-3 h-3" /> Male
+                              <Baby className="w-3 h-3" /> Boy
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-medical-pink-100 text-medical-pink-800 text-xs font-semibold">
-                              <Baby className="w-3 h-3" /> Female
+                              <Baby className="w-3 h-3" /> Girl
                             </span>
                           )
                         ) : (
@@ -660,6 +671,20 @@ const LabResults: React.FC<{
       </CardContent>
     </Card>
   );
+};
+
+// Add this helper function near your other helpers:
+const getCardBg = (status: string) => {
+  switch (status) {
+    case "critical":
+      return "bg-red-50 border-red-200";
+    case "high":
+    case "low":
+      return "bg-yellow-50 border-yellow-200";
+    case "normal":
+    default:
+      return "bg-white border-medical-200";
+  }
 };
 
 // Main form component
@@ -843,7 +868,7 @@ const LabCalculatorForm: React.FC = () => {
                                 }
                               `}
                                 />
-                                <span className="font-medium">Male</span>
+                                <span className="font-medium">Boy</span>
                               </div>
                             </TabsTrigger>
                             <TabsTrigger
@@ -864,7 +889,7 @@ const LabCalculatorForm: React.FC = () => {
                                 }
                               `}
                                 />
-                                <span className="font-medium">Female</span>
+                                <span className="font-medium">Girl</span>
                               </div>
                             </TabsTrigger>
                           </TabsList>
@@ -1006,12 +1031,18 @@ const LabCalculatorForm: React.FC = () => {
                 </>
               ) : (
                 // If dates are NOT selected, show a prompt message
-                <Alert variant="default" className="mb-4 bg-blue-50 border-blue-200 text-blue-800 flex items-start">
+                <Alert
+                  variant="default"
+                  className="mb-4 bg-blue-50 border-blue-200 text-blue-800 flex items-start"
+                >
                   <Info className="w-5 h-5 mt-0.5 mr-2" />
                   <div>
-                    <AlertTitle className="font-semibold">Start Here</AlertTitle>
+                    <AlertTitle className="font-semibold">
+                      Start Here
+                    </AlertTitle>
                     <AlertDescription>
-                      Please select both a <strong>Date of Birth</strong> and a <strong>Date of Measurement</strong> to proceed.
+                      Please select both a <strong>Date of Birth</strong> and a{" "}
+                      <strong>Date of Measurement</strong> to proceed.
                     </AlertDescription>
                   </div>
                 </Alert>
