@@ -110,13 +110,11 @@ const createFormSchema = (t: any) =>
 function getAAPDataByHeight(
   ageInYears: number,
   heightCm: number,
-  gender: "male" | "female"
+  gender: "male" | "female",
+  aapBPData: any
 ) {
   const genderKey = gender === "male" ? "boys" : "girls";
-  const ageData =
-    aapBPData[genderKey]?.[
-      String(ageInYears) as keyof (typeof aapBPData)[typeof genderKey]
-    ];
+  const ageData = aapBPData[genderKey]?.[String(ageInYears)];
 
   if (!ageData) return null;
 
@@ -131,20 +129,67 @@ function getAAPDataByHeight(
   ];
   const heightPercentileNumeric = [5, 10, 25, 50, 75, 90, 95];
 
-  let closestHeightIndex = 0;
-  let smallestDifference = Infinity;
+  // Get actual height values for this age/gender
+  const heightValues = heightPercentileKeys.map(
+    (key) => ageData.heights[key].cm
+  );
 
-  heightPercentileKeys.forEach((key, index) => {
-    const percentileHeightCm =
-      ageData.heights[key as keyof typeof ageData.heights].cm;
-    const difference = Math.abs(heightCm - percentileHeightCm);
-    if (difference < smallestDifference) {
-      smallestDifference = difference;
-      closestHeightIndex = index;
+  const minHeight = Math.min(...heightValues);
+  const maxHeight = Math.max(...heightValues);
+
+  // Determine if patient height is within, below, or above data range
+  let heightStatus:
+    | "within_range"
+    | "below_range"
+    | "above_range"
+    | "extrapolated";
+  let usedPercentile: number;
+  let closestHeightIndex: number;
+  let interpolationWarning: string | null = null;
+
+  if (heightCm < minHeight) {
+    // Below 5th percentile - extrapolate to 5th
+    heightStatus = "below_range";
+    usedPercentile = 5;
+    closestHeightIndex = 0; // Use 5th percentile data
+    interpolationWarning = "extrapolated_to_5th";
+  } else if (heightCm > maxHeight) {
+    // Above 95th percentile - extrapolate to 95th
+    heightStatus = "above_range";
+    usedPercentile = 95;
+    closestHeightIndex = heightPercentileKeys.length - 1; // Use 95th percentile data
+    interpolationWarning = "extrapolated_to_95th";
+  } else {
+    // Within range - find closest or interpolate
+    heightStatus = "within_range";
+
+    // Find closest height percentile
+    let smallestDifference = Infinity;
+    closestHeightIndex = 0;
+
+    heightPercentileKeys.forEach((key, index) => {
+      const percentileHeightCm = ageData.heights[key].cm;
+      const difference = Math.abs(heightCm - percentileHeightCm);
+      if (difference < smallestDifference) {
+        smallestDifference = difference;
+        closestHeightIndex = index;
+      }
+    });
+
+    usedPercentile = heightPercentileNumeric[closestHeightIndex];
+
+    // Check if we're exactly on a percentile or interpolated
+    const exactHeight =
+      ageData.heights[heightPercentileKeys[closestHeightIndex]].cm;
+    if (Math.abs(heightCm - exactHeight) > 0.5) {
+      // More than 0.5cm difference
+      interpolationWarning = "interpolated_between_percentiles";
+      heightStatus = "extrapolated";
     }
-  });
+  }
 
   const bp = ageData.bp;
+
   return {
     thresholds: {
       p50: {
@@ -160,7 +205,18 @@ function getAAPDataByHeight(
         diastolic: bp["95th"].diastolic[closestHeightIndex],
       },
     },
-    heightPercentile: heightPercentileNumeric[closestHeightIndex],
+    heightPercentile: usedPercentile,
+    actualHeightCm:
+      ageData.heights[heightPercentileKeys[closestHeightIndex]].cm,
+    patientHeightCm: heightCm,
+    heightStatus,
+    interpolationWarning,
+    // Additional metadata for UI display
+    heightRange: {
+      min: minHeight,
+      max: maxHeight,
+      isWithinRange: heightStatus === "within_range",
+    },
   };
 }
 
@@ -222,7 +278,7 @@ function calculateBPPercentile(
     return null;
   if (diastolic >= systolic) return null;
 
-  const aapData = getAAPDataByHeight(ageInYears, heightCm, gender);
+  const aapData = getAAPDataByHeight(ageInYears, heightCm, gender, aapBPData);
   if (!aapData) return null;
 
   // Get BP thresholds from AAP data

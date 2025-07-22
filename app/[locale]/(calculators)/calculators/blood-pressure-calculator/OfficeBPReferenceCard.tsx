@@ -14,7 +14,6 @@ interface OfficeBPReferenceCardProps {
   patientDiastolic?: number;
 }
 
-// Helper function to get height percentile and BP thresholds from AAP data
 function getAAPDataByHeight(
   ageInYears: number,
   heightCm: number,
@@ -23,7 +22,6 @@ function getAAPDataByHeight(
 ) {
   const genderKey = gender === "male" ? "boys" : "girls";
   const ageData = aapBPData[genderKey]?.[String(ageInYears)];
-
   if (!ageData) return null;
 
   const heightPercentileKeys = [
@@ -37,18 +35,56 @@ function getAAPDataByHeight(
   ];
   const heightPercentileNumeric = [5, 10, 25, 50, 75, 90, 95];
 
-  // Find closest height percentile
-  let closestHeightIndex = 0;
-  let smallestDifference = Infinity;
+  const heightValues = heightPercentileKeys.map(
+    (key) => ageData.heights[key].cm
+  );
+  const minHeight = Math.min(...heightValues);
+  const maxHeight = Math.max(...heightValues);
 
-  heightPercentileKeys.forEach((key, index) => {
-    const percentileHeightCm = ageData.heights[key].cm;
-    const difference = Math.abs(heightCm - percentileHeightCm);
-    if (difference < smallestDifference) {
-      smallestDifference = difference;
-      closestHeightIndex = index;
+  let heightStatus:
+    | "within_range"
+    | "below_range"
+    | "above_range"
+    | "extrapolated";
+  let usedPercentile: number;
+  let closestHeightIndex: number;
+  let interpolationWarning: string | null = null;
+
+  if (heightCm < minHeight) {
+    heightStatus = "below_range";
+    usedPercentile = 5;
+    closestHeightIndex = 0; // Use 5th percentile data
+    interpolationWarning = "extrapolated_to_5th";
+  } else if (heightCm > maxHeight) {
+    heightStatus = "above_range";
+    usedPercentile = 95;
+    closestHeightIndex = heightPercentileKeys.length - 1; // Use 95th percentile data
+    interpolationWarning = "extrapolated_to_95th";
+  } else {
+    heightStatus = "within_range";
+
+    let smallestDifference = Infinity;
+    closestHeightIndex = 0;
+
+    heightPercentileKeys.forEach((key, index) => {
+      const percentileHeightCm = ageData.heights[key].cm;
+      const difference = Math.abs(heightCm - percentileHeightCm);
+      if (difference < smallestDifference) {
+        smallestDifference = difference;
+        closestHeightIndex = index;
+      }
+    });
+
+    usedPercentile = heightPercentileNumeric[closestHeightIndex];
+
+    const exactHeight =
+      ageData.heights[heightPercentileKeys[closestHeightIndex]].cm;
+    if (Math.abs(heightCm - exactHeight) > 0.5) {
+      // More than 0.5cm difference
+      interpolationWarning = "interpolated_between_percentiles";
+      heightStatus = "extrapolated";
     }
-  });
+  }
 
   const bp = ageData.bp;
 
@@ -67,9 +103,17 @@ function getAAPDataByHeight(
         diastolic: bp["95th"].diastolic[closestHeightIndex],
       },
     },
-    heightPercentile: heightPercentileNumeric[closestHeightIndex],
+    heightPercentile: usedPercentile,
     actualHeightCm:
       ageData.heights[heightPercentileKeys[closestHeightIndex]].cm,
+    patientHeightCm: heightCm,
+    heightStatus,
+    interpolationWarning,
+    heightRange: {
+      min: minHeight,
+      max: maxHeight,
+      isWithinRange: heightStatus === "within_range",
+    },
   };
 }
 
@@ -91,16 +135,69 @@ export function OfficeBPReferenceCard({
       <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-yellow-600" />
-          <p className="text-sm text-yellow-800">
-            {t("noDataAvailable", {
-              defaultValue:
-                "No BP reference data available for this age/height combination.",
-            })}
-          </p>
+          <p className="text-sm text-yellow-800">{t("noDataAvailable")}</p>
         </div>
       </div>
     );
   }
+
+  const getHeightStatusMessage = () => {
+    const {
+      heightStatus,
+      interpolationWarning,
+      heightPercentile,
+      patientHeightCm,
+      actualHeightCm,
+      heightRange,
+    } = aapData;
+
+    switch (heightStatus) {
+      case "below_range":
+        return {
+          type: "warning",
+          message: t("heightStatus.belowRange", {
+            defaultValue: `Patient height (${patientHeightCm}cm) is below 5th percentile range. Values extrapolated from 5th percentile data (${actualHeightCm}cm).`,
+            patientHeight: patientHeightCm,
+            actualHeight: actualHeightCm,
+            minHeight: heightRange.min,
+          }),
+        };
+
+      case "above_range":
+        return {
+          type: "warning",
+          message: t("heightStatus.aboveRange", {
+            defaultValue: `Patient height (${patientHeightCm}cm) is above 95th percentile range. Values extrapolated from 95th percentile data (${actualHeightCm}cm).`,
+            patientHeight: patientHeightCm,
+            actualHeight: actualHeightCm,
+            maxHeight: heightRange.max,
+          }),
+        };
+
+      case "extrapolated":
+        return {
+          type: "info",
+          message: t("heightStatus.interpolated", {
+            defaultValue: `Patient height (${patientHeightCm}cm) interpolated to ${heightPercentile}th percentile (${actualHeightCm}cm).`,
+            patientHeight: patientHeightCm,
+            percentile: heightPercentile,
+            actualHeight: actualHeightCm,
+          }),
+        };
+
+      default:
+        return {
+          type: "success",
+          message: t("heightStatus.exactMatch", {
+            defaultValue: `Patient height matches ${heightPercentile}th percentile (${actualHeightCm}cm).`,
+            percentile: heightPercentile,
+            actualHeight: actualHeightCm,
+          }),
+        };
+    }
+  };
+
+  const heightStatusInfo = getHeightStatusMessage();
 
   const calculateScientificPercentiles = (
     p50: number,
@@ -282,6 +379,30 @@ export function OfficeBPReferenceCard({
           <h3 className="text-lg font-semibold">
             {t("title", { defaultValue: "BP Reference Values" })}
           </h3>
+          <div
+            className={cn(
+              "text-xs mt-2 p-2 rounded",
+              heightStatusInfo.type === "warning" &&
+                "bg-amber-50 text-amber-800 border border-amber-200",
+              heightStatusInfo.type === "info" &&
+                "bg-blue-50 text-blue-800 border border-blue-200",
+              heightStatusInfo.type === "success" &&
+                "bg-green-50 text-green-800 border border-green-200"
+            )}
+          >
+            <div className="flex items-start gap-2">
+              {heightStatusInfo.type === "warning" && (
+                <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              )}
+              {heightStatusInfo.type === "info" && (
+                <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              )}
+              {heightStatusInfo.type === "success" && (
+                <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              )}
+              <span>{heightStatusInfo.message}</span>
+            </div>
+          </div>
           <p className="text-xs text-muted-foreground">{subtitleText}</p>
           <p className="text-xs text-blue-600 mt-1">
             {t("heightMatch", {

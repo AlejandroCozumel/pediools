@@ -378,7 +378,13 @@
       "heightMatch": "Height matched to {percentile}th percentile ({heightCm} cm) - AAP Guidelines",
       "patientBP": "Patient BP: {systolic}/{diastolic} mmHg (highlighted below)",
       "highlightNote": "Patient's current BP reading is highlighted above.",
-      "noDataAvailable": "No BP reference data available for this age/height combination."
+      "noDataAvailable": "No BP reference data available for this age/height combination.",
+      "heightStatus": {
+        "belowRange": "Patient height ({patientHeight}cm) is below the 5th percentile range. Values are extrapolated from the 5th percentile data ({actualHeight}cm).",
+        "aboveRange": "Patient height ({patientHeight}cm) is above the 95th percentile range. Values are extrapolated from the 95th percentile data ({actualHeight}cm).",
+        "interpolated": "Patient height ({patientHeight}cm) is interpolated to the {percentile}th percentile, using data for a height of {actualHeight}cm.",
+        "exactMatch": "Patient height matches the {percentile}th percentile data ({actualHeight}cm)."
+      }
     },
     "ambulatoryReference": {
       "patientHeight": "Patient Height (cm)",
