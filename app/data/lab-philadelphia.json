@@ -257,6 +257,9 @@
         "name": "25-OH Vitamin D",
         "nombre": "Vitamina D (25-OH)",
         "unit": "ng/mL",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 12, "max": 100 } }
+        ],
         "interpretation": {
           "deficiency": "< 12",
           "insufficiency": "12-20",
@@ -313,7 +316,8 @@
         "nombre": "Tiempo de sangrado",
         "unit": "minutes",
         "note": "Not available in current dataset",
-        "nota": "No disponible en el conjunto de datos actual"
+        "nota": "No disponible en el conjunto de datos actual",
+        "ageRanges": []
       }
     }
   },
