@@ -256,7 +256,8 @@
         "diastolic": "Diastólica",
         "value": "Valor (mmHg)",
         "percentile": "Percentil (%)",
-        "zScore": "Puntuación Z"
+        "zScore": "Puntuación Z",
+        "map": "PAM"
       },
       "clinicalInterpretation": {
         "title": "Interpretación clínica",

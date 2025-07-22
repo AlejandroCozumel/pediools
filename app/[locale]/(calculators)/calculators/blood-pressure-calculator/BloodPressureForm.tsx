@@ -463,8 +463,14 @@ export function BloodPressureForm() {
   const t = useTranslations("BloodPressureCalculator");
   console.log("Current locale:", t("gender.male")); // Should show "Niño" for Spanish
   console.log("Normal category:", t("classifications.normal.category"));
-  console.log("Normal description template:", t("classifications.normal.description"));
-  console.log("Pediatric description:", t("classifications.normal.pediatricDescription"));
+  console.log(
+    "Normal description template:",
+    t("classifications.normal.description")
+  );
+  console.log(
+    "Pediatric description:",
+    t("classifications.normal.pediatricDescription")
+  );
   const formSchema = useMemo(() => createFormSchema(t), [t]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BPResult | null>(null);
@@ -598,6 +604,10 @@ export function BloodPressureForm() {
       }
       setIsSubmitting(false);
     }, 1000);
+  }
+
+  function calculateMAP(systolic: number, diastolic: number): number {
+    return Math.round(diastolic + (systolic - diastolic) / 3);
   }
 
   return (
@@ -1062,6 +1072,9 @@ export function BloodPressureForm() {
                                   <th className="py-2 px-4 text-left text-sm font-medium">
                                     {t("results.metrics.diastolic")}
                                   </th>
+                                  <th className="py-2 px-4 text-left text-sm font-medium">
+                                    {t("results.metrics.map")}
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1075,6 +1088,12 @@ export function BloodPressureForm() {
                                   <td className="py-2 px-4">
                                     {results.diastolic.value}
                                   </td>
+                                  <td className="py-2 px-4">
+                                    {calculateMAP(
+                                      results.systolic.value,
+                                      results.diastolic.value
+                                    )}
+                                  </td>
                                 </tr>
                                 <tr className="border-t text-sm">
                                   <td className="py-2 px-4 font-medium">
@@ -1086,6 +1105,7 @@ export function BloodPressureForm() {
                                   <td className="py-2 px-4">
                                     {results.diastolic.percentile.toFixed(1)}%
                                   </td>
+                                  <td className="py-2 px-4 text-gray-400">—</td>
                                 </tr>
                                 <tr className="border-t text-sm">
                                   <td className="py-2 px-4 font-medium">
@@ -1096,6 +1116,9 @@ export function BloodPressureForm() {
                                   </td>
                                   <td className="py-2 px-4">
                                     {results.diastolic.zScore.toFixed(2)}
+                                  </td>
+                                  <td className="py-2 px-4 text-gray-400">
+                                    —
                                   </td>
                                 </tr>
                               </tbody>
@@ -1122,7 +1145,13 @@ export function BloodPressureForm() {
                                 {": "}
                                 <strong>
                                   {results.systolic.value}/
-                                  {results.diastolic.value} mmHg
+                                  {results.diastolic.value} mmHg (
+                                  {t("results.metrics.map")}:{" "}
+                                  {calculateMAP(
+                                    results.systolic.value,
+                                    results.diastolic.value
+                                  )}
+                                  )
                                 </strong>
                               </p>
                               <p>
