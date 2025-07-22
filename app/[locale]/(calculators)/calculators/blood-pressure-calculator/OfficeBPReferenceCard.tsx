@@ -375,7 +375,7 @@ export function OfficeBPReferenceCard({
   return (
     <div className="mt-6" id="office-bp-reference-card">
       <div className="w-full justify-between items-center mb-4 print-hidden">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <div className="flex flex-wrap justify-between gap-2 w-full">
             <h3 className="text-lg font-semibold">
               {t("title", { defaultValue: "BP Reference Values" })}
