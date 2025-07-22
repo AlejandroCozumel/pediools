@@ -378,7 +378,13 @@
       "heightMatch": "Altura ajustada al percentil {percentile} ({heightCm} cm) - Guías AAP",
       "patientBP": "PA del Paciente: {systolic}/{diastolic} mmHg (resaltado abajo)",
       "highlightNote": "La lectura actual de PA del paciente está resaltada arriba.",
-      "noDataAvailable": "No hay datos de referencia de PA disponibles para esta combinación de edad/altura."
+      "noDataAvailable": "No hay datos de referencia de PA disponibles para esta combinación de edad/altura.",
+      "heightStatus": {
+        "belowRange": "La altura del paciente ({patientHeight}cm) está por debajo del rango del percentil 5. Los valores se extrapolan de los datos del percentil 5 ({actualHeight}cm).",
+        "aboveRange": "La altura del paciente ({patientHeight}cm) está por encima del rango del percentil 95. Los valores se extrapolan de los datos del percentil 95 ({actualHeight}cm).",
+        "interpolated": "La altura del paciente ({patientHeight}cm) se interpola al percentil {percentile}, usando datos para una altura de {actualHeight}cm.",
+        "exactMatch": "La altura del paciente coincide con los datos del percentil {percentile} ({actualHeight}cm)."
+      }
     },
     "ambulatoryReference": {
       "patientHeight": "Estatura del paciente (cm)",
