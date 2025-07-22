@@ -403,6 +403,25 @@
       "daytime": "Día (despierto)",
       "nighttime": "Noche (dormido)",
       "hour24": "Promedio 24 horas"
+    },
+    "endotrachealTube": {
+      "title": "Referencia de Tubo Endotraqueal",
+      "subtitle": "Basado en edad del paciente: {age} años",
+      "parameter": "Parámetro",
+      "value": "Valor",
+      "tubeSize": "Tamaño del Tubo (mm)",
+      "tubeLength": "Longitud del Tubo (cm)",
+      "oralLength": "Longitud Oral",
+      "nasalLength": "Longitud Nasal",
+      "formula": "Fórmula Utilizada",
+      "tubeSizeFormula": "Edad/4 + 4",
+      "oralLengthFormula": "Edad/2 + 12",
+      "nasalLengthFormula": "Edad/2 + 15",
+      "cuffedTubeSizeFormula": "Edad/4 + 3.5",
+      "cuffed": "Con Manguito",
+      "uncuffed": "Sin Manguito",
+      "noteTitle": "Note",
+      "note": "Para niños >8 años, se prefieren tubos con manguito. Siempre verificar posición del tubo con evaluación clínica."
     }
   },
   "PatientSelector": {

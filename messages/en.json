@@ -403,6 +403,25 @@
       "daytime": "Daytime (awake)",
       "nighttime": "Nighttime (asleep)",
       "hour24": "24-hour Average"
+    },
+    "endotrachealTube": {
+      "title": "Endotracheal Tube Reference",
+      "subtitle": "Based on patient age: {age} years old",
+      "parameter": "Parameter",
+      "value": "Value",
+      "tubeSize": "Tube Size (mm)",
+      "tubeLength": "Tube Length (cm)",
+      "oralLength": "Oral Length",
+      "nasalLength": "Nasal Length",
+      "formula": "Formula Used",
+      "tubeSizeFormula": "Age/4 + 4",
+      "oralLengthFormula": "Age/2 + 12",
+      "nasalLengthFormula": "Age/2 + 15",
+      "cuffedTubeSizeFormula": "Age/4 + 3.5",
+      "cuffed": "Cuffed",
+      "uncuffed": "Uncuffed",
+      "noteTitle": "Nota",
+      "note": "For children >8 years, cuffed tubes preferred. Always verify tube position with clinical assessment."
     }
   },
   "PatientSelector": {

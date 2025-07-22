@@ -39,6 +39,7 @@ import aapBPData from "@/app/data/aap-blood-pressure-data.json";
 import DateInputs from "@/components/DateInputs";
 import { AmbulatoryReferenceCard } from "./AmbulatoryReferenceCard";
 import { OfficeBPReferenceCard } from "./OfficeBPReferenceCard";
+import { ETTReferenceCard } from "./ETTReferenceCard";
 
 interface BPClassification {
   category: string;
@@ -881,313 +882,329 @@ export function BloodPressureForm() {
 
                 {/* Real-time Results */}
                 {results && (
-                  <div className="results-section">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">
-                              {t("results.title")}
-                            </h3>
-                          </div>
-                          <div
-                            className={cn(
-                              "flex items-center gap-3 p-4 rounded-lg border mb-4",
-                              // Normal BP
-                              results.classification.category ===
-                                t("classifications.normal.category") &&
-                                "bg-green-50 border-green-200",
-                              // Elevated BP
-                              results.classification.category ===
-                                t("classifications.elevated.category") &&
-                                "bg-yellow-50 border-yellow-200",
-                              // Stage 1 Hypertension
-                              results.classification.category ===
-                                t("classifications.stage1.category") &&
-                                "bg-orange-50 border-orange-200",
-                              // Stage 2 Hypertension
-                              results.classification.category ===
-                                t("classifications.stage2.category") &&
-                                "bg-red-50 border-red-200",
-                              // ✅ ADD THESE: Hypotension categories
-                              results.classification.category ===
-                                t(
-                                  "classifications.hypotension.mild.category"
-                                ) && "bg-orange-50 border-orange-200",
-                              results.classification.category ===
-                                t(
-                                  "classifications.hypotension.severe.category"
-                                ) && "bg-red-50 border-red-200",
-                              // Fallback for any unmapped categories
-                              ![
-                                t("classifications.normal.category"),
-                                t("classifications.elevated.category"),
-                                t("classifications.stage1.category"),
-                                t("classifications.stage2.category"),
-                                t("classifications.hypotension.mild.category"),
-                                t(
-                                  "classifications.hypotension.severe.category"
-                                ),
-                              ].includes(results.classification.category) &&
-                                "bg-gray-50 border-gray-200"
-                            )}
-                          >
-                            {/* Icon logic */}
-                            {results.classification.category ===
-                              t("classifications.normal.category") && (
-                              <CheckCircle className="w-6 h-6 text-green-600" />
-                            )}
-
-                            {(results.classification.category ===
-                              t("classifications.hypotension.mild.category") ||
-                              results.classification.category ===
-                                t(
-                                  "classifications.hypotension.severe.category"
-                                )) && (
-                              <AlertTriangle
-                                className={cn(
-                                  "w-6 h-6",
-                                  results.classification.category ===
-                                    t(
-                                      "classifications.hypotension.mild.category"
-                                    ) && "text-orange-600",
-                                  results.classification.category ===
-                                    t(
-                                      "classifications.hypotension.severe.category"
-                                    ) && "text-red-600"
-                                )}
-                              />
-                            )}
-
-                            {(results.classification.category ===
-                              t("classifications.elevated.category") ||
-                              results.classification.category ===
-                                t("classifications.stage1.category") ||
-                              results.classification.category ===
-                                t("classifications.stage2.category")) && (
-                              <AlertTriangle
-                                className={cn(
-                                  "w-6 h-6",
-                                  results.classification.category ===
-                                    t("classifications.elevated.category") &&
-                                    "text-yellow-600",
-                                  results.classification.category ===
-                                    t("classifications.stage1.category") &&
-                                    "text-orange-600",
-                                  results.classification.category ===
-                                    t("classifications.stage2.category") &&
-                                    "text-red-600"
-                                )}
-                              />
-                            )}
-
-                            <div>
-                              <div
-                                className={cn(
-                                  "font-semibold text-lg",
-                                  results.classification.category ===
-                                    t("classifications.normal.category") &&
-                                    "text-green-800",
-                                  results.classification.category ===
-                                    t("classifications.elevated.category") &&
-                                    "text-yellow-800",
-                                  results.classification.category ===
-                                    t("classifications.stage1.category") &&
-                                    "text-orange-800",
-                                  results.classification.category ===
-                                    t("classifications.stage2.category") &&
-                                    "text-red-800",
-                                  results.classification.category ===
-                                    t(
-                                      "classifications.hypotension.mild.category"
-                                    ) && "text-orange-800",
-                                  results.classification.category ===
-                                    t(
-                                      "classifications.hypotension.severe.category"
-                                    ) && "text-red-800"
-                                )}
-                              >
-                                {results.classification.category}
-                              </div>
-                              <div
-                                className={cn(
-                                  "text-sm",
-                                  results.classification.category ===
-                                    t("classifications.normal.category") &&
-                                    "text-green-700",
-                                  results.classification.category ===
-                                    t("classifications.elevated.category") &&
-                                    "text-yellow-700",
-                                  results.classification.category ===
-                                    t("classifications.stage1.category") &&
-                                    "text-orange-700",
-                                  results.classification.category ===
-                                    t("classifications.stage2.category") &&
-                                    "text-red-700",
-                                  results.classification.category ===
-                                    t(
-                                      "classifications.hypotension.mild.category"
-                                    ) && "text-orange-700",
-                                  results.classification.category ===
-                                    t(
-                                      "classifications.hypotension.severe.category"
-                                    ) && "text-red-700"
-                                )}
-                              >
-                                {results.classification.description}
-                              </div>
+                  <>
+                    <div className="results-section">
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-semibold">
+                                {t("results.title")}
+                              </h3>
                             </div>
-                          </div>
-                          {/* Enhanced BP Details with Clinical Context */}
-                          <div className="mt-4">
                             <div
                               className={cn(
-                                "rounded-t-lg px-4 py-2 font-semibold text-white text-sm",
-                                selectedGender === "male"
-                                  ? "bg-medical-600"
-                                  : "bg-medical-pink-600"
+                                "flex items-center gap-3 p-4 rounded-lg border mb-4",
+                                // Normal BP
+                                results.classification.category ===
+                                  t("classifications.normal.category") &&
+                                  "bg-green-50 border-green-200",
+                                // Elevated BP
+                                results.classification.category ===
+                                  t("classifications.elevated.category") &&
+                                  "bg-yellow-50 border-yellow-200",
+                                // Stage 1 Hypertension
+                                results.classification.category ===
+                                  t("classifications.stage1.category") &&
+                                  "bg-orange-50 border-orange-200",
+                                // Stage 2 Hypertension
+                                results.classification.category ===
+                                  t("classifications.stage2.category") &&
+                                  "bg-red-50 border-red-200",
+                                // ✅ ADD THESE: Hypotension categories
+                                results.classification.category ===
+                                  t(
+                                    "classifications.hypotension.mild.category"
+                                  ) && "bg-orange-50 border-orange-200",
+                                results.classification.category ===
+                                  t(
+                                    "classifications.hypotension.severe.category"
+                                  ) && "bg-red-50 border-red-200",
+                                // Fallback for any unmapped categories
+                                ![
+                                  t("classifications.normal.category"),
+                                  t("classifications.elevated.category"),
+                                  t("classifications.stage1.category"),
+                                  t("classifications.stage2.category"),
+                                  t(
+                                    "classifications.hypotension.mild.category"
+                                  ),
+                                  t(
+                                    "classifications.hypotension.severe.category"
+                                  ),
+                                ].includes(results.classification.category) &&
+                                  "bg-gray-50 border-gray-200"
                               )}
                             >
-                              {t("results.details")} (
-                              {selectedGender === "male"
-                                ? t("gender.male")
-                                : t("gender.female")}
-                              )
-                            </div>
-                            <table className="w-full border rounded-b-lg bg-white">
-                              <thead>
-                                <tr
+                              {/* Icon logic */}
+                              {results.classification.category ===
+                                t("classifications.normal.category") && (
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                              )}
+
+                              {(results.classification.category ===
+                                t(
+                                  "classifications.hypotension.mild.category"
+                                ) ||
+                                results.classification.category ===
+                                  t(
+                                    "classifications.hypotension.severe.category"
+                                  )) && (
+                                <AlertTriangle
                                   className={cn(
-                                    selectedGender === "male"
-                                      ? "bg-medical-50 text-medical-700"
-                                      : "bg-medical-pink-50 text-medical-pink-700"
+                                    "w-6 h-6",
+                                    results.classification.category ===
+                                      t(
+                                        "classifications.hypotension.mild.category"
+                                      ) && "text-orange-600",
+                                    results.classification.category ===
+                                      t(
+                                        "classifications.hypotension.severe.category"
+                                      ) && "text-red-600"
+                                  )}
+                                />
+                              )}
+
+                              {(results.classification.category ===
+                                t("classifications.elevated.category") ||
+                                results.classification.category ===
+                                  t("classifications.stage1.category") ||
+                                results.classification.category ===
+                                  t("classifications.stage2.category")) && (
+                                <AlertTriangle
+                                  className={cn(
+                                    "w-6 h-6",
+                                    results.classification.category ===
+                                      t("classifications.elevated.category") &&
+                                      "text-yellow-600",
+                                    results.classification.category ===
+                                      t("classifications.stage1.category") &&
+                                      "text-orange-600",
+                                    results.classification.category ===
+                                      t("classifications.stage2.category") &&
+                                      "text-red-600"
+                                  )}
+                                />
+                              )}
+
+                              <div>
+                                <div
+                                  className={cn(
+                                    "font-semibold text-lg",
+                                    results.classification.category ===
+                                      t("classifications.normal.category") &&
+                                      "text-green-800",
+                                    results.classification.category ===
+                                      t("classifications.elevated.category") &&
+                                      "text-yellow-800",
+                                    results.classification.category ===
+                                      t("classifications.stage1.category") &&
+                                      "text-orange-800",
+                                    results.classification.category ===
+                                      t("classifications.stage2.category") &&
+                                      "text-red-800",
+                                    results.classification.category ===
+                                      t(
+                                        "classifications.hypotension.mild.category"
+                                      ) && "text-orange-800",
+                                    results.classification.category ===
+                                      t(
+                                        "classifications.hypotension.severe.category"
+                                      ) && "text-red-800"
                                   )}
                                 >
-                                  <th className="py-2 px-4 text-left text-sm font-medium">
-                                    {t("results.metrics.metric")}
-                                  </th>
-                                  <th className="py-2 px-4 text-left text-sm font-medium">
-                                    {t("results.metrics.systolic")}
-                                  </th>
-                                  <th className="py-2 px-4 text-left text-sm font-medium">
-                                    {t("results.metrics.diastolic")}
-                                  </th>
-                                  <th className="py-2 px-4 text-left text-sm font-medium">
-                                    {t("results.metrics.map")}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr className="border-t text-sm">
-                                  <td className="py-2 px-4 font-medium">
-                                    {t("results.metrics.value")}
-                                  </td>
-                                  <td className="py-2 px-4">
-                                    {results.systolic.value}
-                                  </td>
-                                  <td className="py-2 px-4">
-                                    {results.diastolic.value}
-                                  </td>
-                                  <td className="py-2 px-4">
+                                  {results.classification.category}
+                                </div>
+                                <div
+                                  className={cn(
+                                    "text-sm",
+                                    results.classification.category ===
+                                      t("classifications.normal.category") &&
+                                      "text-green-700",
+                                    results.classification.category ===
+                                      t("classifications.elevated.category") &&
+                                      "text-yellow-700",
+                                    results.classification.category ===
+                                      t("classifications.stage1.category") &&
+                                      "text-orange-700",
+                                    results.classification.category ===
+                                      t("classifications.stage2.category") &&
+                                      "text-red-700",
+                                    results.classification.category ===
+                                      t(
+                                        "classifications.hypotension.mild.category"
+                                      ) && "text-orange-700",
+                                    results.classification.category ===
+                                      t(
+                                        "classifications.hypotension.severe.category"
+                                      ) && "text-red-700"
+                                  )}
+                                >
+                                  {results.classification.description}
+                                </div>
+                              </div>
+                            </div>
+                            {/* Enhanced BP Details with Clinical Context */}
+                            <div className="mt-4">
+                              <div
+                                className={cn(
+                                  "rounded-t-lg px-4 py-2 font-semibold text-white text-sm",
+                                  selectedGender === "male"
+                                    ? "bg-medical-600"
+                                    : "bg-medical-pink-600"
+                                )}
+                              >
+                                {t("results.details")} (
+                                {selectedGender === "male"
+                                  ? t("gender.male")
+                                  : t("gender.female")}
+                                )
+                              </div>
+                              <table className="w-full border rounded-b-lg bg-white">
+                                <thead>
+                                  <tr
+                                    className={cn(
+                                      selectedGender === "male"
+                                        ? "bg-medical-50 text-medical-700"
+                                        : "bg-medical-pink-50 text-medical-pink-700"
+                                    )}
+                                  >
+                                    <th className="py-2 px-4 text-left text-sm font-medium">
+                                      {t("results.metrics.metric")}
+                                    </th>
+                                    <th className="py-2 px-4 text-left text-sm font-medium">
+                                      {t("results.metrics.systolic")}
+                                    </th>
+                                    <th className="py-2 px-4 text-left text-sm font-medium">
+                                      {t("results.metrics.diastolic")}
+                                    </th>
+                                    <th className="py-2 px-4 text-left text-sm font-medium">
+                                      {t("results.metrics.map")}
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr className="border-t text-sm">
+                                    <td className="py-2 px-4 font-medium">
+                                      {t("results.metrics.value")}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {results.systolic.value}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {results.diastolic.value}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {calculateMAP(
+                                        results.systolic.value,
+                                        results.diastolic.value
+                                      )}
+                                    </td>
+                                  </tr>
+                                  <tr className="border-t text-sm">
+                                    <td className="py-2 px-4 font-medium">
+                                      {t("results.metrics.percentile")}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {results.systolic.percentile.toFixed(1)}%
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {results.diastolic.percentile.toFixed(1)}%
+                                    </td>
+                                    <td className="py-2 px-4 text-gray-400">
+                                      —
+                                    </td>
+                                  </tr>
+                                  <tr className="border-t text-sm">
+                                    <td className="py-2 px-4 font-medium">
+                                      {t("results.metrics.zScore")}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {results.systolic.zScore.toFixed(2)}
+                                    </td>
+                                    <td className="py-2 px-4">
+                                      {results.diastolic.zScore.toFixed(2)}
+                                    </td>
+                                    <td className="py-2 px-4 text-gray-400">
+                                      —
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <OfficeBPReferenceCard
+                              ageInYears={ageInYears}
+                              gender={selectedGender}
+                              height={parseFloat(height)}
+                              patientSystolic={results.systolic.value}
+                              patientDiastolic={results.diastolic.value}
+                              aapBPData={aapBPData}
+                            />
+
+                            {/* Clinical Interpretation */}
+                            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <h4 className="font-medium text-sm mb-2 text-blue-800">
+                                {t("results.clinicalInterpretation.title")}
+                              </h4>
+                              <div className="text-xs text-blue-700">
+                                <p>
+                                  {t(
+                                    "results.clinicalInterpretation.currentBP"
+                                  )}
+                                  {": "}
+                                  <strong>
+                                    {results.systolic.value}/
+                                    {results.diastolic.value} mmHg (
+                                    {t("results.metrics.map")}:{" "}
                                     {calculateMAP(
                                       results.systolic.value,
                                       results.diastolic.value
                                     )}
-                                  </td>
-                                </tr>
-                                <tr className="border-t text-sm">
-                                  <td className="py-2 px-4 font-medium">
-                                    {t("results.metrics.percentile")}
-                                  </td>
-                                  <td className="py-2 px-4">
-                                    {results.systolic.percentile.toFixed(1)}%
-                                  </td>
-                                  <td className="py-2 px-4">
-                                    {results.diastolic.percentile.toFixed(1)}%
-                                  </td>
-                                  <td className="py-2 px-4 text-gray-400">—</td>
-                                </tr>
-                                <tr className="border-t text-sm">
-                                  <td className="py-2 px-4 font-medium">
-                                    {t("results.metrics.zScore")}
-                                  </td>
-                                  <td className="py-2 px-4">
-                                    {results.systolic.zScore.toFixed(2)}
-                                  </td>
-                                  <td className="py-2 px-4">
-                                    {results.diastolic.zScore.toFixed(2)}
-                                  </td>
-                                  <td className="py-2 px-4 text-gray-400">
-                                    —
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-
-                          <OfficeBPReferenceCard
-                            ageInYears={ageInYears}
-                            gender={selectedGender}
-                            height={parseFloat(height)}
-                            patientSystolic={results.systolic.value}
-                            patientDiastolic={results.diastolic.value}
-                            aapBPData={aapBPData}
-                          />
-
-                          {/* Clinical Interpretation */}
-                          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <h4 className="font-medium text-sm mb-2 text-blue-800">
-                              {t("results.clinicalInterpretation.title")}
-                            </h4>
-                            <div className="text-xs text-blue-700">
-                              <p>
-                                {t("results.clinicalInterpretation.currentBP")}
-                                {": "}
-                                <strong>
-                                  {results.systolic.value}/
-                                  {results.diastolic.value} mmHg (
-                                  {t("results.metrics.map")}:{" "}
-                                  {calculateMAP(
-                                    results.systolic.value,
-                                    results.diastolic.value
+                                    )
+                                  </strong>
+                                </p>
+                                <p>
+                                  {t(
+                                    "results.clinicalInterpretation.classification"
                                   )}
-                                  )
-                                </strong>
-                              </p>
+                                  {": "}
+                                  <strong>
+                                    {results.systolic.percentile.toFixed(1)}/
+                                    {results.diastolic.percentile.toFixed(1)}%
+                                  </strong>
+                                </p>
+                                <p>
+                                  {t(
+                                    "results.clinicalInterpretation.heightAdjustment"
+                                  )}
+                                  {": "}
+                                  <strong>
+                                    {results.heightPercentile.toFixed(1)}%
+                                  </strong>
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground pt-2 border-t">
                               <p>
-                                {t(
-                                  "results.clinicalInterpretation.classification"
-                                )}
-                                {": "}
-                                <strong>
-                                  {results.systolic.percentile.toFixed(1)}/
-                                  {results.diastolic.percentile.toFixed(1)}%
-                                </strong>
+                                {t("results.footer.heightPercentile", {
+                                  percentile:
+                                    results.heightPercentile.toFixed(1),
+                                })}
                               </p>
-                              <p>
-                                {t(
-                                  "results.clinicalInterpretation.heightAdjustment"
-                                )}
-                                {": "}
-                                <strong>
-                                  {results.heightPercentile.toFixed(1)}%
-                                </strong>
-                              </p>
+                              <p>{t("results.footer.reference")}</p>
+                              <p>{t("results.footer.note")}</p>
                             </div>
                           </div>
-                          <div className="text-xs text-muted-foreground pt-2 border-t">
-                            <p>
-                              {t("results.footer.heightPercentile", {
-                                percentile: results.heightPercentile.toFixed(1),
-                              })}
-                            </p>
-                            <p>{t("results.footer.reference")}</p>
-                            <p>{t("results.footer.note")}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    <ETTReferenceCard
+                      ageInYears={ageInYears}
+                      gender={selectedGender}
+                      showTitle={true}
+                    />
+                  </>
                 )}
                 {ageError && (
                   <Alert variant="destructive" className="mb-4">
@@ -1206,6 +1223,11 @@ export function BloodPressureForm() {
                         gender={selectedGender}
                         height={parseFloat(height)}
                         aapBPData={aapBPData}
+                      />
+                      <ETTReferenceCard
+                        ageInYears={ageInYears}
+                        gender={selectedGender}
+                        showTitle={true}
                       />
                     </div>
                   )}
