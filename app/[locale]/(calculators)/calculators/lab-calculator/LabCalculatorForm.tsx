@@ -234,7 +234,9 @@ const findReferenceRange = (
   patientAgeDays: number | null,
   gender: "male" | "female"
 ): { min: number | null; max: number | null } => {
-  if (!testData?.ageRanges) return { min: null, max: null };
+  if (!testData?.ageRanges || !Array.isArray(testData.ageRanges) || testData.ageRanges.length === 0) {
+    return { min: null, max: null };
+  }
 
   // If no age provided, try to find a general range
   if (patientAgeDays === null) {
