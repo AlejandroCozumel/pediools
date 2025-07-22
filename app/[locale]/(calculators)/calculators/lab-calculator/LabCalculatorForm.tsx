@@ -266,8 +266,10 @@ const findReferenceRange = (
   }
 
   // Find exact age and gender match
+  let matched = false;
   for (const ageRange of testData.ageRanges) {
     if (isAgeInRange(patientAgeDays, ageRange.age)) {
+      matched = true;
       // Check if this range has gender-specific values
       if (ageRange.male && ageRange.female) {
         const genderData = gender === "male" ? ageRange.male : ageRange.female;
@@ -279,10 +281,36 @@ const findReferenceRange = (
     }
   }
 
-  // Fallback to first available range
-  const fallback = testData.ageRanges[0];
-  if (fallback?.range) {
-    return { min: fallback.range.min, max: fallback.range.max };
+  // If no match, find the closest range by age
+  let closestRange = null;
+  let closestDiff = Infinity;
+  for (const ageRange of testData.ageRanges) {
+    // Parse min/max days for the range
+    const parsed = parseAgeRange(ageRange.age);
+    let diff = Infinity;
+    if (parsed.minDays !== null && parsed.maxDays !== null) {
+      // If patient is below min, diff is minDays - patient
+      if (patientAgeDays < parsed.minDays) diff = parsed.minDays - patientAgeDays;
+      // If patient is above max, diff is patient - maxDays
+      else if (patientAgeDays > parsed.maxDays) diff = patientAgeDays - parsed.maxDays;
+      else diff = 0; // Shouldn't happen, would have matched
+    } else if (parsed.minDays !== null) {
+      diff = Math.abs(patientAgeDays - parsed.minDays);
+    } else if (parsed.maxDays !== null) {
+      diff = Math.abs(patientAgeDays - parsed.maxDays);
+    }
+    if (diff < closestDiff) {
+      closestDiff = diff;
+      closestRange = ageRange;
+    }
+  }
+  if (closestRange) {
+    if (closestRange.male && closestRange.female) {
+      const genderData = gender === "male" ? closestRange.male : closestRange.female;
+      return { min: genderData.min, max: genderData.max };
+    } else if (closestRange.range) {
+      return { min: closestRange.range.min, max: closestRange.range.max };
+    }
   }
 
   return { min: null, max: null };
@@ -514,7 +542,7 @@ const LabResults: React.FC<{
                   </p>
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground mt-1">
+              <div className="text-xs text-muted-foreground mt-2">
                 {(() => {
                   // Find the age range used for this result
                   const testData = (() => {
@@ -564,11 +592,17 @@ const LabResults: React.FC<{
                   }
                   return (
                     <>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-                          <Calendar className="w-3 h-3" />{" "}
-                          {matchedRange?.age || "All ages"}
-                        </span>
+                      <div className="flex items-center gap-2 mt-2">
+                        {ageOutOfRange ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
+                            <AlertTriangle className="w-3 h-3" />
+                            Closest range: {matchedRange?.age || t("LabCalculator.noAgeBadge")}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+                            <Calendar className="w-3 h-3" /> {matchedRange?.age || t("LabCalculator.noAgeBadge")}
+                          </span>
+                        )}
                         {matchedRange?.male && matchedRange?.female ? (
                           gender === "male" ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-medical-100 text-medical-800 text-xs font-semibold">
