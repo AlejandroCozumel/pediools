@@ -609,7 +609,7 @@ export function OfficeBPReferenceCard({
                     <p className="mt-1 text-gray-500">
                       {t("hypotensionNote", {
                         defaultValue:
-                          "Hypotension thresholds (3rd-10th percentiles) are derived from normal distribution assumptions.",
+                          "Hypotension thresholds (3rd-5th-10th percentiles) are derived from normal distribution assumptions.",
                       })}
                     </p>
                     {patientSystolic && patientDiastolic && (

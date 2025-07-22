@@ -366,7 +366,7 @@
       "footer": "Based on 2017 AAP Clinical Practice Guidelines (50th, 90th, 95th percentiles). Lower percentiles marked with * are mathematically derived estimates and not part of official AAP recommendations.",
       "heightAdjustment": "Values adjusted for height percentile ({percentile}%)",
       "heightOnlyDisclaimer": "Approximate values based on height. Exact age would provide greater accuracy.",
-      "hypotensionNote": "Lower percentiles (3rd-10th) are calculated using normal distribution statistics from AAP 50th/90th/95th percentile data. These are statistical estimates, not validated clinical thresholds. Clinical evaluation—including assessment of symptoms, perfusion, and overall patient status—is essential for accurate diagnosis and management.",
+      "hypotensionNote": "Lower percentiles (3rd-5th-10th) are calculated using normal distribution statistics from AAP 50th/90th/95th percentile data. These are statistical estimates, not validated clinical thresholds. Clinical evaluation—including assessment of symptoms, perfusion, and overall patient status—is essential for accurate diagnosis and management.",
       "dataSource": "Height percentiles calculated using CDC growth standards when available.",
       "estimatedPercentiles": {
         "title": "Estimated Percentiles (Not Official AAP Data)",

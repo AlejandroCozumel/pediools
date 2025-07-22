@@ -366,7 +366,7 @@
       "footer": "Basado en las Guías de Práctica Clínica AAP 2017 (percentiles 50, 90, 95). Los percentiles inferiores marcados con * son estimaciones matemáticamente derivadas y no forman parte de las recomendaciones oficiales de AAP.",
       "heightAdjustment": "Valores ajustados por percentil de estatura ({percentile}%)",
       "heightOnlyDisclaimer": "Valores aproximados basados en estatura. La edad exacta proporcionaría mayor precisión.",
-      "hypotensionNote": "Los percentiles inferiores (3º-10º) se calculan utilizando estadísticas de distribución normal a partir de los datos del percentil 50º/90º/95º de la AAP. Estas son estimaciones estadísticas, no umbrales clínicos validados. La evaluación clínica—incluyendo la valoración de síntomas, perfusión y estado general del paciente—es esencial para un diagnóstico y manejo precisos.",
+      "hypotensionNote": "Los percentiles inferiores (3º-5º-10º) se calculan utilizando estadísticas de distribución normal a partir de los datos del percentil 50º/90º/95º de la AAP. Estas son estimaciones estadísticas, no umbrales clínicos validados. La evaluación clínica—incluyendo la valoración de síntomas, perfusión y estado general del paciente—es esencial para un diagnóstico y manejo precisos.",
       "dataSource": "Los percentiles de estatura se calculan utilizando estándares de crecimiento CDC cuando están disponibles.",
       "estimatedPercentiles": {
         "title": "Percentiles Estimados (No son Datos Oficiales de AAP)",
