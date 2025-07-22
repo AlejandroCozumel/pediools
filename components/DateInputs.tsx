@@ -295,7 +295,6 @@ const DateInputs: React.FC<DateInputsProps> = ({
                   </PopoverContent>
                 </Popover>
               </div>
-              <FormMessage />
             </FormItem>
           )}
         />

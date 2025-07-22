@@ -1,819 +1,793 @@
 {
   "metadata": {
-    "title": "Valores de Referencia de Laboratorio Pediátrico Integral",
-    "description": "Rangos de referencia de laboratorio pediátrico más utilizados del Hospital de Niños de Filadelfia",
+    "title": "Valores de Referencia de Laboratorio Pediátrico Organizados",
+    "description": "Rangos de referencia de laboratorio pediátrico organizados por categorías clínicas del Hospital de Niños de Filadelfia",
     "version": "1.0",
     "source": "Hospital de Niños de Filadelfia, Documento de Rangos de Referencia de Patología y Medicina de Laboratorio",
     "lastUpdated": "2024-04-17",
     "units": "Unidades mixtas según se especifica por prueba",
     "disclaimer": "Los valores son rangos de referencia establecidos del laboratorio clínico CHOP. Los objetivos específicos del paciente pueden diferir dependiendo de la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio."
   },
-  "serumChemistries": {
-    "glucose": {
-      "name": "Glucose",
-      "nombre": "Glucosa",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 74, "max": 127 } },
-        { "age": "child", "range": { "min": 70, "max": 106 } },
-        { "age": "adolescent", "range": { "min": 70, "max": 106 } },
-        { "age": "adult", "range": { "min": 70, "max": 110 } },
-        { "age": "all_ages", "range": { "min": 65, "max": 127 } }
-      ]
-    },
-    "creatinine": {
-      "name": "Creatinine",
-      "nombre": "Creatinina",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 0.1, "max": 0.4 } },
-        { "age": "child", "range": { "min": 0.1, "max": 0.5 } },
-        { "age": "adolescent", "range": { "min": 0.3, "max": 0.8 } },
-        { "age": "adult_male", "range": { "min": 0.7, "max": 1.3 } },
-        { "age": "adult_female", "range": { "min": 0.5, "max": 1.0 } },
-        { "age": "all_ages", "range": { "min": 0.1, "max": 1.3 } }
-      ]
-    },
-    "bun": {
-      "name": "Blood urea nitrogen (BUN)",
-      "nombre": "Nitrógeno ureico en sangre (BUN)",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 2, "max": 19 } },
-        { "age": "child", "range": { "min": 5, "max": 17 } },
-        { "age": "adolescent", "range": { "min": 7, "max": 18 } },
-        { "age": "adult_male", "range": { "min": 9, "max": 20 } },
-        { "age": "adult_female", "range": { "min": 7, "max": 17 } },
-        { "age": "all_ages", "range": { "min": 2, "max": 21 } }
-      ]
-    },
-    "sodium": {
-      "name": "Sodium",
-      "nombre": "Sodio",
-      "unit": "mEq/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 133, "max": 145 } },
-        { "age": "child", "range": { "min": 136, "max": 145 } },
-        { "age": "adolescent", "range": { "min": 136, "max": 145 } },
-        { "age": "adult", "range": { "min": 136, "max": 145 } },
-        { "age": "all_ages", "range": { "min": 133, "max": 145 } }
-      ]
-    },
-    "potassium": {
-      "name": "Potassium",
-      "nombre": "Potasio",
-      "unit": "mEq/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 3.8, "max": 5.8 } },
-        { "age": "child", "range": { "min": 3.8, "max": 5.4 } },
-        { "age": "adolescent", "range": { "min": 3.8, "max": 5.4 } },
-        { "age": "adult", "range": { "min": 3.6, "max": 5.0 } },
-        { "age": "all_ages", "range": { "min": 3.6, "max": 5.8 } }
-      ]
-    },
-    "chloride": {
-      "name": "Chloride",
-      "nombre": "Cloruro",
-      "unit": "mEq/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 96, "max": 106 } },
-        { "age": "child", "range": { "min": 98, "max": 106 } },
-        { "age": "adolescent", "range": { "min": 98, "max": 106 } },
-        { "age": "adult", "range": { "min": 98, "max": 107 } },
-        { "age": "all_ages", "range": { "min": 96, "max": 107 } }
-      ]
-    },
-    "co2": {
-      "name": "CO2",
-      "nombre": "CO2",
-      "unit": "mEq/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 20, "max": 26 } },
-        { "age": "child", "range": { "min": 20, "max": 26 } },
-        { "age": "adolescent", "range": { "min": 20, "max": 26 } },
-        { "age": "adult", "range": { "min": 22, "max": 30 } },
-        { "age": "all_ages", "range": { "min": 20, "max": 30 } }
-      ]
-    },
-    "calcium": {
-      "name": "Calcium",
-      "nombre": "Calcio",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 7.8, "max": 11.4 } },
-        { "age": "child", "range": { "min": 8.8, "max": 10.7 } },
-        { "age": "adolescent", "range": { "min": 8.5, "max": 10.6 } },
-        { "age": "adult", "range": { "min": 8.5, "max": 10.5 } },
-        { "age": "all_ages", "range": { "min": 7.8, "max": 11.4 } }
-      ]
-    },
-    "magnesium": {
-      "name": "Magnesium",
-      "nombre": "Magnesio",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 1.5, "max": 2.5 } },
-        { "age": "child", "range": { "min": 1.5, "max": 2.5 } },
-        { "age": "adolescent", "range": { "min": 1.5, "max": 2.5 } },
-        { "age": "adult", "range": { "min": 1.6, "max": 2.3 } },
-        { "age": "all_ages", "range": { "min": 1.5, "max": 2.5 } }
-      ]
-    },
-    "phosphorus": {
-      "name": "Phosphorus",
-      "nombre": "Fósforo",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 4.8, "max": 8.2 } },
-        { "age": "child", "range": { "min": 3.7, "max": 6.5 } },
-        { "age": "adolescent", "range": { "min": 2.7, "max": 5.4 } },
-        { "age": "adult", "range": { "min": 2.5, "max": 4.5 } },
-        { "age": "all_ages", "range": { "min": 2.5, "max": 8.2 } }
-      ]
-    },
-    "albumin": {
-      "name": "Albumin",
-      "nombre": "Albúmina",
-      "unit": "g/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 2.6, "max": 4.3 } },
-        { "age": "child", "range": { "min": 3.5, "max": 5.2 } },
-        { "age": "adolescent", "range": { "min": 3.7, "max": 5.6 } },
-        { "age": "adult", "range": { "min": 3.5, "max": 5.0 } },
-        { "age": "all_ages", "range": { "min": 2.6, "max": 5.6 } }
-      ]
-    },
-    "total_protein": {
-      "name": "Total protein",
-      "nombre": "Proteína total",
-      "unit": "g/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 5.4, "max": 7.0 } },
-        { "age": "child", "range": { "min": 5.9, "max": 7.8 } },
-        { "age": "adolescent", "range": { "min": 6.2, "max": 8.1 } },
-        { "age": "adult", "range": { "min": 6.3, "max": 8.2 } },
-        { "age": "all_ages", "range": { "min": 5.4, "max": 8.6 } }
-      ]
-    },
-    "total_bilirubin": {
-      "name": "Total bilirubin",
-      "nombre": "Bilirrubina total",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 0.6, "max": 1.4 } },
-        { "age": "child", "range": { "min": 0.6, "max": 1.4 } },
-        { "age": "adolescent", "range": { "min": 0.6, "max": 1.4 } },
-        { "age": "adult", "range": { "min": 0.2, "max": 1.3 } },
-        { "age": "all_ages", "range": { "min": 0.2, "max": 1.4 } }
-      ]
-    },
-    "direct_bilirubin": {
-      "name": "Direct bilirubin",
-      "nombre": "Bilirrubina directa",
-      "unit": "mg/dL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0.0, "max": 0.3 } }]
-    },
-    "alt": {
-      "name": "Alanine aminotransferase (ALT)",
-      "nombre": "Alanina aminotransferasa (ALT)",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 5, "max": 45 } },
-        { "age": "child", "range": { "min": 10, "max": 30 } },
-        { "age": "adolescent_male", "range": { "min": 10, "max": 35 } },
-        { "age": "adolescent_female", "range": { "min": 10, "max": 26 } },
-        { "age": "adult_male", "range": { "min": 0, "max": 50 } },
-        { "age": "adult_female", "range": { "min": 0, "max": 35 } },
-        { "age": "all_ages", "range": { "min": 0, "max": 50 } }
-      ]
-    },
-    "ast": {
-      "name": "Aspartate aminotransferase (AST)",
-      "nombre": "Aspartato aminotransferasa (AST)",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 22, "max": 140 } },
-        { "age": "child", "range": { "min": 15, "max": 60 } },
-        { "age": "adolescent_male", "range": { "min": 15, "max": 45 } },
-        { "age": "adolescent_female", "range": { "min": 5, "max": 30 } },
-        { "age": "adult_male", "range": { "min": 17, "max": 59 } },
-        { "age": "adult_female", "range": { "min": 14, "max": 36 } },
-        { "age": "all_ages", "range": { "min": 5, "max": 140 } }
-      ]
-    },
-    "alkaline_phosphatase": {
-      "name": "Alkaline phosphatase",
-      "nombre": "Fosfatasa alcalina",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 70, "max": 345 } },
-        { "age": "child", "range": { "min": 145, "max": 560 } },
-        { "age": "adolescent_male", "range": { "min": 65, "max": 525 } },
-        { "age": "adolescent_female", "range": { "min": 50, "max": 230 } },
-        { "age": "adult", "range": { "min": 38, "max": 126 } },
-        { "age": "all_ages", "range": { "min": 38, "max": 560 } }
-      ]
-    },
-    "ggt": {
-      "name": "Gamma-glutamyl transferase (GGT)",
-      "nombre": "Gamma-glutamil transferasa (GGT)",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 10, "max": 168 } },
-        { "age": "child", "range": { "min": 5, "max": 25 } },
-        { "age": "adolescent_male", "range": { "min": 9, "max": 37 } },
-        { "age": "adolescent_female", "range": { "min": 9, "max": 23 } },
-        { "age": "adult_male", "range": { "min": 13, "max": 61 } },
-        { "age": "adult_female", "range": { "min": 10, "max": 36 } },
-        { "age": "all_ages", "range": { "min": 5, "max": 168 } }
-      ]
-    },
-    "ldh": {
-      "name": "Lactate dehydrogenase (LDH)",
-      "nombre": "Lactato deshidrogenasa (LDH)",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 200, "max": 874 } },
-        { "age": "child", "range": { "min": 162, "max": 386 } },
-        { "age": "adolescent", "range": { "min": 146, "max": 324 } },
-        { "age": "adult", "range": { "min": 146, "max": 316 } },
-        { "age": "all_ages", "range": { "min": 146, "max": 874 } }
-      ]
-    },
-    "amylase": {
-      "name": "Amylase",
-      "nombre": "Amilasa",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 0, "max": 80 } },
-        { "age": "child", "range": { "min": 30, "max": 100 } },
-        { "age": "adolescent", "range": { "min": 30, "max": 100 } },
-        { "age": "adult", "range": { "min": 30, "max": 110 } },
-        { "age": "all_ages", "range": { "min": 0, "max": 110 } }
-      ]
-    },
-    "lipase": {
-      "name": "Lipase",
-      "nombre": "Lipasa",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 10, "max": 130 } },
-        { "age": "child", "range": { "min": 15, "max": 120 } },
-        { "age": "adolescent", "range": { "min": 25, "max": 110 } },
-        { "age": "adult", "range": { "min": 23, "max": 300 } },
-        { "age": "all_ages", "range": { "min": 10, "max": 300 } }
-      ]
-    },
-    "uric_acid": {
-      "name": "Uric acid",
-      "nombre": "Ácido úrico",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 1.3, "max": 6.3 } },
-        { "age": "child", "range": { "min": 1.8, "max": 5.0 } },
-        { "age": "adolescent_male", "range": { "min": 2.4, "max": 7.8 } },
-        { "age": "adolescent_female", "range": { "min": 3.0, "max": 5.8 } },
-        { "age": "adult_male", "range": { "min": 4.0, "max": 8.6 } },
-        { "age": "adult_female", "range": { "min": 3.0, "max": 5.9 } },
-        { "age": "all_ages", "range": { "min": 1.3, "max": 8.6 } }
-      ]
-    },
-    "cholesterol": {
-      "name": "Cholesterol",
-      "nombre": "Colesterol",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 45, "max": 189 } },
-        { "age": "child", "range": { "min": 109, "max": 248 } },
-        { "age": "adolescent", "range": { "min": 107, "max": 230 } },
-        { "age": "adult", "range": { "min": 107, "max": 220 } },
-        { "age": "all_ages", "range": { "min": 45, "max": 248 } }
-      ]
-    },
-    "hdl_cholesterol": {
-      "name": "HDL cholesterol",
-      "nombre": "Colesterol HDL",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "child", "range": { "min": 35, "max": 82 } },
-        { "age": "adolescent", "range": { "min": 36, "max": 84 } },
-        { "age": "adult", "range": { "min": 35, "max": 65 } },
-        { "age": "all_ages", "range": { "min": 35, "max": 84 } }
-      ]
-    },
-    "ldl_cholesterol": {
-      "name": "LDL cholesterol",
-      "nombre": "Colesterol LDL",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "child", "range": { "min": 63, "max": 136 } },
-        { "age": "adolescent", "range": { "min": 59, "max": 137 } },
-        { "age": "adult", "range": { "min": 59, "max": 137 } },
-        { "age": "all_ages", "range": { "min": 59, "max": 137 } }
-      ]
-    },
-    "triglycerides": {
-      "name": "Triglycerides",
-      "nombre": "Triglicéridos",
-      "unit": "mg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 27, "max": 125 } },
-        { "age": "child", "range": { "min": 24, "max": 140 } },
-        { "age": "adolescent", "range": { "min": 34, "max": 165 } },
-        { "age": "adult", "range": { "min": 34, "max": 140 } },
-        { "age": "all_ages", "range": { "min": 24, "max": 165 } }
-      ]
-    },
-    "iron": {
-      "name": "Iron",
-      "nombre": "Hierro",
-      "unit": "µg/dL",
-      "ageRanges": [
-        { "age": "child", "range": { "min": 25, "max": 140 } },
-        { "age": "adolescent", "range": { "min": 25, "max": 140 } },
-        { "age": "adult_male", "range": { "min": 49, "max": 181 } },
-        { "age": "adult_female", "range": { "min": 37, "max": 170 } },
-        { "age": "all_ages", "range": { "min": 25, "max": 181 } }
-      ]
-    },
-    "tibc": {
-      "name": "Total iron binding capacity",
-      "nombre": "Capacidad total de fijación de hierro",
-      "unit": "µg/dL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 250, "max": 520 } }]
-    },
-    "transferrin_saturation": {
-      "name": "Transferrin saturation",
-      "nombre": "Saturación de transferrina",
-      "unit": "%",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 6.0, "max": 40.0 } }]
-    },
-    "crp": {
-      "name": "C-reactive protein",
-      "nombre": "Proteína C reactiva",
-      "unit": "mg/dL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0, "max": 1.0 } }]
-    },
-    "procalcitonin": {
-      "name": "Procalcitonin",
-      "nombre": "Procalcitonina",
-      "unit": "ng/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0.0, "max": 0.1 } }]
+  "coreRoutineTests": {
+    "name": "Core Routine Tests",
+    "nombre": "Pruebas de Rutina Básicas",
+    "tests": {
+      "wbc": {
+        "name": "White blood cell count (WBC/Leukocytes)",
+        "nombre": "Recuento de glóbulos blancos (Leucocitos)",
+        "unit": "10³/µL",
+        "ageRanges": [
+          {
+            "age": "≤ 14 days",
+            "male": { "min": 8.0, "max": 15.4 },
+            "female": { "min": 8.2, "max": 14.6 },
+            "unknown": { "min": 8.2, "max": 14.6 }
+          },
+          {
+            "age": "15-30 days",
+            "male": { "min": 7.8, "max": 15.9 },
+            "female": { "min": 8.4, "max": 14.4 },
+            "unknown": { "min": 8.4, "max": 14.4 }
+          },
+          {
+            "age": "1-2 months",
+            "male": { "min": 8.1, "max": 15.0 },
+            "female": { "min": 7.1, "max": 14.7 },
+            "unknown": { "min": 8.1, "max": 14.7 }
+          },
+          {
+            "age": "2-6 months",
+            "male": { "min": 6.5, "max": 13.3 },
+            "female": { "min": 6.0, "max": 13.3 },
+            "unknown": { "min": 6.5, "max": 13.3 }
+          },
+          {
+            "age": "6-24 months",
+            "male": { "min": 6.0, "max": 13.5 },
+            "female": { "min": 6.5, "max": 13.0 },
+            "unknown": { "min": 6.5, "max": 13.0 }
+          },
+          {
+            "age": "2-6 years",
+            "male": { "min": 5.1, "max": 13.4 },
+            "female": { "min": 4.9, "max": 13.2 },
+            "unknown": { "min": 5.1, "max": 13.2 }
+          },
+          {
+            "age": "6-12 years",
+            "male": { "min": 4.3, "max": 11.0 },
+            "female": { "min": 4.3, "max": 11.4 },
+            "unknown": { "min": 4.3, "max": 11.0 }
+          },
+          {
+            "age": "12-18 years",
+            "male": { "min": 3.8, "max": 9.8 },
+            "female": { "min": 4.2, "max": 9.4 },
+            "unknown": { "min": 4.2, "max": 9.4 }
+          },
+          {
+            "age": "≥ 18 years",
+            "male": { "min": 3.9, "max": 8.8 },
+            "female": { "min": 4.4, "max": 9.7 },
+            "unknown": { "min": 4.4, "max": 8.8 }
+          }
+        ]
+      },
+      "hemoglobin": {
+        "name": "Hemoglobin",
+        "nombre": "Hemoglobina",
+        "unit": "g/dL",
+        "ageRanges": [
+          { "age": "≤ 3 days", "range": { "min": 13.5, "max": 22.5 } },
+          { "age": "4-7 days", "range": { "min": 13.5, "max": 19.5 } },
+          { "age": "8-14 days", "range": { "min": 12.5, "max": 20.5 } },
+          { "age": "15-30 days", "range": { "min": 10.0, "max": 18.0 } },
+          { "age": "1-2 months", "range": { "min": 9.0, "max": 13.5 } },
+          { "age": "2-6 months", "range": { "min": 9.5, "max": 13.5 } },
+          { "age": "6-24 months", "range": { "min": 10.5, "max": 13.5 } },
+          { "age": "2-6 years", "range": { "min": 11.5, "max": 13.5 } },
+          { "age": "6-12 years", "range": { "min": 11.5, "max": 15.5 } },
+          {
+            "age": "12-18 years",
+            "male": { "min": 13.0, "max": 16.0 },
+            "female": { "min": 12.0, "max": 16.0 },
+            "unknown": { "min": 13.0, "max": 16.0 }
+          },
+          {
+            "age": "≥18 years",
+            "male": { "min": 13.5, "max": 17.5 },
+            "female": { "min": 12.0, "max": 16.0 },
+            "unknown": { "min": 13.5, "max": 16.0 }
+          }
+        ]
+      },
+      "hematocrit": {
+        "name": "Hematocrit",
+        "nombre": "Hematocrito",
+        "unit": "%",
+        "ageRanges": [
+          { "age": "≤ 3 days", "range": { "min": 42.0, "max": 67.0 } },
+          { "age": "4-7 days", "range": { "min": 42.0, "max": 66.0 } },
+          { "age": "8-14 days", "range": { "min": 39.0, "max": 63.0 } },
+          { "age": "15-30 days", "range": { "min": 31.0, "max": 55.0 } },
+          { "age": "1-2 months", "range": { "min": 28.0, "max": 42.0 } },
+          { "age": "2-6 months", "range": { "min": 29.0, "max": 41.0 } },
+          { "age": "6-24 months", "range": { "min": 33.0, "max": 39.0 } },
+          { "age": "2-6 years", "range": { "min": 34.0, "max": 40.0 } },
+          { "age": "6-12 years", "range": { "min": 35.0, "max": 45.0 } },
+          {
+            "age": "12-18 years",
+            "male": { "min": 37.0, "max": 49.0 },
+            "female": { "min": 36.0, "max": 46.0 },
+            "unknown": { "min": 37.0, "max": 46.0 }
+          },
+          {
+            "age": "≥18 years",
+            "male": { "min": 41.0, "max": 53.0 },
+            "female": { "min": 36.0, "max": 46.0 },
+            "unknown": { "min": 41.0, "max": 46.0 }
+          }
+        ]
+      },
+      "platelets": {
+        "name": "Platelet count",
+        "nombre": "Recuento de plaquetas",
+        "unit": "K/µL",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 150, "max": 450 } }
+        ]
+      },
+      "glucose": {
+        "name": "Glucose",
+        "nombre": "Glucosa",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-6 years", "range": { "min": 74, "max": 127 } },
+          { "age": "7-17 years", "range": { "min": 70, "max": 106 } },
+          {
+            "age": "≥ 18 years",
+            "male": { "min": 75, "max": 110 },
+            "female": { "min": 65, "max": 105 }
+          }
+        ]
+      },
+      "lead_level": {
+        "name": "Lead level",
+        "nombre": "Nivel de plomo",
+        "unit": "µg/dL",
+        "ageRanges": [
+          {
+            "age": "0-5 years",
+            "normal": "< 3.5",
+            "critical": "> 35.0",
+            "note": "Normal Lead Concentration: < 3.5 µg/dL, Critical Lead Concentration: > 35.0 µg/dL"
+          },
+          {
+            "age": "> 5 years",
+            "normal": "< 5.0",
+            "critical": "> 35.0",
+            "note": "Normal Lead Concentration: < 5.0 µg/dL, Critical Lead Concentration: > 35.0 µg/dL"
+          }
+        ]
+      },
+      "tsh": {
+        "name": "Thyroid stimulating hormone (TSH)",
+        "nombre": "Hormona estimulante de la tiroides (TSH)",
+        "unit": "µIU/mL",
+        "ageRanges": [
+          { "age": "0-3 days", "range": { "min": 0.7, "max": 16.0 } },
+          { "age": "4d-6 months", "range": { "min": 0.7, "max": 4.8 } },
+          { "age": "6m-14 years", "range": { "min": 0.7, "max": 4.2 } },
+          { "age": "14-19 years", "range": { "min": 0.5, "max": 3.4 } }
+        ]
+      },
+      "iron": {
+        "name": "Iron",
+        "nombre": "Hierro",
+        "unit": "µg/dL",
+        "ageRanges": [
+          { "age": "0d-20 years", "range": { "min": 25, "max": 140 } },
+          {
+            "age": "≥ 21 years",
+            "male": { "min": 49, "max": 181 },
+            "female": { "min": 37, "max": 170 }
+          }
+        ]
+      },
+      "ferritin": {
+        "name": "Ferritin",
+        "nombre": "Ferritina",
+        "unit": "ng/mL",
+        "ageRanges": [
+          { "age": "4-14 days", "range": { "min": 99.6, "max": 717 } },
+          { "age": "15d-6 months", "range": { "min": 14.0, "max": 647.2 } },
+          { "age": "6m-1 year", "range": { "min": 10.0, "max": 181.9 } },
+          { "age": "1-5 years", "range": { "min": 10.0, "max": 99.9 } },
+          { "age": "5-14 years", "range": { "min": 13.7, "max": 78.8 } },
+          {
+            "age": "14-16 years",
+            "male": { "min": 12.7, "max": 82.8 },
+            "female": { "min": 10.0, "max": 67.4 }
+          },
+          {
+            "age": "16-19 years",
+            "male": { "min": 11.1, "max": 171.9 },
+            "female": { "min": 10.0, "max": 67.4 }
+          },
+          {
+            "age": "≥ 19 years",
+            "male": { "min": 21.81, "max": 274.66 },
+            "female": { "min": 10.0, "max": 204 }
+          }
+        ]
+      },
+      "hba1c": {
+        "name": "Hemoglobin A1c",
+        "nombre": "Hemoglobina glicosilada A1c",
+        "unit": "%",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 3.8, "max": 5.9 } }
+        ]
+      },
+      "free_t4": {
+        "name": "Free T4",
+        "nombre": "Tiroxina libre (T4 libre)",
+        "unit": "ng/dL",
+        "ageRanges": [
+          { "age": "5-14 days", "range": { "min": 1.05, "max": 3.21 } },
+          { "age": "15-29 days", "range": { "min": 0.68, "max": 2.53 } },
+          { "age": "30 day - <1 year", "range": { "min": 0.89, "max": 1.7 } },
+          { "age": "1 - <19 years", "range": { "min": 0.89, "max": 1.37 } },
+          { "age": "≥ 19 years", "range": { "min": 0.7, "max": 1.48 } }
+        ]
+      },
+      "total_t4": {
+        "name": "Total T4",
+        "nombre": "Tiroxina total (T4 total)",
+        "unit": "µg/dL",
+        "ageRanges": [
+          { "age": "0-2 days", "range": { "min": 8.0, "max": 19.3 } },
+          { "age": "3-30 days", "range": { "min": 5.2, "max": 14.6 } },
+          { "age": "1-11 months", "range": { "min": 6.1, "max": 13.7 } },
+          { "age": "1-5 years", "range": { "min": 4.7, "max": 10.8 } },
+          { "age": "≥ 6 years", "range": { "min": 4.7, "max": 9.9 } }
+        ]
+      },
+      "vitamin_d": {
+        "name": "25-OH Vitamin D",
+        "nombre": "Vitamina D (25-OH)",
+        "unit": "ng/mL",
+        "interpretation": {
+          "deficiency": "< 12",
+          "insufficiency": "12-20",
+          "sufficiency": "> 20",
+          "toxicity_possible": "> 100"
+        },
+        "interpretacion": {
+          "deficiencia": "< 12",
+          "insuficiencia": "12-20",
+          "suficiencia": "> 20",
+          "toxicidad_posible": "> 100"
+        }
+      },
+      "crp": {
+        "name": "C-reactive protein (CRP)",
+        "nombre": "Proteína C reactiva (PCR)",
+        "unit": "mg/dL",
+        "ageRanges": [{ "age": "all ages", "range": { "min": 0, "max": 1.0 } }]
+      }
     }
   },
-  "hematology": {
-    "wbc": {
-      "name": "White blood cell count",
-      "nombre": "Recuento de glóbulos blancos",
-      "unit": "× 10³ cells/mm³",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 7.1, "max": 15.9 } },
-        { "age": "child", "range": { "min": 4.3, "max": 13.5 } },
-        { "age": "adolescent_male", "range": { "min": 3.8, "max": 9.8 } },
-        { "age": "adolescent_female", "range": { "min": 4.2, "max": 9.4 } },
-        { "age": "adult_male", "range": { "min": 3.9, "max": 8.8 } },
-        { "age": "adult_female", "range": { "min": 4.4, "max": 9.7 } },
-        { "age": "all_ages", "range": { "min": 3.8, "max": 15.9 } }
-      ]
-    },
-    "rbc": {
-      "name": "Red blood cell count",
-      "nombre": "Recuento de glóbulos rojos",
-      "unit": "× 10⁶ cells/mm³",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 2.7, "max": 6.6 } },
-        { "age": "child", "range": { "min": 3.7, "max": 5.3 } },
-        { "age": "adolescent_male", "range": { "min": 4.5, "max": 5.3 } },
-        { "age": "adolescent_female", "range": { "min": 4.1, "max": 5.1 } },
-        { "age": "adult_male", "range": { "min": 4.5, "max": 5.9 } },
-        { "age": "adult_female", "range": { "min": 4.0, "max": 5.2 } },
-        { "age": "all_ages", "range": { "min": 2.7, "max": 6.6 } }
-      ]
-    },
-    "hemoglobin": {
-      "name": "Hemoglobin",
-      "nombre": "Hemoglobina",
-      "unit": "g/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 9.0, "max": 22.5 } },
-        { "age": "child", "range": { "min": 10.5, "max": 15.5 } },
-        { "age": "adolescent_male", "range": { "min": 13.0, "max": 16.0 } },
-        { "age": "adolescent_female", "range": { "min": 12.0, "max": 16.0 } },
-        { "age": "adult_male", "range": { "min": 13.5, "max": 17.5 } },
-        { "age": "adult_female", "range": { "min": 12.0, "max": 16.0 } },
-        { "age": "all_ages", "range": { "min": 9.0, "max": 22.5 } }
-      ]
-    },
-    "hematocrit": {
-      "name": "Hematocrit",
-      "nombre": "Hematocrito",
-      "unit": "%",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 28.0, "max": 67.0 } },
-        { "age": "child", "range": { "min": 33.0, "max": 45.0 } },
-        { "age": "adolescent_male", "range": { "min": 37.0, "max": 49.0 } },
-        { "age": "adolescent_female", "range": { "min": 36.0, "max": 46.0 } },
-        { "age": "adult_male", "range": { "min": 41.0, "max": 53.0 } },
-        { "age": "adult_female", "range": { "min": 36.0, "max": 46.0 } },
-        { "age": "all_ages", "range": { "min": 28.0, "max": 67.0 } }
-      ]
-    },
-    "platelets": {
-      "name": "Platelets",
-      "nombre": "Plaquetas",
-      "unit": "/mm³",
-      "ageRanges": [
-        { "age": "all_ages", "range": { "min": 150000, "max": 450000 } }
-      ]
-    },
-    "mcv": {
-      "name": "Mean corpuscular volume",
-      "nombre": "Volumen corpuscular medio",
-      "unit": "fL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 74, "max": 126 } },
-        { "age": "child", "range": { "min": 70, "max": 95 } },
-        { "age": "adolescent", "range": { "min": 78, "max": 102 } },
-        { "age": "adult", "range": { "min": 80, "max": 100 } },
-        { "age": "all_ages", "range": { "min": 70, "max": 126 } }
-      ]
-    },
-    "mch": {
-      "name": "Mean corpuscular hemoglobin",
-      "nombre": "Hemoglobina corpuscular media",
-      "unit": "pg",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 25, "max": 40 } },
-        { "age": "child", "range": { "min": 23, "max": 33 } },
-        { "age": "adolescent", "range": { "min": 25, "max": 35 } },
-        { "age": "adult", "range": { "min": 26, "max": 34 } },
-        { "age": "all_ages", "range": { "min": 23, "max": 40 } }
-      ]
-    },
-    "mchc": {
-      "name": "Mean corpuscular hemoglobin concentration",
-      "nombre": "Concentración de hemoglobina corpuscular media",
-      "unit": "g/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 28, "max": 38 } },
-        { "age": "child", "range": { "min": 30, "max": 36 } },
-        { "age": "adolescent", "range": { "min": 31, "max": 37 } },
-        { "age": "adult", "range": { "min": 31, "max": 37 } },
-        { "age": "all_ages", "range": { "min": 28, "max": 38 } }
-      ]
-    },
-    "reticulocytes": {
-      "name": "Reticulocytes",
-      "nombre": "Reticulocitos",
-      "unit": "%",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 1.06, "max": 5.4 } },
-        { "age": "child", "range": { "min": 0.82, "max": 1.94 } },
-        { "age": "adolescent", "range": { "min": 0.9, "max": 1.49 } },
-        { "age": "adult", "range": { "min": 0.86, "max": 1.36 } },
-        { "age": "all_ages", "range": { "min": 0.82, "max": 5.4 } }
-      ]
-    },
-    "esr": {
-      "name": "Erythrocyte sedimentation rate",
-      "nombre": "Velocidad de sedimentación globular",
-      "unit": "mm/hr",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 1, "max": 20 } }]
+  "coagulationTimes": {
+    "name": "Coagulation Times",
+    "nombre": "Tiempos de Coagulación",
+    "specialNote": "PT and PTT ranges for ages < 6 months: Values change rapidly in the neonatal period and are dependent on the gestational age at delivery. Consult Nathan D., Oski F., Hematology of Infancy and Childhood, 4th edition, p118, or consult Hematology.",
+    "notaEspecial": "Rangos de PT y PTT para edades < 6 meses: Los valores cambian rápidamente en el período neonatal y dependen de la edad gestacional al momento del parto. Consulte Nathan D., Oski F., Hematología de la Infancia y la Niñez, 4ta edición, p118, o consulte Hematología.",
+    "tests": {
+      "pt": {
+        "name": "Prothrombin time (PT)",
+        "nombre": "Tiempo de protrombina (TP)",
+        "unit": "seconds",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 11.1, "max": 13.4 } }
+        ]
+      },
+      "ptt": {
+        "name": "Partial thromboplastin time (PTT/aPTT)",
+        "nombre": "Tiempo de tromboplastina parcial (TTP/TTPa)",
+        "unit": "seconds",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 25.0, "max": 37.0 } }
+        ]
+      },
+      "inr": {
+        "name": "International normalized ratio (INR)",
+        "nombre": "Razón normalizada internacional (RNI)",
+        "unit": "ratio",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 0.8, "max": 1.2 } }
+        ]
+      },
+      "bleeding_time": {
+        "name": "Bleeding time",
+        "nombre": "Tiempo de sangrado",
+        "unit": "minutes",
+        "note": "Not available in current dataset",
+        "nota": "No disponible en el conjunto de datos actual"
+      }
     }
   },
-  "endocrinology": {
-    "tsh": {
-      "name": "Thyroid stimulating hormone (TSH)",
-      "nombre": "Hormona estimulante de la tiroides (TSH)",
-      "unit": "µIU/mL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 0.7, "max": 16.0 } },
-        { "age": "child", "range": { "min": 0.7, "max": 4.2 } },
-        { "age": "adolescent", "range": { "min": 0.5, "max": 3.4 } },
-        { "age": "adult", "range": { "min": 0.5, "max": 4.0 } },
-        { "age": "all_ages", "range": { "min": 0.5, "max": 16.0 } }
-      ]
-    },
-    "free_t4": {
-      "name": "Free T4",
-      "nombre": "Tiroxina libre (T4 libre)",
-      "unit": "ng/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 0.68, "max": 3.21 } },
-        { "age": "child", "range": { "min": 0.89, "max": 1.7 } },
-        { "age": "adolescent", "range": { "min": 0.89, "max": 1.37 } },
-        { "age": "adult", "range": { "min": 0.7, "max": 1.48 } },
-        { "age": "all_ages", "range": { "min": 0.68, "max": 3.21 } }
-      ]
-    },
-    "total_t4": {
-      "name": "Total T4",
-      "nombre": "Tiroxina total (T4 total)",
-      "unit": "µg/dL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 5.2, "max": 19.3 } },
-        { "age": "child", "range": { "min": 4.7, "max": 13.7 } },
-        { "age": "adolescent", "range": { "min": 4.7, "max": 9.9 } },
-        { "age": "adult", "range": { "min": 4.7, "max": 9.9 } },
-        { "age": "all_ages", "range": { "min": 4.7, "max": 19.3 } }
-      ]
-    },
-    "total_t3": {
-      "name": "Total T3",
-      "nombre": "Triyodotironina total (T3 total)",
-      "unit": "ng/mL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 0.6, "max": 2.8 } },
-        { "age": "child", "range": { "min": 0.8, "max": 2.4 } },
-        { "age": "adolescent", "range": { "min": 0.8, "max": 2.1 } },
-        { "age": "adult", "range": { "min": 0.7, "max": 1.9 } },
-        { "age": "all_ages", "range": { "min": 0.6, "max": 2.8 } }
-      ]
-    },
-    "cortisol_am": {
-      "name": "AM Cortisol",
-      "nombre": "Cortisol matutino",
-      "unit": "µg/dL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 3.7, "max": 19.4 } }]
-    },
-    "insulin": {
-      "name": "Insulin",
-      "nombre": "Insulina",
-      "unit": "µIU/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 2.0, "max": 20.0 } }]
-    },
-    "hba1c": {
-      "name": "Hemoglobin A1c",
-      "nombre": "Hemoglobina glicosilada A1c",
-      "unit": "%",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 3.8, "max": 5.9 } }]
-    },
-    "vitamin_d": {
-      "name": "25-OH Vitamin D",
-      "nombre": "Vitamina D (25-OH)",
-      "unit": "ng/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 20, "max": 100 } }]
-    },
-    "b12": {
-      "name": "Vitamin B12",
-      "nombre": "Vitamina B12",
-      "unit": "pg/mL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 228, "max": 1514 } },
-        { "age": "child", "range": { "min": 245, "max": 1407 } },
-        { "age": "adolescent", "range": { "min": 182, "max": 865 } },
-        { "age": "adult", "range": { "min": 199, "max": 732 } },
-        { "age": "all_ages", "range": { "min": 182, "max": 1514 } }
-      ]
-    },
-    "folate": {
-      "name": "Folate",
-      "nombre": "Folato",
-      "unit": "ng/mL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 6.3, "max": 22.7 } },
-        { "age": "child", "range": { "min": 0.5, "max": 14.1 } },
-        { "age": "adolescent", "range": { "min": 1.2, "max": 8.8 } },
-        { "age": "adult", "range": { "min": 2.8, "max": 13.0 } },
-        { "age": "all_ages", "range": { "min": 0.5, "max": 22.7 } }
-      ]
-    },
-    "ferritin": {
-      "name": "Ferritin",
-      "nombre": "Ferritina",
-      "unit": "ng/mL",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 14.0, "max": 717 } },
-        { "age": "child", "range": { "min": 10.0, "max": 99.9 } },
-        { "age": "adolescent_male", "range": { "min": 11.1, "max": 171.9 } },
-        { "age": "adolescent_female", "range": { "min": 10.0, "max": 67.4 } },
-        { "age": "adult_male", "range": { "min": 21.81, "max": 274.66 } },
-        { "age": "adult_female", "range": { "min": 10.0, "max": 204 } },
-        { "age": "all_ages", "range": { "min": 10.0, "max": 717 } }
-      ]
+  "basicMetabolicPanel": {
+    "name": "Basic Metabolic Panel (BMP)",
+    "nombre": "Panel Metabólico Básico (PMB)",
+    "tests": {
+      "glucose": {
+        "name": "Glucose",
+        "nombre": "Glucosa",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-6 years", "range": { "min": 74, "max": 127 } },
+          { "age": "7-17 years", "range": { "min": 70, "max": 106 } },
+          {
+            "age": "≥ 18 years",
+            "male": { "min": 75, "max": 110 },
+            "female": { "min": 65, "max": 105 }
+          }
+        ]
+      },
+      "sodium": {
+        "name": "Sodium",
+        "nombre": "Sodio",
+        "unit": "mmol/L",
+        "ageRanges": [
+          { "age": "0d-11 months", "range": { "min": 133, "max": 140 } },
+          { "age": "1-9 years", "range": { "min": 138, "max": 145 } },
+          { "age": "10-20 years", "range": { "min": 136, "max": 145 } },
+          { "age": "≥ 21 years", "range": { "min": 137, "max": 145 } }
+        ],
+        "wholeBlood": {
+          "name": "Sodium, whole blood",
+          "nombre": "Sodio, sangre total",
+          "unit": "mmol/L",
+          "ageRanges": [
+            { "age": "0d-2 months", "range": { "min": 132, "max": 142 } },
+            { "age": "3m-14 years", "range": { "min": 136, "max": 142 } },
+            { "age": "≥ 15 years", "range": { "min": 135, "max": 145 } }
+          ]
+        }
+      },
+      "potassium": {
+        "name": "Potassium",
+        "nombre": "Potasio",
+        "unit": "mmol/L",
+        "ageRanges": [
+          { "age": "0d-9 years", "range": { "min": 4.1, "max": 5.8 } },
+          { "age": "10-20 years", "range": { "min": 3.8, "max": 5.4 } },
+          { "age": "≥ 21 years", "range": { "min": 3.6, "max": 5.0 } }
+        ],
+        "wholeBlood": {
+          "name": "Potassium, whole blood",
+          "nombre": "Potasio, sangre total",
+          "unit": "mmol/L",
+          "ageRanges": [
+            { "age": "0-1 day", "range": { "min": 5.0, "max": 7.5 } },
+            { "age": "2d-2 months", "range": { "min": 4.0, "max": 6.2 } },
+            { "age": "3m-14 years", "range": { "min": 3.8, "max": 5.0 } },
+            { "age": "≥ 15 years", "range": { "min": 3.5, "max": 5.5 } }
+          ]
+        }
+      },
+      "chloride": {
+        "name": "Chloride",
+        "nombre": "Cloruro",
+        "unit": "mmol/L",
+        "ageRanges": [
+          { "age": "0d-9 years", "range": { "min": 96, "max": 106 } },
+          { "age": "10-20 years", "range": { "min": 98, "max": 106 } },
+          { "age": "≥ 21 years", "range": { "min": 98, "max": 107 } }
+        ],
+        "wholeBlood": {
+          "name": "Chloride, whole blood",
+          "nombre": "Cloruro, sangre total",
+          "unit": "mmol/L",
+          "ageRanges": [
+            { "age": "0 days", "range": { "min": 96, "max": 104 } },
+            { "age": "1 day", "range": { "min": 97, "max": 110 } },
+            { "age": "2d-20 years", "range": { "min": 98, "max": 106 } },
+            { "age": "≥ 21 years", "range": { "min": 98, "max": 107 } }
+          ]
+        }
+      },
+      "co2": {
+        "name": "Carbon Dioxide (CO2/Bicarbonate)",
+        "nombre": "Dióxido de carbono (CO2/Bicarbonato)",
+        "unit": "mmol/L",
+        "ageRanges": [
+          { "age": "0d-20 years", "range": { "min": 20, "max": 26 } },
+          { "age": "≥ 21 years", "range": { "min": 22, "max": 30 } }
+        ],
+        "calculated": {
+          "name": "Total CO2, calculated",
+          "nombre": "CO2 total, calculado",
+          "unit": "mmol/L",
+          "ageRanges": [
+            { "age": "1-6 days", "range": { "min": 17, "max": 24 } },
+            { "age": "7-30 days", "range": { "min": 19, "max": 25 } },
+            { "age": "1m-1 year", "range": { "min": 19, "max": 26 } },
+            { "age": "2-8 years", "range": { "min": 21, "max": 27 } },
+            { "age": ">19 years", "range": { "min": 23, "max": 28 } }
+          ]
+        }
+      },
+      "bun": {
+        "name": "Blood urea nitrogen (BUN)",
+        "nombre": "Nitrógeno ureico en sangre (BUN)",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-2 years", "range": { "min": 2, "max": 19 } },
+          { "age": "3-12 years", "range": { "min": 5, "max": 17 } },
+          { "age": "13-18 years", "range": { "min": 7, "max": 18 } },
+          { "age": "19-20 years", "range": { "min": 8, "max": 21 } },
+          {
+            "age": "≥ 21 years",
+            "male": { "min": 9, "max": 20 },
+            "female": { "min": 7, "max": 17 }
+          }
+        ]
+      },
+      "creatinine": {
+        "name": "Creatinine",
+        "nombre": "Creatinina",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-5 years", "range": { "min": 0.1, "max": 0.4 } },
+          { "age": "6-8 years", "range": { "min": 0.1, "max": 0.5 } },
+          { "age": "9-12 years", "range": { "min": 0.2, "max": 0.5 } },
+          { "age": "13-18 years", "range": { "min": 0.3, "max": 0.8 } },
+          { "age": "19-20 years", "range": { "min": 0.4, "max": 1.0 } },
+          {
+            "age": "≥ 21 years",
+            "male": { "min": 0.7, "max": 1.3 },
+            "female": { "min": 0.5, "max": 1.0 }
+          }
+        ]
+      },
+      "calcium": {
+        "name": "Calcium",
+        "nombre": "Calcio",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0-90 days", "range": { "min": 7.8, "max": 11.3 } },
+          { "age": "91-180 days", "range": { "min": 8.8, "max": 11.2 } },
+          { "age": "181-364 days", "range": { "min": 8.8, "max": 11.4 } },
+          { "age": "1-3 years", "range": { "min": 8.8, "max": 11.1 } },
+          { "age": "4-11 years", "range": { "min": 8.8, "max": 10.7 } },
+          { "age": "12-19 years", "range": { "min": 8.5, "max": 10.6 } },
+          { "age": "≥ 19 years", "range": { "min": 8.5, "max": 10.5 } }
+        ]
+      }
     }
   },
-  "coagulation": {
-    "pt": {
-      "name": "Prothrombin time",
-      "nombre": "Tiempo de protrombina",
-      "unit": "seconds",
-      "ageRanges": [
-        { "age": "all_ages", "range": { "min": 11.1, "max": 13.4 } }
-      ]
-    },
-    "ptt": {
-      "name": "Partial thromboplastin time",
-      "nombre": "Tiempo de tromboplastina parcial",
-      "unit": "seconds",
-      "ageRanges": [
-        { "age": "all_ages", "range": { "min": 25.0, "max": 37.0 } }
-      ]
-    },
-    "inr": {
-      "name": "International normalized ratio",
-      "nombre": "Razón normalizada internacional",
-      "unit": "ratio",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0.8, "max": 1.2 } }]
-    },
-    "fibrinogen": {
-      "name": "Fibrinogen",
-      "nombre": "Fibrinógeno",
-      "unit": "mg/dL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 131, "max": 405 } }]
-    },
-    "d_dimer": {
-      "name": "D-dimer",
-      "nombre": "Dímero D",
-      "unit": "µg/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0, "max": 0.5 } }]
+  "comprehensiveMetabolicPanel": {
+    "name": "Comprehensive Metabolic Panel (CMP)",
+    "nombre": "Panel Metabólico Completo (PMC)",
+    "note": "Includes all BMP tests plus the following",
+    "nota": "Incluye todas las pruebas del PMB más las siguientes",
+    "tests": {
+      "total_protein": {
+        "name": "Total protein",
+        "nombre": "Proteína total",
+        "unit": "g/dL",
+        "ageRanges": [
+          { "age": "0d-2 years", "range": { "min": 5.4, "max": 7.0 } },
+          { "age": "3-5 years", "range": { "min": 5.9, "max": 7.0 } },
+          { "age": "6-8 years", "range": { "min": 5.9, "max": 7.8 } },
+          { "age": "9-18 years", "range": { "min": 6.2, "max": 8.1 } },
+          { "age": "19-20 years", "range": { "min": 6.3, "max": 8.6 } },
+          { "age": "≥ 21 years", "range": { "min": 6.3, "max": 8.2 } }
+        ]
+      },
+      "albumin": {
+        "name": "Albumin",
+        "nombre": "Albúmina",
+        "unit": "g/dL",
+        "ageRanges": [
+          { "age": "0-5 days", "range": { "min": 2.6, "max": 3.6 } },
+          { "age": "6-29 days", "range": { "min": 2.8, "max": 4.0 } },
+          { "age": "1-6 months", "range": { "min": 3.1, "max": 4.2 } },
+          { "age": "7-11 months", "range": { "min": 3.3, "max": 4.3 } },
+          { "age": "1-3 years", "range": { "min": 3.5, "max": 4.6 } },
+          { "age": "4-6 years", "range": { "min": 3.5, "max": 5.2 } },
+          { "age": "7-19 years", "range": { "min": 3.7, "max": 5.6 } },
+          { "age": "≥ 20 years", "range": { "min": 3.5, "max": 5.0 } }
+        ]
+      },
+      "total_bilirubin": {
+        "name": "Total bilirubin",
+        "nombre": "Bilirrubina total",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-20 years", "range": { "min": 0.6, "max": 1.4 } },
+          { "age": "≥ 21 years", "range": { "min": 0.2, "max": 1.3 } }
+        ]
+      },
+      "alt": {
+        "name": "Alanine aminotransferase (ALT)",
+        "nombre": "Alanina aminotransferasa (ALT)",
+        "unit": "U/L",
+        "ageRanges": [
+          { "age": "0-<1 year", "range": { "min": 5, "max": 45 } },
+          { "age": "1-12 years", "range": { "min": 10, "max": 30 } },
+          {
+            "age": "13-18 years",
+            "male": { "min": 10, "max": 35 },
+            "female": { "min": 10, "max": 26 }
+          },
+          {
+            "age": "≥ 19 years",
+            "male": { "min": 0, "max": 50 },
+            "female": { "min": 0, "max": 35 }
+          }
+        ]
+      },
+      "ast": {
+        "name": "Aspartate aminotransferase (AST)",
+        "nombre": "Aspartato aminotransferasa (AST)",
+        "unit": "U/L",
+        "ageRanges": [
+          { "age": "1-7 days", "range": { "min": 30, "max": 140 } },
+          { "age": "8-30 days", "range": { "min": 22, "max": 71 } },
+          { "age": "1-11 months", "range": { "min": 20, "max": 64 } },
+          { "age": "1-3 years", "range": { "min": 20, "max": 60 } },
+          { "age": "4-6 years", "range": { "min": 15, "max": 50 } },
+          { "age": "7-9 years", "range": { "min": 15, "max": 40 } },
+          {
+            "age": "10-11 years",
+            "male": { "min": 10, "max": 60 },
+            "female": { "min": 10, "max": 40 }
+          },
+          {
+            "age": "12-15 years",
+            "male": { "min": 15, "max": 40 },
+            "female": { "min": 10, "max": 30 }
+          },
+          {
+            "age": "16-18 years",
+            "male": { "min": 15, "max": 45 },
+            "female": { "min": 5, "max": 30 }
+          },
+          {
+            "age": "≥ 19 years",
+            "male": { "min": 17, "max": 59 },
+            "female": { "min": 14, "max": 36 }
+          }
+        ]
+      },
+      "alkaline_phosphatase": {
+        "name": "Alkaline phosphatase",
+        "nombre": "Fosfatasa alcalina",
+        "unit": "U/L",
+        "ageRanges": [
+          { "age": "1-29 days", "range": { "min": 70, "max": 300 } },
+          { "age": "1-11 months", "range": { "min": 70, "max": 345 } },
+          { "age": "1-3 years", "range": { "min": 145, "max": 320 } },
+          { "age": "4-6 years", "range": { "min": 150, "max": 380 } },
+          { "age": "7-9 years", "range": { "min": 175, "max": 420 } },
+          {
+            "age": "10-11 years",
+            "male": { "min": 135, "max": 530 },
+            "female": { "min": 130, "max": 560 }
+          },
+          {
+            "age": "12-13 years",
+            "male": { "min": 200, "max": 495 },
+            "female": { "min": 105, "max": 420 }
+          },
+          {
+            "age": "14-15 years",
+            "male": { "min": 130, "max": 525 },
+            "female": { "min": 70, "max": 230 }
+          },
+          {
+            "age": "16-20 years",
+            "male": { "min": 65, "max": 260 },
+            "female": { "min": 50, "max": 130 }
+          },
+          { "age": "≥ 21 years", "range": { "min": 38, "max": 126 } }
+        ]
+      }
     }
   },
-  "cardiacMarkers": {
-    "troponin_i": {
-      "name": "Troponin I",
-      "nombre": "Troponina I",
-      "unit": "ng/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0, "max": 0.3 } }]
-    },
-    "bnp": {
-      "name": "B-type natriuretic peptide",
-      "nombre": "Péptido natriurético tipo B",
-      "unit": "pg/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0, "max": 100 } }]
-    },
-    "ck": {
-      "name": "Creatine kinase",
-      "nombre": "Creatina quinasa",
-      "unit": "units/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 60, "max": 305 } },
-        { "age": "child", "range": { "min": 50, "max": 365 } },
-        { "age": "adolescent_male", "range": { "min": 55, "max": 370 } },
-        { "age": "adolescent_female", "range": { "min": 45, "max": 240 } },
-        { "age": "adult_male", "range": { "min": 55, "max": 170 } },
-        { "age": "adult_female", "range": { "min": 30, "max": 135 } },
-        { "age": "all_ages", "range": { "min": 30, "max": 370 } }
-      ]
-    },
-    "ck_mb": {
-      "name": "Creatine kinase MB",
-      "nombre": "Creatina quinasa MB",
-      "unit": "ng/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0, "max": 6.3 } }]
+  "liverFunctionTests": {
+    "name": "Liver Function Tests (LFTs)",
+    "nombre": "Pruebas de Función Hepática (PFH)",
+    "note": "Additional tests beyond CMP",
+    "nota": "Pruebas adicionales más allá del PMC",
+    "tests": {
+      "direct_bilirubin": {
+        "name": "Direct (conjugated) bilirubin",
+        "nombre": "Bilirrubina directa (conjugada)",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "all ages", "range": { "min": 0.0, "max": 0.3 } }
+        ]
+      },
+      "ggt": {
+        "name": "Gamma-glutamyl transferase (GGT)",
+        "nombre": "Gamma-glutamil transferasa (GGT)",
+        "unit": "U/L",
+        "ageRanges": [
+          { "age": "1-30 days", "range": { "min": 25, "max": 168 } },
+          { "age": "1-6 months", "range": { "min": 17, "max": 126 } },
+          { "age": "7-11 months", "range": { "min": 10, "max": 42 } },
+          { "age": "1-6 years", "range": { "min": 5, "max": 16 } },
+          { "age": "7-9 years", "range": { "min": 11, "max": 21 } },
+          {
+            "age": "10-11 years",
+            "male": { "min": 14, "max": 25 },
+            "female": { "min": 14, "max": 23 }
+          },
+          {
+            "age": "12-13 years",
+            "male": { "min": 14, "max": 37 },
+            "female": { "min": 12, "max": 21 }
+          },
+          {
+            "age": "14-15 years",
+            "male": { "min": 10, "max": 28 },
+            "female": { "min": 12, "max": 22 }
+          },
+          {
+            "age": "16-20 years",
+            "male": { "min": 9, "max": 29 },
+            "female": { "min": 9, "max": 23 }
+          },
+          {
+            "age": "≥ 21 years",
+            "male": { "min": 13, "max": 61 },
+            "female": { "min": 10, "max": 36 }
+          }
+        ]
+      }
     }
   },
-  "urinalysis": {
-    "glucose": {
-      "name": "Glucose",
-      "nombre": "Glucosa",
-      "ageRanges": [{ "age": "all_ages", "result": "Negative" }]
-    },
-    "protein": {
-      "name": "Protein",
-      "nombre": "Proteína",
-      "ageRanges": [{ "age": "all_ages", "result": "Negative" }]
-    },
-    "ketones": {
-      "name": "Ketones",
-      "nombre": "Cetonas",
-      "ageRanges": [{ "age": "all_ages", "result": "Negative" }]
-    },
-    "blood": {
-      "name": "Blood",
-      "nombre": "Sangre",
-      "ageRanges": [{ "age": "all_ages", "result": "Negative" }]
-    },
-    "nitrite": {
-      "name": "Nitrite",
-      "nombre": "Nitrito",
-      "ageRanges": [{ "age": "all_ages", "result": "Negative" }]
-    },
-    "leukocyte_esterase": {
-      "name": "Leukocyte esterase",
-      "nombre": "Esterasa leucocitaria",
-      "ageRanges": [{ "age": "all_ages", "result": "Negative" }]
-    },
-    "specific_gravity": {
-      "name": "Specific gravity",
-      "nombre": "Gravedad específica",
-      "ageRanges": [
-        { "age": "all_ages", "range": { "min": 1.003, "max": 1.035 } }
-      ]
-    },
-    "ph": {
-      "name": "pH",
-      "nombre": "pH",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 4.9, "max": 7.4 } },
-        { "age": "child", "range": { "min": 5.3, "max": 6.8 } },
-        { "age": "adolescent", "range": { "min": 5.2, "max": 5.9 } },
-        { "age": "adult", "range": { "min": 5.4, "max": 7.0 } },
-        { "age": "all_ages", "range": { "min": 4.9, "max": 7.4 } }
-      ]
+  "additionalSpecializedTests": {
+    "name": "Additional Specialized Tests",
+    "nombre": "Pruebas Especializadas Adicionales",
+    "tests": {
+      "esr": {
+        "name": "Erythrocyte sedimentation rate (ESR)",
+        "nombre": "Velocidad de sedimentación globular (VSG)",
+        "unit": "mm/hr",
+        "ageRanges": [{ "age": "all ages", "range": { "min": 1, "max": 20 } }]
+      },
+      "magnesium": {
+        "name": "Magnesium",
+        "nombre": "Magnesio",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-20 years", "range": { "min": 1.5, "max": 2.5 } },
+          { "age": "≥ 21 years", "range": { "min": 1.6, "max": 2.3 } }
+        ]
+      },
+      "phosphorus": {
+        "name": "Phosphorus",
+        "nombre": "Fósforo",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-11 months", "range": { "min": 4.8, "max": 8.2 } },
+          { "age": "1-3 years", "range": { "min": 3.8, "max": 6.5 } },
+          { "age": "4-6 years", "range": { "min": 4.1, "max": 5.4 } },
+          { "age": "7-11 years", "range": { "min": 3.7, "max": 5.6 } },
+          { "age": "12-13 years", "range": { "min": 3.3, "max": 5.4 } },
+          { "age": "14-15 years", "range": { "min": 2.9, "max": 5.4 } },
+          { "age": "16-20 years", "range": { "min": 2.7, "max": 4.7 } },
+          { "age": "≥ 21 years", "range": { "min": 2.5, "max": 4.5 } }
+        ]
+      }
     }
   },
-  "arterialBloodGas": {
-    "ph": {
-      "name": "pH",
-      "nombre": "pH",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 7.27, "max": 7.47 } },
-        { "age": "child", "range": { "min": 7.34, "max": 7.44 } },
-        { "age": "adolescent", "range": { "min": 7.37, "max": 7.44 } },
-        { "age": "adult", "range": { "min": 7.35, "max": 7.45 } },
-        { "age": "all_ages", "range": { "min": 7.27, "max": 7.47 } }
-      ]
-    },
-    "pco2": {
-      "name": "PCO2",
-      "nombre": "PCO2",
-      "unit": "mmHg",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 27, "max": 45 } },
-        { "age": "child", "range": { "min": 30, "max": 47 } },
-        { "age": "adolescent", "range": { "min": 31, "max": 48 } },
-        { "age": "adult", "range": { "min": 35, "max": 45 } },
-        { "age": "all_ages", "range": { "min": 27, "max": 48 } }
-      ]
-    },
-    "po2": {
-      "name": "PO2",
-      "nombre": "PO2",
-      "unit": "mmHg",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 54, "max": 106 } },
-        { "age": "child", "range": { "min": 80, "max": 108 } },
-        { "age": "adolescent", "range": { "min": 83, "max": 112 } },
-        { "age": "adult", "range": { "min": 75, "max": 100 } },
-        { "age": "all_ages", "range": { "min": 54, "max": 112 } }
-      ]
-    },
-    "hco3": {
-      "name": "HCO3",
-      "nombre": "HCO3",
-      "unit": "mEq/L",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 16.5, "max": 24.0 } },
-        { "age": "child", "range": { "min": 18.0, "max": 26.0 } },
-        { "age": "adolescent", "range": { "min": 20.0, "max": 27.0 } },
-        { "age": "adult", "range": { "min": 21.0, "max": 29.0 } },
-        { "age": "all_ages", "range": { "min": 16.5, "max": 29.0 } }
-      ]
-    },
-    "o2_saturation": {
-      "name": "O2 saturation",
-      "nombre": "Saturación de O2",
-      "unit": "%",
-      "ageRanges": [
-        { "age": "newborn", "range": { "min": 85, "max": 99 } },
-        { "age": "child", "range": { "min": 95, "max": 99 } },
-        { "age": "adolescent", "range": { "min": 95, "max": 99 } },
-        { "age": "adult", "range": { "min": 94, "max": 99 } },
-        { "age": "all_ages", "range": { "min": 85, "max": 99 } }
-      ]
-    }
-  },
-  "therapeuticDrugs": {
-    "digoxin": {
-      "name": "Digoxin",
-      "nombre": "Digoxina",
-      "unit": "ng/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 0.5, "max": 2.0 } }]
-    },
-    "phenytoin": {
-      "name": "Phenytoin",
-      "nombre": "Fenitoína",
-      "unit": "µg/mL",
-      "ageRanges": [
-        { "age": "all_ages", "range": { "min": 10.0, "max": 20.0 } }
-      ]
-    },
-    "valproic_acid": {
-      "name": "Valproic acid",
-      "nombre": "Ácido valproico",
-      "unit": "µg/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 50, "max": 100 } }]
-    },
-    "acetaminophen": {
-      "name": "Acetaminophen",
-      "nombre": "Acetaminofén",
-      "unit": "µg/mL",
-      "ageRanges": [
-        { "age": "all_ages", "range": { "min": 10.0, "max": 20.0 } }
-      ]
-    },
-    "vancomycin_trough": {
-      "name": "Vancomycin trough",
-      "nombre": "Vancomicina (valle)",
-      "unit": "µg/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 3.0, "max": 20.0 } }]
-    },
-    "gentamicin_peak": {
-      "name": "Gentamicin peak",
-      "nombre": "Gentamicina (pico)",
-      "unit": "µg/mL",
-      "ageRanges": [{ "age": "all_ages", "range": { "min": 4.0, "max": 12.0 } }]
+  "lipidPanel": {
+    "name": "Lipid Panel",
+    "nombre": "Panel de Lípidos",
+    "tests": {
+      "total_cholesterol": {
+        "name": "Total cholesterol",
+        "nombre": "Colesterol total",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-5 years", "range": { "min": 45, "max": 182 } },
+          { "age": "6-8 years", "range": { "min": 109, "max": 189 } },
+          { "age": "9-10 years", "range": { "min": 112, "max": 248 } },
+          {
+            "age": "11-12 years",
+            "male": { "min": 126, "max": 231 },
+            "female": { "min": 176, "max": 243 }
+          },
+          {
+            "age": "13-14 years",
+            "male": { "min": 127, "max": 230 },
+            "female": { "min": 126, "max": 214 }
+          },
+          {
+            "age": "15-18 years",
+            "male": { "min": 107, "max": 225 },
+            "female": { "min": 130, "max": 215 }
+          },
+          {
+            "age": "≥ 18 years",
+            "male": { "min": 111, "max": 220 },
+            "female": { "min": 107, "max": 217 }
+          }
+        ]
+      },
+      "hdl_cholesterol": {
+        "name": "HDL cholesterol",
+        "nombre": "Colesterol HDL",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-12 years", "range": { "min": 35, "max": 82 } },
+          { "age": "13-18 years", "range": { "min": 36, "max": 84 } },
+          { "age": "≥ 19 years", "range": { "min": 35, "max": 65 } }
+        ]
+      },
+      "ldl_cholesterol": {
+        "name": "LDL cholesterol",
+        "nombre": "Colesterol LDL",
+        "unit": "mg/dL",
+        "ageRanges": [
+          {
+            "age": "5-9 years",
+            "male": { "min": 63, "max": 129 },
+            "female": { "min": 68, "max": 140 }
+          },
+          {
+            "age": "10-14 years",
+            "male": { "min": 64, "max": 133 },
+            "female": { "min": 68, "max": 136 }
+          },
+          {
+            "age": "15-18 years",
+            "male": { "min": 62, "max": 130 },
+            "female": { "min": 59, "max": 137 }
+          },
+          {
+            "age": "≥ 19 years",
+            "male": { "min": 68, "max": 130 },
+            "female": { "min": 59, "max": 137 }
+          }
+        ]
+      },
+      "triglycerides": {
+        "name": "Triglycerides",
+        "nombre": "Triglicéridos",
+        "unit": "mg/dL",
+        "ageRanges": [
+          { "age": "0d-5 years", "range": { "min": 27, "max": 125 } },
+          { "age": "6-8 years", "range": { "min": 32, "max": 116 } },
+          { "age": "9-10 years", "range": { "min": 28, "max": 129 } },
+          {
+            "age": "11-12 years",
+            "male": { "min": 24, "max": 137 },
+            "female": { "min": 39, "max": 140 }
+          },
+          {
+            "age": "13-14 years",
+            "male": { "min": 24, "max": 145 },
+            "female": { "min": 37, "max": 130 }
+          },
+          {
+            "age": "15-18 years",
+            "male": { "min": 34, "max": 165 },
+            "female": { "min": 38, "max": 135 }
+          },
+          {
+            "age": "≥ 19 years",
+            "male": { "min": 34, "max": 140 },
+            "female": { "min": 37, "max": 140 }
+          }
+        ]
+      }
     }
   }
 }
