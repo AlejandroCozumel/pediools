@@ -310,14 +310,6 @@
         "ageRanges": [
           { "age": "all ages", "range": { "min": 0.8, "max": 1.2 } }
         ]
-      },
-      "bleeding_time": {
-        "name": "Bleeding time",
-        "nombre": "Tiempo de sangrado",
-        "unit": "minutes",
-        "note": "Not available in current dataset",
-        "nota": "No disponible en el conjunto de datos actual",
-        "ageRanges": []
       }
     }
   },
