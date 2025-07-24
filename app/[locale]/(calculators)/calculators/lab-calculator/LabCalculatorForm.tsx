@@ -133,7 +133,6 @@ const parseAgeRange = (ageString: string): ParsedAgeRange => {
   // "15d-6 months" → { minDays: 15, maxDays: 180 }
   // "6m-1 year" → { minDays: 180, maxDays: 365 }
   // "≥ 21 years" → { minDays: 7665, maxDays: null }
-
   const str = ageString.toLowerCase().trim();
 
   // Handle ≤ patterns
@@ -165,7 +164,6 @@ const parseAgeRange = (ageString: string): ParsedAgeRange => {
     const minUnit = rangeMatch[2] || rangeMatch[5];
     const maxVal = parseInt(rangeMatch[3]);
     const maxUnit = rangeMatch[4] || rangeMatch[5];
-
     return {
       minDays: convertToDays(
         minVal,
@@ -184,7 +182,6 @@ const parseAgeRange = (ageString: string): ParsedAgeRange => {
     const minDays = parseInt(mixedMatch[1]);
     const maxVal = parseInt(mixedMatch[2]);
     const maxUnit = mixedMatch[3];
-
     return {
       minDays: minDays,
       maxDays: convertToDays(maxVal, maxUnit),
@@ -219,10 +216,8 @@ const isAgeInRange = (
   ageRangeString: string
 ): boolean => {
   const range = parseAgeRange(ageRangeString);
-
   if (range.minDays !== null && patientAgeDays < range.minDays) return false;
   if (range.maxDays !== null && patientAgeDays > range.maxDays) return false;
-
   return true;
 };
 
@@ -248,7 +243,6 @@ const findReferenceRange = (
         range.age.toLowerCase().includes("all ages") ||
         range.age.toLowerCase().includes("all")
     );
-
     if (allAgesRange) {
       if (allAgesRange.male && allAgesRange.female) {
         const genderData =
@@ -258,7 +252,6 @@ const findReferenceRange = (
         return { min: allAgesRange.range.min, max: allAgesRange.range.max };
       }
     }
-
     // Fallback to first range
     const fallback = testData.ageRanges[0];
     if (fallback?.range) {
@@ -308,6 +301,7 @@ const findReferenceRange = (
       closestRange = ageRange;
     }
   }
+
   if (closestRange) {
     if (closestRange.male && closestRange.female) {
       const genderData =
@@ -331,33 +325,13 @@ const getLabStatus = (
   }
 
   const { min, max } = referenceRange;
-
   if (min !== null && value < min) {
     return value < min * 0.5 ? "critical" : "low";
   }
-
   if (max !== null && value > max) {
     return value > max * 1.5 ? "critical" : "high";
   }
-
   return "normal";
-};
-
-const getInterpretation = (status: string): string => {
-  switch (status) {
-    case "normal":
-      return "Within normal limits";
-    case "low":
-      return "Below reference range";
-    case "high":
-      return "Above reference range";
-    case "critical":
-      return "Critical value - requires immediate attention";
-    case "unknown":
-      return "Reference range not available";
-    default:
-      return "";
-  }
 };
 
 // Category icons
@@ -382,18 +356,33 @@ const getCategoryIcon = (categoryKey: string): JSX.Element => {
   }
 };
 
+// Helper function for card background
+const getCardBg = (status: string) => {
+  switch (status) {
+    case "critical":
+      return "bg-red-50 border-red-200";
+    case "high":
+    case "low":
+      return "bg-yellow-50 border-yellow-200";
+    case "normal":
+    default:
+      return "bg-white border-medical-200";
+  }
+};
+
 // Results component
 const LabResults: React.FC<{
   results: LabResult[];
   gender: "male" | "female";
-}> = ({ results, gender }) => {
+  locale: string;
+}> = ({ results, gender, locale }) => {
   const t = useTranslations("LabCalculator");
 
   if (!results.length) {
     return (
       <Alert className="border-medical-200 bg-medical-50">
         <Info className="h-4 w-4 text-medical-500" />
-        <AlertDescription>Enter lab values to see results</AlertDescription>
+        <AlertDescription>{t("results.noResults")}</AlertDescription>
       </Alert>
     );
   }
@@ -408,23 +397,40 @@ const LabResults: React.FC<{
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
             <AlertTriangle className="w-3 h-3" />
-            LOW
+            {status === "low" ? t("status.low") : t("status.high")}
           </span>
         );
       case "critical":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold">
             <AlertTriangle className="w-3 h-3" />
-            CRITICAL
+            {t("status.critical")}
           </span>
         );
       case "normal":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
             <CheckCircleIcon className="w-3 h-3" />
-            NORMAL
+            {t("status.normal")}
           </span>
         );
+    }
+  };
+
+  const getInterpretation = (status: string): string => {
+    switch (status) {
+      case "normal":
+        return t("interpretation.normal");
+      case "low":
+        return t("interpretation.low");
+      case "high":
+        return t("interpretation.high");
+      case "critical":
+        return t("interpretation.critical");
+      case "unknown":
+        return t("interpretation.unknown");
+      default:
+        return "";
     }
   };
 
@@ -437,7 +443,10 @@ const LabResults: React.FC<{
             gender === "male" ? "text-medical-700" : "text-medical-pink-700"
           )}
         >
-          Lab Results ({results.length} test{results.length !== 1 ? "s" : ""})
+          {t("results.title", {
+            count: results.length,
+            plural: results.length !== 1 ? "s" : ""
+          })}
         </CardTitle>
 
         {/* Date Warning */}
@@ -445,10 +454,10 @@ const LabResults: React.FC<{
           <Alert className="!mt-4 bg-yellow-50 border-yellow-200">
             <Calendar className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">
-              <strong>Age-specific ranges unavailable:</strong>{" "}
-              {resultsWithDateIssues.length} result(s) are using general
-              reference ranges because birth date or measurement date is
-              missing. For accurate pediatric results, please enter both dates.
+              <strong>{t("alerts.dateWarning.title")}</strong>{" "}
+              {t("alerts.dateWarning.description", {
+                count: resultsWithDateIssues.length
+              })}
             </AlertDescription>
           </Alert>
         )}
@@ -458,12 +467,15 @@ const LabResults: React.FC<{
           <Alert className="!mt-4 bg-red-50 border-red-200">
             <AlertTriangle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-800">
-              <strong>Critical Values:</strong> {criticalResults.length}{" "}
-              result(s) require immediate attention.
+              <strong>{t("alerts.criticalWarning.title")}</strong>{" "}
+              {t("alerts.criticalWarning.description", {
+                count: criticalResults.length
+              })}
             </AlertDescription>
           </Alert>
         )}
       </CardHeader>
+
       <CardContent className="!pt-0">
         <div className="space-y-4">
           {results.map((result, index) => (
@@ -487,25 +499,32 @@ const LabResults: React.FC<{
                     {result.displayName}
                     {result.hasDateIssue && (
                       <span className="ml-2 text-xs text-yellow-600 font-normal">
-                        (General range used)
+                        {t("results.generalRangeUsed")}
                       </span>
                     )}
                   </h4>
                   <p className="text-sm text-muted-foreground">
                     {result.ageGroup !== null
-                      ? `Age: ${result.ageGroup} days • Gender: ${gender}`
-                      : `Gender: ${gender} • Age: Not specified`}
+                      ? t("results.ageLabel", {
+                          age: result.ageGroup,
+                          gender: t(`gender.${gender}`)
+                        })
+                      : t("results.ageNotSpecified", {
+                          gender: t(`gender.${gender}`)
+                        })
+                    }
                   </p>
                 </div>
                 <div className="flex gap-2">
                   {result.hasDateIssue && (
                     <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                      NO AGE
+                      {t("badges.noAge")}
                     </Badge>
                   )}
                   {getStatusBadge(result.status)}
                 </div>
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div
                   className={cn(
@@ -514,7 +533,7 @@ const LabResults: React.FC<{
                   )}
                 >
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Patient Value
+                    {t("results.patientValue")}
                   </Label>
                   <p
                     className={cn(
@@ -527,9 +546,10 @@ const LabResults: React.FC<{
                     {result.value.toFixed(2)} {result.unit}
                   </p>
                 </div>
+
                 <div className="p-3 rounded-md bg-gray-50">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Reference Range
+                    {t("results.referenceRange")}
                   </Label>
                   <p className="text-sm font-medium text-gray-700">
                     {result.referenceRange.min !== null &&
@@ -539,18 +559,20 @@ const LabResults: React.FC<{
                       ? `> ${result.referenceRange.min} ${result.unit}`
                       : result.referenceRange.max !== null
                       ? `< ${result.referenceRange.max} ${result.unit}`
-                      : "Range not available"}
+                      : t("results.rangeNotAvailable")}
                   </p>
                 </div>
+
                 <div className="p-3 rounded-md bg-slate-50">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Interpretation
+                    {t("results.interpretation")}
                   </Label>
                   <p className="text-sm font-medium text-slate-700">
-                    {result.interpretation}
+                    {getInterpretation(result.status)}
                   </p>
                 </div>
               </div>
+
               <div className="text-xs text-muted-foreground mt-2">
                 {(() => {
                   // Find the age range used for this result
@@ -569,7 +591,9 @@ const LabResults: React.FC<{
                     }
                     return null;
                   })();
+
                   if (!testData) return null;
+
                   // Find the matching age range
                   const patientAgeDays = result.ageGroup;
                   let matchedRange = null;
@@ -582,59 +606,51 @@ const LabResults: React.FC<{
                     }
                   }
                   if (!matchedRange) matchedRange = testData.ageRanges[0];
-                  // Age range label
-                  const ageLabel = matchedRange?.age
-                    ? `Age range: ${matchedRange.age}`
-                    : "";
-                  // Sex label
-                  let sexLabel = "";
-                  if (matchedRange?.male && matchedRange?.female) {
-                    sexLabel = `Sex: ${gender === "male" ? "Boy" : "Girl"}`;
-                  } else if (matchedRange?.range) {
-                    sexLabel = "Sex: All";
-                  }
+
                   let ageOutOfRange = false;
                   if (patientAgeDays !== null) {
                     ageOutOfRange = !testData.ageRanges.some((ageRange) =>
                       isAgeInRange(patientAgeDays, ageRange.age)
                     );
                   }
+
                   return (
                     <>
                       <div className="flex items-center gap-2 mt-2">
                         {ageOutOfRange ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
                             <AlertTriangle className="w-3 h-3" />
-                            Closest range:{" "}
-                            {matchedRange?.age || t("LabCalculator.noAgeBadge")}
+                            {t("results.closestRange", {
+                              range: matchedRange?.age || t("badges.noAge")
+                            })}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-                            <Calendar className="w-3 h-3" />{" "}
-                            {matchedRange?.age || t("LabCalculator.noAgeBadge")}
+                            <Calendar className="w-3 h-3" />
+                            {matchedRange?.age || t("badges.noAge")}
                           </span>
                         )}
+
                         {matchedRange?.male && matchedRange?.female ? (
                           gender === "male" ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-medical-100 text-medical-800 text-xs font-semibold">
-                              <Baby className="w-3 h-3" /> Boy
+                              <Baby className="w-3 h-3" /> {t("gender.male")}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-medical-pink-100 text-medical-pink-800 text-xs font-semibold">
-                              <Baby className="w-3 h-3" /> Girl
+                              <Baby className="w-3 h-3" /> {t("gender.female")}
                             </span>
                           )
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-xs font-semibold">
-                            <Baby className="w-3 h-3" /> All
+                            <Baby className="w-3 h-3" /> {t("results.sexAll")}
                           </span>
                         )}
                       </div>
+
                       {ageOutOfRange && (
                         <div className="mt-1 text-xs text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-1">
-                          <strong>Note:</strong> Patient age does not fit any
-                          reference range for this test. The closest available
-                          range is shown.
+                          <strong>{locale === "es" ? "Nota:" : "Note:"}</strong> {t("results.ageOutOfRangeNote")}
                         </div>
                       )}
                     </>
@@ -647,7 +663,7 @@ const LabResults: React.FC<{
 
         {/* Disclaimer */}
         <div className="text-xs text-muted-foreground mt-6 p-4 bg-gray-50 rounded-md">
-          <p className="font-medium mb-2">Reference Data Sources:</p>
+          <p className="font-medium mb-2">{t("disclaimer.title")}</p>
           <ul className="list-disc list-inside space-y-1">
             <li>
               <a
@@ -656,35 +672,18 @@ const LabResults: React.FC<{
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 underline"
               >
-                CHOP Labs Reference Ranges - Children's Hospital of Philadelphia
+                {t("disclaimer.chopLinkText")}
               </a>
             </li>
           </ul>
           <p className="mt-2 text-xs">
-            <strong>Disclaimer:</strong> These values are commonly accepted
-            reference ranges compiled from multiple sources. Patient-specific
-            goals may differ depending on age, sex, clinical condition and
-            laboratory methodology used. Always consult with a healthcare
-            professional for interpretation of laboratory results.
+            <strong>{t("disclaimer.disclaimerTitle")}</strong>{" "}
+            {t("disclaimer.disclaimerText")}
           </p>
         </div>
       </CardContent>
     </Card>
   );
-};
-
-// Add this helper function near your other helpers:
-const getCardBg = (status: string) => {
-  switch (status) {
-    case "critical":
-      return "bg-red-50 border-red-200";
-    case "high":
-    case "low":
-      return "bg-yellow-50 border-yellow-200";
-    case "normal":
-    default:
-      return "bg-white border-medical-200";
-  }
 };
 
 // Main form component
@@ -733,12 +732,28 @@ const LabCalculatorForm: React.FC = () => {
     // Calculate patient age in days (null if dates missing)
     let patientAgeDays: number | null = null;
     let hasDateIssue = false;
-
     if (dateOfBirth && dateOfMeasurement) {
       patientAgeDays = differenceInDays(dateOfMeasurement, dateOfBirth);
     } else {
       hasDateIssue = true;
     }
+
+    const getInterpretation = (status: string): string => {
+      switch (status) {
+        case "normal":
+          return t("interpretation.normal");
+        case "low":
+          return t("interpretation.low");
+        case "high":
+          return t("interpretation.high");
+        case "critical":
+          return t("interpretation.critical");
+        case "unknown":
+          return t("interpretation.unknown");
+        default:
+          return "";
+      }
+    };
 
     return Object.entries(labValues)
       .filter(([_, value]) => value && !isNaN(parseFloat(value as string)))
@@ -748,10 +763,8 @@ const LabCalculatorForm: React.FC = () => {
         // Find test data in our organized structure
         let testData: TestData | null = null;
         let categoryKey = "";
-
         for (const [catKey, category] of Object.entries(typedLabData)) {
           if (catKey === "metadata") continue;
-
           const categoryData = category as CategoryData;
           if (categoryData.tests && categoryData.tests[testKey]) {
             testData = categoryData.tests[testKey];
@@ -769,7 +782,7 @@ const LabCalculatorForm: React.FC = () => {
             referenceRange: { min: null, max: null },
             status: "unknown",
             ageGroup: patientAgeDays,
-            interpretation: "Test not found in reference data",
+            interpretation: t("interpretation.unknown"),
             hasDateIssue,
           };
         }
@@ -794,19 +807,15 @@ const LabCalculatorForm: React.FC = () => {
           hasDateIssue,
         };
       });
-  }, [dateOfBirth, dateOfMeasurement, gender, labValues, locale]);
+  }, [dateOfBirth, dateOfMeasurement, gender, labValues, locale, t]);
 
   return (
     <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6">
         <CardTitle className="text-2xl font-heading text-medical-900">
-          Pediatric Lab Calculator
+          {t("title")}
         </CardTitle>
-        <CardDescription>
-          Enter patient information and lab values to get age and
-          gender-specific reference ranges. Age-specific ranges require both
-          birth date and measurement date.
-        </CardDescription>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 lg:p-6 !pt-0">
         <div className="container mx-auto space-y-6">
@@ -830,11 +839,10 @@ const LabCalculatorForm: React.FC = () => {
                         : "text-medical-pink-700"
                     )}
                   >
-                    Patient Information
+                    {t("patientInfo.title")}
                   </CardTitle>
                   <CardDescription>
-                    Dates are optional but recommended for accurate age-specific
-                    reference ranges
+                    {t("patientInfo.description")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 !pt-0">
@@ -868,7 +876,7 @@ const LabCalculatorForm: React.FC = () => {
                                 }
                               `}
                                 />
-                                <span className="font-medium">Boy</span>
+                                <span className="font-medium">{t("gender.male")}</span>
                               </div>
                             </TabsTrigger>
                             <TabsTrigger
@@ -889,7 +897,7 @@ const LabCalculatorForm: React.FC = () => {
                                 }
                               `}
                                 />
-                                <span className="font-medium">Girl</span>
+                                <span className="font-medium">{t("gender.female")}</span>
                               </div>
                             </TabsTrigger>
                           </TabsList>
@@ -898,7 +906,6 @@ const LabCalculatorForm: React.FC = () => {
                       </FormItem>
                     )}
                   />
-
                   {/* Date Inputs */}
                   <DateInputs form={form} gender={gender} />
                 </CardContent>
@@ -924,11 +931,10 @@ const LabCalculatorForm: React.FC = () => {
                             : "text-medical-pink-700"
                         )}
                       >
-                        Laboratory Tests
+                        {t("labTests.title")}
                       </CardTitle>
                       <CardDescription>
-                        Enter values for the tests you want to analyze. All
-                        sections are expanded by default.
+                        {t("labTests.description")}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="!pt-0">
@@ -990,12 +996,14 @@ const LabCalculatorForm: React.FC = () => {
                                               {getDisplayName(testData)}
                                             </Label>
                                             <p className="text-xs text-muted-foreground mb-2">
-                                              Unit: {testData.unit || "N/A"}
+                                              {t("labTests.unit", {
+                                                unit: testData.unit || t("labTests.notAvailable")
+                                              })}
                                             </p>
                                             <Input
                                               type="number"
                                               step="0.01"
-                                              placeholder="Enter value"
+                                              placeholder={t("labTests.enterValue")}
                                               className={cn(
                                                 "transition-colors duration-300",
                                                 gender === "male"
@@ -1025,9 +1033,8 @@ const LabCalculatorForm: React.FC = () => {
                       </Accordion>
                     </CardContent>
                   </Card>
-
                   {/* Results */}
-                  <LabResults results={results} gender={gender} />
+                  <LabResults results={results} gender={gender} locale={locale} />
                 </>
               ) : (
                 // If dates are NOT selected, show a prompt message
@@ -1038,11 +1045,16 @@ const LabCalculatorForm: React.FC = () => {
                   <Info className="w-5 h-5 mt-0.5 mr-2" />
                   <div>
                     <AlertTitle className="font-semibold">
-                      Start Here
+                      {t("dates.startHereTitle")}
                     </AlertTitle>
                     <AlertDescription>
-                      Please select both a <strong>Date of Birth</strong> and a{" "}
-                      <strong>Date of Measurement</strong> to proceed.
+                      {t("dates.startHereDescription").split(/\b(Date of Birth|Date of Measurement|Fecha de Nacimiento|Fecha de Medición)\b/).map((part, index) => {
+                        if (part === "Date of Birth" || part === "Date of Measurement" ||
+                            part === "Fecha de Nacimiento" || part === "Fecha de Medición") {
+                          return <strong key={index}>{part}</strong>;
+                        }
+                        return part;
+                      })}
                     </AlertDescription>
                   </div>
                 </Alert>
