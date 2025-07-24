@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
 import ProvidersQuery from "@/providers/ProviderQuery";
 import { routing } from "@/i18n/routing";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -53,6 +54,10 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} ${plusJakarta.variable} font-sans antialiased`}
       >
+        <Script
+          src="https://scripts.simpleanalyticscdn.com/latest.js"
+          strategy="afterInteractive"
+        />
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ProvidersQuery>{children}</ProvidersQuery>
           <Toaster />
