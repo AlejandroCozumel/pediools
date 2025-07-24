@@ -374,7 +374,8 @@ const getCardBg = (status: string) => {
 const LabResults: React.FC<{
   results: LabResult[];
   gender: "male" | "female";
-}> = ({ results, gender }) => {
+  locale: string;
+}> = ({ results, gender, locale }) => {
   const t = useTranslations("LabCalculator");
 
   if (!results.length) {
@@ -1033,7 +1034,7 @@ const LabCalculatorForm: React.FC = () => {
                     </CardContent>
                   </Card>
                   {/* Results */}
-                  <LabResults results={results} gender={gender} />
+                  <LabResults results={results} gender={gender} locale={locale} />
                 </>
               ) : (
                 // If dates are NOT selected, show a prompt message
