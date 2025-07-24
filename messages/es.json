@@ -958,78 +958,84 @@
     }
   },
   "LabCalculator": {
-    "title": "Calculadora de Referencia de Laboratorio",
-    "description": "Interpreta valores de laboratorio pediátricos con rangos de referencia basados en edad",
-    "noResults": "Por favor ingrese valores de laboratorio e información del paciente para ver los resultados.",
-    "criticalValues": "Valores Críticos Detectados:",
-    "result": "resultado",
-    "criticalResultsAttention": "resultado(s) requieren atención inmediata.",
-    "patientInfo": "Información del Paciente",
-    "searchPatient": "Buscar Paciente",
-    "patientInfoHint": "Ingrese la información del paciente para calcular los rangos de referencia apropiados para la edad.",
-    "gender": "Género",
-    "selectGender": "Seleccione género",
-    "labValues": "Valores de Laboratorio",
-    "addLabValue": "Agregar Valor de Laboratorio",
-    "manualEntry": "Ingreso Manual",
-    "commonTests": "Pruebas Comunes",
-    "testName": "Nombre de la Prueba",
-    "selectTest": "Seleccione prueba",
-    "value": "Valor",
-    "enterValue": "Ingrese valor",
-    "unit": "Unidad",
-    "example": "ej., mg/dL",
-    "remove": "Eliminar",
-    "ageGroup": "Grupo de Edad",
-    "referenceDataSources": "Fuentes de Datos de Referencia:",
-    "chopLabsReferenceRanges": "Rangos de Referencia de Laboratorio CHOP",
-    "disclaimer": "Aviso:",
-    "disclaimerText": "Los valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden variar según la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
-    "valuesAreCommonlyAcceptedReferenceRanges": "Los valores son rangos de referencia comúnmente aceptados.",
-    "compiledFromMultipleSources": "Compilados de múltiples fuentes.",
-    "patientSpecificGoalsMayDiffer": "Los objetivos específicos del paciente pueden variar.",
-    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "Según la edad, sexo, condición clínica y metodología de laboratorio utilizada.",
-    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio.",
-    "patientValue": "Valor del Paciente",
-    "referenceRange": "Rango de Referencia",
-    "interpretation": "Interpretación",
-    "interpretationNormal": "Dentro de los límites normales",
-    "interpretationLow": "Por debajo del rango de referencia",
-    "interpretationHigh": "Por encima del rango de referencia",
-    "interpretationCritical": "Valor crítico - requiere atención inmediata",
-    "interpretationUnknown": "Rango de referencia no disponible",
-    "mainTitle": "Calculadora de Laboratorio Pediátrico",
-    "mainDescription": "Ingrese la información del paciente y los valores de laboratorio para obtener rangos de referencia específicos por edad y género. Los rangos por edad requieren ambas fechas.",
-    "patientInfoTitle": "Información del Paciente",
-    "patientInfoDescription": "Las fechas son opcionales pero se recomiendan para rangos de referencia precisos por edad.",
-    "male": "Niño",
-    "female": "Niña",
-    "startHereTitle": "Empiece Aquí",
-    "startHereDescription": "Por favor, seleccione una <strong>Fecha de Nacimiento</strong> y una <strong>Fecha de Medición</strong> para continuar.",
-    "laboratoryTestsTitle": "Pruebas de Laboratorio",
-    "laboratoryTestsDescription": "Ingrese los valores para las pruebas que desea analizar. Todas las secciones están expandidas por defecto.",
-    "enterValuePlaceholder": "Ingrese el valor",
-    "unitLabel": "Unidad: {unit}",
-    "notAvailable": "N/D",
-    "enterValuesPrompt": "Ingrese valores de laboratorio para ver los resultados",
-    "resultsTitle": "{count, plural, one {Resultado de Laboratorio ({count} prueba)} other {Resultados de Laboratorio ({count} pruebas)}}",
-    "dateWarningTitle": "Rangos por edad no disponibles:",
-    "dateWarningDescription": "{count, plural, one {{count} resultado está usando rangos de referencia generales porque falta la fecha de nacimiento o de medición.} other {{count} resultados están usando rangos de referencia generales porque falta la fecha de nacimiento o de medición.}} Para resultados pediátricos precisos, ingrese ambas fechas.",
-    "criticalWarningTitle": "Valores Críticos:",
-    "criticalWarningDescription": "{count, plural, one {{count} resultado requiere atención inmediata.} other {{count} resultados requieren atención inmediata.}}",
-    "generalRangeUsed": "(Rango general utilizado)",
-    "ageLabel": "Edad",
-    "daysUnit": "días",
-    "genderLabel": "Género",
-    "ageNotSpecified": "No especificado",
-    "noAgeBadge": "SIN EDAD",
-    "rangeNotAvailable": "Rango no disponible",
-    "ageRangeLabel": "Rango de edad",
-    "sexLabel": "Sexo",
-    "sexAll": "Todos",
-    "ageOutOfRangeNote": "<strong>Nota:</strong> La edad del paciente no se ajusta a ningún rango de referencia para esta prueba. Se muestra el rango más cercano disponible.",
-    "chopLabsLinkText": "Rangos de Referencia de Laboratorios CHOP - Children's Hospital of Philadelphia",
-    "disclaimerTitle": "Aviso Legal:"
+    "title": "Calculadora de Laboratorio Pediátrico",
+    "description": "Ingrese la información del paciente y los valores de laboratorio para obtener rangos de referencia específicos por edad y género. Los rangos específicos por edad requieren tanto la fecha de nacimiento como la fecha de medición.",
+
+    "patientInfo": {
+      "title": "Información del Paciente",
+      "description": "Las fechas son opcionales pero recomendadas para rangos de referencia precisos específicos por edad"
+    },
+
+    "gender": {
+      "male": "Niño",
+      "female": "Niña"
+    },
+
+    "dates": {
+      "startHereTitle": "Comience Aquí",
+      "startHereDescription": "Por favor seleccione tanto una Fecha de Nacimiento como una Fecha de Medición para continuar."
+    },
+
+    "labTests": {
+      "title": "Pruebas de Laboratorio",
+      "description": "Ingrese los valores para las pruebas que desea analizar. Todas las secciones están expandidas por defecto.",
+      "enterValue": "Ingrese valor",
+      "unit": "Unidad: {unit}",
+      "notAvailable": "N/D"
+    },
+
+    "results": {
+      "title": "Resultados de Laboratorio ({count} prueba{plural})",
+      "noResults": "Ingrese valores de laboratorio para ver resultados",
+      "patientValue": "Valor del Paciente",
+      "referenceRange": "Rango de Referencia",
+      "interpretation": "Interpretación",
+      "rangeNotAvailable": "Rango no disponible",
+      "generalRangeUsed": "(Rango general utilizado)",
+      "ageLabel": "Edad: {age} días • Género: {gender}",
+      "ageNotSpecified": "Género: {gender} • Edad: No especificada",
+      "ageRangeLabel": "Rango de edad: {range}",
+      "sexAll": "Todos",
+      "closestRange": "Rango más cercano: {range}",
+      "ageOutOfRangeNote": "Nota: La edad del paciente no coincide con ningún rango de referencia para esta prueba. Se muestra el rango disponible más cercano."
+    },
+
+    "status": {
+      "normal": "NORMAL",
+      "low": "BAJO",
+      "high": "ALTO",
+      "critical": "CRÍTICO"
+    },
+
+    "interpretation": {
+      "normal": "Dentro de los límites normales",
+      "low": "Por debajo del rango de referencia",
+      "high": "Por encima del rango de referencia",
+      "critical": "Valor crítico - requiere atención inmediata",
+      "unknown": "Rango de referencia no disponible"
+    },
+
+    "alerts": {
+      "dateWarning": {
+        "title": "Rangos específicos por edad no disponibles:",
+        "description": "{count} resultado(s) están usando rangos de referencia generales porque falta la fecha de nacimiento o la fecha de medición. Para resultados pediátricos precisos, por favor ingrese ambas fechas."
+      },
+      "criticalWarning": {
+        "title": "Valores Críticos:",
+        "description": "{count} resultado(s) requieren atención inmediata."
+      }
+    },
+
+    "badges": {
+      "noAge": "SIN EDAD"
+    },
+
+    "disclaimer": {
+      "title": "Fuentes de Datos de Referencia:",
+      "chopLinkText": "Rangos de Referencia CHOP Labs - Hospital de Niños de Filadelfia",
+      "disclaimerTitle": "Descargo de responsabilidad:",
+      "disclaimerText": "Estos valores son rangos de referencia comúnmente aceptados compilados de múltiples fuentes. Los objetivos específicos del paciente pueden diferir dependiendo de la edad, sexo, condición clínica y metodología de laboratorio utilizada. Siempre consulte con un profesional de la salud para la interpretación de los resultados de laboratorio."
+    }
   },
   "DoseCalculator": {
     "title": "Calculadora de Dosis",

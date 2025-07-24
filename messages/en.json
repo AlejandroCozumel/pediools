@@ -968,78 +968,84 @@
     }
   },
   "LabCalculator": {
-    "title": "Lab Reference Calculator",
-    "description": "Interpret pediatric lab values with age-based reference ranges",
-    "noResults": "Please enter lab values and patient information to see results.",
-    "criticalValues": "Critical Values Detected:",
-    "result": "result",
-    "criticalResultsAttention": "result(s) require immediate attention.",
-    "patientInfo": "Patient Information",
-    "searchPatient": "Search Patient",
-    "patientInfoHint": "Enter patient information to calculate age-appropriate reference ranges for lab values.",
-    "gender": "Gender",
-    "selectGender": "Select gender",
-    "labValues": "Lab Values",
-    "addLabValue": "Add Lab Value",
-    "manualEntry": "Manual Entry",
-    "commonTests": "Common Tests",
-    "testName": "Test Name",
-    "selectTest": "Select test",
-    "value": "Value",
-    "enterValue": "Enter value",
-    "unit": "Unit",
-    "example": "e.g., mg/dL",
-    "remove": "Remove",
-    "ageGroup": "Age Group",
-    "referenceDataSources": "Reference Data Sources:",
-    "chopLabsReferenceRanges": "CHOP Labs Reference Ranges",
-    "disclaimer": "Disclaimer:",
-    "disclaimerText": "Values are commonly accepted reference ranges compiled from multiple sources. Patient-specific goals may differ depending on age, sex, clinical condition, and laboratory methodology used. Always consult with a healthcare professional for interpretation of laboratory results.",
-    "valuesAreCommonlyAcceptedReferenceRanges": "Values are commonly accepted reference ranges.",
-    "compiledFromMultipleSources": "Compiled from multiple sources.",
-    "patientSpecificGoalsMayDiffer": "Patient-specific goals may differ.",
-    "dependingOnAgeSexClinicalConditionAndLaboratoryMethodologyUsed": "Depending on age, sex, clinical condition, and laboratory methodology used.",
-    "alwaysConsultWithAHealthcareProfessionalForInterpretationOfLaboratoryResults": "Always consult with a healthcare professional for interpretation of laboratory results.",
-    "patientValue": "Patient Value",
-    "referenceRange": "Reference Range",
-    "interpretation": "Interpretation",
-    "interpretationNormal": "Within normal limits",
-    "interpretationLow": "Below reference range",
-    "interpretationHigh": "Above reference range",
-    "interpretationCritical": "Critical value - requires immediate attention",
-    "interpretationUnknown": "Reference range not available",
-    "mainTitle": "Pediatric Lab Calculator",
-    "mainDescription": "Enter the patient's information and lab values to get age- and gender-specific reference ranges. Age-based ranges require both dates.",
-    "patientInfoTitle": "Patient Information",
-    "patientInfoDescription": "Dates are optional but recommended for accurate age-based reference ranges.",
-    "male": "Boy",
-    "female": "Girl",
-    "startHereTitle": "Start Here",
-    "startHereDescription": "Please select a <strong>Date of Birth</strong> and a <strong>Measurement Date</strong> to continue.",
-    "laboratoryTestsTitle": "Laboratory Tests",
-    "laboratoryTestsDescription": "Enter the values for the tests you want to analyze. All sections are expanded by default.",
-    "enterValuePlaceholder": "Enter value",
-    "unitLabel": "Unit: {unit}",
-    "notAvailable": "N/A",
-    "enterValuesPrompt": "Enter lab values to view results",
-    "resultsTitle": "{count, plural, one {Lab Result ({count} test)} other {Lab Results ({count} tests)}}",
-    "dateWarningTitle": "Age-based ranges not available:",
-    "dateWarningDescription": "{count, plural, one {{count} result is using general reference ranges because birth or measurement date is missing.} other {{count} results are using general reference ranges because birth or measurement date is missing.}} For accurate pediatric results, enter both dates.",
-    "criticalWarningTitle": "Critical Values:",
-    "criticalWarningDescription": "{count, plural, one {{count} result requires immediate attention.} other {{count} results require immediate attention.}}",
-    "generalRangeUsed": "(General range used)",
-    "ageLabel": "Age",
-    "daysUnit": "days",
-    "genderLabel": "Gender",
-    "ageNotSpecified": "Not specified",
-    "noAgeBadge": "NO AGE",
-    "rangeNotAvailable": "Range not available",
-    "ageRangeLabel": "Age range",
-    "sexLabel": "Sex",
-    "sexAll": "All",
-    "ageOutOfRangeNote": "<strong>Note:</strong> The patient's age does not match any reference range for this test. The closest available range is shown.",
-    "chopLabsLinkText": "CHOP Laboratory Reference Ranges - Children's Hospital of Philadelphia",
-    "disclaimerTitle": "Disclaimer:"
+    "title": "Pediatric Lab Calculator",
+    "description": "Enter patient information and lab values to get age and gender-specific reference ranges. Age-specific ranges require both birth date and measurement date.",
+
+    "patientInfo": {
+      "title": "Patient Information",
+      "description": "Dates are optional but recommended for accurate age-specific reference ranges"
+    },
+
+    "gender": {
+      "male": "Boy",
+      "female": "Girl"
+    },
+
+    "dates": {
+      "startHereTitle": "Start Here",
+      "startHereDescription": "Please select both a Date of Birth and a Date of Measurement to proceed."
+    },
+
+    "labTests": {
+      "title": "Laboratory Tests",
+      "description": "Enter values for the tests you want to analyze. All sections are expanded by default.",
+      "enterValue": "Enter value",
+      "unit": "Unit: {unit}",
+      "notAvailable": "N/A"
+    },
+
+    "results": {
+      "title": "Lab Results ({count} test{plural})",
+      "noResults": "Enter lab values to see results",
+      "patientValue": "Patient Value",
+      "referenceRange": "Reference Range",
+      "interpretation": "Interpretation",
+      "rangeNotAvailable": "Range not available",
+      "generalRangeUsed": "(General range used)",
+      "ageLabel": "Age: {age} days • Gender: {gender}",
+      "ageNotSpecified": "Gender: {gender} • Age: Not specified",
+      "ageRangeLabel": "Age range: {range}",
+      "sexAll": "All",
+      "closestRange": "Closest range: {range}",
+      "ageOutOfRangeNote": "Note: Patient age does not fit any reference range for this test. The closest available range is shown."
+    },
+
+    "status": {
+      "normal": "NORMAL",
+      "low": "LOW",
+      "high": "HIGH",
+      "critical": "CRITICAL"
+    },
+
+    "interpretation": {
+      "normal": "Within normal limits",
+      "low": "Below reference range",
+      "high": "Above reference range",
+      "critical": "Critical value - requires immediate attention",
+      "unknown": "Reference range not available"
+    },
+
+    "alerts": {
+      "dateWarning": {
+        "title": "Age-specific ranges unavailable:",
+        "description": "{count} result(s) are using general reference ranges because birth date or measurement date is missing. For accurate pediatric results, please enter both dates."
+      },
+      "criticalWarning": {
+        "title": "Critical Values:",
+        "description": "{count} result(s) require immediate attention."
+      }
+    },
+
+    "badges": {
+      "noAge": "NO AGE"
+    },
+
+    "disclaimer": {
+      "title": "Reference Data Sources:",
+      "chopLinkText": "CHOP Labs Reference Ranges - Children's Hospital of Philadelphia",
+      "disclaimerTitle": "Disclaimer:",
+      "disclaimerText": "These values are commonly accepted reference ranges compiled from multiple sources. Patient-specific goals may differ depending on age, sex, clinical condition and laboratory methodology used. Always consult with a healthcare professional for interpretation of laboratory results."
+    }
   },
   "DoseCalculator": {
     "title": "Dose Calculator",
