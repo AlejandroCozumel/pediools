@@ -4,12 +4,7 @@ import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormField,
@@ -26,7 +21,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Weight, Pill, Calculator, Info, Scale, Beaker, Ruler } from "lucide-react";
+import {
+  Weight,
+  Pill,
+  Calculator,
+  Info,
+  Scale,
+  Beaker,
+  AlertTriangle,
+  Ruler,
+  Activity,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -34,190 +39,235 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTranslations } from "next-intl";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 const bsaBasedSchema = z.object({
-  dose: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid dose",
-  }),
-  doseUnit: z.enum(["mg", "ml", "tablet"]),
-  dosageType: z.enum(["/m²/day", "/m²/dose", "/day", "/dose"]),
-  frequency: z.string(),
-  weight: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid weight",
-  }),
-  weightUnit: z.enum(["kg", "lb"]),
-  height: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid height",
-  }),
+  height: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid height",
+    }),
   heightUnit: z.enum(["cm", "in"]),
-  mass: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid mass",
-  }),
-  massUnit: z.enum(["mg", "g"]),
-  volume: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid volume",
-  }),
-  volumeUnit: z.enum(["ml", "tablet"]),
+  weight: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid weight",
+    }),
+  weightUnit: z.enum(["kg", "lb"]),
+  dose: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid dose",
+    }),
+  doseUnit: z.enum(["mg", "mcg", "units"]),
+  frequency: z.string().min(1, "Please select frequency"),
+  concentration: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid concentration",
+    }),
+  concentrationUnit: z.enum(["mg/ml", "mcg/ml", "units/ml"]),
+  maxDose: z.string().optional(),
+  medicationName: z.string().optional(),
 });
 
 type BSABasedFormValues = z.infer<typeof bsaBasedSchema>;
 
-const InfoTooltip = ({ children, content }: { children: React.ReactNode; content: string }) => (
+const InfoTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({
+  children,
+  content,
+}) => (
   <Tooltip>
     <TooltipTrigger asChild>{children}</TooltipTrigger>
-    <TooltipContent className="max-w-xs"><p>{content}</p></TooltipContent>
+    <TooltipContent className="max-w-xs">
+      <p>{content}</p>
+    </TooltipContent>
   </Tooltip>
 );
 
 const frequencyOptions = [
-  { value: "qD", label: "qD (once a day)" },
-  { value: "BID", label: "BID (twice a day)" },
-  { value: "TID", label: "TID (thrice a day)" },
-  { value: "QID", label: "QID (four times a day)" },
-  { value: "q4hr", label: "q4hr (every 4 hours)" },
-  { value: "q6hr", label: "q6hr (every 6 hours)" },
-  { value: "q8hr", label: "q8hr (every 8 hours)" },
+  { value: "qD", label: "qD", description: "Once daily" },
+  { value: "BID", label: "BID", description: "Twice daily" },
+  { value: "TID", label: "TID", description: "Three times daily" },
+  { value: "q3weeks", label: "q3weeks", description: "Every 3 weeks" },
+  { value: "weekly", label: "Weekly", description: "Once weekly" },
+  { value: "q2weeks", label: "q2weeks", description: "Every 2 weeks" },
+  {
+    value: "continuous",
+    label: "Continuous",
+    description: "Continuous infusion",
+  },
 ];
-
-const dosageTypeOptions = [
-  { value: "/m²/day", label: "/m²/day", description: "Per square meter per day" },
-  { value: "/m²/dose", label: "/m²/dose", description: "Per square meter per dose" },
-  { value: "/day", label: "/day", description: "Total per day" },
-  { value: "/dose", label: "/dose", description: "Total per dose" },
-];
-
-// Mosteller formula for BSA calculation
-function calculateBSA(weight: number, height: number): number {
-  return Math.sqrt((height * weight) / 3600);
-}
 
 export function BSABasedDoseForm() {
+  const t = useTranslations("DoseCalculator");
+  const [bsaMethod, setBsaMethod] = React.useState("actual");
+
   const form = useForm<BSABasedFormValues>({
     resolver: zodResolver(bsaBasedSchema),
     defaultValues: {
-      dose: "",
-      doseUnit: "mg",
-      dosageType: "/m²/day",
-      frequency: "qD",
-      weight: "",
-      weightUnit: "kg",
       height: "",
       heightUnit: "cm",
-      mass: "",
-      massUnit: "mg",
-      volume: "",
-      volumeUnit: "ml",
+      weight: "",
+      weightUnit: "kg",
+      dose: "",
+      doseUnit: "mg",
+      frequency: "qD",
+      concentration: "",
+      concentrationUnit: "mg/ml",
+      maxDose: "",
+      medicationName: "",
     },
     mode: "onChange",
   });
 
-  const dose = parseFloat(form.watch("dose") || "0");
-  const weight = parseFloat(form.watch("weight") || "0");
+  // Watch form values
   const height = parseFloat(form.watch("height") || "0");
-  const mass = parseFloat(form.watch("mass") || "0");
-  const volume = parseFloat(form.watch("volume") || "0");
-  const dosageType = form.watch("dosageType");
-  const frequency = form.watch("frequency");
-  const doseUnit = form.watch("doseUnit");
-  const massUnit = form.watch("massUnit");
-  const volumeUnit = form.watch("volumeUnit");
-  const weightUnit = form.watch("weightUnit");
   const heightUnit = form.watch("heightUnit");
+  const weight = parseFloat(form.watch("weight") || "0");
+  const weightUnit = form.watch("weightUnit");
+  const dose = parseFloat(form.watch("dose") || "0");
+  const doseUnit = form.watch("doseUnit");
+  const frequency = form.watch("frequency");
+  const concentration = parseFloat(form.watch("concentration") || "0");
+  const concentrationUnit = form.watch("concentrationUnit");
+  const maxDose = parseFloat(form.watch("maxDose") || "0");
+  const medicationName = form.watch("medicationName");
 
-  // Calculate results with BSA-based formulas
-  const freqMap: { [key: string]: number } = {
-    qD: 1, BID: 2, TID: 3, QID: 4, "q4hr": 6, "q6hr": 4, "q8hr": 3,
-  };
+  // BSA and dose calculations
+  const calculations = React.useMemo(() => {
+    if (!height || !weight || !dose || !concentration) return null;
 
-  // Convert units
-  const weightInKg = weightUnit === "lb" ? weight * 0.453592 : weight;
-  const heightInCm = heightUnit === "in" ? height * 2.54 : height;
-  const massInMg = massUnit === "g" ? mass * 1000 : mass;
+    // Convert to metric units
+    const heightInCm = heightUnit === "in" ? height * 2.54 : height;
+    const weightInKg = weightUnit === "lb" ? weight * 0.453592 : weight;
 
-  // Calculate BSA using Mosteller formula
-  const bsa = (weight > 0 && height > 0) ? calculateBSA(weightInKg, heightInCm) : 0;
+    // Calculate BSA using Mosteller formula
+    const bsa = Math.sqrt((heightInCm * weightInKg) / 3600);
 
-  // Calculate concentration
-  let concentration = 0;
-  if (mass && volume) {
-    concentration = massInMg / volume;
-  }
+    // Frequency multiplier (different for BSA medications)
+    const freqMap: { [key: string]: number } = {
+      qD: 1,
+      BID: 2,
+      TID: 3,
+      weekly: 1 / 7,
+      q2weeks: 1 / 14,
+      q3weeks: 1 / 21,
+      continuous: 1, // handled specially
+    };
 
-  // Calculate dosages based on BSA
-  let dailyDosageInMg = 0;
-  let perDosageInMg = 0;
-  let perDoseVolume = 0;
-  let tabletsPerDose = 0;
-  let tabletsPerDay = 0;
-
-  if (dosageType === "/m²/day") {
-    dailyDosageInMg = dose * bsa;
-    perDosageInMg = dailyDosageInMg / (freqMap[frequency] || 1);
-  } else if (dosageType === "/m²/dose") {
-    perDosageInMg = dose * bsa;
-    dailyDosageInMg = perDosageInMg * (freqMap[frequency] || 1);
-  } else if (dosageType === "/day") {
-    dailyDosageInMg = dose;
-    perDosageInMg = dailyDosageInMg / (freqMap[frequency] || 1);
-  } else if (dosageType === "/dose") {
-    perDosageInMg = dose;
-    dailyDosageInMg = perDosageInMg * (freqMap[frequency] || 1);
-  }
-
-  // Calculate volume per dose and tablets
-  if (concentration > 0) {
-    if (doseUnit === "mg" && volumeUnit === "ml") {
-      perDoseVolume = perDosageInMg / concentration;
-    } else if (doseUnit === "mg" && volumeUnit === "tablet") {
-      perDoseVolume = perDosageInMg / concentration;
-      tabletsPerDose = perDoseVolume;
-      tabletsPerDay = dailyDosageInMg / concentration;
+    // Calculate doses based on BSA method
+    let effectiveBSA = bsa;
+    if (bsaMethod === "normalized") {
+      effectiveBSA = 1.73; // Standard normalized BSA
     }
-  }
 
-  // Handle special cases
-  if (doseUnit === "ml" && dosageType.includes("/m²")) {
-    perDoseVolume = dosageType === "/m²/day"
-      ? (dose * bsa) / (freqMap[frequency] || 1)
-      : dose * bsa;
-  } else if (doseUnit === "tablet" && dosageType.includes("/m²")) {
-    perDoseVolume = dosageType === "/m²/day"
-      ? (dose * bsa) / (freqMap[frequency] || 1)
-      : dose * bsa;
-    tabletsPerDose = perDoseVolume;
-    tabletsPerDay = dose * bsa * (dosageType === "/m²/day" ? 1 : freqMap[frequency] || 1);
-  }
+    let totalDoseInMg = dose * effectiveBSA;
+    let perDoseInMg = totalDoseInMg;
+    let isOverMaxDose = false;
+    let dosesPerDay = freqMap[frequency] || 1;
 
-  const dailyVolume = perDoseVolume * (freqMap[frequency] || 1);
+    // Handle different frequency types
+    if (frequency === "continuous") {
+      // For continuous infusions, dose is per day
+      perDoseInMg = totalDoseInMg / 24; // hourly rate
+      dosesPerDay = 24;
+    } else if (dosesPerDay >= 1) {
+      // Daily or more frequent dosing
+      perDoseInMg = totalDoseInMg / dosesPerDay;
+    } else {
+      // Weekly/cycle dosing - total dose per cycle
+      perDoseInMg = totalDoseInMg;
+    }
+
+    // Check max dose limits
+    if (maxDose && totalDoseInMg > maxDose) {
+      isOverMaxDose = true;
+      totalDoseInMg = maxDose;
+      perDoseInMg =
+        frequency === "continuous"
+          ? maxDose / 24
+          : dosesPerDay >= 1
+          ? maxDose / dosesPerDay
+          : maxDose;
+    }
+
+    // Calculate volume based on concentration
+    let volumePerDose = 0;
+    let volumePerCycle = 0;
+
+    // Convert dose units if needed for concentration matching
+    let adjustedConcentration = concentration;
+    if (doseUnit === "mcg" && concentrationUnit === "mg/ml") {
+      adjustedConcentration = concentration * 1000; // Convert mg/ml to mcg/ml
+    } else if (doseUnit === "mg" && concentrationUnit === "mcg/ml") {
+      adjustedConcentration = concentration / 1000; // Convert mcg/ml to mg/ml
+    }
+
+    if (adjustedConcentration > 0) {
+      volumePerDose = perDoseInMg / adjustedConcentration;
+      volumePerCycle = totalDoseInMg / adjustedConcentration;
+    }
+
+    return {
+      bsa: bsa,
+      effectiveBSA: effectiveBSA,
+      totalDoseInMg,
+      perDoseInMg,
+      volumePerDose,
+      volumePerCycle,
+      dosesPerDay,
+      isOverMaxDose,
+      heightInCm,
+      weightInKg,
+    };
+  }, [
+    height,
+    heightUnit,
+    weight,
+    weightUnit,
+    dose,
+    doseUnit,
+    frequency,
+    concentration,
+    concentrationUnit,
+    maxDose,
+    bsaMethod,
+  ]);
+
+  const shouldShowResults = calculations && calculations.totalDoseInMg > 0;
 
   return (
     <div className="space-y-8">
       <Form {...form}>
         <form className="space-y-8">
-
-          {/* Dosage Prescribed Section */}
+          {/* BSA Calculator Section */}
           <Card className="bg-medical-50/20 border-medical-100/50">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
-                <Pill className="h-5 w-5" />
-                BSA-Based Dosage Prescribed
+                <Activity className="h-5 w-5" />
+                {t("bsaBased.bsaCalculator") || "Body Surface Area Calculator"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 !pt-0">
-
-              {/* First Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                {/* Dose Amount */}
+                {/* Height */}
                 <FormField
                   control={form.control}
-                  name="dose"
+                  name="height"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
+                    <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Dose Amount
-                        <InfoTooltip content="The amount of drug per square meter of body surface area">
-                          <Info className="h-4 w-4 text-medical-500 cursor-pointer" />
+                        {t("bsaBased.patientHeight") || "Patient Height"}
+                        <InfoTooltip
+                          content={
+                            t("bsaBased.heightTooltip") ||
+                            "Enter the patient's height for BSA calculation"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
                         </InfoTooltip>
                       </FormLabel>
                       <FormControl>
@@ -226,148 +276,12 @@ export function BSABasedDoseForm() {
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
-                            />
-                            <Pill className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
-                          </div>
-                          <FormField
-                            control={form.control}
-                            name="doseUnit"
-                            render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
-                                <SelectTrigger className="w-20 border-medical-100">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="mg">mg</SelectItem>
-                                  <SelectItem value="ml">ml</SelectItem>
-                                  <SelectItem value="tablet">tablet</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Dosage Type */}
-                <FormField
-                  control={form.control}
-                  name="dosageType"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>Dosage Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="border-medical-100">
-                            <SelectValue placeholder="Select dosage type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {dosageTypeOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{option.label}</span>
-                                <span className="text-xs text-muted-foreground">{option.description}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Second Row */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                {/* Frequency */}
-                <FormField
-                  control={form.control}
-                  name="frequency"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>Frequency</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger className="border-medical-100">
-                            <SelectValue placeholder="Select frequency" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {frequencyOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Patient Weight */}
-                <FormField
-                  control={form.control}
-                  name="weight"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>Patient Weight</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <div className="relative flex-1">
-                            <Input
-                              {...field}
-                              type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              min={0}
-                            />
-                            <Weight className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
-                          </div>
-                          <FormField
-                            control={form.control}
-                            name="weightUnit"
-                            render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
-                                <SelectTrigger className="w-16 border-medical-100">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="kg">kg</SelectItem>
-                                  <SelectItem value="lb">lb</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Patient Height */}
-                <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>Patient Height</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <div className="relative flex-1">
-                            <Input
-                              {...field}
-                              type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              min={0}
+                              step="0.1"
+                              placeholder={
+                                t("bsaBased.enterHeight") || "Enter height"
+                              }
                             />
                             <Ruler className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
@@ -375,7 +289,10 @@ export function BSABasedDoseForm() {
                             control={form.control}
                             name="heightUnit"
                             render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
                                 <SelectTrigger className="w-16 border-medical-100">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -392,59 +309,22 @@ export function BSABasedDoseForm() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* BSA Display */}
-              {weight > 0 && height > 0 && (
-                <Alert className="bg-medical-50/50 border-medical-200/50">
-                  <AlertDescription>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-medical-900">Calculated BSA:</span>
-                      <Badge variant="outline" className="border-medical-300 text-medical-800">
-                        {bsa.toFixed(3)} m²
-                      </Badge>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Prescription Summary */}
-              {dose > 0 && dosageType && weight > 0 && height > 0 && (
-                <Alert className="bg-medical-50/50 border-medical-200/50">
-                  <AlertDescription>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-medical-900">Prescription Summary:</span>
-                      <Badge variant="outline" className="border-medical-300 text-medical-800">
-                        {dose} {doseUnit}{dosageType} • BSA: {bsa.toFixed(3)} m²
-                      </Badge>
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Drug Concentration Section */}
-          <Card className="bg-medical-50/20 border-medical-100/50">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
-                <Scale className="h-5 w-5" />
-                Drug Concentration
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 !pt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                {/* Mass */}
+                {/* Weight */}
                 <FormField
                   control={form.control}
-                  name="mass"
+                  name="weight"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Mass
-                        <InfoTooltip content="The amount of drug in a particular volume">
-                          <Info className="h-4 w-4 text-medical-500 cursor-pointer" />
+                        {t("byMedication.patientWeight") || "Patient Weight"}
+                        <InfoTooltip
+                          content={
+                            t("byMedication.weightTooltip") ||
+                            "Enter the patient's weight for BSA calculation"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
                         </InfoTooltip>
                       </FormLabel>
                       <FormControl>
@@ -453,22 +333,29 @@ export function BSABasedDoseForm() {
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
+                              step="0.1"
+                              placeholder={
+                                t("byMedication.enterWeight") || "Enter weight"
+                              }
                             />
-                            <Scale className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                            <Weight className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
                           <FormField
                             control={form.control}
-                            name="massUnit"
+                            name="weightUnit"
                             render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
                                 <SelectTrigger className="w-16 border-medical-100">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="mg">mg</SelectItem>
-                                  <SelectItem value="g">g</SelectItem>
+                                  <SelectItem value="kg">kg</SelectItem>
+                                  <SelectItem value="lb">lb</SelectItem>
                                 </SelectContent>
                               </Select>
                             )}
@@ -479,17 +366,91 @@ export function BSABasedDoseForm() {
                     </FormItem>
                   )}
                 />
+              </div>
 
-                {/* Volume */}
+              {/* BSA Display */}
+              {calculations && calculations.bsa > 0 && (
+                <Alert className="bg-blue-50/50 border-blue-200/50">
+                  <Activity className="h-4 w-4 text-blue-600" />
+                  <AlertDescription>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-blue-900">
+                        {t("bsaBased.calculatedBSA") ||
+                          "Calculated BSA (Mosteller formula)"}
+                        :
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-blue-300 text-blue-800 font-bold text-lg"
+                      >
+                        {calculations.bsa.toFixed(2)} m²
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-blue-700 mt-1">
+                      {t("bsaBased.basedOn") || "Based on"}{" "}
+                      {calculations.heightInCm.toFixed(1)} cm{" "}
+                      {t("bsaBased.and") || "and"}{" "}
+                      {calculations.weightInKg.toFixed(1)} kg
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Prescription Information */}
+          <Card className="bg-medical-50/20 border-medical-100/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
+                <Pill className="h-5 w-5" />
+                {t("bsaBased.bsaPrescription") || "BSA-Based Prescription"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 !pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Medication Name (Optional) */}
                 <FormField
                   control={form.control}
-                  name="volume"
+                  name="medicationName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {t("bsaBased.medicationName") ||
+                          "Medication Name (optional)"}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            className="pl-8 border-medical-100"
+                            placeholder={
+                              t("bsaBased.medicationPlaceholder") ||
+                              "e.g., Doxorubicin, Methotrexate"
+                            }
+                          />
+                          <Pill className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Dose */}
+                <FormField
+                  control={form.control}
+                  name="dose"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        Volume
-                        <InfoTooltip content="The amount of liquid or number of tablets containing the mass above">
-                          <Info className="h-4 w-4 text-medical-500 cursor-pointer" />
+                        {t("bsaBased.dosePerM2") || "Dose per m²"}
+                        <InfoTooltip
+                          content={
+                            t("bsaBased.dosePerM2Tooltip") ||
+                            "Enter the prescribed dose per square meter of body surface area"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
                         </InfoTooltip>
                       </FormLabel>
                       <FormControl>
@@ -498,22 +459,211 @@ export function BSABasedDoseForm() {
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
+                              step="0.1"
+                              placeholder={
+                                t("weightBased.dose.placeholder") ||
+                                "Enter dose"
+                              }
+                            />
+                            <Scale className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name="doseUnit"
+                            render={({ field: unitField }) => (
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
+                                <SelectTrigger className="w-20 border-medical-100">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="mg">mg/m²</SelectItem>
+                                  <SelectItem value="mcg">mcg/m²</SelectItem>
+                                  <SelectItem value="units">
+                                    units/m²
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Frequency */}
+                <FormField
+                  control={form.control}
+                  name="frequency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Frequency</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-medical-100">
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {frequencyOptions.map((freq) => (
+                            <SelectItem key={freq.value} value={freq.value}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {freq.label}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {freq.description}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Max Dose */}
+                <FormField
+                  control={form.control}
+                  name="maxDose"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        {t("bsaBased.maximumDose") || "Maximum Dose (optional)"}
+                        <InfoTooltip
+                          content={
+                            t("bsaBased.maxDoseTooltip") ||
+                            "Enter maximum safe dose to enable safety checks"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Input
+                              {...field}
+                              type="number"
+                              className="pl-8 border-medical-100"
+                              min={0}
+                              placeholder={
+                                t("bsaBased.enterMaxDose") || "Enter max dose"
+                              }
+                            />
+                            <AlertTriangle className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                          </div>
+                          <span className="flex items-center text-sm text-medical-700 min-w-[50px]">
+                            {doseUnit}
+                          </span>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Prescription Summary */}
+              {dose > 0 && calculations && (
+                <Alert className="bg-medical-50/50 border-medical-200/50">
+                  <AlertDescription>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-medical-900">
+                        {t("byMedication.prescriptionSummary") ||
+                          "Prescription Summary"}
+                        :
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-medical-300 text-medical-800"
+                      >
+                        {medicationName ||
+                          t("bsaBased.bsaBasedMedication") ||
+                          "BSA-based medication"}{" "}
+                        • {dose} {doseUnit}/m² • {frequency}
+                      </Badge>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Medication Concentration */}
+          <Card className="bg-medical-50/20 border-medical-100/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
+                <Beaker className="h-5 w-5" />
+                {t("drugConcentration.title") || "Medication Concentration"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 !pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                {/* Concentration */}
+                <FormField
+                  control={form.control}
+                  name="concentration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        {t("bsaBased.availableConcentration") ||
+                          "Available Concentration"}
+                        <InfoTooltip
+                          content={
+                            t("bsaBased.concentrationTooltip") ||
+                            "Enter the concentration of the medication preparation"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <Input
+                              {...field}
+                              type="number"
+                              className="pl-8 border-medical-100"
+                              min={0}
+                              step="0.1"
+                              placeholder={
+                                t("byMedication.enterConcentration") ||
+                                "Enter concentration"
+                              }
                             />
                             <Beaker className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
                           <FormField
                             control={form.control}
-                            name="volumeUnit"
+                            name="concentrationUnit"
                             render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
-                                <SelectTrigger className="w-20 border-medical-100">
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
+                                <SelectTrigger className="w-24 border-medical-100">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="ml">ml</SelectItem>
-                                  <SelectItem value="tablet">tablet</SelectItem>
+                                  <SelectItem value="mg/ml">mg/mL</SelectItem>
+                                  <SelectItem value="mcg/ml">mcg/mL</SelectItem>
+                                  <SelectItem value="units/ml">
+                                    units/mL
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             )}
@@ -527,13 +677,20 @@ export function BSABasedDoseForm() {
               </div>
 
               {/* Concentration Display */}
-              {mass > 0 && volume > 0 && (
+              {concentration > 0 && (
                 <Alert className="bg-medical-50/50 border-medical-200/50">
                   <AlertDescription>
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-medical-900">Concentration:</span>
-                      <Badge variant="outline" className="border-medical-300 text-medical-800">
-                        {concentration.toFixed(2)} mg/{volumeUnit}
+                      <span className="font-semibold text-medical-900">
+                        {t("bsaBased.availableConcentration") ||
+                          "Available Concentration"}
+                        :
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-medical-300 text-medical-800"
+                      >
+                        {concentration} {concentrationUnit}
                       </Badge>
                     </div>
                   </AlertDescription>
@@ -542,74 +699,309 @@ export function BSABasedDoseForm() {
             </CardContent>
           </Card>
 
-          {/* Results Section */}
-          {dose > 0 && weight > 0 && height > 0 && mass > 0 && volume > 0 && perDoseVolume > 0 && (
+          {/* Results */}
+          {shouldShowResults && (
             <Card className="bg-medical-50/20 border-medical-100/50">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                   <Calculator className="h-5 w-5" />
-                  Calculated BSA-Based Dosage
+                  BSA-Based Calculation Results
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 !pt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* BSA Method Selection - Right in Results */}
+                <div className="space-y-3">
+                  <FormLabel className="text-base font-medium">
+                    {t("bsaBased.bsaMethodLabel") || "BSA Calculation Method"}
+                  </FormLabel>
+                  <Tabs
+                    value={bsaMethod}
+                    onValueChange={setBsaMethod}
+                    className="w-full"
+                  >
+                    <TabsList className="grid w-full grid-cols-2 bg-medical-50/30">
+                      <TabsTrigger
+                        value="actual"
+                        className="data-[state=active]:bg-white"
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="font-medium">
+                            {t("bsaBased.actualBSA") || "Actual BSA"}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className="text-xs bg-blue-100 text-blue-800"
+                          >
+                            {calculations.bsa.toFixed(2)} m²
+                          </Badge>
+                        </div>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="normalized"
+                        className="data-[state=active]:bg-white"
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="font-medium">
+                            {t("bsaBased.normalizedBSA") || "Normalized BSA"}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className="text-xs bg-green-100 text-green-800"
+                          >
+                            1.73 m²
+                          </Badge>
+                        </div>
+                      </TabsTrigger>
+                    </TabsList>
 
-                  {/* Per Dose Volume */}
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      Per Dose Volume
-                      <InfoTooltip content="Calculated volume per dose based on BSA">
-                        <Info className="h-4 w-4 text-medical-500 cursor-pointer" />
-                      </InfoTooltip>
-                    </FormLabel>
-                    <div className="flex gap-2 items-center">
-                      <Input
-                        value={perDoseVolume.toFixed(2)}
-                        readOnly
-                        className="bg-gray-50 border-medical-100 font-semibold"
-                      />
-                      <span className="text-sm font-medium text-medical-700 min-w-[80px]">{volumeUnit} per dose</span>
-                    </div>
-                  </FormItem>
+                    <TabsContent value="actual" className="mt-3">
+                      <Alert className="bg-blue-50/30 border-blue-200/50">
+                        <AlertDescription className="text-blue-800">
+                          <strong>Actual BSA Method:</strong> Uses the patient's
+                          calculated BSA of {calculations.bsa.toFixed(2)} m².
+                          Standard for most oncology and specialty medications.
+                        </AlertDescription>
+                      </Alert>
+                    </TabsContent>
 
-                  {/* Daily Volume */}
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      Daily Volume
-                      <InfoTooltip content="Calculated total volume per 24 hours">
-                        <Info className="h-4 w-4 text-medical-500 cursor-pointer" />
-                      </InfoTooltip>
-                    </FormLabel>
-                    <div className="flex gap-2 items-center">
-                      <Input
-                        value={dailyVolume.toFixed(2)}
-                        readOnly
-                        className="bg-gray-50 border-medical-100 font-semibold"
-                      />
-                      <span className="text-sm font-medium text-medical-700 min-w-[80px]">{volumeUnit} per 24h</span>
-                    </div>
-                  </FormItem>
+                    <TabsContent value="normalized" className="mt-3">
+                      <Alert className="bg-green-50/30 border-green-200/50">
+                        <AlertDescription className="text-green-800">
+                          <strong>Normalized BSA Method:</strong> Uses standard
+                          adult BSA of 1.73 m². Common for renal dosing and some
+                          pediatric protocols.
+                        </AlertDescription>
+                      </Alert>
+                    </TabsContent>
+                  </Tabs>
                 </div>
 
-                {/* Dosage Information */}
-                {perDosageInMg > 0 && (
-                  <Alert className="bg-medical-50/50 border-medical-200/50">
+                {/* Max Dose Warning */}
+                {calculations?.isOverMaxDose && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <AlertDescription className="text-red-800">
+                      <strong>
+                        {t("bsaBased.doseLimitExceeded") ||
+                          "DOSE LIMIT EXCEEDED"}
+                        :
+                      </strong>{" "}
+                      {t("bsaBased.doseLimitMessage") ||
+                        "Calculated dose exceeds maximum safe limit. This is critical for BSA-based medications. Please verify with oncology/specialty team."}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Dose Results */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      {t("bsaBased.totalDose") || "Total Dose"}
+                      <InfoTooltip
+                        content={`${dose} ${doseUnit}/m² × ${calculations.effectiveBSA.toFixed(
+                          2
+                        )} m² (${t(`bsaBased.${bsaMethod}`) || bsaMethod} BSA)`}
+                      >
+                        <Info className="h-4 w-4 text-medical-400 ml-1" />
+                      </InfoTooltip>
+                    </FormLabel>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        value={calculations?.totalDoseInMg.toFixed(1) || ""}
+                        readOnly
+                        className="bg-gray-50 border-medical-100 font-semibold"
+                      />
+                      <span className="text-sm font-medium text-medical-700 min-w-[50px]">
+                        {doseUnit}
+                      </span>
+                    </div>
+                  </FormItem>
+
+                  {frequency !== "continuous" &&
+                    calculations.dosesPerDay >= 1 && (
+                      <FormItem>
+                        <FormLabel>
+                          {t("byMedication.perDose") || "Per Dose"}
+                        </FormLabel>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            value={calculations?.perDoseInMg.toFixed(1) || ""}
+                            readOnly
+                            className="bg-gray-50 border-medical-100 font-semibold"
+                          />
+                          <span className="text-sm font-medium text-medical-700 min-w-[50px]">
+                            {doseUnit}
+                          </span>
+                        </div>
+                      </FormItem>
+                    )}
+
+                  {frequency === "continuous" && (
+                    <FormItem>
+                      <FormLabel>
+                        {t("bsaBased.hourlyRate") || "Hourly Rate"}
+                      </FormLabel>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          value={calculations?.perDoseInMg.toFixed(2) || ""}
+                          readOnly
+                          className="bg-gray-50 border-medical-100 font-semibold"
+                        />
+                        <span className="text-sm font-medium text-medical-700 min-w-[60px]">
+                          {doseUnit}/hr
+                        </span>
+                      </div>
+                    </FormItem>
+                  )}
+                </div>
+
+                {/* Volume Results */}
+                {calculations && calculations.volumePerDose > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        {frequency === "continuous"
+                          ? t("bsaBased.volumePerHour") || "Volume per Hour"
+                          : t("byMedication.volumePerDose") ||
+                            "Volume per Dose"}
+                        <InfoTooltip
+                          content={`${
+                            t("byMedication.basedOnConcentration") || "Based on"
+                          } ${concentration} ${concentrationUnit}`}
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
+                      </FormLabel>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          value={calculations.volumePerDose.toFixed(2)}
+                          readOnly
+                          className="bg-gray-50 border-medical-100 font-semibold"
+                        />
+                        <span className="text-sm font-medium text-medical-700 min-w-[40px]">
+                          mL
+                        </span>
+                      </div>
+                    </FormItem>
+
+                    <FormItem>
+                      <FormLabel>
+                        {frequency === "continuous"
+                          ? t("byMedication.dailyVolume") || "Volume per Day"
+                          : t("bsaBased.totalVolumePerCycle") ||
+                            "Total Volume per Cycle"}
+                      </FormLabel>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          value={calculations.volumePerCycle.toFixed(2)}
+                          readOnly
+                          className="bg-gray-50 border-medical-100 font-semibold"
+                        />
+                        <span className="text-sm font-medium text-medical-700 min-w-[40px]">
+                          mL
+                        </span>
+                      </div>
+                    </FormItem>
+                  </div>
+                )}
+
+                {/* Administration Info */}
+                <Alert className="bg-medical-50/50 border-medical-200/50">
+                  <AlertDescription>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-medical-900">
+                          {t("bsaBased.patientBSA") || "Patient BSA"}:
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="border-medical-300 text-medical-800"
+                        >
+                          {calculations.bsa.toFixed(2)} m² (
+                          {t("bsaBased.actual") || "actual"})
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-medical-900">
+                          {t("bsaBased.usedForCalculation") ||
+                            "Used for Calculation"}
+                          :
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={`border-medical-300 ${
+                            bsaMethod === "normalized"
+                              ? "bg-green-50 text-green-800"
+                              : "bg-blue-50 text-blue-800"
+                          }`}
+                        >
+                          {calculations.effectiveBSA.toFixed(2)} m² (
+                          {t(`bsaBased.${bsaMethod}`) || bsaMethod})
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-medical-900">
+                          {t("byMedication.administration") || "Administration"}
+                          :
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="border-medical-300 text-medical-800"
+                        >
+                          {frequency}
+                          {calculations.dosesPerDay > 1 &&
+                            ` (${calculations.dosesPerDay}x/day)`}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-medical-900">
+                          {t("byMedication.concentration") || "Concentration"}:
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="border-medical-300 text-medical-800"
+                        >
+                          {concentration} {concentrationUnit}
+                        </Badge>
+                      </div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                {/* BSA Method Comparison (when normalized is selected) */}
+                {bsaMethod === "normalized" && (
+                  <Alert className="bg-green-50/50 border-green-200/50">
                     <AlertDescription>
-                      <div className="space-y-4">
-                        <div className="font-semibold text-medical-900">
-                          Calculated BSA-Based Dosages:
+                      <div className="space-y-3">
+                        <div className="font-semibold text-green-900">
+                          {t("bsaBased.bsaMethodComparison") ||
+                            "BSA Method Comparison"}
+                          :
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">Per dose:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {perDosageInMg.toFixed(1)} mg
+                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-200/50">
+                            <span className="text-sm font-medium">
+                              {t("bsaBased.actualBSADose") || "Actual BSA Dose"}
+                              :
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className="border-blue-300 text-blue-800"
+                            >
+                              {(dose * calculations.bsa).toFixed(1)} {doseUnit}
                             </Badge>
                           </div>
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">Per 24h:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {dailyDosageInMg.toFixed(1)} mg
+                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-green-200/50">
+                            <span className="text-sm font-medium">
+                              {t("bsaBased.normalizedDoseUsed") ||
+                                "Normalized Dose (Used)"}
+                              :
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className="border-green-300 text-green-800 font-semibold"
+                            >
+                              {(dose * 1.73).toFixed(1)} {doseUnit}
                             </Badge>
                           </div>
                         </div>
@@ -618,32 +1010,31 @@ export function BSABasedDoseForm() {
                   </Alert>
                 )}
 
-                {/* Tablet Information */}
-                {tabletsPerDose > 0 && (
-                  <Alert className="bg-medical-50/50 border-medical-200/50">
-                    <AlertDescription>
-                      <div className="space-y-4">
-                        <div className="font-semibold text-medical-900">
-                          Number of {massInMg} mg tablets needed:
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">Per dose:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {tabletsPerDose.toFixed(1)} tablets
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">Per 24h:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {tabletsPerDay.toFixed(1)} tablets
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
+                {/* Safety Warning for BSA medications */}
+                <Alert className="border-yellow-200 bg-yellow-50">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-800">
+                    <strong>BSA-Based Medication Safety:</strong> Always verify
+                    calculations with another clinician. BSA-based medications
+                    often have narrow therapeutic windows and require careful
+                    monitoring.
+                  </AlertDescription>
+                </Alert>
+
+                <ClinicalDisclaimer
+                  title={
+                    t("byMedication.disclaimer.title") || "Clinical Disclaimer"
+                  }
+                  points={[
+                    t("byMedication.disclaimer.calculation") ||
+                      "These calculations are for reference only and should not replace clinical judgment.",
+                    t("byMedication.disclaimer.verification") ||
+                      "Always verify dosages with another clinician and current clinical guidelines before administration.",
+                    t("byMedication.disclaimer.responsibility") ||
+                      "The prescribing clinician remains fully responsible for all dosing decisions.",
+                  ]}
+                  variant="warning"
+                />
               </CardContent>
             </Card>
           )}

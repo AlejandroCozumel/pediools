@@ -1,20 +1,27 @@
 "use client";
-
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Calculator, Weight, Activity, Maximize } from "lucide-react";
+import { Calculator, Weight, Activity, Pill } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { WeightBasedDoseForm } from "./WeightBasedDoseForm";
 import { BSABasedDoseForm } from "./BSABasedDoseForm";
-import { BSANormalizedDoseForm } from "./BSANormalizedDoseForm";
 import { useTranslations } from 'next-intl';
+import { ByMedicationForm } from "./ByMedicationForm"; // Updated import name
 
 export function DoseMethodSelector() {
   const t = useTranslations('DoseCalculator');
-  const [selectedMethod, setSelectedMethod] = useState("weight");
+  const [selectedMethod, setSelectedMethod] = useState("byMedication");
 
   const doseMethods = [
+    {
+      id: "byMedication",
+      name: t('methods.byMedication.name'),
+      description: t('methods.byMedication.description'),
+      icon: Pill,
+      details: t('methods.byMedication.details'),
+      note: ''
+    },
     {
       id: "weight",
       name: t('methods.weight.name'),
@@ -30,14 +37,6 @@ export function DoseMethodSelector() {
       icon: Activity,
       details: t('methods.bsa.details'),
       note: ''
-    },
-    {
-      id: "bsa_normalized",
-      name: t('methods.bsa_normalized.name'),
-      description: t('methods.bsa_normalized.description'),
-      icon: Maximize,
-      details: t('methods.bsa_normalized.details'),
-      note: ''
     }
   ];
 
@@ -50,10 +49,8 @@ export function DoseMethodSelector() {
         </CardTitle>
         <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
-
       <CardContent className="p-4 lg:p-6">
         <Tabs value={selectedMethod} onValueChange={setSelectedMethod} className="w-full">
-
           {/* Method Selection Tabs */}
           <div className="mb-8">
             <TabsList className="grid w-full grid-cols-3 bg-medical-50/30 p-1">
@@ -85,7 +82,6 @@ export function DoseMethodSelector() {
                 );
               })}
             </TabsList>
-
             {/* Method Info */}
             <div className="mt-4 p-4 bg-medical-50/20 rounded-lg border border-medical-100/50">
               {doseMethods.map((method) => (
@@ -93,7 +89,7 @@ export function DoseMethodSelector() {
                   <div key={method.id} className="space-y-2">
                     <div className="flex items-center gap-2">
                       <method.icon className="h-5 w-5 text-medical-600" />
-                      <h3 className="font-semibold text-medical-900">{method.name} Dosing</h3>
+                      <h3 className="font-semibold text-medical-900">{method.name} {t('methods.dosing') || 'Dosing'}</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">{method.details}</p>
                     {method.note && (
@@ -106,20 +102,16 @@ export function DoseMethodSelector() {
               ))}
             </div>
           </div>
-
           {/* Method Forms */}
+          <TabsContent value="byMedication" className="mt-0">
+            <ByMedicationForm />
+          </TabsContent>
           <TabsContent value="weight" className="mt-0">
             <WeightBasedDoseForm />
           </TabsContent>
-
           <TabsContent value="bsa" className="mt-0">
             <BSABasedDoseForm />
           </TabsContent>
-
-          <TabsContent value="bsa_normalized" className="mt-0">
-            <BSANormalizedDoseForm />
-          </TabsContent>
-
         </Tabs>
       </CardContent>
     </Card>

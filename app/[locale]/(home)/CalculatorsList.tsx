@@ -44,10 +44,10 @@ const CalculatorsList = () => {
       link: "/calculators/bmi-calculator",
     },
     {
-      title: "Pediatric Dose Calculator",
-      description: "Calculate safe and effective medication doses for children based on weight and age.",
+      title: t("calculators.dose.title"),
+      description: t("calculators.dose.description"),
       icon: <Pill className="h-6 w-6 icon" />,
-      category: t("categories.growth"),
+      category: t("categories.dose"),
       link: "/calculators/dose-calculator",
     },
     {

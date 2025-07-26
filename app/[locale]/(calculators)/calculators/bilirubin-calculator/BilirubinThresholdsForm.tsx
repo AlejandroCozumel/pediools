@@ -49,6 +49,7 @@ import {
 } from "@/app/data/bilirubin-thresholds-data";
 import DateInputsWithTime from "@/components/DateInputsWithTime";
 import { BilirubinChart } from "./BilirubinChart";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 // Interfaces for our results
 interface BilirubinResult {
@@ -1034,6 +1035,18 @@ export function BilirubinThresholdsForm() {
                         </div>
                       </div>
                     )}
+                    <ClinicalDisclaimer
+                      title={
+                        t("disclaimer.title") ||
+                        "Bilirubin Management Disclaimer"
+                      }
+                      points={[
+                        t("disclaimer.calculation"),
+                        t("disclaimer.verification"),
+                        t("disclaimer.responsibility"),
+                      ]}
+                      variant="warning"
+                    />
                   </CardContent>
                 </Card>
                 <BilirubinChart

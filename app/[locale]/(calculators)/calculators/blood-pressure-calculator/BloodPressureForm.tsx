@@ -40,6 +40,7 @@ import DateInputs from "@/components/DateInputs";
 import { AmbulatoryReferenceCard } from "./AmbulatoryReferenceCard";
 import { OfficeBPReferenceCard } from "./OfficeBPReferenceCard";
 import { ETTReferenceCard } from "./ETTReferenceCard";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 interface BPClassification {
   category: string;
@@ -1195,6 +1196,16 @@ export function BloodPressureForm() {
                               <p>{t("results.footer.reference")}</p>
                               <p>{t("results.footer.note")}</p>
                             </div>
+
+                            <ClinicalDisclaimer
+                              title={t("disclaimer.title")}
+                              points={[
+                                t("disclaimer.calculation"),
+                                t("disclaimer.verification"),
+                                t("disclaimer.responsibility"),
+                              ]}
+                              variant="medical"
+                            />
                           </div>
                         </CardContent>
                       </Card>
@@ -1223,6 +1234,15 @@ export function BloodPressureForm() {
                         gender={selectedGender}
                         height={parseFloat(height)}
                         aapBPData={aapBPData}
+                      />
+                      <ClinicalDisclaimer
+                        title={t("disclaimer.title")}
+                        points={[
+                          t("disclaimer.calculation"),
+                          t("disclaimer.verification"),
+                          t("disclaimer.responsibility"),
+                        ]}
+                        variant="medical"
                       />
                       <ETTReferenceCard
                         ageInYears={ageInYears}

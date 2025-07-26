@@ -113,6 +113,7 @@ interface ParsedAgeRange {
 
 // Import our organized lab data
 import organizedLabData from "@/app/data/lab-philadelphia.json";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 // Type the imported data
 const typedLabData = organizedLabData as OrganizedLabData;
@@ -445,7 +446,7 @@ const LabResults: React.FC<{
         >
           {t("results.title", {
             count: results.length,
-            plural: results.length !== 1 ? "s" : ""
+            plural: results.length !== 1 ? "s" : "",
           })}
         </CardTitle>
 
@@ -456,7 +457,7 @@ const LabResults: React.FC<{
             <AlertDescription className="text-yellow-800">
               <strong>{t("alerts.dateWarning.title")}</strong>{" "}
               {t("alerts.dateWarning.description", {
-                count: resultsWithDateIssues.length
+                count: resultsWithDateIssues.length,
               })}
             </AlertDescription>
           </Alert>
@@ -469,7 +470,7 @@ const LabResults: React.FC<{
             <AlertDescription className="text-red-800">
               <strong>{t("alerts.criticalWarning.title")}</strong>{" "}
               {t("alerts.criticalWarning.description", {
-                count: criticalResults.length
+                count: criticalResults.length,
               })}
             </AlertDescription>
           </Alert>
@@ -507,12 +508,11 @@ const LabResults: React.FC<{
                     {result.ageGroup !== null
                       ? t("results.ageLabel", {
                           age: result.ageGroup,
-                          gender: t(`gender.${gender}`)
+                          gender: t(`gender.${gender}`),
                         })
                       : t("results.ageNotSpecified", {
-                          gender: t(`gender.${gender}`)
-                        })
-                    }
+                          gender: t(`gender.${gender}`),
+                        })}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -621,7 +621,7 @@ const LabResults: React.FC<{
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
                             <AlertTriangle className="w-3 h-3" />
                             {t("results.closestRange", {
-                              range: matchedRange?.age || t("badges.noAge")
+                              range: matchedRange?.age || t("badges.noAge"),
                             })}
                           </span>
                         ) : (
@@ -650,7 +650,8 @@ const LabResults: React.FC<{
 
                       {ageOutOfRange && (
                         <div className="mt-1 text-xs text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-1">
-                          <strong>{locale === "es" ? "Nota:" : "Note:"}</strong> {t("results.ageOutOfRangeNote")}
+                          <strong>{locale === "es" ? "Nota:" : "Note:"}</strong>{" "}
+                          {t("results.ageOutOfRangeNote")}
                         </div>
                       )}
                     </>
@@ -676,10 +677,15 @@ const LabResults: React.FC<{
               </a>
             </li>
           </ul>
-          <p className="mt-2 text-xs">
-            <strong>{t("disclaimer.disclaimerTitle")}</strong>{" "}
-            {t("disclaimer.disclaimerText")}
-          </p>
+          <ClinicalDisclaimer
+            title={t("disclaimer.title") || "Laboratory Reference Disclaimer"}
+            points={[
+              t("disclaimer.disclaimerText") ||
+                "These values are commonly accepted reference ranges compiled from multiple sources. Patient-specific goals may differ depending on age, sex, clinical condition and laboratory methodology used. Always consult with a healthcare professional for interpretation of laboratory results.",
+            ]}
+            variant="warning"
+            className="mt-6"
+          />
         </div>
       </CardContent>
     </Card>
@@ -876,7 +882,9 @@ const LabCalculatorForm: React.FC = () => {
                                 }
                               `}
                                 />
-                                <span className="font-medium">{t("gender.male")}</span>
+                                <span className="font-medium">
+                                  {t("gender.male")}
+                                </span>
                               </div>
                             </TabsTrigger>
                             <TabsTrigger
@@ -897,7 +905,9 @@ const LabCalculatorForm: React.FC = () => {
                                 }
                               `}
                                 />
-                                <span className="font-medium">{t("gender.female")}</span>
+                                <span className="font-medium">
+                                  {t("gender.female")}
+                                </span>
                               </div>
                             </TabsTrigger>
                           </TabsList>
@@ -997,13 +1007,17 @@ const LabCalculatorForm: React.FC = () => {
                                             </Label>
                                             <p className="text-xs text-muted-foreground mb-2">
                                               {t("labTests.unit", {
-                                                unit: testData.unit || t("labTests.notAvailable")
+                                                unit:
+                                                  testData.unit ||
+                                                  t("labTests.notAvailable"),
                                               })}
                                             </p>
                                             <Input
                                               type="number"
                                               step="0.01"
-                                              placeholder={t("labTests.enterValue")}
+                                              placeholder={t(
+                                                "labTests.enterValue"
+                                              )}
                                               className={cn(
                                                 "transition-colors duration-300",
                                                 gender === "male"
@@ -1034,7 +1048,11 @@ const LabCalculatorForm: React.FC = () => {
                     </CardContent>
                   </Card>
                   {/* Results */}
-                  <LabResults results={results} gender={gender} locale={locale} />
+                  <LabResults
+                    results={results}
+                    gender={gender}
+                    locale={locale}
+                  />
                 </>
               ) : (
                 // If dates are NOT selected, show a prompt message
@@ -1048,13 +1066,21 @@ const LabCalculatorForm: React.FC = () => {
                       {t("dates.startHereTitle")}
                     </AlertTitle>
                     <AlertDescription>
-                      {t("dates.startHereDescription").split(/\b(Date of Birth|Date of Measurement|Fecha de Nacimiento|Fecha de Medición)\b/).map((part, index) => {
-                        if (part === "Date of Birth" || part === "Date of Measurement" ||
-                            part === "Fecha de Nacimiento" || part === "Fecha de Medición") {
-                          return <strong key={index}>{part}</strong>;
-                        }
-                        return part;
-                      })}
+                      {t("dates.startHereDescription")
+                        .split(
+                          /\b(Date of Birth|Date of Measurement|Fecha de Nacimiento|Fecha de Medición)\b/
+                        )
+                        .map((part, index) => {
+                          if (
+                            part === "Date of Birth" ||
+                            part === "Date of Measurement" ||
+                            part === "Fecha de Nacimiento" ||
+                            part === "Fecha de Medición"
+                          ) {
+                            return <strong key={index}>{part}</strong>;
+                          }
+                          return part;
+                        })}
                     </AlertDescription>
                   </div>
                 </Alert>

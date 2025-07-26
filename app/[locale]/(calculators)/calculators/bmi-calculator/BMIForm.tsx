@@ -36,7 +36,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { RangeIndicator } from "@/components/RangeIndicator";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 const bmiFormSchema = z.object({
   standard: z.enum(["who", "cdc"], { required_error: "Select a standard" }),
@@ -75,7 +76,7 @@ const bmiStandards = [
 ];
 
 export function BMIForm() {
-  const t = useTranslations('BMICalculator');
+  const t = useTranslations("BMICalculator");
   const [result, setResult] = useState<BMIFormValues | null>(null);
   const today = new Date();
   const form = useForm<BMIFormValues>({
@@ -214,9 +215,9 @@ export function BMIForm() {
     <Card className="w-full mx-auto">
       <CardHeader className="p-4 lg:p-6 !pb-0">
         <CardTitle className="text-2xl font-heading text-medical-900">
-          {t('title')}
+          {t("title")}
         </CardTitle>
-        <CardDescription>{t('description')}</CardDescription>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 lg:p-6">
         <Form {...form}>
@@ -251,7 +252,9 @@ export function BMIForm() {
                               }
                             `}
                           />
-                          <span className="font-medium">{t('gender.male')}</span>
+                          <span className="font-medium">
+                            {t("gender.male")}
+                          </span>
                         </div>
                       </TabsTrigger>
                       <TabsTrigger
@@ -272,7 +275,9 @@ export function BMIForm() {
                               }
                             `}
                           />
-                          <span className="font-medium">{t('gender.female')}</span>
+                          <span className="font-medium">
+                            {t("gender.female")}
+                          </span>
                         </div>
                       </TabsTrigger>
                     </TabsList>
@@ -286,16 +291,14 @@ export function BMIForm() {
               name="standard"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('standard.label')}</FormLabel>
+                  <FormLabel>{t("standard.label")}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="border-medical-100">
-                        <SelectValue placeholder={t('standard.placeholder')}>
+                        <SelectValue placeholder={t("standard.placeholder")}>
                           {field.value && (
                             <div className="flex items-center gap-2">
-                              <span>
-                                {t(`standards.${field.value}.name`)}
-                              </span>
+                              <span>{t(`standards.${field.value}.name`)}</span>
                               <Badge
                                 variant="outline"
                                 className="text-xs bg-medical-50"
@@ -342,7 +345,7 @@ export function BMIForm() {
             {/* Date of Birth check and measurement inputs */}
             {!birthDate ? (
               <p className="text-muted-foreground text-xs mb-4">
-                {t('validation.selectDob')}
+                {t("validation.selectDob")}
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -351,7 +354,7 @@ export function BMIForm() {
                   name="weight"
                   render={({ field }) => (
                     <MeasurementInput
-                      label={t('measurements.weight')}
+                      label={t("measurements.weight")}
                       field={field}
                       icon={Weight}
                       gender={selectedGender}
@@ -367,7 +370,7 @@ export function BMIForm() {
                   name="height"
                   render={({ field }) => (
                     <MeasurementInput
-                      label={t('measurements.height')}
+                      label={t("measurements.height")}
                       field={field}
                       icon={Ruler}
                       gender={selectedGender}
@@ -384,7 +387,7 @@ export function BMIForm() {
             {ageError && (
               <Alert className="bg-red-50 border-blue-200 mt-4">
                 <AlertTitle className="text-blue-800">
-                  {t('alerts.invalidStandard.title')}
+                  {t("alerts.invalidStandard.title")}
                 </AlertTitle>
                 <AlertDescription className="text-blue-700">
                   {ageError}
@@ -399,7 +402,7 @@ export function BMIForm() {
               isStandardValid && (
                 <div className="mt-8">
                   <div className="text-md mb-2 flex items-baseline gap-1">
-                    <span className="font-semibold">{t('results.bmi')}: </span>
+                    <span className="font-semibold">{t("results.bmi")}: </span>
                     <span className="font-semibold">{bmi.toFixed(2)}</span>
                     <span className="text-xs text-muted-foreground ml-0.5">
                       kg/m²
@@ -420,7 +423,7 @@ export function BMIForm() {
                     )}
                   </div>
                   <div className="mb-2 text-sm text-muted-foreground">
-                    {t('results.referenceRange')}
+                    {t("results.referenceRange")}
                   </div>
                   <RangeIndicator
                     value={bmi}
@@ -431,12 +434,26 @@ export function BMIForm() {
                   {/* Data source info */}
                   <div className="mt-4 text-xs text-muted-foreground">
                     <span className="font-semibold">
-                      {t('results.dataSource')}<sup>1</sup>:
-                    </span>{' '}
-                    {selectedStandard === 'who'
-                      ? t('results.dataSources.who')
-                      : t('results.dataSources.cdc')}
+                      {t("results.dataSource")}
+                      <sup>1</sup>:
+                    </span>{" "}
+                    {selectedStandard === "who"
+                      ? t("results.dataSources.who")
+                      : t("results.dataSources.cdc")}
                   </div>
+
+                  <ClinicalDisclaimer
+                    title={t("disclaimer.title")}
+                    points={[
+                      t("disclaimer.standardBased", {
+                        standard: selectedStandard.toUpperCase(),
+                      }),
+                      t("disclaimer.trackOverTime"),
+                      t("disclaimer.individualFactors"),
+                      t("disclaimer.responsibility"),
+                    ]}
+                    variant="medical"
+                  />
                 </div>
               )}
             {/* Graph button (disabled if errors or missing fields) */}
@@ -460,20 +477,25 @@ export function BMIForm() {
           </form>
         </Form>
         {result && (
-          <div className="mt-8">
-            {/* The BMIResults component is no longer needed as the form is now a watch form */}
-            {/* You might want to display the result here or remove this section if not needed */}
-            <p>{t('results.bmi')}: {bmi?.toFixed(2) || 'N/A'}</p>
-            <p>
-              {t('results.referenceRange')}{' '}
-              {min !== null && max !== null
-                ? `${min.toFixed(2)} - ${max.toFixed(2)}`
-                : 'N/A'}
-            </p>
-            <p>
-              {t('results.dataSource')}: {normal !== null ? `${normal.toFixed(2)}` : 'N/A'}
-            </p>
-          </div>
+          <>
+            <div className="mt-8">
+              {/* The BMIResults component is no longer needed as the form is now a watch form */}
+              {/* You might want to display the result here or remove this section if not needed */}
+              <p>
+                {t("results.bmi")}: {bmi?.toFixed(2) || "N/A"}
+              </p>
+              <p>
+                {t("results.referenceRange")}{" "}
+                {min !== null && max !== null
+                  ? `${min.toFixed(2)} - ${max.toFixed(2)}`
+                  : "N/A"}
+              </p>
+              <p>
+                {t("results.dataSource")}:{" "}
+                {normal !== null ? `${normal.toFixed(2)}` : "N/A"}
+              </p>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

@@ -8,7 +8,11 @@ const AppDisclaimer: React.FC = () => {
       <strong>{t("title")}</strong>
       <p>{t("referenceAid")}</p>
       <p>{t("confirmInformation")}</p>
+      <p>{t("errorPossibility")}</p>
+      <p>{t("notForEmergencies")}</p>
+      <p>{t("betaWarning")}</p>
       <p>{t("noWarranties")}</p>
+      <p>{t("limitation")}</p>
       <p>{t("acceptance")}</p>
     </div>
   );
