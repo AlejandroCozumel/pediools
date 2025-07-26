@@ -318,13 +318,13 @@ export function ByMedicationForm() {
         <form className="space-y-8">
           {/* Medication Selection */}
           <Card className="bg-medical-50/20 border-medical-100/50">
-            <CardHeader className="pb-4">
+            {/* <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                 <Pill className="h-5 w-5" />
                 {t("byMedication.selectMedication") || "Select Medication"}
               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 !pt-0">
+            </CardHeader> */}
+            <CardContent className="space-y-6 pt-0">
               <FormField
                 control={form.control}
                 name="medicationId"

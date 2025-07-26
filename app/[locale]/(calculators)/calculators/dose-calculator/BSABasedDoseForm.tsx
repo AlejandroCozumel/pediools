@@ -245,13 +245,13 @@ export function BSABasedDoseForm() {
         <form className="space-y-8">
           {/* BSA Calculator Section */}
           <Card className="bg-medical-50/20 border-medical-100/50">
-            <CardHeader className="pb-4">
+            {/* <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                 <Activity className="h-5 w-5" />
                 {t("bsaBased.bsaCalculator") || "Body Surface Area Calculator"}
               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 !pt-0">
+            </CardHeader> */}
+            <CardContent className="space-y-6 pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Height */}
                 <FormField
