@@ -1,3 +1,4 @@
+// Updated BilirubinChart component with isolated state management
 "use client";
 import React, { useMemo, useRef, useCallback, useState } from "react";
 import { Line } from "react-chartjs-2";
@@ -18,6 +19,7 @@ import {
 import annotationPlugin from "chartjs-plugin-annotation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
 ChartJS.register(
@@ -72,7 +74,6 @@ const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
   dataPoints,
 }) => {
   if (!visible || dataPoints.length === 0) return null;
-
   return (
     <div
       className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 pointer-events-none"
@@ -86,15 +87,22 @@ const CustomHtmlTooltip: React.FC<CustomHtmlTooltipProps> = ({
       <div className="font-semibold text-gray-800 mb-2">{title}</div>
       <div className="space-y-1">
         {dataPoints.map((point, index) => (
-          <div key={index} className="flex items-center justify-between text-sm">
+          <div
+            key={index}
+            className="flex items-center justify-between text-sm"
+          >
             <div className="flex items-center gap-2">
               <div
                 className="w-3 h-3 rounded-sm"
                 style={{ backgroundColor: point.color }}
               />
-              <span className={point.isPatient ? "font-bold text-red-600" : ""}>{point.label}:</span>
+              <span className={point.isPatient ? "font-bold text-red-600" : ""}>
+                {point.label}:
+              </span>
             </div>
-            <span className={point.isPatient ? "font-bold text-red-600" : ""}>{point.value}</span>
+            <span className={point.isPatient ? "font-bold text-red-600" : ""}>
+              {point.value}
+            </span>
           </div>
         ))}
       </div>
@@ -109,12 +117,54 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
 }) => {
   const t = useTranslations("BilirubinCalculator");
   const chartRef = useRef<ChartJS<"line"> | null>(null);
+
+  // Isolated state - this should not affect parent component
+  const [isFullCurveView, setIsFullCurveView] = useState(false);
   const [tooltipState, setTooltipState] = useState<CustomHtmlTooltipProps>({
     visible: false,
     position: { x: 0, y: 0 },
     title: "",
     dataPoints: [],
   });
+
+  // Calculate focused view range - memoized to prevent unnecessary recalculations
+  const { minHours, maxHours, minBilirubin, maxBilirubin } = useMemo(() => {
+    const patientAge = results.ageInHours;
+    const patientBilirubin = results.totalBilirubin;
+
+    if (isFullCurveView) {
+      return {
+        minHours: 12,
+        maxHours: 336,
+        minBilirubin: 0,
+        maxBilirubin: 30,
+      };
+    } else {
+      // Focused view: ±48 hours around patient age, ±8 mg/dL around patient bilirubin
+      const hourRange = 48;
+      const bilirubinRange = 8;
+
+      const calcMinHours = Math.max(12, patientAge - hourRange);
+      const calcMaxHours = Math.min(336, patientAge + hourRange);
+      const calcMinBilirubin = Math.max(0, patientBilirubin - bilirubinRange);
+      const calcMaxBilirubin = Math.min(30, patientBilirubin + bilirubinRange);
+
+      // Ensure minimum range
+      const finalMaxHours =
+        calcMaxHours <= calcMinHours + 24 ? calcMinHours + 72 : calcMaxHours;
+      const finalMaxBilirubin =
+        calcMaxBilirubin <= calcMinBilirubin + 4
+          ? calcMinBilirubin + 10
+          : calcMaxBilirubin;
+
+      return {
+        minHours: calcMinHours,
+        maxHours: finalMaxHours,
+        minBilirubin: calcMinBilirubin,
+        maxBilirubin: finalMaxBilirubin,
+      };
+    }
+  }, [isFullCurveView, results.ageInHours, results.totalBilirubin]);
 
   // Generate threshold data for the chart
   const { chartData, patientPoint } = useMemo(() => {
@@ -126,15 +176,19 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
     ) => {
       const categoryData = thresholdData[riskCategory];
       if (!categoryData) return null;
-
-      const availableHours = Object.keys(categoryData).map(Number).sort((a, b) => a - b);
+      const availableHours = Object.keys(categoryData)
+        .map(Number)
+        .sort((a, b) => a - b);
 
       // Find the two points to interpolate between
       let lowerHour = availableHours[0];
       let upperHour = availableHours[availableHours.length - 1];
 
       for (let i = 0; i < availableHours.length - 1; i++) {
-        if (availableHours[i] <= targetHour && availableHours[i + 1] >= targetHour) {
+        if (
+          availableHours[i] <= targetHour &&
+          availableHours[i + 1] >= targetHour
+        ) {
           lowerHour = availableHours[i];
           upperHour = availableHours[i + 1];
           break;
@@ -157,25 +211,44 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       return lowerValue + (upperValue - lowerValue) * ratio;
     };
 
-    // Generate dense data points for smooth curves (every 2 hours)
-    const hours = Array.from({ length: 163 }, (_, i) => i * 2 + 12); // 12, 14, 16, ... 336 hours
+    // Generate data points based on view mode
+    const stepSize = isFullCurveView ? 2 : 1; // More dense points in focused view
+    const startHour = isFullCurveView ? 12 : Math.max(12, minHours);
+    const endHour = isFullCurveView ? 336 : Math.min(336, maxHours);
+
+    const hours = [];
+    for (let hour = startHour; hour <= endHour; hour += stepSize) {
+      hours.push(hour);
+    }
 
     // Generate phototherapy line data
-    const phototherapyData = hours.map(hour => ({
-      x: hour,
-      y: interpolateThreshold(phototherapyThresholds, results.riskCategory, hour)
-    })).filter(point => point.y !== null);
+    const phototherapyData = hours
+      .map((hour) => ({
+        x: hour,
+        y: interpolateThreshold(
+          phototherapyThresholds,
+          results.riskCategory,
+          hour
+        ),
+      }))
+      .filter((point) => point.y !== null);
 
     // Generate exchange transfusion line data
-    const exchangeData = hours.map(hour => ({
-      x: hour,
-      y: interpolateThreshold(exchangeTransfusionThresholds, results.riskCategory, hour)
-    })).filter(point => point.y !== null);
+    const exchangeData = hours
+      .map((hour) => ({
+        x: hour,
+        y: interpolateThreshold(
+          exchangeTransfusionThresholds,
+          results.riskCategory,
+          hour
+        ),
+      }))
+      .filter((point) => point.y !== null);
 
     // Generate escalation of care line (2 mg/dL below exchange)
-    const escalationData = exchangeData.map(point => ({
+    const escalationData = exchangeData.map((point) => ({
       x: point.x,
-      y: Math.max(0, point.y - 2)
+      y: Math.max(0, point.y - 2),
     }));
 
     const datasets: ChartDataset<"line">[] = [
@@ -211,10 +284,12 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       },
       {
         label: t("results.chart.thresholdLines.patient"),
-        data: [{
-          x: results.ageInHours,
-          y: results.totalBilirubin
-        }],
+        data: [
+          {
+            x: results.ageInHours,
+            y: results.totalBilirubin,
+          },
+        ],
         borderColor: "#DC2626", // Red like your growth charts
         backgroundColor: "#DC2626",
         borderWidth: 3,
@@ -234,7 +309,15 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       chartData: { datasets },
       patientPoint,
     };
-  }, [results, phototherapyThresholds, exchangeTransfusionThresholds, t]);
+  }, [
+    results,
+    phototherapyThresholds,
+    exchangeTransfusionThresholds,
+    t,
+    isFullCurveView,
+    minHours,
+    maxHours,
+  ]);
 
   // Custom tooltip handler
   const externalTooltipHandler = useCallback(
@@ -243,7 +326,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
       const chartCanvas = chart.canvas;
 
       if (tooltip.opacity === 0) {
-        setTooltipState(prev => ({ ...prev, visible: false }));
+        setTooltipState((prev) => ({ ...prev, visible: false }));
         return;
       }
 
@@ -254,7 +337,7 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
 
       const hour = chart.scales.x.getValueForPixel(tooltip.caretX);
       if (hour === undefined || hour === null) {
-        setTooltipState(prev => ({ ...prev, visible: false }));
+        setTooltipState((prev) => ({ ...prev, visible: false }));
         return;
       }
 
@@ -267,10 +350,13 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
         if (dataset.label === t("results.chart.thresholdLines.patient")) {
           // Check if patient point is close to hover position
           const patientHour = results.ageInHours;
-          if (Math.abs(patientHour - hour) < 6) { // Within 6 hours tolerance
+          if (Math.abs(patientHour - hour) < 6) {
+            // Within 6 hours tolerance
             dataPoints.push({
               label: t("results.chart.thresholdLines.patient"),
-              value: `${results.totalBilirubin.toFixed(1)} ${t("results.chart.tooltip.mgPerDL")}`,
+              value: `${results.totalBilirubin.toFixed(1)} ${t(
+                "results.chart.tooltip.mgPerDL"
+              )}`,
               color: "#DC2626", // Red like your growth charts
               isPatient: true,
             });
@@ -297,13 +383,16 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
             if (lowerPoint.x === upperPoint.x) {
               value = lowerPoint.y;
             } else {
-              const ratio = (hour - lowerPoint.x) / (upperPoint.x - lowerPoint.x);
+              const ratio =
+                (hour - lowerPoint.x) / (upperPoint.x - lowerPoint.x);
               value = lowerPoint.y + (upperPoint.y - lowerPoint.y) * ratio;
             }
 
             dataPoints.push({
               label: dataset.label || "",
-              value: `${value.toFixed(1)} ${t("results.chart.tooltip.mgPerDL")}`,
+              value: `${value.toFixed(1)} ${t(
+                "results.chart.tooltip.mgPerDL"
+              )}`,
               color: dataset.borderColor as string,
               isPatient: false,
             });
@@ -330,113 +419,132 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
     [results, t]
   );
 
-  // Chart options
-  const chartOptions: ChartOptions<"line"> = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        type: "linear",
-        position: "bottom",
-        min: 12,
-        max: 336,
-        title: {
-          display: true,
-          text: t("results.chart.tooltip.age", { hours: "" }).replace(": ", " (hours)"),
-          font: { size: 14 },
-          color: "#374151",
-        },
-        ticks: {
-          stepSize: 24,
-          callback: function(value) {
-            return `${value}h`;
+  // Chart options - stable reference to prevent unnecessary re-renders
+  const chartOptions: ChartOptions<"line"> = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: "linear",
+          position: "bottom",
+          min: minHours,
+          max: maxHours,
+          title: {
+            display: true,
+            text: t("results.chart.tooltip.age", { hours: "" }).replace(
+              ": ",
+              " (hours)"
+            ),
+            font: { size: 14 },
+            color: "#374151",
           },
-          font: { size: 12 },
-          color: "#6B7280",
-          maxRotation: 0,
+          ticks: {
+            stepSize: isFullCurveView ? 24 : 12,
+            callback: function (value) {
+              return `${value}h`;
+            },
+            font: { size: 12 },
+            color: "#6B7280",
+            maxRotation: 0,
+          },
+          grid: {
+            color: "#E5E7EB",
+            lineWidth: 1,
+          },
         },
-        grid: {
-          color: "#E5E7EB",
-          lineWidth: 1,
-        },
-      },
-      y: {
-        type: "linear",
-        min: 0,
-        max: 30,
-        title: {
-          display: true,
-          text: `Total Bilirubin (${t("results.chart.tooltip.mgPerDL")})`,
-          font: { size: 14 },
-          color: "#374151",
-        },
-        ticks: {
-          stepSize: 2,
-          font: { size: 12 },
-          color: "#6B7280",
-        },
-        grid: {
-          color: "#E5E7EB",
-          lineWidth: 1,
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          font: { size: 12 },
-          boxWidth: 20,
-          padding: 15,
-          usePointStyle: true,
-        },
-        onHover: (event, legendItem, legend) => {
-          // Change cursor to pointer on hover
-          legend.chart.canvas.style.cursor = 'pointer';
-        },
-        onLeave: (event, legendItem, legend) => {
-          // Reset cursor when leaving legend
-          legend.chart.canvas.style.cursor = 'default';
+        y: {
+          type: "linear",
+          min: minBilirubin,
+          max: maxBilirubin,
+          title: {
+            display: true,
+            text: `Total Bilirubin (${t("results.chart.tooltip.mgPerDL")})`,
+            font: { size: 14 },
+            color: "#374151",
+          },
+          ticks: {
+            stepSize: isFullCurveView ? 2 : 1,
+            font: { size: 12 },
+            color: "#6B7280",
+          },
+          grid: {
+            color: "#E5E7EB",
+            lineWidth: 1,
+          },
         },
       },
-      tooltip: {
-        enabled: false,
-        external: externalTooltipHandler,
-        mode: "index",
-        intersect: false,
-      },
-      annotation: {
-        annotations: {
-          patientAgeLine: {
-            type: "line",
-            xMin: results.ageInHours,
-            xMax: results.ageInHours,
-            borderColor: "#DC2626", // Red like your growth charts
-            borderWidth: 2,
-            borderDash: [5, 5],
-            label: {
-              content: `${results.ageInHours}h`,
-              display: true,
-              position: "end",
-              yAdjust: -10,
-              backgroundColor: "rgba(220, 38, 38, 0.8)", // Red background
-              color: "white",
-              font: { size: 10, weight: "bold" },
+      plugins: {
+        legend: {
+          position: "top",
+          labels: {
+            font: { size: 12 },
+            boxWidth: 20,
+            padding: 15,
+            usePointStyle: true,
+          },
+          onHover: (event, legendItem, legend) => {
+            legend.chart.canvas.style.cursor = "pointer";
+          },
+          onLeave: (event, legendItem, legend) => {
+            legend.chart.canvas.style.cursor = "default";
+          },
+        },
+        tooltip: {
+          enabled: false,
+          external: externalTooltipHandler,
+          mode: "index",
+          intersect: false,
+        },
+        annotation: {
+          annotations: {
+            patientAgeLine: {
+              type: "line",
+              xMin: results.ageInHours,
+              xMax: results.ageInHours,
+              borderColor: "#DC2626",
+              borderWidth: 2,
+              borderDash: [5, 5],
+              label: {
+                content: `${results.ageInHours}h`,
+                display: true,
+                position: "end",
+                yAdjust: -10,
+                backgroundColor: "rgba(220, 38, 38, 0.8)",
+                color: "white",
+                font: { size: 10, weight: "bold" },
+              },
             },
           },
         },
       },
-    },
-    interaction: {
-      mode: "index",
-      intersect: false,
-      axis: "x"
-    },
-    elements: {
-      line: { tension: 0.4 },
-      point: { hoverRadius: 8 },
-    },
-  }), [results, externalTooltipHandler, t]);
+      interaction: {
+        mode: "index",
+        intersect: false,
+        axis: "x",
+      },
+      elements: {
+        line: { tension: 0.4 },
+        point: { hoverRadius: 8 },
+      },
+    }),
+    [
+      results,
+      externalTooltipHandler,
+      t,
+      isFullCurveView,
+      minHours,
+      maxHours,
+      minBilirubin,
+      maxBilirubin,
+    ]
+  );
+
+  // Handle view toggle with event prevention
+  const handleViewToggle = useCallback((viewType: "focused" | "full") => {
+    // Prevent any potential event bubbling
+    setIsFullCurveView(viewType === "full");
+  }, []);
 
   const getRiskStatusColor = () => {
     if (results.totalBilirubin >= results.exchangeTransfusionThreshold) {
@@ -469,25 +577,53 @@ export const BilirubinChart: React.FC<BilirubinChartProps> = ({
           <CardTitle className="text-xl font-semibold text-gray-800">
             {t("results.chart.title")}
           </CardTitle>
-          <Badge className={`${getRiskStatusColor()} font-semibold`}>
-            {getRiskStatusText()}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className={`${getRiskStatusColor()} font-semibold`}>
+              {getRiskStatusText()}
+            </Badge>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button" // Explicitly set type to prevent form submission
+            variant={isFullCurveView ? "outline" : "default"}
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleViewToggle("focused");
+            }}
+            className="text-xs"
+          >
+            {t("chart.focusedView")}
+          </Button>
+          <Button
+            type="button" // Explicitly set type to prevent form submission
+            variant={isFullCurveView ? "default" : "outline"}
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleViewToggle("full");
+            }}
+            className="text-xs"
+          >
+            {t("chart.fullCurve")}
+          </Button>
         </div>
         <div className="text-sm text-gray-600 mt-2">
           {t("results.chart.patientInfo", {
             hours: results.ageInHours,
             weeks: results.gestationalAge,
-            riskFactors: results.hasRiskFactors ? t("results.patientSummary.yes") : t("results.patientSummary.no")
+            riskFactors: results.hasRiskFactors
+              ? t("results.patientSummary.yes")
+              : t("results.patientSummary.no"),
           }).replace("{mg/dL}", `${results.totalBilirubin} mg/dL`)}
         </div>
       </CardHeader>
-      <CardContent className="relative">
+      <CardContent className="relative !pt-0">
         <div className="h-96 w-full relative">
-          <Line
-            ref={chartRef}
-            data={chartData}
-            options={chartOptions}
-          />
+          <Line ref={chartRef} data={chartData} options={chartOptions} />
           <CustomHtmlTooltip {...tooltipState} />
         </div>
         <div className="mt-4 text-xs text-gray-500 text-center">

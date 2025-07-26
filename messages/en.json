@@ -1467,6 +1467,10 @@
       "calculate": "Calculate Threshold",
       "calculating": "Calculating..."
     },
+    "chart": {
+      "focusedView": "Focused view",
+      "fullCurve": "Full curve"
+    },
     "disclaimer": {
       "title": "Bilirubin Management Disclaimer",
       "calculation": "Bilirubin thresholds are based on AAP 2022 guidelines and should be interpreted with clinical context.",
