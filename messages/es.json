@@ -1605,11 +1605,15 @@
     "fullCurveDescription": "Visualizando toda la progresión de crecimiento"
   },
   "AppDisclaimer": {
-    "title": "Aviso:",
-    "referenceAid": "El usuario reconoce y acepta que estas herramientas se utilizarán solo como una ayuda de referencia, y que la información contenida en los productos no está destinada a ser (ni debe usarse como) un sustituto del juicio profesional.",
-    "confirmInformation": "En vista de la posibilidad de errores humanos o cambios en la ciencia médica, el usuario debe confirmar la información de los productos a través de fuentes independientes.",
-    "noWarranties": "Los productos se proporcionan sin garantías de ningún tipo, expresas o implícitas, y el autor declina cualquier responsabilidad, pérdida o daño causado por ellos o su contenido.",
-    "acceptance": "Al continuar utilizando estos productos, usted indica su aceptación de estos términos.",
+    "title": "Aviso Legal de Calculadoras Médicas:",
+    "referenceAid": "Estas calculadoras médicas son herramientas de referencia únicamente y no deben reemplazar el juicio clínico o el consejo médico profesional.",
+    "confirmInformation": "Siempre verificar los cálculos y rangos de referencia con las guías clínicas actuales y protocolos institucionales.",
+    "errorPossibility": "Pueden ocurrir errores de cálculo. Siempre verificar dos veces los cálculos críticos con métodos alternativos o colegas.",
+    "notForEmergencies": "Estas herramientas no están destinadas para situaciones de emergencia donde se requieren decisiones clínicas inmediatas.",
+    "betaWarning": "Este software está en desarrollo continuo. Reportar inmediatamente cualquier error sospechoso.",
+    "noWarranties": "No se proporcionan garantías respecto a la precisión, integridad o idoneidad para el propósito. Los usuarios asumen total responsabilidad por todas las decisiones clínicas.",
+    "limitation": "En ningún caso los desarrolladores serán responsables por daños derivados del uso de estas calculadoras.",
+    "acceptance": "El uso continuado indica la aceptación de estos términos, limitaciones y asunción de riesgo.",
     "short": "Solo para referencia.",
     "seeFullDisclaimer": "Ver aviso completo"
   },

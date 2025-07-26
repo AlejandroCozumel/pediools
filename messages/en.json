@@ -1615,11 +1615,15 @@
     "fullCurveDescription": "Viewing complete growth progression"
   },
   "AppDisclaimer": {
-    "title": "Disclaimer:",
-    "referenceAid": "The User acknowledges and agrees that these tools will be used only as a reference aid, and that the information contained in the products are not intended to be (nor should it be used as) a substitute for the exercise of professional judgement.",
-    "confirmInformation": "In view of the possibility of human error or changes in medical science, the User should confirm the information in the products through independent sources.",
-    "noWarranties": "The products are provided without warranties of any kind, express or implied, and the author disclaim any liability, loss, or damage caused by it or its content.",
-    "acceptance": "By continuing to use these products, you have indicated your acceptance of these terms.",
+    "title": "Medical Calculator Disclaimer:",
+    "referenceAid": "These medical calculators are reference tools only and should not replace clinical judgment or professional medical advice.",
+    "confirmInformation": "Always verify calculations and reference ranges with current clinical guidelines and institutional protocols.",
+    "errorPossibility": "Calculation errors may occur. Always double-check critical calculations with alternative methods or colleagues.",
+    "notForEmergencies": "These tools are not intended for emergency situations where immediate clinical decisions are required.",
+    "betaWarning": "This software is under continuous development. Report any suspected errors immediately.",
+    "noWarranties": "No warranties are provided regarding accuracy, completeness, or fitness for purpose. Users assume full responsibility for all clinical decisions.",
+    "limitation": "In no event shall the developers be liable for any damages arising from use of these calculators.",
+    "acceptance": "Continued use indicates acceptance of these terms, limitations, and assumption of risk.",
     "short": "For reference only.",
     "seeFullDisclaimer": "See full disclaimer"
   },
