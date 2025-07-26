@@ -1457,6 +1457,10 @@
       "calculate": "Calcular Umbral",
       "calculating": "Calculando..."
     },
+    "chart": {
+      "focusedView": "Vista enfocada",
+      "fullCurve": "Curva completa"
+    },
     "disclaimer": {
       "title": "Aviso de Manejo de Bilirrubina",
       "calculation": "Los umbrales de bilirrubina se basan en las guías AAP 2022 y deben interpretarse con contexto clínico.",
