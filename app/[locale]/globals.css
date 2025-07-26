@@ -26,7 +26,7 @@ h6 {
 }
 
 @layer base {
-    /* Mobile select improvements */
+  /* Mobile select improvements */
   .select-trigger-mobile {
     @apply text-left;
   }
@@ -150,39 +150,53 @@ input[type="number"] {
 }
 
 @media print {
-  /* Hide everything by default when printing */
+  /* Hide everything by default */
   body * {
     visibility: hidden;
   }
 
-  /* Show only the printable sections */
-  #office-bp-reference-card,
-  #office-bp-reference-card *,
-  .results-section,
-  .results-section * {
+  /* Show only the printable section and its children */
+  .printable-results,
+  .printable-results * {
     visibility: visible;
   }
 
-  /* Position the printable content */
-  #office-bp-reference-card,
-  .results-section {
+  /* Position the printable section at the top of the page */
+  .printable-results {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
   }
 
-  /* Hide print button and other non-essential elements during print */
-  .print-hidden {
+  /* Hide print button when printing */
+  .print-button {
     display: none !important;
   }
 
-  /* Ensure proper page breaks */
-  .results-section {
+  /* Hide disclaimer when printing */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Optimize table printing */
+  table {
     page-break-inside: avoid;
   }
 
+  /* Ensure proper spacing */
+  .printable-results {
+    margin: 0;
+    padding: 0px;
+  }
+
   /* Remove shadows and borders that don't print well */
+  .printable-results .shadow,
+  .printable-results .shadow-sm,
+  .printable-results .shadow-md {
+    box-shadow: none !important;
+  }
+
   * {
     box-shadow: none !important;
     -webkit-print-color-adjust: exact;

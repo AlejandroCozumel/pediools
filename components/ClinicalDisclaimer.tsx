@@ -1,12 +1,14 @@
 "use client";
 import React from "react";
 import { AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ClinicalDisclaimerProps {
   title: string;
   points: string[];
   variant?: "warning" | "info" | "medical";
   className?: string;
+  hiddenOnPrint?: boolean;
 }
 
 export function ClinicalDisclaimer({
@@ -14,6 +16,7 @@ export function ClinicalDisclaimer({
   points,
   variant = "warning",
   className = "",
+  hiddenOnPrint = true,
 }: ClinicalDisclaimerProps) {
   const styles = {
     info: "bg-blue-50 border-blue-200 text-blue-600",
@@ -34,7 +37,12 @@ export function ClinicalDisclaimer({
   }[variant];
 
   return (
-    <div className={`mt-4 p-3 border rounded-lg ${styles} ${className}`}>
+    <div className={cn(
+      "mt-4 p-3 border rounded-lg",
+      styles,
+      hiddenOnPrint && "no-print",
+      className
+    )}>
       <div className="flex items-start gap-2">
         <AlertTriangle
           className={`w-4 h-4 mt-0.5 flex-shrink-0 ${textStyles}`}
