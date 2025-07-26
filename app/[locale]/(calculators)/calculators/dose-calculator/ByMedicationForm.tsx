@@ -347,15 +347,17 @@ export function ByMedicationForm() {
                       </FormControl>
                       <SelectContent>
                         {pediatricMeds.medications.map((med) => (
-                          <SelectItem key={med.id} value={med.id}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {med.names[locale]}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {med.doseDefault}{" "}
-                                {med.dosingType.replace("_", " ")}
-                              </span>
+                          <SelectItem key={med.id} value={med.id} className="select-item-complex">
+                            <div className="select-item-content">
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-medium truncate">
+                                  {med.names[locale]}
+                                </span>
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {med.doseDefault}{" "}
+                                  {med.dosingType.replace("_", " ")}
+                                </span>
+                              </div>
                             </div>
                           </SelectItem>
                         ))}
@@ -445,26 +447,30 @@ export function ByMedicationForm() {
                         <SelectContent>
                           {selectedMed.concentrations.map(
                             (concentration, index) => (
-                              <SelectItem key={index} value={index.toString()}>
-                                <div className="flex items-center gap-2">
-                                  {concentration.common && (
-                                    <Star className="h-3 w-3 text-yellow-500" />
-                                  )}
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">
-                                      {concentration.labels[locale]}
-                                      {concentration.common && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="ml-2 text-xs bg-yellow-100 text-yellow-800"
-                                        >
-                                          {t("byMedication.common") || "Common"}
-                                        </Badge>
-                                      )}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      {concentration.descriptions[locale]}
-                                    </span>
+                              <SelectItem key={index} value={index.toString()} className="select-item-complex">
+                                <div className="select-item-content">
+                                  <div className="flex items-center gap-2">
+                                    {concentration.common && (
+                                      <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
+                                    )}
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium truncate">
+                                          {concentration.labels[locale]}
+                                        </span>
+                                        {concentration.common && (
+                                          <Badge
+                                            variant="secondary"
+                                            className="select-item-badge text-xs bg-yellow-100 text-yellow-800"
+                                          >
+                                            {t("byMedication.common") || "Common"}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <span className="text-xs text-muted-foreground truncate">
+                                        {concentration.descriptions[locale]}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </SelectItem>
@@ -661,30 +667,34 @@ export function ByMedicationForm() {
                             </FormControl>
                             <SelectContent>
                               {selectedMed.frequencies.map((freq) => (
-                                <SelectItem key={freq.value} value={freq.value}>
-                                  <div className="flex items-center gap-2">
-                                    {freq.common && (
-                                      <Star className="h-3 w-3 text-yellow-500" />
-                                    )}
-                                    <div className="flex flex-col">
-                                      <span className="font-medium">
+                                                            <SelectItem key={freq.value} value={freq.value} className="select-item-complex">
+                              <div className="select-item-content">
+                                <div className="flex items-center gap-2">
+                                  {freq.common && (
+                                    <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
+                                  )}
+                                  <div className="flex flex-col min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium truncate">
                                         {freq.value} - {freq.labels[locale]}
-                                        {freq.common && (
-                                          <Badge
-                                            variant="secondary"
-                                            className="ml-2 text-xs bg-yellow-100 text-yellow-800"
-                                          >
-                                            {t("byMedication.common") ||
-                                              "Common"}
-                                          </Badge>
-                                        )}
                                       </span>
-                                      <span className="text-xs text-muted-foreground">
-                                        {freq.descriptions[locale]}
-                                      </span>
+                                      {freq.common && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="select-item-badge text-xs bg-yellow-100 text-yellow-800"
+                                        >
+                                          {t("byMedication.common") ||
+                                            "Common"}
+                                        </Badge>
+                                      )}
                                     </div>
+                                    <span className="text-xs text-muted-foreground truncate">
+                                      {freq.descriptions[locale]}
+                                    </span>
                                   </div>
-                                </SelectItem>
+                                </div>
+                              </div>
+                            </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>

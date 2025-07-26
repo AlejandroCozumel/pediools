@@ -17,7 +17,7 @@ const SelectValue = React.forwardRef<
   <SelectPrimitive.Value
     ref={ref}
     className={cn(
-      "text-left truncate max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-1.5rem)]",
+      "truncate text-left w-full",
       className
     )}
     {...props}
@@ -32,14 +32,16 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 text-left",
+      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-left",
       className
     )}
     {...props}
   >
-    {children}
+    <div className="flex-1 min-w-0 overflow-hidden">
+      {children}
+    </div>
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
+      <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -141,7 +143,7 @@ const SelectItem = React.forwardRef<
         <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
-    <SelectPrimitive.ItemText className="w-full">{children}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemText className="w-full flex-1 min-w-0">{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName
