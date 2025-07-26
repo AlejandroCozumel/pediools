@@ -245,20 +245,20 @@ export function BSABasedDoseForm() {
         <form className="space-y-8">
           {/* BSA Calculator Section */}
           <Card className="bg-medical-50/20 border-medical-100/50">
-            <CardHeader className="pb-4">
+            {/* <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                 <Activity className="h-5 w-5" />
                 {t("bsaBased.bsaCalculator") || "Body Surface Area Calculator"}
               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 !pt-0">
+            </CardHeader> */}
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Height */}
                 <FormField
                   control={form.control}
                   name="height"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {t("bsaBased.patientHeight") || "Patient Height"}
                         <InfoTooltip
@@ -293,7 +293,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-16 border-medical-100">
+                                <SelectTrigger className="w-16 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -315,7 +315,7 @@ export function BSABasedDoseForm() {
                   control={form.control}
                   name="weight"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {t("byMedication.patientWeight") || "Patient Weight"}
                         <InfoTooltip
@@ -350,7 +350,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-16 border-medical-100">
+                                <SelectTrigger className="w-16 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -413,7 +413,7 @@ export function BSABasedDoseForm() {
                   control={form.control}
                   name="medicationName"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>
                         {t("bsaBased.medicationName") ||
                           "Medication Name (optional)"}
@@ -441,7 +441,7 @@ export function BSABasedDoseForm() {
                   control={form.control}
                   name="dose"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {t("bsaBased.dosePerM2") || "Dose per m²"}
                         <InfoTooltip
@@ -477,7 +477,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-20 border-medical-100">
+                                <SelectTrigger className="w-20 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -504,14 +504,14 @@ export function BSABasedDoseForm() {
                   control={form.control}
                   name="frequency"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>Frequency</FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger className="border-medical-100">
+                          <SelectTrigger className="border-medical-100 text-left">
                             <SelectValue placeholder="Select frequency" />
                           </SelectTrigger>
                         </FormControl>
@@ -540,7 +540,7 @@ export function BSABasedDoseForm() {
                   control={form.control}
                   name="maxDose"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {t("bsaBased.maximumDose") || "Maximum Dose (optional)"}
                         <InfoTooltip
@@ -655,7 +655,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-24 border-medical-100">
+                                <SelectTrigger className="w-24 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -794,7 +794,7 @@ export function BSABasedDoseForm() {
 
                 {/* Dose Results */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormItem>
+                  <FormItem className="flex flex-col justify-between">
                     <FormLabel className="flex items-center gap-2">
                       {t("bsaBased.totalDose") || "Total Dose"}
                       <InfoTooltip
@@ -819,7 +819,7 @@ export function BSABasedDoseForm() {
 
                   {frequency !== "continuous" &&
                     calculations.dosesPerDay >= 1 && (
-                      <FormItem>
+                      <FormItem className="flex flex-col justify-between">
                         <FormLabel>
                           {t("byMedication.perDose") || "Per Dose"}
                         </FormLabel>
@@ -837,7 +837,7 @@ export function BSABasedDoseForm() {
                     )}
 
                   {frequency === "continuous" && (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>
                         {t("bsaBased.hourlyRate") || "Hourly Rate"}
                       </FormLabel>
@@ -858,7 +858,7 @@ export function BSABasedDoseForm() {
                 {/* Volume Results */}
                 {calculations && calculations.volumePerDose > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {frequency === "continuous"
                           ? t("bsaBased.volumePerHour") || "Volume per Hour"
@@ -884,7 +884,7 @@ export function BSABasedDoseForm() {
                       </div>
                     </FormItem>
 
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>
                         {frequency === "continuous"
                           ? t("byMedication.dailyVolume") || "Volume per Day"

@@ -26,6 +26,33 @@ h6 {
 }
 
 @layer base {
+    /* Mobile select improvements */
+  .select-trigger-mobile {
+    @apply text-left;
+  }
+
+  .select-trigger-mobile .select-value {
+    @apply truncate max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-1.5rem)];
+  }
+
+  /* Ensure select content doesn't get cut off on mobile */
+  .select-content-mobile {
+    @apply max-h-[50vh] sm:max-h-96;
+  }
+
+  /* Complex select content with icons and badges */
+  .select-item-complex {
+    @apply flex items-start gap-2 py-2;
+  }
+
+  .select-item-complex .select-item-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .select-item-complex .select-item-badge {
+    @apply flex-shrink-0;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
