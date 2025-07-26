@@ -293,7 +293,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-16 border-medical-100">
+                                <SelectTrigger className="w-16 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -350,7 +350,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-16 border-medical-100">
+                                <SelectTrigger className="w-16 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -477,7 +477,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-20 border-medical-100">
+                                <SelectTrigger className="w-20 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -511,7 +511,7 @@ export function BSABasedDoseForm() {
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger className="border-medical-100">
+                          <SelectTrigger className="border-medical-100 text-left">
                             <SelectValue placeholder="Select frequency" />
                           </SelectTrigger>
                         </FormControl>
@@ -655,7 +655,7 @@ export function BSABasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-24 border-medical-100">
+                                <SelectTrigger className="w-24 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

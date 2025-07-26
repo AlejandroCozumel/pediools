@@ -301,7 +301,7 @@ export function WeightBasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-20 border-medical-100">
+                                <SelectTrigger className="w-20 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -340,7 +340,7 @@ export function WeightBasedDoseForm() {
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="border-medical-100">
+                          <SelectTrigger className="border-medical-100 text-left">
                             <SelectValue
                               placeholder={
                                 t("weightBased.dosageType.placeholder") ||
@@ -406,7 +406,7 @@ export function WeightBasedDoseForm() {
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger className="border-medical-100">
+                          <SelectTrigger className="border-medical-100 text-left">
                             <SelectValue
                               placeholder={
                                 t("weightBased.frequency.placeholder") ||
@@ -477,7 +477,7 @@ export function WeightBasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-16 border-medical-100">
+                                <SelectTrigger className="w-16 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -562,7 +562,7 @@ export function WeightBasedDoseForm() {
                                 value={unitField.value}
                                 onValueChange={unitField.onChange}
                               >
-                                <SelectTrigger className="w-24 border-medical-100">
+                                <SelectTrigger className="w-24 border-medical-100 text-left">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

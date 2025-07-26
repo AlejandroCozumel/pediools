@@ -26,6 +26,20 @@ h6 {
 }
 
 @layer base {
+  /* Mobile select improvements */
+  .select-trigger-mobile {
+    @apply text-left;
+  }
+
+  .select-trigger-mobile .select-value {
+    @apply truncate max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-1.5rem)];
+  }
+
+  /* Ensure select content doesn't get cut off on mobile */
+  .select-content-mobile {
+    @apply max-h-[50vh] sm:max-h-96;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;

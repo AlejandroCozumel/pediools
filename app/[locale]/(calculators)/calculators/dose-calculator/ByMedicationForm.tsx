@@ -336,7 +336,7 @@ export function ByMedicationForm() {
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="border-medical-100">
+                        <SelectTrigger className="border-medical-100 text-left">
                           <SelectValue
                             placeholder={
                               t("byMedication.chooseMedication") ||
@@ -433,7 +433,7 @@ export function ByMedicationForm() {
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger className="border-medical-100">
+                          <SelectTrigger className="border-medical-100 text-left">
                             <SelectValue
                               placeholder={
                                 t("byMedication.selectConcentration") ||
@@ -555,7 +555,7 @@ export function ByMedicationForm() {
                                     value={unitField.value}
                                     onValueChange={unitField.onChange}
                                   >
-                                    <SelectTrigger className="w-16 border-medical-100">
+                                    <SelectTrigger className="w-16 border-medical-100 text-left">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -613,7 +613,7 @@ export function ByMedicationForm() {
                                     value={unitField.value}
                                     onValueChange={unitField.onChange}
                                   >
-                                    <SelectTrigger className="w-20 border-medical-100">
+                                    <SelectTrigger className="w-20 border-medical-100 text-left">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -650,7 +650,7 @@ export function ByMedicationForm() {
                             onValueChange={field.onChange}
                           >
                             <FormControl>
-                              <SelectTrigger className="border-medical-100">
+                              <SelectTrigger className="border-medical-100 text-left">
                                 <SelectValue
                                   placeholder={
                                     t("byMedication.selectFrequency") ||
@@ -709,7 +709,7 @@ export function ByMedicationForm() {
                             onValueChange={field.onChange}
                           >
                             <FormControl>
-                              <SelectTrigger className="border-medical-100">
+                              <SelectTrigger className="border-medical-100 text-left">
                                 <SelectValue
                                   placeholder={
                                     t("byMedication.selectDuration") ||
