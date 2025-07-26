@@ -373,8 +373,8 @@ export function OfficeBPReferenceCard({
   };
 
   return (
-    <div className="mt-6" id="office-bp-reference-card">
-      <div className="w-full justify-between items-center mb-4 print-hidden">
+    <div className="mt-6">
+      <div className="w-full justify-between items-center mb-4">
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap justify-between gap-2 w-full">
             <h3 className="text-lg font-semibold">
@@ -384,7 +384,7 @@ export function OfficeBPReferenceCard({
               onClick={handlePrint}
               size="sm"
               variant="outline"
-              className="print-hidden"
+              className="no-print"
             >
               <Printer className="w-4 h-4 mr-2" />
               {t("print", { defaultValue: "Print" })}
@@ -434,7 +434,7 @@ export function OfficeBPReferenceCard({
         </div>
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border rounded-lg overflow-hidden print:overflow-visible">
         <table className="w-full text-sm">
           <thead>
             <tr
@@ -594,7 +594,7 @@ export function OfficeBPReferenceCard({
             </tr>
           </tbody>
 
-          <tfoot>
+          <tfoot className="no-print">
             <tr>
               <td colSpan={3} className="p-3 text-xs text-muted-foreground">
                 <div className="flex items-start gap-2">

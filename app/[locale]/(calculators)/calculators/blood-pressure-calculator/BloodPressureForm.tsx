@@ -883,7 +883,7 @@ export function BloodPressureForm() {
 
                 {/* Real-time Results */}
                 {results && (
-                  <>
+                  <div className="printable-results">
                     <div className="results-section">
                       <Card>
                         <CardContent className="pt-6">
@@ -1215,7 +1215,7 @@ export function BloodPressureForm() {
                       gender={selectedGender}
                       showTitle={true}
                     />
-                  </>
+                  </div>
                 )}
                 {ageError && (
                   <Alert variant="destructive" className="mb-4">
@@ -1228,7 +1228,7 @@ export function BloodPressureForm() {
                   ageIsValid &&
                   hasHeight &&
                   !isSubmitting && (
-                    <div className="results-section">
+                    <div className="results-section  printable-results">
                       <OfficeBPReferenceCard
                         ageInYears={ageInYears}
                         gender={selectedGender}
