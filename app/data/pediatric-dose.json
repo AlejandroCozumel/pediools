@@ -6,7 +6,7 @@
         "en": "Acetaminophen (Tylenol)",
         "es": "Paracetamol (Acetaminofén)"
       },
-      "inputs": ["weight"],
+      "inputs": ["weight", "frequency"],
       "dosingType": "mg/kg/dose",
       "doseRange": [10, 15],
       "doseDefault": 15,
@@ -92,27 +92,15 @@
       ],
       "frequencies": [
         {
-          "value": "q4-6h",
-          "labels": {
-            "en": "Every 4-6 hours",
-            "es": "Cada 4-6 horas"
-          },
-          "common": true,
-          "descriptions": {
-            "en": "Standard dosing (max 4 doses/day)",
-            "es": "Dosificación estándar (máx 4 dosis/día)"
-          }
-        },
-        {
           "value": "q6h",
           "labels": {
             "en": "Every 6 hours",
             "es": "Cada 6 horas"
           },
-          "common": false,
+          "common": true,
           "descriptions": {
-            "en": "Conservative dosing",
-            "es": "Dosificación conservadora"
+            "en": "Standard dosing (4 times daily)",
+            "es": "Dosificación estándar (4 veces al día)"
           }
         },
         {
@@ -123,8 +111,8 @@
           },
           "common": false,
           "descriptions": {
-            "en": "Maintenance dosing",
-            "es": "Dosificación de mantenimiento"
+            "en": "Maintenance dosing (3 times daily)",
+            "es": "Dosificación de mantenimiento (3 veces al día)"
           }
         }
       ],
@@ -139,7 +127,7 @@
         "en": "Ibuprofen (Advil, Motrin)",
         "es": "Ibuprofeno"
       },
-      "inputs": ["weight"],
+      "inputs": ["weight", "frequency"],
       "dosingType": "mg/kg/dose",
       "doseRange": [5, 10],
       "doseDefault": 7.5,
@@ -225,10 +213,10 @@
       ],
       "frequencies": [
         {
-          "value": "q6-8h",
+          "value": "q6h",
           "labels": {
-            "en": "Every 6-8 hours",
-            "es": "Cada 6-8 horas"
+            "en": "Every 6 hours",
+            "es": "Cada 6 horas"
           },
           "common": true,
           "descriptions": {
@@ -244,20 +232,20 @@
           },
           "common": false,
           "descriptions": {
-            "en": "Pain relief dosing",
-            "es": "Dosificación para dolor"
+            "en": "Pain and fever relief",
+            "es": "Alivio del dolor y fiebre"
           }
         },
         {
-          "value": "q6h",
+          "value": "q12h",
           "labels": {
-            "en": "Every 6 hours",
-            "es": "Cada 6 horas"
+            "en": "Every 12 hours",
+            "es": "Cada 12 horas"
           },
           "common": false,
           "descriptions": {
-            "en": "Intensive anti-inflammatory",
-            "es": "Antiinflamatorio intensivo"
+            "en": "Maintenance dosing (twice daily)",
+            "es": "Dosificación de mantenimiento (dos veces al día)"
           }
         }
       ],
