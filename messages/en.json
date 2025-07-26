@@ -12,7 +12,8 @@
       "growth": "Growth",
       "cardiovascular": "Cardiovascular",
       "neonatal": "Neonatal",
-      "labs": "Lab Values"
+      "labs": "Lab Values",
+      "dose": "Pediatric Dose"
     },
     "calculators": {
       "growthPercentiles": {
@@ -167,6 +168,13 @@
         "who": "WHO Growth Standards (ages 0 to 24 months)",
         "intergrowth": "INTERGROWTH-21st Newborn Growth Standards (0-7 days)"
       }
+    },
+    "disclaimer": {
+      "title": "Growth Chart Reference Disclaimer",
+      "standardBased": "Growth percentiles are based on {standard} and should be interpreted with clinical context.",
+      "trackOverTime": "Growth measurements should be tracked over time rather than relying on single measurements.",
+      "individualFactors": "Always consider individual patient factors, family history, and overall clinical assessment.",
+      "responsibility": "The interpreting clinician remains responsible for all clinical decisions based on growth data."
     }
   },
   "BloodPressureCalculator": {
@@ -422,6 +430,12 @@
       "uncuffed": "Uncuffed",
       "noteTitle": "Nota",
       "note": "For children >8 years, cuffed tubes preferred. Always verify tube position with clinical assessment."
+    },
+    "disclaimer": {
+      "title": "Blood Pressure Reference Disclaimer",
+      "calculation": "BP reference ranges are population-based estimates and should be interpreted with clinical context.",
+      "verification": "Always correlate BP results with clinical presentation and repeat measurements when indicated.",
+      "responsibility": "The interpreting clinician remains responsible for all clinical decisions based on BP measurements."
     }
   },
   "PatientSelector": {
@@ -965,6 +979,13 @@
     },
     "buttons": {
       "graph": "Graph"
+    },
+    "disclaimer": {
+      "title": "Growth Chart Reference Disclaimer",
+      "standardBased": "BMI percentiles are based on {standard} reference data and should be interpreted with clinical context.",
+      "trackOverTime": "Growth measurements should be tracked over time rather than relying on single measurements.",
+      "individualFactors": "Always consider individual patient factors, family history, and overall clinical assessment.",
+      "responsibility": "The interpreting clinician remains responsible for all clinical decisions based on growth data."
     }
   },
   "LabCalculator": {
@@ -1050,115 +1071,224 @@
   "DoseCalculator": {
     "title": "Dose Calculator",
     "description": "Calculate medication dosages based on weight, age, and clinical parameters",
-    "subtitle": "Select a dosing method and calculate medication dosages based on patient parameters",
     "methods": {
       "weight": {
-        "name": "Weight-based",
+        "name": "Weight-Based",
         "description": "mg/kg dosing",
-        "details": "Based only on patient weight, note: Most common pediatric dosing method"
+        "details": "Calculate doses based on patient weight using mg/kg formulas"
       },
       "bsa": {
-        "name": "BSA-based",
+        "name": "BSA-Based",
         "description": "mg/m² dosing",
-        "details": "Based on weight and height (BSA)",
-        "note": "Used for chemotherapy and high-risk medications"
+        "details": "Calculate doses based on body surface area for oncology and specialty medications"
       },
       "bsa_normalized": {
-        "name": "BSA-normalized",
-        "description": "Normalized to 1.73 m²",
-        "details": "Uses total BSA, normalized to standard adult BSA",
-        "note": "Common for renal function adjustments"
+        "name": "BSA Normalized",
+        "description": "normalized to 1.73m²",
+        "details": "Calculate doses normalized to standard body surface area of 1.73m²"
+      },
+      "byMedication": {
+        "name": "By Medication",
+        "description": "guided dosing",
+        "details": "Smart guided dosing for common pediatric medications with built-in safety checks"
+      },
+      "dosing": "Dosing"
+    },
+    "byMedication": {
+      "selectMedication": "Select Medication",
+      "commonMedications": "Common Pediatric Medications",
+      "chooseMedication": "Choose a medication...",
+      "concentration": "Concentration",
+      "concentrationTooltip": "Choose the concentration available in your pharmacy",
+      "selectConcentration": "Select concentration...",
+      "enterConcentration": "Enter concentration",
+      "common": "Common",
+      "patientInfo": "Patient Information",
+      "patientWeight": "Patient Weight",
+      "weightTooltip": "Enter the patient's current weight",
+      "enterWeight": "Enter weight",
+      "patientAge": "Patient Age",
+      "ageTooltip": "Enter the patient's age",
+      "enterAge": "Enter age",
+      "years": "years",
+      "months": "months",
+      "frequency": "Frequency",
+      "selectFrequency": "Select frequency",
+      "duration": "Duration (days)",
+      "selectDuration": "Select duration",
+      "days": "days",
+      "customDose": "Custom Dose Override (optional)",
+      "customDoseTooltip": "Override the default dose of",
+      "default": "Default",
+      "calculatedDosage": "Calculated Dosage",
+      "doseLimited": "Dose Limited",
+      "doseExceeds": "Calculated dose exceeds maximum safe limit. Dose has been capped at the maximum recommended amount.",
+      "perDose": "Per Dose",
+      "dailyTotal": "Daily Total",
+      "volumePerDose": "Volume Per Dose",
+      "basedOnConcentration": "Based on concentration",
+      "dailyVolume": "Daily Volume",
+      "administration": "Administration",
+      "recommended": "Recommended",
+      "advanced": "Advanced",
+      "customDoseWarning": "Only override if you have specific clinical rationale. Safety limits will still apply.",
+      "referenceSource": "Clinical Reference & Dosing Guidelines",
+      "maximumLimits": "Maximum limits",
+      "day": "day",
+      "disclaimer": {
+        "title": "Clinical Disclaimer",
+        "calculation": "These calculations are for reference only and should not replace clinical judgment.",
+        "verification": "Always verify dosages with another clinician and current clinical guidelines before administration.",
+        "responsibility": "The prescribing clinician remains fully responsible for all dosing decisions."
       }
     },
     "weightBased": {
-      "title": "Weight-Based Dosage Prescribed",
+      "title": "Weight-Based Dosing",
       "dose": {
-        "label": "Dose",
+        "label": "Dose Amount",
+        "tooltip": "Enter the prescribed dose amount",
         "placeholder": "Enter dose"
       },
       "doseUnit": {
-        "label": "Dose Unit",
         "mg": "mg",
-        "ml": "ml",
+        "ml": "mL",
         "tablet": "tablet"
       },
       "dosageType": {
-        "label": "Age Type",
+        "label": "Dosage Type",
+        "placeholder": "Select dosage type",
         "perKgPerDay": {
-          "value": "/kg/day",
-          "label": "/kg/day",
-          "description": "Per kilogram per day"
+          "label": "/kg/day - Per kilogram per day"
         },
         "perKgPerDose": {
-          "value": "/kg/dose",
-          "label": "/kg/dose",
-          "description": "Per kilogram per dose"
+          "label": "/kg/dose - Per kilogram per dose"
         },
         "perDay": {
-          "value": "/day",
-          "label": "/day",
-          "description": "Total per day"
+          "label": "/day - Total per day"
         },
         "perDose": {
-          "value": "/dose",
-          "label": "/dose",
-          "description": "Total per dose"
+          "label": "/dose - Total per dose"
         }
       },
       "frequency": {
         "label": "Frequency",
+        "placeholder": "Select frequency",
         "options": {
           "qD": "qD (once a day)",
           "BID": "BID (twice a day)",
           "TID": "TID (thrice a day)",
           "QID": "QID (four times a day)",
-          "q4hr": "q4h (every 4 hours)",
-          "q6hr": "q6h (every 6 hours)",
-          "q8hr": "q8h (every 8 hours)"
+          "q4hr": "q4hr (every 4 hours)",
+          "q6hr": "q6hr (every 6 hours)",
+          "q8hr": "q8hr (every 8 hours)"
         }
       },
       "patientWeight": {
         "label": "Patient Weight",
-        "placeholder": "Enter weight"
+        "placeholder": "Enter weight",
+        "tooltip": "Enter patient's current weight"
       },
       "weightUnit": {
-        "label": "Weight Unit",
         "kg": "kg",
         "lb": "lb"
       },
+      "prescriptionSummary": {
+        "title": "Prescription Summary",
+        "weight": "Weight"
+      },
       "medication": {
-        "title": "Medication Information",
         "mass": {
-          "label": "Mass",
+          "label": "Drug Mass",
+          "tooltip": "Enter the amount of active drug",
           "placeholder": "Enter mass"
         },
         "massUnit": {
-          "label": "Mass Unit",
           "mg": "mg",
           "g": "g"
         },
         "volume": {
           "label": "Volume",
+          "tooltip": "Enter the volume or number of tablets",
           "placeholder": "Enter volume"
         },
         "volumeUnit": {
-          "label": "Volume Unit",
-          "ml": "ml",
+          "ml": "mL",
           "tablet": "tablet"
         }
       },
+      "concentration": {
+        "title": "Concentration"
+      },
       "results": {
-        "title": "Dosage Results",
-        "dailyDosage": "Daily Dosage",
-        "perDose": "Per Dose",
-        "dailyVolume": "Daily Volume",
-        "concentration": "Concentration"
+        "title": "Calculation Results",
+        "perDoseVolume": {
+          "label": "Volume Per Dose",
+          "tooltip": "Amount to give for each dose",
+          "unit": "per dose"
+        },
+        "dailyVolume": {
+          "label": "Daily Volume",
+          "tooltip": "Total volume needed per day",
+          "unit": "per day"
+        },
+        "calculatedDosages": {
+          "title": "Calculated Dosages",
+          "perDose": "Per Dose",
+          "per24h": "Per 24h"
+        },
+        "tabletInformation": {
+          "title": "Tablet Information ({mass} mg)",
+          "perDose": "Per Dose",
+          "per24h": "Per 24h",
+          "tablets": "tablets"
+        }
       }
     },
     "drugConcentration": {
-      "title": "Drug Concentration",
-      "label": "Concentration",
-      "placeholder": "Enter concentration"
+      "title": "Drug Concentration"
+    },
+    "bsaBased": {
+      "bsaCalculator": "Body Surface Area Calculator",
+      "patientHeight": "Patient Height",
+      "heightTooltip": "Enter the patient's height for BSA calculation",
+      "enterHeight": "Enter height",
+      "calculatedBSA": "Calculated BSA (Mosteller formula)",
+      "basedOn": "Based on",
+      "and": "and",
+      "bsaPrescription": "BSA-Based Prescription",
+      "medicationName": "Medication Name (optional)",
+      "medicationPlaceholder": "e.g., Doxorubicin, Methotrexate",
+      "dosePerM2": "Dose per m²",
+      "dosePerM2Tooltip": "Enter the prescribed dose per square meter of body surface area",
+      "maximumDose": "Maximum Dose (optional)",
+      "maxDoseTooltip": "Enter maximum safe dose to enable safety checks",
+      "enterMaxDose": "Enter max dose",
+      "bsaBasedMedication": "BSA-based medication",
+      "availableConcentration": "Available Concentration",
+      "concentrationTooltip": "Enter the concentration of the medication preparation",
+      "bsaResults": "BSA-Based Calculation Results",
+      "bsaMethodLabel": "BSA Calculation Method",
+      "actualBSA": "Actual BSA",
+      "normalizedBSA": "Normalized BSA",
+      "actualBSAMethod": "Actual BSA Method",
+      "actualBSADescription": "Uses the patient's calculated BSA. Standard for most oncology and specialty medications.",
+      "normalizedBSAMethod": "Normalized BSA Method",
+      "normalizedBSADescription": "Uses standard adult BSA of 1.73 m². Common for renal dosing and some pediatric protocols.",
+      "doseLimitExceeded": "DOSE LIMIT EXCEEDED",
+      "doseLimitMessage": "Calculated dose exceeds maximum safe limit. This is critical for BSA-based medications. Please verify with oncology/specialty team.",
+      "totalDose": "Total Dose",
+      "hourlyRate": "Hourly Rate",
+      "volumePerHour": "Volume per Hour",
+      "totalVolumePerCycle": "Total Volume per Cycle",
+      "patientBSA": "Patient BSA",
+      "usedForCalculation": "Used for Calculation",
+      "actual": "actual",
+      "normalized": "normalized",
+      "bsaMethodComparison": "BSA Method Comparison",
+      "actualBSADose": "Actual BSA Dose",
+      "normalizedDoseUsed": "Normalized Dose (Used)",
+      "bsaSafetyTitle": "BSA-Based Medication Safety",
+      "bsaSafetyWarning": "Always verify calculations with another clinician. BSA-based medications often have narrow therapeutic windows and require careful monitoring."
     }
   },
   "BilirubinCalculator": {
@@ -1336,6 +1466,12 @@
     "buttons": {
       "calculate": "Calculate Threshold",
       "calculating": "Calculating..."
+    },
+    "disclaimer": {
+      "title": "Bilirubin Management Disclaimer",
+      "calculation": "Bilirubin thresholds are based on AAP 2022 guidelines and should be interpreted with clinical context.",
+      "verification": "Always correlate bilirubin levels with clinical assessment and consider individual patient factors.",
+      "responsibility": "The treating clinician remains responsible for all clinical decisions regarding bilirubin management."
     }
   },
   "SmartLoader": {

@@ -12,7 +12,8 @@
       "growth": "Crecimiento",
       "cardiovascular": "Cardiovascular",
       "neonatal": "Neonatal",
-      "labs": "Laboratorio"
+      "labs": "Laboratorio",
+      "dose": "Dosis Pediátrica"
     },
     "calculators": {
       "growthPercentiles": {
@@ -167,6 +168,13 @@
         "who": "Estándares de Crecimiento OMS (0 a 24 meses)",
         "intergrowth": "Estándares de Crecimiento Neonatal INTERGROWTH-21st (0-7 días)"
       }
+    },
+    "disclaimer": {
+      "title": "Aviso de Referencias de Gráficas de Crecimiento",
+      "standardBased": "Los percentiles de crecimiento se basan en {standard} y deben interpretarse con contexto clínico.",
+      "trackOverTime": "Las mediciones de crecimiento deben seguirse a lo largo del tiempo en lugar de depender de mediciones únicas.",
+      "individualFactors": "Siempre considerar factores individuales del paciente, antecedentes familiares y evaluación clínica general.",
+      "responsibility": "El clínico que interpreta permanece responsable de todas las decisiones clínicas basadas en datos de crecimiento."
     }
   },
   "BloodPressureCalculator": {
@@ -422,6 +430,12 @@
       "uncuffed": "Sin Manguito",
       "noteTitle": "Note",
       "note": "Para niños >8 años, se prefieren tubos con manguito. Siempre verificar posición del tubo con evaluación clínica."
+    },
+    "disclaimer": {
+      "title": "Aviso de Referencias de Presión Arterial",
+      "calculation": "Los rangos de referencia de PA son estimaciones basadas en población y deben interpretarse con contexto clínico.",
+      "verification": "Siempre correlacionar resultados de PA con presentación clínica y repetir mediciones cuando esté indicado.",
+      "responsibility": "El clínico que interpreta permanece responsable de todas las decisiones clínicas basadas en mediciones de PA."
     }
   },
   "PatientSelector": {
@@ -955,6 +969,13 @@
     },
     "buttons": {
       "graph": "Graficar"
+    },
+    "disclaimer": {
+      "title": "Aviso de Referencias de Gráficas de Crecimiento",
+      "standardBased": "Los percentiles de IMC se basan en datos de referencia {standard} y deben interpretarse con contexto clínico.",
+      "trackOverTime": "Las mediciones de crecimiento deben seguirse a lo largo del tiempo en lugar de depender de mediciones únicas.",
+      "individualFactors": "Siempre considerar factores individuales del paciente, antecedentes familiares y evaluación clínica general.",
+      "responsibility": "El clínico que interpreta permanece responsable de todas las decisiones clínicas basadas en datos de crecimiento."
     }
   },
   "LabCalculator": {
@@ -1039,116 +1060,225 @@
   },
   "DoseCalculator": {
     "title": "Calculadora de Dosis",
-    "description": "Calcula dosis de medicamentos basadas en peso, edad y parámetros clínicos",
-    "subtitle": "Seleccione un método de dosificación y calcule dosis de medicamentos según los parámetros del paciente",
+    "description": "Calcular dosis de medicamentos basado en peso, edad y parámetros clínicos",
     "methods": {
       "weight": {
-        "name": "Por peso",
-        "description": "Dosis en mg/kg",
-        "details": "Basado solo en el peso del paciente. Nota: Método más común en pediatría."
+        "name": "Basado en Peso",
+        "description": "dosis mg/kg",
+        "details": "Calcular dosis basadas en el peso del paciente usando fórmulas mg/kg"
       },
       "bsa": {
-        "name": "Por superficie corporal (BSA)",
-        "description": "Dosis en mg/m²",
-        "details": "Basado en peso y talla (BSA)",
-        "note": "Usado para quimioterapia y medicamentos de alto riesgo"
+        "name": "Basado en SCT",
+        "description": "dosis mg/m²",
+        "details": "Calcular dosis basadas en superficie corporal total para oncología y medicamentos especializados"
       },
       "bsa_normalized": {
-        "name": "BSA normalizada",
-        "description": "Normalizado a 1.73 m²",
-        "details": "Usa BSA total, normalizada al estándar adulto",
-        "note": "Común para ajustes en función renal"
+        "name": "SCT Normalizada",
+        "description": "normalizada a 1.73m²",
+        "details": "Calcular dosis normalizadas a superficie corporal estándar de 1.73m²"
+      },
+      "byMedication": {
+        "name": "Por Medicamento",
+        "description": "dosis guiada",
+        "details": "Dosificación guiada inteligente para medicamentos pediátricos comunes con controles de seguridad integrados"
+      },
+      "dosing": "Dosificación"
+    },
+    "byMedication": {
+      "selectMedication": "Seleccionar Medicamento",
+      "commonMedications": "Medicamentos Pediátricos Comunes",
+      "chooseMedication": "Elegir un medicamento...",
+      "concentration": "Concentración",
+      "concentrationTooltip": "Elegir la concentración disponible en su farmacia",
+      "selectConcentration": "Seleccionar concentración...",
+      "enterConcentration": "Ingresar concentración",
+      "common": "Común",
+      "patientInfo": "Información del Paciente",
+      "patientWeight": "Peso del Paciente",
+      "weightTooltip": "Ingresar el peso actual del paciente",
+      "enterWeight": "Ingresar peso",
+      "patientAge": "Edad del Paciente",
+      "ageTooltip": "Ingresar la edad del paciente",
+      "enterAge": "Ingresar edad",
+      "years": "años",
+      "months": "meses",
+      "frequency": "Frecuencia",
+      "selectFrequency": "Seleccionar frecuencia",
+      "duration": "Duración (días)",
+      "selectDuration": "Seleccionar duración",
+      "days": "días",
+      "customDose": "Dosis Personalizada (opcional)",
+      "customDoseTooltip": "Sobrescribir la dosis predeterminada de",
+      "default": "Predeterminado",
+      "calculatedDosage": "Dosis Calculada",
+      "doseLimited": "Dosis Limitada",
+      "doseExceeds": "La dosis calculada excede el límite máximo seguro. La dosis ha sido limitada a la cantidad máxima recomendada.",
+      "perDose": "Por Dosis",
+      "dailyTotal": "Total Diario",
+      "volumePerDose": "Volumen Por Dosis",
+      "basedOnConcentration": "Basado en concentración",
+      "dailyVolume": "Volumen Diario",
+      "administration": "Administración",
+      "recommended": "Recomendado",
+      "advanced": "Avanzado",
+      "customDoseWarning": "Solo sobrescribir si tiene una justificación clínica específica. Los límites de seguridad seguirán aplicándose.",
+      "referenceSource": "Referencia Clínica y Guías de Dosificación",
+      "maximumLimits": "Límites máximos",
+      "day": "día",
+      "disclaimer": {
+        "title": "Aviso Clínico",
+        "calculation": "Estos cálculos son solo de referencia y no deben reemplazar el juicio clínico.",
+        "verification": "Siempre verificar las dosis con otro clínico y las guías clínicas actuales antes de la administración.",
+        "responsibility": "El clínico prescriptor permanece completamente responsable de todas las decisiones de dosificación."
       }
     },
     "weightBased": {
-      "title": "Dosis prescrita basada en peso",
+      "title": "Dosificación Basada en Peso",
       "dose": {
-        "label": "Dosis",
-        "placeholder": "Ingrese la dosis"
+        "label": "Cantidad de Dosis",
+        "tooltip": "Ingresar la cantidad de dosis prescrita",
+        "placeholder": "Ingresar dosis"
       },
       "doseUnit": {
-        "label": "Unidad de dosis",
         "mg": "mg",
-        "ml": "ml",
+        "ml": "mL",
         "tablet": "tableta"
       },
       "dosageType": {
-        "label": "Tipo de dosificación",
+        "label": "Tipo de Dosificación",
+        "placeholder": "Seleccionar tipo de dosificación",
         "perKgPerDay": {
-          "value": "/kg/día",
-          "label": "/kg/día",
-          "description": "Por kilogramo por día"
+          "label": "/kg/día - Por kilogramo por día"
         },
         "perKgPerDose": {
-          "value": "/kg/dosis",
-          "label": "/kg/dosis",
-          "description": "Por kilogramo por dosis"
+          "label": "/kg/dosis - Por kilogramo por dosis"
         },
         "perDay": {
-          "value": "/día",
-          "label": "/día",
-          "description": "Total por día"
+          "label": "/día - Total por día"
         },
         "perDose": {
-          "value": "/dosis",
-          "label": "/dosis",
-          "description": "Total por dosis"
+          "label": "/dosis - Total por dosis"
         }
       },
       "frequency": {
         "label": "Frecuencia",
+        "placeholder": "Seleccionar frecuencia",
         "options": {
           "qD": "qD (una vez al día)",
           "BID": "BID (dos veces al día)",
           "TID": "TID (tres veces al día)",
           "QID": "QID (cuatro veces al día)",
-          "q4hr": "q4h (cada 4 horas)",
-          "q6hr": "q6h (cada 6 horas)",
-          "q8hr": "q8h (cada 8 horas)"
+          "q4hr": "q4hr (cada 4 horas)",
+          "q6hr": "q6hr (cada 6 horas)",
+          "q8hr": "q8hr (cada 8 horas)"
         }
       },
       "patientWeight": {
-        "label": "Peso del paciente",
-        "placeholder": "Ingrese el peso"
+        "label": "Peso del Paciente",
+        "placeholder": "Ingresar peso",
+        "tooltip": "Ingresar el peso actual del paciente"
       },
       "weightUnit": {
-        "label": "Unidad de peso",
         "kg": "kg",
         "lb": "lb"
       },
+      "prescriptionSummary": {
+        "title": "Resumen de Prescripción",
+        "weight": "Peso"
+      },
       "medication": {
-        "title": "Información del medicamento",
         "mass": {
-          "label": "Masa",
-          "placeholder": "Ingrese la masa"
+          "label": "Masa del Medicamento",
+          "tooltip": "Ingresar la cantidad de principio activo",
+          "placeholder": "Ingresar masa"
         },
         "massUnit": {
-          "label": "Unidad de masa",
           "mg": "mg",
           "g": "g"
         },
         "volume": {
           "label": "Volumen",
-          "placeholder": "Ingrese el volumen"
+          "tooltip": "Ingresar el volumen o número de tabletas",
+          "placeholder": "Ingresar volumen"
         },
         "volumeUnit": {
-          "label": "Unidad de volumen",
-          "ml": "ml",
+          "ml": "mL",
           "tablet": "tableta"
         }
       },
+      "concentration": {
+        "title": "Concentración"
+      },
       "results": {
-        "title": "Resultados de dosificación",
-        "dailyDosage": "Dosis diaria",
-        "perDose": "Por dosis",
-        "dailyVolume": "Volumen diario",
-        "concentration": "Concentración"
+        "title": "Resultados del Cálculo",
+        "perDoseVolume": {
+          "label": "Volumen Por Dosis",
+          "tooltip": "Cantidad a administrar por cada dosis",
+          "unit": "por dosis"
+        },
+        "dailyVolume": {
+          "label": "Volumen Diario",
+          "tooltip": "Volumen total necesario por día",
+          "unit": "por día"
+        },
+        "calculatedDosages": {
+          "title": "Dosis Calculadas",
+          "perDose": "Por Dosis",
+          "per24h": "Por 24h"
+        },
+        "tabletInformation": {
+          "title": "Información de Tabletas ({mass} mg)",
+          "perDose": "Por Dosis",
+          "per24h": "Por 24h",
+          "tablets": "tabletas"
+        }
       }
     },
     "drugConcentration": {
-      "title": "Concentración del medicamento",
-      "label": "Concentración",
-      "placeholder": "Ingrese la concentración"
+      "title": "Concentración del Medicamento"
+    },
+    "bsaBased": {
+      "bsaCalculator": "Calculadora de Superficie Corporal Total",
+      "patientHeight": "Altura del Paciente",
+      "heightTooltip": "Ingresar la altura del paciente para el cálculo de SCT",
+      "enterHeight": "Ingresar altura",
+      "calculatedBSA": "SCT Calculada (fórmula de Mosteller)",
+      "basedOn": "Basado en",
+      "and": "y",
+      "bsaPrescription": "Prescripción Basada en SCT",
+      "medicationName": "Nombre del Medicamento (opcional)",
+      "medicationPlaceholder": "ej. Doxorrubicina, Metotrexato",
+      "dosePerM2": "Dosis por m²",
+      "dosePerM2Tooltip": "Ingresar la dosis prescrita por metro cuadrado de superficie corporal",
+      "maximumDose": "Dosis Máxima (opcional)",
+      "maxDoseTooltip": "Ingresar dosis máxima segura para habilitar controles de seguridad",
+      "enterMaxDose": "Ingresar dosis máxima",
+      "bsaBasedMedication": "Medicamento basado en SCT",
+      "availableConcentration": "Concentración Disponible",
+      "concentrationTooltip": "Ingresar la concentración de la preparación del medicamento",
+      "bsaResults": "Resultados del Cálculo Basado en SCT",
+      "bsaMethodLabel": "Método de Cálculo de SCT",
+      "actualBSA": "SCT Real",
+      "normalizedBSA": "SCT Normalizada",
+      "actualBSAMethod": "Método SCT Real",
+      "actualBSADescription": "Usa la SCT calculada del paciente. Estándar para la mayoría de medicamentos oncológicos y especializados.",
+      "normalizedBSAMethod": "Método SCT Normalizada",
+      "normalizedBSADescription": "Usa SCT adulto estándar de 1.73 m². Común para dosificación renal y algunos protocolos pediátricos.",
+      "doseLimitExceeded": "LÍMITE DE DOSIS EXCEDIDO",
+      "doseLimitMessage": "La dosis calculada excede el límite máximo seguro. Esto es crítico para medicamentos basados en SCT. Favor verificar con el equipo de oncología/especialidad.",
+      "totalDose": "Dosis Total",
+      "hourlyRate": "Tasa por Hora",
+      "volumePerHour": "Volumen por Hora",
+      "totalVolumePerCycle": "Volumen Total por Ciclo",
+      "patientBSA": "SCT del Paciente",
+      "usedForCalculation": "Usado para Cálculo",
+      "actual": "real",
+      "normalized": "normalizada",
+      "bsaMethodComparison": "Comparación de Métodos SCT",
+      "actualBSADose": "Dosis SCT Real",
+      "normalizedDoseUsed": "Dosis Normalizada (Usada)",
+      "bsaSafetyTitle": "Seguridad de Medicamentos Basados en SCT",
+      "bsaSafetyWarning": "Siempre verificar cálculos con otro clínico. Los medicamentos basados en SCT a menudo tienen ventanas terapéuticas estrechas y requieren monitoreo cuidadoso."
     }
   },
   "BilirubinCalculator": {
@@ -1326,6 +1456,12 @@
     "buttons": {
       "calculate": "Calcular Umbral",
       "calculating": "Calculando..."
+    },
+    "disclaimer": {
+      "title": "Aviso de Manejo de Bilirrubina",
+      "calculation": "Los umbrales de bilirrubina se basan en las guías AAP 2022 y deben interpretarse con contexto clínico.",
+      "verification": "Siempre correlacionar los niveles de bilirrubina con la evaluación clínica y considerar factores individuales del paciente.",
+      "responsibility": "El clínico tratante permanece responsable de todas las decisiones clínicas sobre el manejo de bilirrubina."
     }
   },
   "SmartLoader": {

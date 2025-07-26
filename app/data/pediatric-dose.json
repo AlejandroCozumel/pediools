@@ -1,0 +1,1675 @@
+{
+  "medications": [
+    {
+      "id": "paracetamol",
+      "names": {
+        "en": "Acetaminophen (Tylenol)",
+        "es": "Paracetamol (Acetaminofén)"
+      },
+      "inputs": ["weight"],
+      "dosingType": "mg/kg/dose",
+      "doseRange": [10, 15],
+      "doseDefault": 15,
+      "maxDose": 640,
+      "maxDailyDose": 60,
+      "referenceUrl": "https://downloads.aap.org/HC/EN/Acetaminophen_Pictographic_Dosing_Chart_download.pdf",
+      "concentrations": [
+        {
+          "mg": 160,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "160mg/5mL Syrup (3.2g/100mL or 1600mg/50mL)",
+            "es": "160mg/5mL Jarabe (3.2g/100mL o 1600mg/50mL)"
+          },
+          "common": true,
+          "ageGroup": ["infant", "toddler", "child"],
+          "descriptions": {
+            "en": "Children's Oral Suspension",
+            "es": "Suspensión Oral Infantil"
+          }
+        },
+        {
+          "mg": 160,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "160mg Chewable Tablet",
+            "es": "160mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["toddler", "child"],
+          "descriptions": {
+            "en": "Children's Chewable Tablets (per tablet)",
+            "es": "Tabletas Masticables Infantil (por tableta)"
+          }
+        },
+        {
+          "mg": 125,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "125mg Chewable Tablet",
+            "es": "125mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["toddler", "child"],
+          "descriptions": {
+            "en": "125mg chewable tablet (per tablet)",
+            "es": "Tableta masticable de 125mg (por tableta)"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "250mg Chewable Tablet",
+            "es": "250mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Stronger chewable tablet for older children (per tablet)",
+            "es": "Tableta masticable de mayor dosis para niños mayores (por tableta)"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "500mg Chewable or Soluble Tablet",
+            "es": "500mg Tableta Masticable o Soluble"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "High dose tablet, usually for older children or teens",
+            "es": "Tableta de dosis alta, común en niños mayores o adolescentes"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "q4-6h",
+          "labels": {
+            "en": "Every 4-6 hours",
+            "es": "Cada 4-6 horas"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing (max 4 doses/day)",
+            "es": "Dosificación estándar (máx 4 dosis/día)"
+          }
+        },
+        {
+          "value": "q6h",
+          "labels": {
+            "en": "Every 6 hours",
+            "es": "Cada 6 horas"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Conservative dosing",
+            "es": "Dosificación conservadora"
+          }
+        },
+        {
+          "value": "q8h",
+          "labels": {
+            "en": "Every 8 hours",
+            "es": "Cada 8 horas"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Maintenance dosing",
+            "es": "Dosificación de mantenimiento"
+          }
+        }
+      ],
+      "notes": {
+        "en": "Safe from birth with medical supervision. Maximum 4 doses in 24 hours. Do not exceed 60 mg/kg/day to avoid liver toxicity. Consult a doctor for use in children under 6 months or for use longer than 3 days. Avoid combining with other acetaminophen-containing products.",
+        "es": "Seguro desde el nacimiento con supervisión médica. Máximo 4 dosis en 24 horas. No exceda 60 mg/kg/día para evitar toxicidad hepática. Consulte a un médico para uso en niños menores de 6 meses o por más de 3 días. Evite combinar con otros productos que contengan paracetamol."
+      }
+    },
+    {
+      "id": "ibuprofen",
+      "names": {
+        "en": "Ibuprofen (Advil, Motrin)",
+        "es": "Ibuprofeno"
+      },
+      "inputs": ["weight"],
+      "dosingType": "mg/kg/dose",
+      "doseRange": [5, 10],
+      "doseDefault": 7.5,
+      "maxDose": 400,
+      "maxDailyDose": 40,
+      "referenceUrl": "https://downloads.aap.org/HC/EN/Ibuprofen_Pictographic_Dosing_Chart_download.pdf",
+      "concentrations": [
+        {
+          "mg": 100,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "100mg/5mL Liquid",
+            "es": "100mg/5mL Líquido"
+          },
+          "common": true,
+          "ageGroup": ["infant", "toddler", "child"],
+          "descriptions": {
+            "en": "Children's Oral Suspension",
+            "es": "Suspensión Oral Infantil"
+          }
+        },
+        {
+          "mg": 50,
+          "mL": 1.25,
+          "type": "liquid",
+          "labels": {
+            "en": "50mg/1.25mL Infant Drops",
+            "es": "50mg/1.25mL Gotas Infantiles"
+          },
+          "common": false,
+          "ageGroup": ["infant"],
+          "descriptions": {
+            "en": "Infant's Oral Suspension Drops",
+            "es": "Gotas Suspensión Oral Bebé"
+          }
+        },
+        {
+          "mg": 50,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "50mg Chewable Tablet",
+            "es": "50mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["toddler", "child"],
+          "descriptions": {
+            "en": "Children's Chewable Tablet (per tablet)",
+            "es": "Tableta Masticable Infantil (por tableta)"
+          }
+        },
+        {
+          "mg": 100,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "100mg Chewable Tablet",
+            "es": "100mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["toddler", "child"],
+          "descriptions": {
+            "en": "Children's Chewable Tablet (per tablet)",
+            "es": "Tableta Masticable Infantil (por tableta)"
+          }
+        },
+        {
+          "mg": 200,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "200mg Chewable Tablet",
+            "es": "200mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Junior Strength Chewable Tablet for older children (per tablet)",
+            "es": "Tableta Masticable de Mayor Dosis para niños mayores (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "q6-8h",
+          "labels": {
+            "en": "Every 6-8 hours",
+            "es": "Cada 6-8 horas"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard anti-inflammatory dosing",
+            "es": "Dosificación antiinflamatoria estándar"
+          }
+        },
+        {
+          "value": "q8h",
+          "labels": {
+            "en": "Every 8 hours",
+            "es": "Cada 8 horas"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Pain relief dosing",
+            "es": "Dosificación para dolor"
+          }
+        },
+        {
+          "value": "q6h",
+          "labels": {
+            "en": "Every 6 hours",
+            "es": "Cada 6 horas"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Intensive anti-inflammatory",
+            "es": "Antiinflamatorio intensivo"
+          }
+        }
+      ],
+      "notes": {
+        "en": "Not recommended for infants under 6 months. Maximum 40 mg/kg/day to avoid gastrointestinal irritation, bleeding, or kidney issues. Consult a doctor for use in infants aged 6–12 months or for use longer than 3 days. Avoid combining with other ibuprofen-containing products or NSAIDs.",
+        "es": "No recomendado para bebés menores de 6 meses. Máximo 40 mg/kg/día para evitar irritación gastrointestinal, sangrado o problemas renales. Consulte a un médico para uso en bebés de 6 a 12 meses o por más de 3 días. Evite combinar con otros productos que contengan ibuprofeno u otros AINE."
+      }
+    },
+    {
+      "id": "amoxicillin",
+      "names": {
+        "en": "Amoxicillin",
+        "es": "Amoxicilina"
+      },
+      "inputs": ["weight", "frequency", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [40, 90],
+      "doseDefault": 60,
+      "maxDose": 1000,
+      "maxDailyDose": 100,
+      "referenceUrl": "https://www.drugs.com/dosage/amoxicillin.html",
+      "concentrations": [
+        {
+          "mg": 125,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "125mg/5mL Suspension",
+            "es": "125mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["infant", "toddler"],
+          "descriptions": {
+            "en": "Oral suspension for infants and toddlers",
+            "es": "Suspensión oral para lactantes y niños pequeños"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "250mg/5mL Suspension",
+            "es": "250mg/5mL Suspensión"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard strength oral suspension",
+            "es": "Suspensión oral de concentración estándar"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "500mg/5mL Suspension",
+            "es": "500mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "High strength oral suspension for older children",
+            "es": "Suspensión oral de alta concentración para niños mayores"
+          }
+        },
+        {
+          "mg": 125,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "125mg Chewable Tablet",
+            "es": "125mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["toddler", "child"],
+          "descriptions": {
+            "en": "Chewable tablet for young children (per tablet)",
+            "es": "Tableta masticable para niños pequeños (por tableta)"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "250mg Chewable Tablet",
+            "es": "250mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard chewable tablet (per tablet)",
+            "es": "Tableta masticable estándar (por tableta)"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "500mg Tablet/Capsule",
+            "es": "500mg Tableta/Cápsula"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "Standard tablet or capsule for older children/teens (per tablet)",
+            "es": "Tableta o cápsula estándar para niños mayores/adolescentes (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "BID",
+          "labels": {
+            "en": "Twice daily",
+            "es": "Dos veces al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing",
+            "es": "Dosificación estándar"
+          }
+        },
+        {
+          "value": "TID",
+          "labels": {
+            "en": "Three times daily",
+            "es": "Tres veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For severe or persistent infections",
+            "es": "Para infecciones severas o persistentes"
+          }
+        },
+        {
+          "value": "QID",
+          "labels": {
+            "en": "Four times daily",
+            "es": "Cuatro veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For severe infections or high-dose therapy",
+            "es": "Para infecciones severas o terapia de dosis alta"
+          }
+        }
+      ],
+      "durationOptions": [5, 7, 10],
+      "durationDefault": 7,
+      "notes": {
+        "en": "Amoxicillin is a first-line antibiotic for many pediatric infections. Use weight-based dosing. Shake suspension well before each dose. Refrigeration recommended. Complete full course even if symptoms improve early.",
+        "es": "La amoxicilina es un antibiótico de primera línea para muchas infecciones pediátricas. Usar dosis según el peso. Agitar bien la suspensión antes de cada dosis. Se recomienda refrigeración. Completar el tratamiento aunque mejoren los síntomas antes."
+      }
+    },
+    {
+      "id": "amoxicillin_clavulanate",
+      "names": {
+        "en": "Amoxicillin-Clavulanate (Augmentin)",
+        "es": "Amoxicilina-Clavulánico (Augmentine)"
+      },
+      "inputs": ["weight", "frequency", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [40, 90],
+      "doseDefault": 60,
+      "maxDose": 1000,
+      "maxDailyDose": 100,
+      "referenceUrl": "https://www.drugs.com/dosage/amoxicillin-clavulanate.html",
+      "concentrations": [
+        {
+          "mg": 125,
+          "mL": 5,
+          "type": "liquid",
+          "clavulanate": 31.25,
+          "labels": {
+            "en": "125/31.25mg per 5mL Suspension",
+            "es": "125/31.25mg por 5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["infant", "toddler"],
+          "descriptions": {
+            "en": "Lower strength oral suspension for infants",
+            "es": "Suspensión oral de menor concentración para lactantes"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 5,
+          "type": "liquid",
+          "clavulanate": 62.5,
+          "labels": {
+            "en": "250/62.5mg per 5mL Suspension",
+            "es": "250/62.5mg por 5mL Suspensión"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard strength oral suspension",
+            "es": "Suspensión oral de concentración estándar"
+          }
+        },
+        {
+          "mg": 400,
+          "mL": 5,
+          "type": "liquid",
+          "clavulanate": 57,
+          "labels": {
+            "en": "400/57mg per 5mL Suspension",
+            "es": "400/57mg por 5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "High strength oral suspension for older children",
+            "es": "Suspensión oral de alta concentración para niños mayores"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 1,
+          "type": "tablet",
+          "clavulanate": 125,
+          "labels": {
+            "en": "250/125mg Tablet",
+            "es": "250/125mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard strength tablet (per tablet)",
+            "es": "Tableta de concentración estándar (por tableta)"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 1,
+          "type": "tablet",
+          "clavulanate": 125,
+          "labels": {
+            "en": "500/125mg Tablet",
+            "es": "500/125mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "High strength tablet for older children/teens (per tablet)",
+            "es": "Tableta de alta concentración para niños mayores/adolescentes (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "BID",
+          "labels": {
+            "en": "Twice daily",
+            "es": "Dos veces al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing for most infections",
+            "es": "Dosificación estándar para la mayoría de infecciones"
+          }
+        },
+        {
+          "value": "TID",
+          "labels": {
+            "en": "Three times daily",
+            "es": "Tres veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For severe or resistant infections",
+            "es": "Para infecciones severas o resistentes"
+          }
+        }
+      ],
+      "durationOptions": [5, 7, 10],
+      "durationDefault": 7,
+      "notes": {
+        "en": "Dose based on amoxicillin component. Enhanced spectrum antibiotic with beta-lactamase inhibitor. Shake suspension well before each dose. Refrigeration recommended. Complete full course even if symptoms improve early.",
+        "es": "Dosis basada en el componente de amoxicilina. Antibiótico de espectro ampliado con inhibidor de betalactamasa. Agitar bien la suspensión antes de cada dosis. Se recomienda refrigeración. Completar el tratamiento aunque mejoren los síntomas antes."
+      }
+    },
+    {
+      "id": "cefalexin",
+      "names": {
+        "en": "Cefalexin (Keflex)",
+        "es": "Cefalexina"
+      },
+      "inputs": ["weight", "frequency", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [25, 100],
+      "doseDefault": 50,
+      "maxDose": 1000,
+      "maxDailyDose": 100,
+      "referenceUrl": "https://www.drugs.com/dosage/cephalexin.html",
+      "concentrations": [
+        {
+          "mg": 125,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "125mg/5mL Suspension",
+            "es": "125mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["infant", "toddler"],
+          "descriptions": {
+            "en": "Lower strength oral suspension for infants",
+            "es": "Suspensión oral de menor concentración para lactantes"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "250mg/5mL Suspension",
+            "es": "250mg/5mL Suspensión"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard strength oral suspension",
+            "es": "Suspensión oral de concentración estándar"
+          }
+        },
+        {
+          "mg": 375,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "375mg/5mL Suspension",
+            "es": "375mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Intermediate strength oral suspension",
+            "es": "Suspensión oral de concentración intermedia"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "500mg/5mL Suspension",
+            "es": "500mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "High strength oral suspension for older children",
+            "es": "Suspensión oral de alta concentración para niños mayores"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "250mg Capsule/Tablet",
+            "es": "250mg Cápsula/Tableta"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard capsule or tablet (per capsule)",
+            "es": "Cápsula o tableta estándar (por cápsula)"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "500mg Capsule/Tablet",
+            "es": "500mg Cápsula/Tableta"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "High strength capsule or tablet for older children/teens (per capsule)",
+            "es": "Cápsula o tableta de alta concentración para niños mayores/adolescentes (por cápsula)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "QID",
+          "labels": {
+            "en": "Four times daily",
+            "es": "Cuatro veces al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing for most infections",
+            "es": "Dosificación estándar para la mayoría de infecciones"
+          }
+        },
+        {
+          "value": "TID",
+          "labels": {
+            "en": "Three times daily",
+            "es": "Tres veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Alternative dosing for moderate infections",
+            "es": "Dosificación alternativa para infecciones moderadas"
+          }
+        },
+        {
+          "value": "BID",
+          "labels": {
+            "en": "Twice daily",
+            "es": "Dos veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For mild infections or maintenance therapy",
+            "es": "Para infecciones leves o terapia de mantenimiento"
+          }
+        }
+      ],
+      "durationOptions": [5, 7, 10],
+      "durationDefault": 7,
+      "notes": {
+        "en": "First-generation cephalosporin antibiotic. Excellent for skin and soft tissue infections, including cellulitis and wound infections. Shake suspension well before each dose. Refrigeration recommended. Complete full course even if symptoms improve early.",
+        "es": "Antibiótico cefalosporina de primera generación. Excelente para infecciones de piel y tejidos blandos, incluyendo celulitis e infecciones de heridas. Agitar bien la suspensión antes de cada dosis. Se recomienda refrigeración. Completar el tratamiento aunque mejoren los síntomas antes."
+      }
+    },
+    {
+      "id": "cotrimoxazole",
+      "names": {
+        "en": "Co-trimoxazole (Bactrim)",
+        "es": "Co-trimoxazol (Bactrim)"
+      },
+      "inputs": ["weight", "frequency", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [6, 12],
+      "doseDefault": 8,
+      "maxDose": 160,
+      "maxDailyDose": 20,
+      "referenceUrl": "https://www.drugs.com/dosage/sulfamethoxazole-trimethoprim.html",
+      "concentrations": [
+        {
+          "mg": 40,
+          "mL": 5,
+          "type": "liquid",
+          "smx": 200,
+          "labels": {
+            "en": "40/200mg per 5mL Suspension (TMP/SMX)",
+            "es": "40/200mg por 5mL Suspensión (TMP/SMX)"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard pediatric suspension",
+            "es": "Suspensión pediátrica estándar"
+          }
+        },
+        {
+          "mg": 20,
+          "mL": 5,
+          "type": "liquid",
+          "smx": 100,
+          "labels": {
+            "en": "20/100mg per 5mL Suspension (TMP/SMX)",
+            "es": "20/100mg por 5mL Suspensión (TMP/SMX)"
+          },
+          "common": false,
+          "ageGroup": ["infant", "toddler"],
+          "descriptions": {
+            "en": "Lower strength suspension for infants",
+            "es": "Suspensión de menor concentración para lactantes"
+          }
+        },
+        {
+          "mg": 80,
+          "mL": 1,
+          "type": "tablet",
+          "smx": 400,
+          "labels": {
+            "en": "80/400mg Tablet (TMP/SMX)",
+            "es": "80/400mg Tableta (TMP/SMX)"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard strength tablet (per tablet)",
+            "es": "Tableta de concentración estándar (por tableta)"
+          }
+        },
+        {
+          "mg": 160,
+          "mL": 1,
+          "type": "tablet",
+          "smx": 800,
+          "labels": {
+            "en": "160/800mg Tablet (TMP/SMX)",
+            "es": "160/800mg Tableta (TMP/SMX)"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "Double strength tablet for older children (per tablet)",
+            "es": "Tableta de doble concentración para niños mayores (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "BID",
+          "labels": {
+            "en": "Twice daily",
+            "es": "Dos veces al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing for most infections",
+            "es": "Dosificación estándar para la mayoría de infecciones"
+          }
+        },
+        {
+          "value": "TID",
+          "labels": {
+            "en": "Three times daily",
+            "es": "Tres veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For severe infections or PCP prophylaxis",
+            "es": "Para infecciones severas o profilaxis PCP"
+          }
+        }
+      ],
+      "durationOptions": [3, 5, 7, 10],
+      "durationDefault": 5,
+      "notes": {
+        "en": "Dose based on trimethoprim component. Ensure adequate fluid intake. Monitor for skin reactions and blood counts with prolonged use. Not recommended in infants <2 months.",
+        "es": "Dosis basada en el componente de trimetoprima. Asegurar ingesta adecuada de líquidos. Monitorear reacciones cutáneas y conteos sanguíneos con uso prolongado. No recomendado en lactantes <2 meses."
+      }
+    },
+    {
+      "id": "azithromycin",
+      "names": {
+        "en": "Azithromycin (Zithromax)",
+        "es": "Azitromicina (Zithromax)"
+      },
+      "inputs": ["weight", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [10, 10],
+      "doseDefault": 10,
+      "maxDose": 500,
+      "maxDailyDose": 12,
+      "referenceUrl": "https://www.drugs.com/dosage/azithromycin.html",
+      "concentrations": [
+        {
+          "mg": 40,
+          "mL": 1,
+          "type": "liquid",
+          "labels": {
+            "en": "40mg/mL Suspension",
+            "es": "40mg/mL Suspensión"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard pediatric suspension",
+            "es": "Suspensión pediátrica estándar"
+          }
+        },
+        {
+          "mg": 200,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "200mg/5mL Suspension",
+            "es": "200mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Alternative concentration",
+            "es": "Concentración alternativa"
+          }
+        },
+        {
+          "mg": 100,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "100mg/5mL Suspension",
+            "es": "100mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["infant", "toddler"],
+          "descriptions": {
+            "en": "Lower strength suspension for smaller children",
+            "es": "Suspensión de menor concentración para niños pequeños"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "250mg Tablet",
+            "es": "250mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard tablet for older children (per tablet)",
+            "es": "Tableta estándar para niños mayores (por tableta)"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "500mg Tablet",
+            "es": "500mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "High strength tablet for teens (per tablet)",
+            "es": "Tableta de alta concentración para adolescentes (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "qD",
+          "labels": {
+            "en": "Once daily",
+            "es": "Una vez al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing - convenient once daily",
+            "es": "Dosificación estándar - conveniente una vez al día"
+          }
+        }
+      ],
+      "durationOptions": [3, 5],
+      "durationDefault": 3,
+      "notes": {
+        "en": "Macrolide antibiotic with excellent tissue penetration. Usually 3-5 day course due to long half-life. Take on empty stomach if possible. Z-pack is common 5-day adult course.",
+        "es": "Antibiótico macrólido con excelente penetración tisular. Usualmente curso de 3-5 días debido a vida media prolongada. Tomar con estómago vacío si es posible. Z-pack es el curso común de 5 días para adultos."
+      }
+    },
+    {
+      "id": "flucloxacillin",
+      "names": {
+        "en": "Flucloxacillin (Floxapen)",
+        "es": "Flucloxacilina"
+      },
+      "inputs": ["weight", "frequency", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [50, 100],
+      "doseDefault": 75,
+      "maxDose": 1000,
+      "maxDailyDose": 100,
+      "referenceUrl": "https://www.drugs.com/dosage/flucloxacillin.html",
+      "concentrations": [
+        {
+          "mg": 125,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "125mg/5mL Suspension",
+            "es": "125mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["infant", "toddler"],
+          "descriptions": {
+            "en": "Lower strength suspension for infants",
+            "es": "Suspensión de menor concentración para lactantes"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "250mg/5mL Suspension",
+            "es": "250mg/5mL Suspensión"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard pediatric suspension",
+            "es": "Suspensión pediátrica estándar"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "500mg/5mL Suspension",
+            "es": "500mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "High strength suspension for older children",
+            "es": "Suspensión de alta concentración para niños mayores"
+          }
+        },
+        {
+          "mg": 250,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "250mg Capsule",
+            "es": "250mg Cápsula"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard capsule for older children (per capsule)",
+            "es": "Cápsula estándar para niños mayores (por cápsula)"
+          }
+        },
+        {
+          "mg": 500,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "500mg Capsule",
+            "es": "500mg Cápsula"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "High strength capsule for teens (per capsule)",
+            "es": "Cápsula de alta concentración para adolescentes (por cápsula)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "QID",
+          "labels": {
+            "en": "Four times daily",
+            "es": "Cuatro veces al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing every 6 hours",
+            "es": "Dosificación estándar cada 6 horas"
+          }
+        },
+        {
+          "value": "TID",
+          "labels": {
+            "en": "Three times daily",
+            "es": "Tres veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Alternative dosing for mild infections",
+            "es": "Dosificación alternativa para infecciones leves"
+          }
+        }
+      ],
+      "durationOptions": [5, 7, 10, 14],
+      "durationDefault": 7,
+      "notes": {
+        "en": "Anti-staphylococcal penicillin resistant to beta-lactamase. Excellent for skin and soft tissue infections caused by Staphylococcus aureus. Take on empty stomach 1 hour before or 2 hours after meals for better absorption.",
+        "es": "Penicilina anti-estafilocócica resistente a betalactamasa. Excelente para infecciones de piel y tejidos blandos causadas por Staphylococcus aureus. Tomar con estómago vacío 1 hora antes o 2 horas después de las comidas para mejor absorción."
+      }
+    },
+    {
+      "id": "prednisolone",
+      "names": {
+        "en": "Prednisolone",
+        "es": "Prednisolona"
+      },
+      "inputs": ["weight", "duration"],
+      "dosingType": "mg/kg/day",
+      "doseRange": [0.5, 2],
+      "doseDefault": 1,
+      "maxDose": 40,
+      "maxDailyDose": 4,
+      "referenceUrl": "https://www.drugs.com/dosage/prednisolone.html",
+      "concentrations": [
+        {
+          "mg": 5,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "5mg/5mL Suspension",
+            "es": "5mg/5mL Suspensión"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard pediatric suspension",
+            "es": "Suspensión pediátrica estándar"
+          }
+        },
+        {
+          "mg": 15,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "15mg/5mL Suspension",
+            "es": "15mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Higher concentration for larger children",
+            "es": "Concentración mayor para niños grandes"
+          }
+        },
+        {
+          "mg": 25,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "25mg/5mL Suspension",
+            "es": "25mg/5mL Suspensión"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "High strength suspension for teens",
+            "es": "Suspensión de alta concentración para adolescentes"
+          }
+        },
+        {
+          "mg": 5,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "5mg Tablet",
+            "es": "5mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard tablet for children who can swallow (per tablet)",
+            "es": "Tableta estándar para niños que pueden tragar (por tableta)"
+          }
+        },
+        {
+          "mg": 25,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "25mg Tablet",
+            "es": "25mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "Higher strength tablet for teens (per tablet)",
+            "es": "Tableta de mayor concentración para adolescentes (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "qD",
+          "labels": {
+            "en": "Once daily",
+            "es": "Una vez al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Morning dose preferred to mimic natural cortisol rhythm",
+            "es": "Dosis matutina preferida para imitar el ritmo natural del cortisol"
+          }
+        },
+        {
+          "value": "BID",
+          "labels": {
+            "en": "Twice daily",
+            "es": "Dos veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For higher doses - morning and early afternoon",
+            "es": "Para dosis mayores - mañana y tarde temprano"
+          }
+        }
+      ],
+      "durationOptions": [3, 5, 7, 10],
+      "durationDefault": 5,
+      "notes": {
+        "en": "Corticosteroid for inflammatory conditions. Give with food to reduce stomach irritation. Morning dose preferred to match natural cortisol rhythm. Avoid abrupt discontinuation after prolonged use. Monitor growth in children with long-term use.",
+        "es": "Corticosteroide para condiciones inflamatorias. Dar con comida para reducir irritación estomacal. Dosis matutina preferida para coincidir con el ritmo natural del cortisol. Evitar discontinuación abrupta después de uso prolongado. Monitorear crecimiento en niños con uso a largo plazo."
+      }
+    },
+    {
+      "id": "ondansetron",
+      "names": {
+        "en": "Ondansetron (Zofran)",
+        "es": "Ondansetrón (Zofran)"
+      },
+      "inputs": ["weight", "frequency"],
+      "dosingType": "weight_brackets",
+      "weightBrackets": [
+        { "minWeight": 8, "maxWeight": 15, "dose": 2, "unit": "mg" },
+        { "minWeight": 15, "maxWeight": 30, "dose": 4, "unit": "mg" },
+        { "minWeight": 30, "maxWeight": 40, "dose": 8, "unit": "mg" }
+      ],
+      "maxDose": 8,
+      "referenceUrl": "https://www.drugs.com/dosage/ondansetron.html",
+      "concentrations": [
+        {
+          "mg": 2,
+          "mL": 1,
+          "type": "liquid",
+          "labels": {
+            "en": "2mg/mL Oral Solution",
+            "es": "2mg/mL Solución Oral"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard oral solution",
+            "es": "Solución oral estándar"
+          }
+        },
+        {
+          "mg": 4,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "4mg/5mL Oral Solution",
+            "es": "4mg/5mL Solución Oral"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Alternative concentration for larger volumes",
+            "es": "Concentración alternativa para volúmenes mayores"
+          }
+        },
+        {
+          "mg": 4,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "4mg Orally Disintegrating Tablet (ODT)",
+            "es": "4mg Tableta Orodispersable (ODT)"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Dissolves on tongue - good for nauseous patients (per tablet)",
+            "es": "Se disuelve en la lengua - bueno para pacientes nauseosos (por tableta)"
+          }
+        },
+        {
+          "mg": 8,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "8mg Orally Disintegrating Tablet (ODT)",
+            "es": "8mg Tableta Orodispersable (ODT)"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "Higher strength ODT for teens (per tablet)",
+            "es": "ODT de mayor concentración para adolescentes (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "q8h",
+          "labels": {
+            "en": "Every 8 hours",
+            "es": "Cada 8 horas"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing for nausea and vomiting",
+            "es": "Dosificación estándar para náuseas y vómitos"
+          }
+        },
+        {
+          "value": "TID",
+          "labels": {
+            "en": "Three times daily",
+            "es": "Tres veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Alternative scheduled dosing",
+            "es": "Dosificación programada alternativa"
+          }
+        },
+        {
+          "value": "PRN",
+          "labels": {
+            "en": "As needed",
+            "es": "Según necesidad"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For breakthrough nausea (max 3 doses/day)",
+            "es": "Para náuseas intercurrentes (máx 3 dosis/día)"
+          }
+        }
+      ],
+      "notes": {
+        "en": "5-HT3 receptor antagonist for nausea and vomiting. Weight-based brackets with maximum 8mg/dose. Can be given before chemotherapy or for postoperative nausea. ODT tablets dissolve on tongue without water - ideal for nauseous patients.",
+        "es": "Antagonista del receptor 5-HT3 para náuseas y vómitos. Rangos basados en peso con máximo 8mg/dosis. Puede darse antes de quimioterapia o para náuseas postoperatorias. Las tabletas ODT se disuelven en la lengua sin agua - ideal para pacientes nauseosos."
+      }
+    },
+    {
+      "id": "loratadine",
+      "names": {
+        "en": "Loratadine (Claritin)",
+        "es": "Loratadina (Claritin)"
+      },
+      "inputs": ["age", "frequency"],
+      "dosingType": "age_brackets",
+      "ageBrackets": [
+        { "minAge": 2, "maxAge": 5, "dose": 5, "unit": "mg" },
+        { "minAge": 6, "maxAge": 18, "dose": 10, "unit": "mg" }
+      ],
+      "maxDose": 10,
+      "referenceUrl": "https://www.drugs.com/dosage/loratadine.html",
+      "concentrations": [
+        {
+          "mg": 1,
+          "mL": 1,
+          "type": "liquid",
+          "labels": {
+            "en": "1mg/mL Syrup",
+            "es": "1mg/mL Jarabe"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard pediatric syrup",
+            "es": "Jarabe pediátrico estándar"
+          }
+        },
+        {
+          "mg": 5,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "5mg/5mL Syrup",
+            "es": "5mg/5mL Jarabe"
+          },
+          "common": false,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Alternative concentration",
+            "es": "Concentración alternativa"
+          }
+        },
+        {
+          "mg": 10,
+          "mL": 10,
+          "type": "liquid",
+          "labels": {
+            "en": "10mg/10mL Syrup",
+            "es": "10mg/10mL Jarabe"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Higher volume for older children",
+            "es": "Mayor volumen para niños mayores"
+          }
+        },
+        {
+          "mg": 5,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "5mg Chewable Tablet",
+            "es": "5mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Chewable tablet for children 2-5 years (per tablet)",
+            "es": "Tableta masticable para niños 2-5 años (por tableta)"
+          }
+        },
+        {
+          "mg": 10,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "10mg Tablet",
+            "es": "10mg Tableta"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Standard tablet for children 6+ years (per tablet)",
+            "es": "Tableta estándar para niños 6+ años (por tableta)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "qD",
+          "labels": {
+            "en": "Once daily",
+            "es": "Una vez al día"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing - long-acting antihistamine",
+            "es": "Dosificación estándar - antihistamínico de acción prolongada"
+          }
+        }
+      ],
+      "notes": {
+        "en": "Second-generation antihistamine for allergic rhinitis and urticaria. Age-based dosing, once daily. Non-sedating at recommended doses. Can be taken with or without food. Not recommended for children under 2 years.",
+        "es": "Antihistamínico de segunda generación para rinitis alérgica y urticaria. Dosificación por edad, una vez al día. No sedante en dosis recomendadas. Puede tomarse con o sin comida. No recomendado para niños menores de 2 años."
+      }
+    },
+    {
+      "id": "diphenhydramine",
+      "names": {
+        "en": "Diphenhydramine (Benadryl)",
+        "es": "Difenhidramina (Benadryl)"
+      },
+      "inputs": ["weight", "frequency"],
+      "dosingType": "mg/kg/dose",
+      "doseRange": [1, 1.5],
+      "doseDefault": 1.25,
+      "maxDose": 50,
+      "maxDailyDose": 5,
+      "referenceUrl": "https://www.drugs.com/dosage/diphenhydramine.html",
+      "concentrations": [
+        {
+          "mg": 12.5,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "12.5mg/5mL Elixir",
+            "es": "12.5mg/5mL Elixir"
+          },
+          "common": true,
+          "ageGroup": ["child"],
+          "descriptions": {
+            "en": "Standard pediatric elixir",
+            "es": "Elixir pediátrico estándar"
+          }
+        },
+        {
+          "mg": 25,
+          "mL": 5,
+          "type": "liquid",
+          "labels": {
+            "en": "25mg/5mL Elixir",
+            "es": "25mg/5mL Elixir"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Higher concentration elixir",
+            "es": "Elixir de mayor concentración"
+          }
+        },
+        {
+          "mg": 25,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "25mg Chewable Tablet",
+            "es": "25mg Tableta Masticable"
+          },
+          "common": false,
+          "ageGroup": ["child", "adolescent"],
+          "descriptions": {
+            "en": "Chewable tablet for older children (per tablet)",
+            "es": "Tableta masticable para niños mayores (por tableta)"
+          }
+        },
+        {
+          "mg": 50,
+          "mL": 1,
+          "type": "tablet",
+          "labels": {
+            "en": "50mg Capsule",
+            "es": "50mg Cápsula"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "Standard capsule for teens (per capsule)",
+            "es": "Cápsula estándar para adolescentes (por cápsula)"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "q6h",
+          "labels": {
+            "en": "Every 6 hours",
+            "es": "Cada 6 horas"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard dosing for allergies",
+            "es": "Dosificación estándar para alergias"
+          }
+        },
+        {
+          "value": "QID",
+          "labels": {
+            "en": "Four times daily",
+            "es": "Cuatro veces al día"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "Alternative scheduled dosing",
+            "es": "Dosificación programada alternativa"
+          }
+        },
+        {
+          "value": "PRN",
+          "labels": {
+            "en": "As needed",
+            "es": "Según necesidad"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For occasional allergic reactions or sleep (max 4 doses/day)",
+            "es": "Para reacciones alérgicas ocasionales o sueño (máx 4 dosis/día)"
+          }
+        }
+      ],
+      "notes": {
+        "en": "First-generation antihistamine with sedating effects. May cause drowsiness, dry mouth, and urinary retention. Use caution in elderly. Not recommended for children under 2 years. Maximum 50mg/dose. Avoid alcohol and other CNS depressants.",
+        "es": "Antihistamínico de primera generación con efectos sedantes. Puede causar somnolencia, boca seca y retención urinaria. Usar con precaución en ancianos. No recomendado para niños menores de 2 años. Máximo 50mg/dosis. Evitar alcohol y otros depresores del SNC."
+      }
+    },
+    {
+      "id": "salbutamol_nebulizer",
+      "names": {
+        "en": "Salbutamol Nebulizer (Ventolin)",
+        "es": "Salbutamol Nebulizador (Ventolin)"
+      },
+      "inputs": ["age", "frequency"],
+      "dosingType": "age_brackets",
+      "ageBrackets": [
+        { "minAge": 0, "maxAge": 2, "dose": 2.5, "unit": "mg" },
+        { "minAge": 2, "maxAge": 12, "dose": 2.5, "unit": "mg" },
+        { "minAge": 12, "maxAge": 18, "dose": 5, "unit": "mg" }
+      ],
+      "maxDose": 5,
+      "referenceUrl": "https://www.drugs.com/dosage/albuterol.html",
+      "concentrations": [
+        {
+          "mg": 5,
+          "mL": 1,
+          "type": "liquid",
+          "labels": {
+            "en": "5mg/mL Nebulizer Solution",
+            "es": "5mg/mL Solución Nebulizadora"
+          },
+          "common": true,
+          "ageGroup": ["infant", "child", "adolescent"],
+          "descriptions": {
+            "en": "Standard nebulizer solution",
+            "es": "Solución nebulizadora estándar"
+          }
+        },
+        {
+          "mg": 2.5,
+          "mL": 2.5,
+          "type": "liquid",
+          "labels": {
+            "en": "2.5mg/2.5mL Unit Dose",
+            "es": "2.5mg/2.5mL Dosis Unitaria"
+          },
+          "common": false,
+          "ageGroup": ["infant", "child"],
+          "descriptions": {
+            "en": "Pre-diluted unit dose vial",
+            "es": "Vial de dosis unitaria prediluida"
+          }
+        },
+        {
+          "mg": 5,
+          "mL": 2.5,
+          "type": "liquid",
+          "labels": {
+            "en": "5mg/2.5mL Unit Dose",
+            "es": "5mg/2.5mL Dosis Unitaria"
+          },
+          "common": false,
+          "ageGroup": ["adolescent"],
+          "descriptions": {
+            "en": "Higher strength pre-diluted unit dose",
+            "es": "Dosis unitaria prediluida de mayor concentración"
+          }
+        }
+      ],
+      "frequencies": [
+        {
+          "value": "q4-6h",
+          "labels": {
+            "en": "Every 4-6 hours",
+            "es": "Cada 4-6 horas"
+          },
+          "common": true,
+          "descriptions": {
+            "en": "Standard maintenance dosing",
+            "es": "Dosificación de mantenimiento estándar"
+          }
+        },
+        {
+          "value": "q4h",
+          "labels": {
+            "en": "Every 4 hours",
+            "es": "Cada 4 horas"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For acute exacerbations",
+            "es": "Para exacerbaciones agudas"
+          }
+        },
+        {
+          "value": "PRN",
+          "labels": {
+            "en": "As needed",
+            "es": "Según necesidad"
+          },
+          "common": false,
+          "descriptions": {
+            "en": "For rescue therapy (max 6 doses/day)",
+            "es": "Para terapia de rescate (máx 6 dosis/día)"
+          }
+        }
+      ],
+      "notes": {
+        "en": "Short-acting beta-2 agonist bronchodilator for nebulization. Standard concentration requires dilution with 2-3mL normal saline. Unit dose vials are pre-diluted and ready to use. Monitor heart rate during treatment. Use spacer mask for infants and young children.",
+        "es": "Broncodilatador beta-2 agonista de acción corta para nebulización. La concentración estándar requiere dilución con 2-3mL de solución salina normal. Los viales de dosis unitaria están prediluidos y listos para usar. Monitorear frecuencia cardíaca durante el tratamiento. Usar mascarilla espaciadora para bebés y niños pequeños."
+      }
+    }
+  ],
+  "frequencyDefinitions": {
+    "qD": {
+      "labels": { "en": "Once daily", "es": "Una vez al día" },
+      "timesPerDay": 1
+    },
+    "BID": {
+      "labels": { "en": "Twice daily", "es": "Dos veces al día" },
+      "timesPerDay": 2
+    },
+    "TID": {
+      "labels": { "en": "Three times daily", "es": "Tres veces al día" },
+      "timesPerDay": 3
+    },
+    "QID": {
+      "labels": { "en": "Four times daily", "es": "Cuatro veces al día" },
+      "timesPerDay": 4
+    },
+    "q4h": {
+      "labels": { "en": "Every 4 hours", "es": "Cada 4 horas" },
+      "timesPerDay": 6
+    },
+    "q6h": {
+      "labels": { "en": "Every 6 hours", "es": "Cada 6 horas" },
+      "timesPerDay": 4
+    },
+    "q6-8h": {
+      "labels": { "en": "Every 6-8 hours", "es": "Cada 6-8 horas" },
+      "timesPerDay": 3
+    },
+    "q8h": {
+      "labels": { "en": "Every 8 hours", "es": "Cada 8 horas" },
+      "timesPerDay": 3
+    },
+    "q4-6h": {
+      "labels": {
+        "en": "Every 4-6 hours",
+        "es": "Cada 4-6 horas"
+      },
+      "timesPerDay": 4
+    },
+    "PRN": {
+      "labels": { "en": "As needed", "es": "Según necesidad" },
+      "timesPerDay": null
+    }
+  },
+  "unitConversions": {
+    "weight": {
+      "kg_to_lbs": 2.20462,
+      "lbs_to_kg": 0.453592
+    },
+    "volume": {
+      "mL_to_tsp": 0.202884,
+      "tsp_to_mL": 4.92892
+    }
+  }
+}

@@ -7,6 +7,7 @@ import intergrowthlenghtData from "@/app/data/intergrowht-lenght.json";
 import intergrowthHeadData from "@/app/data/intergrowht-head.json";
 import { differenceInMonths } from "date-fns";
 import { useTranslations } from "next-intl";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 interface IntergrowthDataPoint {
   sex: number;
@@ -547,6 +548,18 @@ const GrowthResults: React.FC<GrowthResultsProps> = ({
             {t("results.dataSources.title")}:{" "}
             {getDataSourceText(selectedStandard)}
           </div>
+          <ClinicalDisclaimer
+            title={t("disclaimer.title")}
+            points={[
+              t("disclaimer.standardBased", {
+                standard: getDataSourceText(selectedStandard),
+              }),
+              t("disclaimer.trackOverTime"),
+              t("disclaimer.individualFactors"),
+              t("disclaimer.responsibility"),
+            ]}
+            variant="medical"
+          />
         </div>
       </CardContent>
     </Card>

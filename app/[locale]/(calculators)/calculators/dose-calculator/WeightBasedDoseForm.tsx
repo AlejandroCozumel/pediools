@@ -4,12 +4,7 @@ import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormField,
@@ -26,7 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Weight, Pill, Calculator, Info, Scale, Beaker } from "lucide-react";
+import {
+  Weight,
+  Pill,
+  Calculator,
+  Info,
+  Scale,
+  Beaker,
+  AlertTriangle,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -34,177 +37,245 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
+import { ClinicalDisclaimer } from "@/components/ClinicalDisclaimer";
 
 const weightBasedSchema = z.object({
-  dose: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid dose",
-  }),
+  dose: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid dose",
+    }),
   doseUnit: z.enum(["mg", "ml", "tablet"]),
   dosageType: z.enum(["/kg/day", "/kg/dose", "/day", "/dose"]),
-  frequency: z.string(),
-  weight: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid weight",
-  }),
+  frequency: z.string().min(1, "Please select frequency"),
+  weight: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid weight",
+    }),
   weightUnit: z.enum(["kg", "lb"]),
-  mass: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid mass",
-  }),
-  massUnit: z.enum(["mg", "g"]),
-  volume: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: "Enter valid volume",
-  }),
-  volumeUnit: z.enum(["ml", "tablet"]),
+  concentration: z
+    .string()
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Enter valid concentration",
+    }),
+  concentrationUnit: z.enum(["mg/ml", "mg/tablet"]),
+  maxDose: z.string().optional(),
 });
 
 type WeightBasedFormValues = z.infer<typeof weightBasedSchema>;
 
-// 1. InfoTooltip props type safety
-const InfoTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => (
+const InfoTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({
+  children,
+  content,
+}) => (
   <Tooltip>
     <TooltipTrigger asChild>{children}</TooltipTrigger>
-    <TooltipContent className="max-w-xs"><p>{content}</p></TooltipContent>
+    <TooltipContent className="max-w-xs">
+      <p>{content}</p>
+    </TooltipContent>
   </Tooltip>
 );
 
 const frequencyOptions = [
-  { value: "qD", label: "qD (once a day)" },
-  { value: "BID", label: "BID (twice a day)" },
-  { value: "TID", label: "TID (thrice a day)" },
-  { value: "QID", label: "QID (four times a day)" },
-  { value: "q4hr", label: "q4hr (every 4 hours)" },
-  { value: "q6hr", label: "q6hr (every 6 hours)" },
-  { value: "q8hr", label: "q8hr (every 8 hours)" },
-];
-
-const dosageTypeOptions = [
-  { value: "/kg/day", label: "/kg/day", description: "Per kilogram per day" },
-  { value: "/kg/dose", label: "/kg/dose", description: "Per kilogram per dose" },
-  { value: "/day", label: "/day", description: "Total per day" },
-  { value: "/dose", label: "/dose", description: "Total per dose" },
+  { value: "qD", label: "qD", description: "Once daily" },
+  { value: "BID", label: "BID", description: "Twice daily" },
+  { value: "TID", label: "TID", description: "Three times daily" },
+  { value: "QID", label: "QID", description: "Four times daily" },
+  { value: "q4h", label: "q4h", description: "Every 4 hours" },
+  { value: "q6h", label: "q6h", description: "Every 6 hours" },
+  { value: "q8h", label: "q8h", description: "Every 8 hours" },
 ];
 
 export function WeightBasedDoseForm() {
-  const t = useTranslations('DoseCalculator');
+  const t = useTranslations("DoseCalculator");
+
   const form = useForm<WeightBasedFormValues>({
     resolver: zodResolver(weightBasedSchema),
     defaultValues: {
       dose: "",
       doseUnit: "mg",
       dosageType: "/kg/day",
-      frequency: "qD",
+      frequency: "BID",
       weight: "",
       weightUnit: "kg",
-      mass: "",
-      massUnit: "mg",
-      volume: "",
-      volumeUnit: "ml",
+      concentration: "",
+      concentrationUnit: "mg/ml",
+      maxDose: "",
     },
     mode: "onChange",
   });
 
+  // Watch form values
   const dose = parseFloat(form.watch("dose") || "0");
-  const weight = parseFloat(form.watch("weight") || "0");
-  const mass = parseFloat(form.watch("mass") || "0");
-  const volume = parseFloat(form.watch("volume") || "0");
+  const doseUnit = form.watch("doseUnit");
   const dosageType = form.watch("dosageType");
   const frequency = form.watch("frequency");
-  const doseUnit = form.watch("doseUnit");
-  const massUnit = form.watch("massUnit");
-  const volumeUnit = form.watch("volumeUnit");
+  const weight = parseFloat(form.watch("weight") || "0");
   const weightUnit = form.watch("weightUnit");
+  const concentration = parseFloat(form.watch("concentration") || "0");
+  const concentrationUnit = form.watch("concentrationUnit");
+  const maxDose = parseFloat(form.watch("maxDose") || "0");
 
-  // Calculate results with proper pediatric formulas
-  const freqMap: { [key: string]: number } = {
-    qD: 1, BID: 2, TID: 3, QID: 4, "q4hr": 6, "q6hr": 4, "q8hr": 3,
-  };
+  // Calculations
+  const calculations = React.useMemo(() => {
+    if (!dose || !weight || !concentration) return null;
 
-  // Convert weight to kg if needed
-  const weightInKg = weightUnit === "lb" ? weight * 0.453592 : weight;
+    // Convert weight to kg
+    const weightInKg = weightUnit === "lb" ? weight * 0.453592 : weight;
 
-  // Convert mass to mg if needed
-  const massInMg = massUnit === "g" ? mass * 1000 : mass;
+    // Frequency multiplier
+    const freqMap: { [key: string]: number } = {
+      qD: 1,
+      BID: 2,
+      TID: 3,
+      QID: 4,
+      q4h: 6,
+      q6h: 4,
+      q8h: 3,
+    };
+    const timesPerDay = freqMap[frequency] || 1;
 
-  // Calculate concentration (mg/ml or mg/tablet)
-  let concentration = 0;
-  if (mass && volume) {
-    concentration = massInMg / volume;
-  }
+    let dailyDoseInMg = 0;
+    let perDoseInMg = 0;
+    let isOverMaxDose = false;
 
-  // Calculate dosages based on type
-  let dailyDosageInMg = 0;
-  let perDosageInMg = 0;
-  let perDoseVolume = 0;
-  let tabletsPerDose = 0;
-  let tabletsPerDay = 0;
-
-  if (dosageType === "/kg/day") {
-    dailyDosageInMg = dose * weightInKg;
-    perDosageInMg = dailyDosageInMg / (freqMap[frequency] || 1);
-  } else if (dosageType === "/kg/dose") {
-    perDosageInMg = dose * weightInKg;
-    dailyDosageInMg = perDosageInMg * (freqMap[frequency] || 1);
-  } else if (dosageType === "/day") {
-    dailyDosageInMg = dose;
-    perDosageInMg = dailyDosageInMg / (freqMap[frequency] || 1);
-  } else if (dosageType === "/dose") {
-    perDosageInMg = dose;
-    dailyDosageInMg = perDosageInMg * (freqMap[frequency] || 1);
-  }
-
-  // Calculate volume per dose and tablets
-  if (concentration > 0) {
-    if (doseUnit === "mg" && volumeUnit === "ml") {
-      perDoseVolume = perDosageInMg / concentration;
-    } else if (doseUnit === "mg" && volumeUnit === "tablet") {
-      perDoseVolume = perDosageInMg / concentration;
-      tabletsPerDose = perDoseVolume;
-      tabletsPerDay = dailyDosageInMg / concentration;
+    // Calculate based on dosage type
+    if (dosageType === "/kg/day") {
+      dailyDoseInMg = dose * weightInKg;
+      perDoseInMg = dailyDoseInMg / timesPerDay;
+    } else if (dosageType === "/kg/dose") {
+      perDoseInMg = dose * weightInKg;
+      dailyDoseInMg = perDoseInMg * timesPerDay;
+    } else if (dosageType === "/day") {
+      dailyDoseInMg = dose;
+      perDoseInMg = dailyDoseInMg / timesPerDay;
+    } else if (dosageType === "/dose") {
+      perDoseInMg = dose;
+      dailyDoseInMg = perDoseInMg * timesPerDay;
     }
-  }
 
-  // Handle special cases
-  if (doseUnit === "ml" && dosageType.includes("/kg")) {
-    perDoseVolume = dosageType === "/kg/day"
-      ? (dose * weightInKg) / (freqMap[frequency] || 1)
-      : dose * weightInKg;
-  } else if (doseUnit === "tablet" && dosageType.includes("/kg")) {
-    perDoseVolume = dosageType === "/kg/day"
-      ? (dose * weightInKg) / (freqMap[frequency] || 1)
-      : dose * weightInKg;
-    tabletsPerDose = perDoseVolume;
-    tabletsPerDay = dose * weightInKg * (dosageType === "/kg/day" ? 1 : freqMap[frequency] || 1);
-  }
+    // Check max dose
+    if (
+      maxDose &&
+      (dailyDoseInMg > maxDose || perDoseInMg > maxDose / timesPerDay)
+    ) {
+      isOverMaxDose = true;
+      dailyDoseInMg = Math.min(dailyDoseInMg, maxDose);
+      perDoseInMg = Math.min(perDoseInMg, maxDose / timesPerDay);
+    }
 
-  const dailyVolume = perDoseVolume * (freqMap[frequency] || 1);
+    // Calculate volume based on concentration
+    let volumePerDose = 0;
+    let volumePerDay = 0;
+    let volumeUnit = "mL";
+
+    if (concentrationUnit === "mg/ml") {
+      volumePerDose = perDoseInMg / concentration;
+      volumePerDay = dailyDoseInMg / concentration;
+      volumeUnit = "mL";
+    } else if (concentrationUnit === "mg/tablet") {
+      volumePerDose = perDoseInMg / concentration;
+      volumePerDay = dailyDoseInMg / concentration;
+      volumeUnit = "tablets";
+    }
+
+    // Handle special cases where dose is already in volume units
+    if (doseUnit === "ml") {
+      if (dosageType === "/kg/day") {
+        volumePerDay = dose * weightInKg;
+        volumePerDose = volumePerDay / timesPerDay;
+      } else if (dosageType === "/kg/dose") {
+        volumePerDose = dose * weightInKg;
+        volumePerDay = volumePerDose * timesPerDay;
+      } else if (dosageType === "/day") {
+        volumePerDay = dose;
+        volumePerDose = volumePerDay / timesPerDay;
+      } else if (dosageType === "/dose") {
+        volumePerDose = dose;
+        volumePerDay = volumePerDose * timesPerDay;
+      }
+      volumeUnit = "mL";
+      // Calculate mg from volume
+      dailyDoseInMg = volumePerDay * concentration;
+      perDoseInMg = volumePerDose * concentration;
+    } else if (doseUnit === "tablet") {
+      if (dosageType === "/kg/day") {
+        volumePerDay = dose * weightInKg;
+        volumePerDose = volumePerDay / timesPerDay;
+      } else if (dosageType === "/kg/dose") {
+        volumePerDose = dose * weightInKg;
+        volumePerDay = volumePerDose * timesPerDay;
+      } else if (dosageType === "/day") {
+        volumePerDay = dose;
+        volumePerDose = volumePerDay / timesPerDay;
+      } else if (dosageType === "/dose") {
+        volumePerDose = dose;
+        volumePerDay = volumePerDose * timesPerDay;
+      }
+      volumeUnit = "tablets";
+      // Calculate mg from tablets
+      dailyDoseInMg = volumePerDay * concentration;
+      perDoseInMg = volumePerDose * concentration;
+    }
+
+    return {
+      dailyDoseInMg,
+      perDoseInMg,
+      volumePerDose,
+      volumePerDay,
+      volumeUnit,
+      timesPerDay,
+      isOverMaxDose,
+    };
+  }, [
+    dose,
+    doseUnit,
+    dosageType,
+    frequency,
+    weight,
+    weightUnit,
+    concentration,
+    concentrationUnit,
+    maxDose,
+  ]);
+
+  const shouldShowResults =
+    calculations &&
+    (calculations.perDoseInMg > 0 || calculations.volumePerDose > 0);
 
   return (
     <div className="space-y-8">
       <Form {...form}>
         <form className="space-y-8">
-
-          {/* Dosage Prescribed Section */}
+          {/* Prescription Information */}
           <Card className="bg-medical-50/20 border-medical-100/50">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                 <Pill className="h-5 w-5" />
-                {t('weightBased.title')}
+                {t("weightBased.title") || "Prescription Information"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 !pt-0">
-
-              {/* First Row */}
+              {/* First Row - Dose and Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                 {/* Dose Amount */}
                 <FormField
                   control={form.control}
                   name="dose"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
+                    <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        {t('weightBased.dose.label')}
-                        <InfoTooltip content={t('weightBased.dose.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
+                        {t("weightBased.dose.label") || "Dose Amount"}
+                        <InfoTooltip
+                          content={
+                            t("weightBased.dose.tooltip") ||
+                            "Enter the prescribed dose amount"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -212,9 +283,13 @@ export function WeightBasedDoseForm() {
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
-                              placeholder={t('weightBased.dose.placeholder')}
+                              step="0.1"
+                              placeholder={
+                                t("weightBased.dose.placeholder") ||
+                                "Enter dose"
+                              }
                             />
                             <Pill className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
@@ -222,14 +297,24 @@ export function WeightBasedDoseForm() {
                             control={form.control}
                             name="doseUnit"
                             render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
                                 <SelectTrigger className="w-20 border-medical-100">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="mg">{t('weightBased.doseUnit.mg')}</SelectItem>
-                                  <SelectItem value="ml">{t('weightBased.doseUnit.ml')}</SelectItem>
-                                  <SelectItem value="tablet">{t('weightBased.doseUnit.tablet')}</SelectItem>
+                                  <SelectItem value="mg">
+                                    {t("weightBased.doseUnit.mg") || "mg"}
+                                  </SelectItem>
+                                  <SelectItem value="ml">
+                                    {t("weightBased.doseUnit.ml") || "mL"}
+                                  </SelectItem>
+                                  <SelectItem value="tablet">
+                                    {t("weightBased.doseUnit.tablet") ||
+                                      "tablet"}
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             )}
@@ -246,19 +331,57 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="dosageType"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>{t('weightBased.dosageType.label')}</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                    <FormItem>
+                      <FormLabel>
+                        {t("weightBased.dosageType.label") || "Dosage Type"}
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger className="border-medical-100">
-                            <SelectValue placeholder={t('weightBased.dosageType.placeholder')} />
+                            <SelectValue
+                              placeholder={
+                                t("weightBased.dosageType.placeholder") ||
+                                "Select type"
+                              }
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="/kg/day">{t('weightBased.dosageType.perKgPerDay.label')}</SelectItem>
-                          <SelectItem value="/kg/dose">{t('weightBased.dosageType.perKgPerDose.label')}</SelectItem>
-                          <SelectItem value="/day">{t('weightBased.dosageType.perDay.label')}</SelectItem>
-                          <SelectItem value="/dose">{t('weightBased.dosageType.perDose.label')}</SelectItem>
+                          <SelectItem value="/kg/day">
+                            <div className="flex flex-col">
+                              <span>/kg/day</span>
+                              <span className="text-xs text-muted-foreground">
+                                Per kilogram per day
+                              </span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="/kg/dose">
+                            <div className="flex flex-col">
+                              <span>/kg/dose</span>
+                              <span className="text-xs text-muted-foreground">
+                                Per kilogram per dose
+                              </span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="/day">
+                            <div className="flex flex-col">
+                              <span>/day</span>
+                              <span className="text-xs text-muted-foreground">
+                                Total per day
+                              </span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="/dose">
+                            <div className="flex flex-col">
+                              <span>/dose</span>
+                              <span className="text-xs text-muted-foreground">
+                                Total per dose
+                              </span>
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -267,30 +390,44 @@ export function WeightBasedDoseForm() {
                 />
               </div>
 
-              {/* Second Row */}
+              {/* Second Row - Frequency and Weight */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                 {/* Frequency */}
                 <FormField
                   control={form.control}
                   name="frequency"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>{t('weightBased.frequency.label')}</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                    <FormItem>
+                      <FormLabel>
+                        {t("weightBased.frequency.label") || "Frequency"}
+                      </FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <FormControl>
                           <SelectTrigger className="border-medical-100">
-                            <SelectValue placeholder={t('weightBased.frequency.placeholder')} />
+                            <SelectValue
+                              placeholder={
+                                t("weightBased.frequency.placeholder") ||
+                                "Select frequency"
+                              }
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="qD">{t('weightBased.frequency.options.qD')}</SelectItem>
-                          <SelectItem value="BID">{t('weightBased.frequency.options.BID')}</SelectItem>
-                          <SelectItem value="TID">{t('weightBased.frequency.options.TID')}</SelectItem>
-                          <SelectItem value="QID">{t('weightBased.frequency.options.QID')}</SelectItem>
-                          <SelectItem value="q4hr">{t('weightBased.frequency.options.q4hr')}</SelectItem>
-                          <SelectItem value="q6hr">{t('weightBased.frequency.options.q6hr')}</SelectItem>
-                          <SelectItem value="q8hr">{t('weightBased.frequency.options.q8hr')}</SelectItem>
+                          {frequencyOptions.map((freq) => (
+                            <SelectItem key={freq.value} value={freq.value}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {freq.label}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {freq.description}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -298,22 +435,37 @@ export function WeightBasedDoseForm() {
                   )}
                 />
 
-                {/* Child Weight */}
+                {/* Patient Weight */}
                 <FormField
                   control={form.control}
                   name="weight"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col justify-between gap-2">
-                      <FormLabel>{t('weightBased.patientWeight.label')}</FormLabel>
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        {t("weightBased.patientWeight.label") ||
+                          "Patient Weight"}
+                        <InfoTooltip
+                          content={
+                            t("weightBased.patientWeight.tooltip") ||
+                            "Enter patient's current weight"
+                          }
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
+                      </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
                           <div className="relative flex-1">
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
-                              placeholder={t('weightBased.patientWeight.placeholder')}
+                              step="0.1"
+                              placeholder={
+                                t("weightBased.patientWeight.placeholder") ||
+                                "Enter weight"
+                              }
                             />
                             <Weight className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
@@ -321,13 +473,16 @@ export function WeightBasedDoseForm() {
                             control={form.control}
                             name="weightUnit"
                             render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
                                 <SelectTrigger className="w-16 border-medical-100">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="kg">{t('weightBased.weightUnit.kg')}</SelectItem>
-                                  <SelectItem value="lb">{t('weightBased.weightUnit.lb')}</SelectItem>
+                                  <SelectItem value="kg">kg</SelectItem>
+                                  <SelectItem value="lb">lb</SelectItem>
                                 </SelectContent>
                               </Select>
                             )}
@@ -341,13 +496,21 @@ export function WeightBasedDoseForm() {
               </div>
 
               {/* Prescription Summary */}
-              {dose > 0 && dosageType && weight > 0 && (
+              {dose > 0 && weight > 0 && (
                 <Alert className="bg-medical-50/50 border-medical-200/50">
                   <AlertDescription>
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-medical-900">{t('weightBased.prescriptionSummary.title')}:</span>
-                      <Badge variant="outline" className="border-medical-300 text-medical-800">
-                        {dose} {doseUnit}{dosageType} • {t('weightBased.prescriptionSummary.weight')}: {weight} {weightUnit}
+                      <span className="font-semibold text-medical-900">
+                        {t("weightBased.prescriptionSummary.title") ||
+                          "Prescription Summary"}
+                        :
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-medical-300 text-medical-800"
+                      >
+                        {dose} {doseUnit}
+                        {dosageType} • {weight} {weightUnit} • {frequency}
                       </Badge>
                     </div>
                   </AlertDescription>
@@ -356,26 +519,27 @@ export function WeightBasedDoseForm() {
             </CardContent>
           </Card>
 
-          {/* Drug Concentration Section */}
+          {/* Medication Concentration */}
           <Card className="bg-medical-50/20 border-medical-100/50">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                 <Scale className="h-5 w-5" />
-                {t('drugConcentration.title')}
+                {t("drugConcentration.title") || "Medication Concentration"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 !pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                {/* Mass */}
+                {/* Concentration */}
                 <FormField
                   control={form.control}
-                  name="mass"
+                  name="concentration"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        {t('weightBased.medication.mass.label')}
-                        <InfoTooltip content={t('weightBased.medication.mass.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
+                        Concentration
+                        <InfoTooltip content="Enter the concentration of the medication available">
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -383,23 +547,29 @@ export function WeightBasedDoseForm() {
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
-                              placeholder={t('weightBased.medication.mass.placeholder')}
+                              step="0.1"
+                              placeholder="Enter concentration"
                             />
-                            <Scale className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                            <Beaker className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
                           <FormField
                             control={form.control}
-                            name="massUnit"
+                            name="concentrationUnit"
                             render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
-                                <SelectTrigger className="w-16 border-medical-100">
+                              <Select
+                                value={unitField.value}
+                                onValueChange={unitField.onChange}
+                              >
+                                <SelectTrigger className="w-24 border-medical-100">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="mg">{t('weightBased.medication.massUnit.mg')}</SelectItem>
-                                  <SelectItem value="g">{t('weightBased.medication.massUnit.g')}</SelectItem>
+                                  <SelectItem value="mg/ml">mg/mL</SelectItem>
+                                  <SelectItem value="mg/tablet">
+                                    mg/tablet
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             )}
@@ -411,15 +581,17 @@ export function WeightBasedDoseForm() {
                   )}
                 />
 
-                {/* Volume */}
+                {/* Max Dose (Optional) */}
                 <FormField
                   control={form.control}
-                  name="volume"
+                  name="maxDose"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        {t('weightBased.medication.volume.label')}
-                        <InfoTooltip content={t('weightBased.medication.volume.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
+                        Maximum Daily Dose (optional)
+                        <InfoTooltip content="Enter maximum safe daily dose in mg to enable safety checks">
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -427,27 +599,15 @@ export function WeightBasedDoseForm() {
                             <Input
                               {...field}
                               type="number"
-                              className="pl-8 border-medical-100 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="pl-8 border-medical-100"
                               min={0}
-                              placeholder={t('weightBased.medication.volume.placeholder')}
+                              placeholder="Enter max dose"
                             />
-                            <Beaker className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
+                            <AlertTriangle className="absolute left-2 top-2.5 h-4 w-4 text-medical-500" />
                           </div>
-                          <FormField
-                            control={form.control}
-                            name="volumeUnit"
-                            render={({ field: unitField }) => (
-                              <Select value={unitField.value} onValueChange={unitField.onChange}>
-                                <SelectTrigger className="w-20 border-medical-100">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="ml">{t('weightBased.medication.volumeUnit.ml')}</SelectItem>
-                                  <SelectItem value="tablet">{t('weightBased.medication.volumeUnit.tablet')}</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <span className="flex items-center text-sm text-medical-700 min-w-[40px]">
+                            mg/day
+                          </span>
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -457,13 +617,18 @@ export function WeightBasedDoseForm() {
               </div>
 
               {/* Concentration Display */}
-              {mass > 0 && volume > 0 && (
+              {concentration > 0 && (
                 <Alert className="bg-medical-50/50 border-medical-200/50">
                   <AlertDescription>
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-medical-900">{t('weightBased.concentration.title')}:</span>
-                      <Badge variant="outline" className="border-medical-300 text-medical-800">
-                        {concentration.toFixed(2)} mg/{volumeUnit}
+                      <span className="font-semibold text-medical-900">
+                        Available Concentration:
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-medical-300 text-medical-800"
+                      >
+                        {concentration} {concentrationUnit}
                       </Badge>
                     </div>
                   </AlertDescription>
@@ -472,104 +637,144 @@ export function WeightBasedDoseForm() {
             </CardContent>
           </Card>
 
-          {/* Results Section */}
-          {dose > 0 && weight > 0 && mass > 0 && volume > 0 && perDoseVolume > 0 && (
+          {/* Results */}
+          {shouldShowResults && (
             <Card className="bg-medical-50/20 border-medical-100/50">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2 text-medical-900">
                   <Calculator className="h-5 w-5" />
-                  {t('weightBased.results.title')}
+                  {t("weightBased.results.title") || "Calculation Results"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 !pt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Max Dose Warning */}
+                {calculations?.isOverMaxDose && (
+                  <Alert className="border-orange-200 bg-orange-50">
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                    <AlertDescription className="text-orange-800">
+                      <strong>Dose Limited:</strong> Calculated dose exceeds
+                      maximum safe limit. Dose has been capped at the maximum
+                      recommended amount.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-                  {/* Per Dose Volume */}
+                {/* Dose Results */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      {t('weightBased.results.perDoseVolume.label')}
-                      <InfoTooltip content={t('weightBased.results.perDoseVolume.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
-                    </FormLabel>
+                    <FormLabel>Per Dose</FormLabel>
                     <div className="flex gap-2 items-center">
                       <Input
-                        value={perDoseVolume ? perDoseVolume.toFixed(2) : ""}
+                        value={calculations?.perDoseInMg.toFixed(1) || ""}
                         readOnly
                         className="bg-gray-50 border-medical-100 font-semibold"
                       />
-                      <span className="text-sm font-medium text-medical-700 min-w-[80px]">{volumeUnit} {t('weightBased.results.perDoseVolume.unit')}</span>
+                      <span className="text-sm font-medium text-medical-700 min-w-[40px]">
+                        mg
+                      </span>
                     </div>
                   </FormItem>
 
-                  {/* Daily Volume */}
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      {t('weightBased.results.dailyVolume.label')}
-                      <InfoTooltip content={t('weightBased.results.dailyVolume.tooltip')}><Info className="h-4 w-4 text-medical-400 ml-1" /></InfoTooltip>
-                    </FormLabel>
+                    <FormLabel>Daily Total</FormLabel>
                     <div className="flex gap-2 items-center">
                       <Input
-                        value={dailyVolume ? dailyVolume.toFixed(2) : ""}
+                        value={calculations?.dailyDoseInMg.toFixed(1) || ""}
                         readOnly
                         className="bg-gray-50 border-medical-100 font-semibold"
                       />
-                      <span className="text-sm font-medium text-medical-700 min-w-[80px]">{volumeUnit} {t('weightBased.results.dailyVolume.unit')}</span>
+                      <span className="text-sm font-medium text-medical-700 min-w-[40px]">
+                        mg
+                      </span>
                     </div>
                   </FormItem>
                 </div>
 
-                {/* Dosage Information */}
-                {perDosageInMg > 0 && (
-                  <Alert className="bg-medical-50/50 border-medical-200/50">
-                    <AlertDescription>
-                      <div className="space-y-4">
-                        <div className="font-semibold text-medical-900">
-                          {t('weightBased.results.calculatedDosages.title')}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">{t('weightBased.results.calculatedDosages.perDose')}:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {perDosageInMg.toFixed(1)} mg
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">{t('weightBased.results.calculatedDosages.per24h')}:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {dailyDosageInMg.toFixed(1)} mg
-                            </Badge>
-                          </div>
-                        </div>
+                {/* Volume Results */}
+                {calculations && calculations.volumePerDose > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        Volume Per Dose
+                        <InfoTooltip
+                          content={`Based on ${concentration} ${concentrationUnit}`}
+                        >
+                          <Info className="h-4 w-4 text-medical-400 ml-1" />
+                        </InfoTooltip>
+                      </FormLabel>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          value={calculations.volumePerDose.toFixed(2)}
+                          readOnly
+                          className="bg-gray-50 border-medical-100 font-semibold"
+                        />
+                        <span className="text-sm font-medium text-medical-700 min-w-[60px]">
+                          {calculations.volumeUnit}
+                        </span>
                       </div>
-                    </AlertDescription>
-                  </Alert>
+                    </FormItem>
+
+                    <FormItem>
+                      <FormLabel>Daily Volume</FormLabel>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          value={calculations.volumePerDay.toFixed(2)}
+                          readOnly
+                          className="bg-gray-50 border-medical-100 font-semibold"
+                        />
+                        <span className="text-sm font-medium text-medical-700 min-w-[60px]">
+                          {calculations.volumeUnit}
+                        </span>
+                      </div>
+                    </FormItem>
+                  </div>
                 )}
 
-                {/* Tablet Information */}
-                {tabletsPerDose > 0 && (
-                  <Alert className="bg-medical-50/50 border-medical-200/50">
-                    <AlertDescription>
-                      <div className="space-y-4">
-                        <div className="font-semibold text-medical-900">
-                          {t('weightBased.results.tabletInformation.title', { mass: massInMg }) || `Tablet Information (${massInMg} mg)`}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">{t('weightBased.results.tabletInformation.perDose')}:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {tabletsPerDose.toFixed(1)} {t('weightBased.results.tabletInformation.tablets')}
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-medical-200/50">
-                            <span className="text-sm font-medium">{t('weightBased.results.tabletInformation.per24h')}:</span>
-                            <Badge variant="outline" className="border-medical-300 text-medical-800">
-                              {tabletsPerDay.toFixed(1)} {t('weightBased.results.tabletInformation.tablets')}
-                            </Badge>
-                          </div>
-                        </div>
+                {/* Administration Info */}
+                <Alert className="bg-medical-50/50 border-medical-200/50">
+                  <AlertDescription>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-medical-900">
+                          Administration:
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="border-medical-300 text-medical-800"
+                        >
+                          {frequency} - {calculations?.timesPerDay} times per
+                          day
+                        </Badge>
                       </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-medical-900">
+                          Concentration:
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="border-medical-300 text-medical-800"
+                        >
+                          {concentration} {concentrationUnit}
+                        </Badge>
+                      </div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                <ClinicalDisclaimer
+                  title={
+                    t("byMedication.disclaimer.title") || "Clinical Disclaimer"
+                  }
+                  points={[
+                    t("byMedication.disclaimer.calculation") ||
+                      "These calculations are for reference only and should not replace clinical judgment.",
+                    t("byMedication.disclaimer.verification") ||
+                      "Always verify dosages with another clinician and current clinical guidelines before administration.",
+                    t("byMedication.disclaimer.responsibility") ||
+                      "The prescribing clinician remains fully responsible for all dosing decisions.",
+                  ]}
+                  variant="warning"
+                />
               </CardContent>
             </Card>
           )}
