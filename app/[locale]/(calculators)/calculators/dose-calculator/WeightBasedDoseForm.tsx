@@ -257,7 +257,7 @@ export function WeightBasedDoseForm() {
                 {t("weightBased.title") || "Prescription Information"}
               </CardTitle>
             </CardHeader> */}
-            <CardContent className="space-y-6 pt-0">
+            <CardContent className="space-y-6">
               {/* First Row - Dose and Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Dose Amount */}
@@ -265,7 +265,7 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="dose"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {t("weightBased.dose.label") || "Dose Amount"}
                         <InfoTooltip
@@ -331,7 +331,7 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="dosageType"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>
                         {t("weightBased.dosageType.label") || "Dosage Type"}
                       </FormLabel>
@@ -397,7 +397,7 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="frequency"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>
                         {t("weightBased.frequency.label") || "Frequency"}
                       </FormLabel>
@@ -440,7 +440,7 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="weight"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         {t("weightBased.patientWeight.label") ||
                           "Patient Weight"}
@@ -534,7 +534,7 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="concentration"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         Concentration
                         <InfoTooltip content="Enter the concentration of the medication available">
@@ -586,7 +586,7 @@ export function WeightBasedDoseForm() {
                   control={form.control}
                   name="maxDose"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         Maximum Daily Dose (optional)
                         <InfoTooltip content="Enter maximum safe daily dose in mg to enable safety checks">
@@ -661,7 +661,7 @@ export function WeightBasedDoseForm() {
 
                 {/* Dose Results */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormItem>
+                  <FormItem className="flex flex-col justify-between">
                     <FormLabel>Per Dose</FormLabel>
                     <div className="flex gap-2 items-center">
                       <Input
@@ -675,7 +675,7 @@ export function WeightBasedDoseForm() {
                     </div>
                   </FormItem>
 
-                  <FormItem>
+                  <FormItem className="flex flex-col justify-between">
                     <FormLabel>Daily Total</FormLabel>
                     <div className="flex gap-2 items-center">
                       <Input
@@ -693,7 +693,7 @@ export function WeightBasedDoseForm() {
                 {/* Volume Results */}
                 {calculations && calculations.volumePerDose > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel className="flex items-center gap-2">
                         Volume Per Dose
                         <InfoTooltip
@@ -714,7 +714,7 @@ export function WeightBasedDoseForm() {
                       </div>
                     </FormItem>
 
-                    <FormItem>
+                    <FormItem className="flex flex-col justify-between">
                       <FormLabel>Daily Volume</FormLabel>
                       <div className="flex gap-2 items-center">
                         <Input

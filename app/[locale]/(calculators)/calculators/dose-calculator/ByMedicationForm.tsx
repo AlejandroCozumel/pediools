@@ -324,7 +324,7 @@ export function ByMedicationForm() {
                 {t("byMedication.selectMedication") || "Select Medication"}
               </CardTitle>
             </CardHeader> */}
-            <CardContent className="space-y-6 pt-0">
+            <CardContent className="space-y-6">
               <FormField
                 control={form.control}
                 name="medicationId"
@@ -347,7 +347,11 @@ export function ByMedicationForm() {
                       </FormControl>
                       <SelectContent>
                         {pediatricMeds.medications.map((med) => (
-                          <SelectItem key={med.id} value={med.id} className="select-item-complex">
+                          <SelectItem
+                            key={med.id}
+                            value={med.id}
+                            className="select-item-complex"
+                          >
                             <div className="select-item-content">
                               <div className="flex flex-col min-w-0">
                                 <span className="font-medium truncate">
@@ -447,7 +451,11 @@ export function ByMedicationForm() {
                         <SelectContent>
                           {selectedMed.concentrations.map(
                             (concentration, index) => (
-                              <SelectItem key={index} value={index.toString()} className="select-item-complex">
+                              <SelectItem
+                                key={index}
+                                value={index.toString()}
+                                className="select-item-complex"
+                              >
                                 <div className="select-item-content">
                                   <div className="flex items-center gap-2">
                                     {concentration.common && (
@@ -463,7 +471,8 @@ export function ByMedicationForm() {
                                             variant="secondary"
                                             className="select-item-badge text-xs bg-yellow-100 text-yellow-800"
                                           >
-                                            {t("byMedication.common") || "Common"}
+                                            {t("byMedication.common") ||
+                                              "Common"}
                                           </Badge>
                                         )}
                                       </div>
@@ -525,7 +534,7 @@ export function ByMedicationForm() {
                       control={form.control}
                       name="weight"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col justify-between">
                           <FormLabel className="flex items-center gap-2">
                             {t("byMedication.patientWeight") ||
                               "Patient Weight"}
@@ -585,7 +594,7 @@ export function ByMedicationForm() {
                       control={form.control}
                       name="age"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col justify-between">
                           <FormLabel className="flex items-center gap-2">
                             {t("byMedication.patientAge") || "Patient Age"}
                             <InfoTooltip
@@ -667,34 +676,38 @@ export function ByMedicationForm() {
                             </FormControl>
                             <SelectContent>
                               {selectedMed.frequencies.map((freq) => (
-                                                            <SelectItem key={freq.value} value={freq.value} className="select-item-complex">
-                              <div className="select-item-content">
-                                <div className="flex items-center gap-2">
-                                  {freq.common && (
-                                    <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
-                                  )}
-                                  <div className="flex flex-col min-w-0 flex-1">
+                                <SelectItem
+                                  key={freq.value}
+                                  value={freq.value}
+                                  className="select-item-complex"
+                                >
+                                  <div className="select-item-content">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-medium truncate">
-                                        {freq.value} - {freq.labels[locale]}
-                                      </span>
                                       {freq.common && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="select-item-badge text-xs bg-yellow-100 text-yellow-800"
-                                        >
-                                          {t("byMedication.common") ||
-                                            "Common"}
-                                        </Badge>
+                                        <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
                                       )}
+                                      <div className="flex flex-col min-w-0 flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-medium truncate">
+                                            {freq.value} - {freq.labels[locale]}
+                                          </span>
+                                          {freq.common && (
+                                            <Badge
+                                              variant="secondary"
+                                              className="select-item-badge text-xs bg-yellow-100 text-yellow-800"
+                                            >
+                                              {t("byMedication.common") ||
+                                                "Common"}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <span className="text-xs text-muted-foreground truncate">
+                                          {freq.descriptions[locale]}
+                                        </span>
+                                      </div>
                                     </div>
-                                    <span className="text-xs text-muted-foreground truncate">
-                                      {freq.descriptions[locale]}
-                                    </span>
                                   </div>
-                                </div>
-                              </div>
-                            </SelectItem>
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -848,7 +861,7 @@ export function ByMedicationForm() {
 
                 {/* Dose Results */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormItem>
+                  <FormItem className="flex flex-col justify-between">
                     <FormLabel>
                       {t("byMedication.perDose") || "Per Dose"}
                     </FormLabel>
@@ -864,7 +877,7 @@ export function ByMedicationForm() {
                     </div>
                   </FormItem>
 
-                  <FormItem>
+                  <FormItem className="flex flex-col justify-between">
                     <FormLabel>
                       {t("byMedication.dailyTotal") || "Daily Total"}
                     </FormLabel>
@@ -885,7 +898,7 @@ export function ByMedicationForm() {
                 {selectedConcentration && calculations?.volumePerDose > 0 && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormItem>
+                      <FormItem className="flex flex-col justify-between">
                         <FormLabel className="flex items-center gap-2">
                           {t("byMedication.volumePerDose") ||
                             calculations.volumeLabel}
@@ -917,7 +930,7 @@ export function ByMedicationForm() {
                         </div>
                       </FormItem>
 
-                      <FormItem>
+                      <FormItem className="flex flex-col justify-between">
                         <FormLabel>
                           {t("byMedication.dailyVolume") ||
                             calculations.dailyVolumeLabel}
