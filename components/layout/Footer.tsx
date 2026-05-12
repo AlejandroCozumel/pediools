@@ -90,13 +90,13 @@ export default function Footer() {
             <h4 className="text-base font-semibold text-medical-900">
               {t("contactTitle")}
             </h4>
-            <Link
+            <a
               href="mailto:alejandro@pedimath.com"
               className="flex items-center text-[14px] text-gray-600 hover:text-gray-900"
             >
               <Mail className="h-4 w-4 mr-2" />
               alejandro@pedimath.com
-            </Link>
+            </a>
           </div>
         </div>
         <div className="mt-6 pt-4 text-center">

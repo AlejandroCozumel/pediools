@@ -1621,6 +1621,14 @@
     "short": "Solo para referencia.",
     "seeFullDisclaimer": "Ver aviso completo"
   },
+  "About": {
+    "title": "Acerca de - PediMath",
+    "description": "Conoce mas sobre PediMath y sus herramientas de calculo pediatrico para profesionales de la salud."
+  },
+  "FAQ": {
+    "title": "Preguntas frecuentes - PediMath",
+    "description": "Preguntas frecuentes sobre las calculadoras pediatricas y graficas de crecimiento de PediMath."
+  },
   "Contact": {
     "title": "Contacto - PediMath",
     "description": "Contacta a PediMath para soporte, comentarios o consultas de colaboración."

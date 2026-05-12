@@ -463,16 +463,6 @@ function isAgeInRange(
 
 export function BloodPressureForm() {
   const t = useTranslations("BloodPressureCalculator");
-  console.log("Current locale:", t("gender.male")); // Should show "Niño" for Spanish
-  console.log("Normal category:", t("classifications.normal.category"));
-  console.log(
-    "Normal description template:",
-    t("classifications.normal.description")
-  );
-  console.log(
-    "Pediatric description:",
-    t("classifications.normal.pediatricDescription")
-  );
   const formSchema = useMemo(() => createFormSchema(t), [t]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<BPResult | null>(null);

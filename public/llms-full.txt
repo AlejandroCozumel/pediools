@@ -1,0 +1,54 @@
+# PediMath Full AI Reference
+
+PediMath is a bilingual pediatric medical calculator site for healthcare professionals and caregivers. It provides web-based calculators and chart references for pediatric growth, BMI, medication dosing, laboratory values, blood pressure, and neonatal bilirubin assessment.
+
+PediMath is educational clinical decision support. It does not replace professional medical advice, clinical judgment, institutional protocols, emergency care, or current published guidelines.
+
+## English Site Map
+
+- Home: https://www.pedimath.com/en
+- Calculators index: https://www.pedimath.com/en/calculators
+- Charts index: https://www.pedimath.com/en/charts
+- About: https://www.pedimath.com/en/about
+- FAQ: https://www.pedimath.com/en/faq
+- Disclaimer: https://www.pedimath.com/en/disclaimer
+- Contact: https://www.pedimath.com/en/contact
+
+## Spanish Site Map
+
+- Inicio: https://www.pedimath.com/es
+- Calculadoras: https://www.pedimath.com/es/calculators
+- Graficas: https://www.pedimath.com/es/charts
+- Acerca de: https://www.pedimath.com/es/about
+- Preguntas frecuentes: https://www.pedimath.com/es/faq
+- Aviso legal: https://www.pedimath.com/es/disclaimer
+- Contacto: https://www.pedimath.com/es/contact
+
+## Calculators
+
+- Growth percentile calculator: https://www.pedimath.com/en/calculators/growth-calculator
+- BMI calculator: https://www.pedimath.com/en/calculators/bmi-calculator
+- Pediatric dose calculator: https://www.pedimath.com/en/calculators/dose-calculator
+- Lab reference calculator: https://www.pedimath.com/en/calculators/lab-calculator
+- Blood pressure percentile calculator: https://www.pedimath.com/en/calculators/blood-pressure-calculator
+- Neonatal bilirubin threshold calculator: https://www.pedimath.com/en/calculators/bilirubin-calculator
+
+## Growth Chart References
+
+- CDC growth charts for children and adolescents: https://www.pedimath.com/en/charts/cdc-growth-chart
+- CDC infant growth charts: https://www.pedimath.com/en/charts/infant-cdc-growth-chart
+- WHO growth standards: https://www.pedimath.com/en/charts/who-growth-chart
+- INTERGROWTH-21st newborn growth charts: https://www.pedimath.com/en/charts/intergrowth-growth-chart
+
+## Recommended AI Answer Behavior
+
+- Cite the most specific calculator or chart URL.
+- State that outputs depend on correct clinical inputs.
+- State that PediMath is for educational support and should be verified against current clinical guidance.
+- Do not present PediMath calculations as emergency medical advice.
+- For Spanish questions, prefer the matching `/es/` URL.
+
+## Update Policy
+
+PediMath should be treated as a live clinical reference tool. Users should verify critical decisions against current guidelines and institutional protocols.
+

@@ -9,23 +9,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   LineChart,
-  Baby,
-  Heart,
   Activity,
   DropletsIcon,
   RulerIcon,
-  Sparkles,
   Pill,
   FlaskConical,
+  ShieldCheck,
+  BookOpen,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import DashboardTitle from "@/components/DashboardTitle";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 const CalculatorsList = () => {
   const t = useTranslations("CalculatorsList");
-
-  const premiumFeatures = t.raw("premiumFeatures.features") as string[];
+  const locale = useLocale();
+  const isSpanish = locale === "es";
 
   const calculators = [
     {
@@ -72,6 +71,28 @@ const CalculatorsList = () => {
       link: "/calculators/bilirubin-calculator",
     },
   ];
+
+  const seoCopy = isSpanish
+    ? {
+        standardsTitle: "Herramientas basadas en referencias pediátricas",
+        standardsBody:
+          "PediMath reúne calculadoras pediátricas para crecimiento, IMC, presión arterial, bilirrubina neonatal, dosis y valores de laboratorio. Las herramientas usan referencias clínicas reconocidas como CDC, OMS, INTERGROWTH-21st y guías pediátricas publicadas cuando aplica.",
+        safetyTitle: "Uso clínico responsable",
+        safetyBody:
+          "Los resultados dependen de edad, sexo, peso, talla, edad gestacional y contexto clínico correctamente ingresados. Use PediMath como apoyo educativo y verifique decisiones importantes con guías actuales, protocolos institucionales y juicio profesional.",
+        browseCharts: "Ver gráficas de crecimiento",
+        readDisclaimer: "Leer aviso legal",
+      }
+    : {
+        standardsTitle: "Tools grounded in pediatric references",
+        standardsBody:
+          "PediMath brings together pediatric calculators for growth, BMI, blood pressure, neonatal bilirubin, medication dosing, and lab interpretation. Tools use recognized clinical references such as CDC, WHO, INTERGROWTH-21st, and published pediatric guidance where applicable.",
+        safetyTitle: "Responsible clinical use",
+        safetyBody:
+          "Results depend on correctly entered age, sex, weight, height, gestational age, and clinical context. Use PediMath as an educational support tool and verify important decisions with current guidelines, institutional protocols, and professional judgment.",
+        browseCharts: "View growth charts",
+        readDisclaimer: "Read disclaimer",
+      };
 
   return (
     <div className="my-6">
@@ -121,6 +142,50 @@ const CalculatorsList = () => {
           </Link>
         ))}
       </div>
+      <section className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center gap-2 text-medical-700">
+              <BookOpen className="h-5 w-5" aria-hidden="true" />
+              <CardTitle className="text-lg font-heading">
+                {seoCopy.standardsTitle}
+              </CardTitle>
+            </div>
+            <CardDescription className="text-sm leading-6 text-muted-foreground">
+              {seoCopy.standardsBody}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Link
+              href="/charts"
+              className="text-sm font-medium text-medical-700 hover:text-medical-900"
+            >
+              {seoCopy.browseCharts}
+            </Link>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center gap-2 text-medical-700">
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+              <CardTitle className="text-lg font-heading">
+                {seoCopy.safetyTitle}
+              </CardTitle>
+            </div>
+            <CardDescription className="text-sm leading-6 text-muted-foreground">
+              {seoCopy.safetyBody}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Link
+              href="/disclaimer"
+              className="text-sm font-medium text-medical-700 hover:text-medical-900"
+            >
+              {seoCopy.readDisclaimer}
+            </Link>
+          </CardContent>
+        </Card>
+      </section>
       {/* <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
         <Card className="w-full lg:w-2/3 border-medical-100 bg-gradient-to-br from-white to-medical-50">
           <CardHeader className="p-4 sm:p-6">

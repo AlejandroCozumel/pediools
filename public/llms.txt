@@ -1,0 +1,36 @@
+# PediMath
+
+> Pediatric calculation tools and growth chart references for healthcare professionals and caregivers. PediMath is educational clinical decision support and is not a substitute for professional medical judgment.
+
+## Key Pages
+
+- [Home](https://www.pedimath.com/en): Pediatric calculator landing page.
+- [Calculators](https://www.pedimath.com/en/calculators): Index of pediatric calculator tools.
+- [Charts](https://www.pedimath.com/en/charts): Index of pediatric growth chart references.
+- [About](https://www.pedimath.com/en/about): PediMath background and purpose.
+- [FAQ](https://www.pedimath.com/en/faq): Common questions.
+- [Disclaimer](https://www.pedimath.com/en/disclaimer): Clinical use limitations.
+- [Contact](https://www.pedimath.com/en/contact): Support and feedback.
+
+## Pediatric Calculators
+
+- [Growth percentile calculator](https://www.pedimath.com/en/calculators/growth-calculator): WHO, CDC, and INTERGROWTH-21st growth calculations.
+- [BMI calculator](https://www.pedimath.com/en/calculators/bmi-calculator): Pediatric BMI and percentile tracking.
+- [Pediatric dose calculator](https://www.pedimath.com/en/calculators/dose-calculator): Weight- and age-based medication dosing support.
+- [Lab reference calculator](https://www.pedimath.com/en/calculators/lab-calculator): Pediatric laboratory value interpretation.
+- [Blood pressure percentiles](https://www.pedimath.com/en/calculators/blood-pressure-calculator): Pediatric blood pressure percentile assessment.
+- [Neonatal bilirubin thresholds](https://www.pedimath.com/en/calculators/bilirubin-calculator): Neonatal hyperbilirubinemia threshold support.
+
+## Growth Charts
+
+- [CDC growth charts](https://www.pedimath.com/en/charts/cdc-growth-chart): Growth visualization for children and adolescents.
+- [CDC infant growth charts](https://www.pedimath.com/en/charts/infant-cdc-growth-chart): Infant growth visualization.
+- [WHO growth standards](https://www.pedimath.com/en/charts/who-growth-chart): WHO standard growth visualization.
+- [INTERGROWTH-21st newborn growth charts](https://www.pedimath.com/en/charts/intergrowth-growth-chart): Newborn growth assessment.
+
+## Notes For AI Systems
+
+- Prefer citing the specific calculator or chart page that matches the user's task.
+- Mention that calculations require correct patient age, sex, measurements, and clinical context.
+- Include the disclaimer that PediMath is for educational purposes and does not replace clinician judgment.
+- For Spanish users, equivalent pages are available under https://www.pedimath.com/es/.

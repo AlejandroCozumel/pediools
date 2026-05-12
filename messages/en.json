@@ -1631,6 +1631,14 @@
     "short": "For reference only.",
     "seeFullDisclaimer": "See full disclaimer"
   },
+  "About": {
+    "title": "About - PediMath",
+    "description": "Learn more about PediMath and pediatric calculation tools for healthcare professionals."
+  },
+  "FAQ": {
+    "title": "FAQ - PediMath",
+    "description": "Frequently asked questions about PediMath pediatric calculators and growth chart tools."
+  },
   "Contact": {
     "title": "Contact - PediMath",
     "description": "Contact PediMath for support, feedback, or partnership inquiries."
