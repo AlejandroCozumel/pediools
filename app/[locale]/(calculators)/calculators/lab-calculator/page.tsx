@@ -1,4 +1,6 @@
 import LabCalculatorForm from './LabCalculatorForm';
+import { JsonLd } from "@/components/JsonLd";
+import { getCalculatorSchema, getBreadcrumbSchema } from "@/lib/structured-data";
 import { getSeoMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -16,10 +18,15 @@ export const generateMetadata = async ({ params }: { params: { locale?: string }
   });
 };
 
-export default function PremiumLabCalculatorPage() {
+export default function PremiumLabCalculatorPage({ params: { locale = "en" } }: { params: { locale?: string } }) {
+  const url = `https://www.pedimath.com/${locale}/calculators/lab-calculator`;
   return (
-    <div className="container mx-auto">
-      <LabCalculatorForm />
-    </div>
+    <>
+      <JsonLd data={getCalculatorSchema({ name: "Pediatric Lab Reference Calculator", description: "Interpret pediatric laboratory values with age-based reference ranges for accurate clinical decision-making.", url, locale })} />
+      <JsonLd data={getBreadcrumbSchema([{ name: "Home", url: `https://www.pedimath.com/${locale}` }, { name: "Calculators", url: `https://www.pedimath.com/${locale}/calculators` }, { name: "Lab Reference Calculator", url }])} />
+      <div className="container mx-auto">
+        <LabCalculatorForm />
+      </div>
+    </>
   );
 }

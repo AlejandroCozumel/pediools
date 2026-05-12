@@ -22,9 +22,12 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "PediCalc - Pediatric Calculator Suite",
+  title: {
+    template: "%s | PediMath",
+    default: "PediMath - Pediatric Calculator Suite",
+  },
   description:
-    "Professional pediatric calculation tools for healthcare providers",
+    "Professional pediatric calculation tools for healthcare providers. Growth charts, blood pressure, BMI, bilirubin, dose calculator, and more.",
   icons: {
     icon: [
       { url: "/pedimathLogo.svg", type: "image/svg+xml" },

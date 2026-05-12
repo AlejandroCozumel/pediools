@@ -1,5 +1,6 @@
-// app/[locale]/(calculators)/calculators/growth-calculator/page.tsx
 import { GrowthForm } from "./GrowthForm";
+import { JsonLd } from "@/components/JsonLd";
+import { getCalculatorSchema, getBreadcrumbSchema } from "@/lib/structured-data";
 import { getSeoMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -32,10 +33,15 @@ export const generateMetadata = async ({
   });
 };
 
-export default function GrowthPage() {
+export default function GrowthPage({ params: { locale = "en" } }: { params: { locale?: string } }) {
+  const url = `https://www.pedimath.com/${locale}/calculators/growth-calculator`;
   return (
-    <div className="container mx-auto">
-      <GrowthForm />
-    </div>
+    <>
+      <JsonLd data={getCalculatorSchema({ name: "Pediatric Growth Percentile Calculator", description: "Calculate and track growth percentiles using WHO, CDC, and INTERGROWTH-21st standards for children from birth to 20 years.", url, locale })} />
+      <JsonLd data={getBreadcrumbSchema([{ name: "Home", url: `https://www.pedimath.com/${locale}` }, { name: "Calculators", url: `https://www.pedimath.com/${locale}/calculators` }, { name: "Growth Percentile Calculator", url }])} />
+      <div className="container mx-auto">
+        <GrowthForm />
+      </div>
+    </>
   );
 }

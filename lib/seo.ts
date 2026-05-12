@@ -57,24 +57,19 @@ export function getSeoMetadata({
     ...keywords
   ];
 
-  // Build alternate language URLs for the same page
+  // Build alternate language URLs — localePrefix: 'always' means every locale uses /{loc}/path
+  const urlPath = url.replace("https://www.pedimath.com", '');
+  const pathWithoutLocale = urlPath.replace(/^\/(en|es)/, '') || '';
+
   const alternateUrls = SITE_CONFIG.supportedLocales.reduce((acc, loc) => {
-    // Extract the path from the URL and rebuild with different locale
-    const urlPath = url.replace("https://www.pedimath.com", '');
-    let altUrl;
-
-    if (urlPath === '/' || urlPath === '') {
-      // Home page
-      altUrl = loc === "en" ? "/" : `/${loc}`;
-    } else {
-      // Other pages - handle locale switching
-      const pathWithoutLocale = urlPath.replace(/^\/(en|es)/, '') || '';
-      altUrl = loc === "en" ? pathWithoutLocale : `/${loc}${pathWithoutLocale}`;
-    }
-
-    acc[loc] = `https://www.pedimath.com${altUrl}`;
+    acc[loc] = `https://www.pedimath.com/${loc}${pathWithoutLocale}`;
     return acc;
   }, {} as Record<string, string>);
+
+  // x-default: English version (root for home, /en/path for other pages)
+  alternateUrls["x-default"] = pathWithoutLocale
+    ? `https://www.pedimath.com/en${pathWithoutLocale}`
+    : "https://www.pedimath.com/";
 
   return {
     title: fullTitle,
@@ -156,14 +151,5 @@ export function getSeoMetadata({
       ...(calculator && { "calculator-type": calculator }),
     },
 
-    // Add verification tags when you have them
-    verification: {
-      google: "your-google-verification-code",
-      // yandex: "your-yandex-verification-code",
-      // yahoo: "your-yahoo-verification-code",
-      // other: {
-      //   "msvalidate.01": "your-bing-verification-code",
-      // },
-    },
   };
 }

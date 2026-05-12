@@ -104,12 +104,10 @@ export async function GET() {
       <changefreq>${changefreq}</changefreq>
       <priority>${priority}</priority>
       ${locales.map(locale => {
-        const altUrl = locale === 'en'
-          ? `${siteUrl}/en${path === '/' ? '' : path}`
-          : `${siteUrl}/es${path === '/' ? '' : path}`;
+        const altUrl = `${siteUrl}/${locale}${path === '/' ? '' : path}`;
         return `<xhtml:link rel="alternate" hreflang="${locale}" href="${altUrl}" />`;
       }).join('\n      ')}
-      <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}/en${path === '/' ? '' : path}" />
+      <xhtml:link rel="alternate" hreflang="x-default" href="${path === '/' ? siteUrl + '/' : `${siteUrl}/en${path}`}" />
     </url>`;
     })
     .join('')}

@@ -1,4 +1,6 @@
 import CalculatorsList from "./CalculatorsList";
+import { JsonLd } from "@/components/JsonLd";
+import { getWebSiteSchema, getOrganizationSchema } from "@/lib/structured-data";
 import { getSeoMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -17,5 +19,11 @@ export const generateMetadata = async ({ params }: { params: { locale?: string }
 };
 
 export default function Home() {
-  return <CalculatorsList />;
+  return (
+    <>
+      <JsonLd data={getWebSiteSchema()} />
+      <JsonLd data={getOrganizationSchema()} />
+      <CalculatorsList />
+    </>
+  );
 }

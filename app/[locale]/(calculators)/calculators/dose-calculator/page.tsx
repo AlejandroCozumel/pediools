@@ -1,5 +1,7 @@
 import { DoseMethodSelector } from "./DoseMethodSelector";
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { JsonLd } from "@/components/JsonLd";
+import { getCalculatorSchema, getBreadcrumbSchema } from "@/lib/structured-data";
 import { getSeoMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -17,12 +19,17 @@ export const generateMetadata = async ({ params }: { params: { locale?: string }
   });
 };
 
-export default function DoseCalculatorPage() {
+export default function DoseCalculatorPage({ params: { locale = "en" } }: { params: { locale?: string } }) {
+  const url = `https://www.pedimath.com/${locale}/calculators/dose-calculator`;
   return (
-    <TooltipProvider>
-      <div className="container mx-auto">
-        <DoseMethodSelector />
-      </div>
-    </TooltipProvider>
+    <>
+      <JsonLd data={getCalculatorSchema({ name: "Pediatric Dose Calculator", description: "Calculate safe and effective medication doses for children based on weight and age using evidence-based dosing protocols.", url, locale })} />
+      <JsonLd data={getBreadcrumbSchema([{ name: "Home", url: `https://www.pedimath.com/${locale}` }, { name: "Calculators", url: `https://www.pedimath.com/${locale}/calculators` }, { name: "Dose Calculator", url }])} />
+      <TooltipProvider>
+        <div className="container mx-auto">
+          <DoseMethodSelector />
+        </div>
+      </TooltipProvider>
+    </>
   );
 }
