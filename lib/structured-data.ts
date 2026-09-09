@@ -15,14 +15,6 @@ export function getWebSiteSchema() {
     description:
       "Professional pediatric calculation tools for healthcare providers. Growth charts, blood pressure, BMI, bilirubin, and more.",
     publisher: ORG,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${BASE_URL}/en/calculators?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
   };
 }
 

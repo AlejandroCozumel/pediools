@@ -10,7 +10,10 @@ export const generateMetadata = async ({ params }: { params: { locale?: string }
   const t = await getTranslations({ locale, namespace: "CalculatorsList" });
   return getSeoMetadata({
     title: t("dashboardTitle", { defaultValue: "Pediatric Calculators" }),
-    description: t("dashboardSubtitle", { defaultValue: "Professional tools for pediatric assessment and monitoring" }),
+    description:
+      locale === "es"
+        ? "Accede a calculadoras pediatricas de crecimiento, IMC, dosis, laboratorio, presion arterial y bilirrubina con contexto clinico y avisos de seguridad."
+        : "Access pediatric calculators for growth, BMI, dosing, labs, blood pressure, and bilirubin with clinical reference context and safety reminders.",
     url: `https://www.pedimath.com/${locale}`,
     image: "/og-image.jpg",
     locale,

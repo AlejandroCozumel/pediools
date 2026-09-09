@@ -17,8 +17,8 @@ export const generateMetadata = async ({
     title: locale === "es" ? "Gráficas de Crecimiento Pediátrico" : "Pediatric Growth Charts",
     description:
       locale === "es"
-        ? "Explora gráficas de crecimiento CDC, OMS e INTERGROWTH-21st para evaluación pediátrica."
-        : "Explore CDC, WHO, and INTERGROWTH-21st growth charts for pediatric assessment.",
+        ? "Explora graficas de crecimiento CDC, OMS e INTERGROWTH-21st para evaluar percentiles pediatricos con contexto clinico y referencias claras."
+        : "Explore CDC, WHO, and INTERGROWTH-21st growth charts for pediatric percentile assessment with clinical context and clear references.",
     url: `https://www.pedimath.com/${locale}/charts`,
     locale,
     keywords: ["pediatric growth charts", "CDC growth charts", "WHO growth standards", "INTERGROWTH"],
@@ -108,4 +108,3 @@ export default async function ChartsIndex({
     </main>
   );
 }
-

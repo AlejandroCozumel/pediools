@@ -17,8 +17,8 @@ export const generateMetadata = async ({
     title: locale === "es" ? "Calculadoras Pediátricas" : "Pediatric Calculators",
     description:
       locale === "es"
-        ? "Explora calculadoras pediátricas para crecimiento, IMC, dosis, laboratorio, presión arterial y bilirrubina."
-        : "Explore pediatric calculators for growth, BMI, dosing, lab interpretation, blood pressure, and bilirubin.",
+        ? "Explora calculadoras pediatricas para crecimiento, IMC, dosis, laboratorio, presion arterial y bilirrubina con referencias clinicas y avisos de seguridad."
+        : "Explore pediatric calculators for growth, BMI, dosing, lab interpretation, blood pressure, and bilirubin with clinical references and safety notes.",
     url: `https://www.pedimath.com/${locale}/calculators`,
     locale,
     keywords: ["pediatric calculators", "medical calculators", "growth calculator", "dose calculator"],
@@ -116,4 +116,3 @@ export default async function CalculatorsIndex({
     </main>
   );
 }
-

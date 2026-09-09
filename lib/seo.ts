@@ -40,8 +40,10 @@ export function getSeoMetadata({
   calculator,
   noIndex = false,
 }: SeoMetadataOptions): Metadata {
-  // Enhanced title with site branding
-  const fullTitle = title.includes(SITE_CONFIG.siteName) ? title : `${title} - ${SITE_CONFIG.siteName}`;
+  const cleanTitle = title
+    .replace(new RegExp(`\\s*[-|]\\s*${SITE_CONFIG.siteName}\\s*$`), "")
+    .trim();
+  const socialTitle = `${cleanTitle} - ${SITE_CONFIG.siteName}`;
 
   // Use provided image or default
   const ogImage = image || SITE_CONFIG.defaultImage;
@@ -72,7 +74,7 @@ export function getSeoMetadata({
     : "https://www.pedimath.com/";
 
   return {
-    title: fullTitle,
+    title: cleanTitle,
     description,
     keywords: medicalKeywords,
     authors: [{ name: SITE_CONFIG.author }],
@@ -88,7 +90,7 @@ export function getSeoMetadata({
     },
     // Open Graph
     openGraph: {
-      title: fullTitle,
+      title: socialTitle,
       description,
       url,
       siteName: SITE_CONFIG.siteName,
@@ -107,7 +109,7 @@ export function getSeoMetadata({
     // Twitter
     twitter: {
       card: "summary_large_image",
-      title: fullTitle,
+      title: socialTitle,
       description,
       images: [fullImageUrl],
       creator: SITE_CONFIG.twitterHandle,
