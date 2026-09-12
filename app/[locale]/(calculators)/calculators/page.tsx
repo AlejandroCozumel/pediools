@@ -14,7 +14,7 @@ export const generateMetadata = async ({
   const locale = params?.locale || "en";
 
   return getSeoMetadata({
-    title: locale === "es" ? "Calculadoras Pediátricas" : "Pediatric Calculators",
+    title: locale === "es" ? "Biblioteca de Calculadoras Pediátricas" : "Pediatric Calculator Library",
     description:
       locale === "es"
         ? "Explora calculadoras pediatricas para crecimiento, IMC, dosis, laboratorio, presion arterial y bilirrubina con referencias clinicas y avisos de seguridad."

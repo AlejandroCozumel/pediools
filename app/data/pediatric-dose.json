@@ -6,7 +6,7 @@
         "en": "Acetaminophen (Tylenol)",
         "es": "Paracetamol (Acetaminofén)"
       },
-      "inputs": ["weight", "frequency"],
+      "inputs": ["weight", "age", "frequency"],
       "dosingType": "mg/kg/dose",
       "doseRange": [10, 15],
       "doseDefault": 15,
@@ -127,7 +127,7 @@
         "en": "Ibuprofen (Advil, Motrin)",
         "es": "Ibuprofeno"
       },
-      "inputs": ["weight", "frequency"],
+      "inputs": ["weight", "age", "frequency"],
       "dosingType": "mg/kg/dose",
       "doseRange": [5, 10],
       "doseDefault": 7.5,

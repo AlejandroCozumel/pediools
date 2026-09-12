@@ -276,6 +276,8 @@ export const useIntergrowthChartData = (searchParams: URLSearchParams) => {
   return useQuery({
     queryKey: ["intergrowthChartData", searchParams.toString()],
     queryFn: () => fetchIntergrowthChartDataClient(searchParams),
-    enabled: typeof window !== "undefined",
+    enabled:
+      typeof window !== "undefined" &&
+      Boolean(searchParams.get("weightData") && searchParams.get("heightData")),
   });
 };

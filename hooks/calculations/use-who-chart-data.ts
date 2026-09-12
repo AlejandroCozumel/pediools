@@ -276,6 +276,8 @@ export const useWHOChartData = (searchParams: URLSearchParams) => {
   return useQuery({
     queryKey: ["whoChartData", searchParams.toString()],
     queryFn: () => fetchWHOChartDataClient(searchParams),
-    enabled: typeof window !== "undefined",
+    enabled:
+      typeof window !== "undefined" &&
+      Boolean(searchParams.get("weightData") && searchParams.get("heightData")),
   });
 };

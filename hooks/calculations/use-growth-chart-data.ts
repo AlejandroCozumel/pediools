@@ -67,7 +67,9 @@ export const useGrowthChartData = (searchParams: URLSearchParams) => {
   return useQuery({
     queryKey: ["growthChartData", searchParams.toString()],
     queryFn: () => fetchGrowthChartDataClient(searchParams),
-    enabled: typeof window !== "undefined",
+    enabled:
+      typeof window !== "undefined" &&
+      Boolean(searchParams.get("weightData") && searchParams.get("heightData")),
   });
 };
 

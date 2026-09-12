@@ -5,6 +5,7 @@ type SeoToolContentProps = {
   inputs: string[];
   references: string;
   safety: string;
+  referenceLinks?: { href: string; label: string }[];
   related?: { href: string; label: string }[];
 };
 
@@ -15,6 +16,7 @@ export function SeoToolContent({
   inputs,
   references,
   safety,
+  referenceLinks = [],
   related = [],
 }: SeoToolContentProps) {
   const isSpanish = locale === "es";
@@ -41,18 +43,34 @@ export function SeoToolContent({
 
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-medical-900 font-heading">
-          {isSpanish ? "Referencias y limites" : "References and Limits"}
+          {isSpanish ? "Referencias y límites" : "References and Limits"}
         </h3>
         <p>{references}</p>
+        {referenceLinks.length > 0 && (
+          <ul className="list-disc space-y-1 pl-6">
+            {referenceLinks.map((reference) => (
+              <li key={reference.href}>
+                <a
+                  className="font-medium text-medical-700 underline hover:text-medical-900"
+                  href={reference.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {reference.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
         <p>{safety}</p>
         <p>
           {isSpanish
-            ? "Interpreta los resultados como una ayuda estructurada para revisar datos clinicos, no como una respuesta automatica. Si los datos no coinciden con la exploracion, repite la medicion, revisa unidades y confirma que la edad o fecha usada sea correcta."
+            ? "Interpreta los resultados como una ayuda estructurada para revisar datos clínicos, no como una respuesta automática. Si los datos no coinciden con la exploración, repite la medición, revisa unidades y confirma que la edad o fecha usada sea correcta."
             : "Interpret results as a structured aid for reviewing clinical data, not as an automatic answer. If the output does not match the exam, repeat the measurement, review units, and confirm that the age or date used is correct."}
         </p>
         <p>
           {isSpanish
-            ? "Para seguimiento, compara resultados con mediciones previas y documenta la fuente de referencia utilizada. Los cambios importantes, valores extremos o decisiones terapeuticas deben evaluarse con guias actualizadas y criterio profesional."
+            ? "Para seguimiento, compara resultados con mediciones previas y documenta la fuente de referencia utilizada. Los cambios importantes, valores extremos o decisiones terapéuticas deben evaluarse con guías actualizadas y criterio profesional."
             : "For follow-up, compare results with prior measurements and document the reference source used. Important changes, extreme values, or therapeutic decisions should be evaluated with current guidelines and professional judgment."}
         </p>
       </div>

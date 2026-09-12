@@ -69,7 +69,7 @@ const createMedicationSchema = (medication: any) => {
   if (medication?.inputs.includes("age")) {
     baseSchema.age = z
       .string()
-      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
         message: "Enter valid age",
       });
     baseSchema.ageUnit = z.enum(["years", "months"]);
@@ -89,6 +89,47 @@ const createMedicationSchema = (medication: any) => {
   return z.object(baseSchema);
 };
 
+type ByMedicationFormProps = {
+  initialMedicationId?: string;
+};
+
+type MedicationFormValues = {
+  medicationId: string;
+  concentrationIndex: string;
+  weight: string;
+  weightUnit: "kg" | "lb";
+  age: string;
+  ageUnit: "years" | "months";
+  frequency: string;
+  duration: string;
+  customDose: string;
+};
+
+const getMedicationDefaults = (medicationId: string): MedicationFormValues => {
+  const medication = pediatricMeds.medications.find((med) => med.id === medicationId);
+  const commonConcentrationIndex = medication?.concentrations?.findIndex((concentration) => concentration.common) ?? -1;
+  const concentrationIndex =
+    medication && medication.concentrations.length > 1
+      ? (commonConcentrationIndex >= 0 ? commonConcentrationIndex : 0).toString()
+      : "";
+  const frequency =
+    medication?.frequencies.find((item) => item.common)?.value ||
+    medication?.frequencies[0]?.value ||
+    "";
+
+  return {
+    medicationId,
+    concentrationIndex,
+    weight: "",
+    weightUnit: "kg",
+    age: "",
+    ageUnit: "years",
+    frequency,
+    duration: medication?.durationDefault?.toString() || "",
+    customDose: "",
+  };
+};
+
 const InfoTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({
   children,
   content,
@@ -101,31 +142,21 @@ const InfoTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({
   </Tooltip>
 );
 
-export function ByMedicationForm() {
+export function ByMedicationForm({ initialMedicationId = "" }: ByMedicationFormProps) {
   const t = useTranslations("DoseCalculator");
   const locale = useLocale() as "en" | "es";
 
   // Get selected medication
-  const [selectedMedId, setSelectedMedId] = React.useState<string>("");
+  const [selectedMedId, setSelectedMedId] = React.useState<string>(initialMedicationId);
   const selectedMed = pediatricMeds.medications.find(
     (med) => med.id === selectedMedId
   );
 
-  const form = useForm({
+  const form = useForm<MedicationFormValues>({
     resolver: selectedMed
       ? zodResolver(createMedicationSchema(selectedMed))
       : undefined,
-    defaultValues: {
-      medicationId: "",
-      concentrationIndex: "",
-      weight: "",
-      weightUnit: "kg" as "kg" | "lb",
-      age: "",
-      ageUnit: "years" as "years" | "months",
-      frequency: "",
-      duration: "",
-      customDose: "",
-    },
+    defaultValues: getMedicationDefaults(initialMedicationId),
     mode: "onChange",
   });
 
@@ -133,7 +164,8 @@ export function ByMedicationForm() {
   const medicationId = form.watch("medicationId");
   const concentrationIndex = form.watch("concentrationIndex");
   const weight = parseFloat(form.watch("weight") || "0");
-  const age = parseFloat(form.watch("age") || "0");
+  const ageInput = form.watch("age");
+  const age = parseFloat(ageInput || "0");
   const frequency = form.watch("frequency");
   const duration = form.watch("duration");
   const customDose = form.watch("customDose");
@@ -158,41 +190,9 @@ export function ByMedicationForm() {
   React.useEffect(() => {
     if (medicationId !== selectedMedId) {
       setSelectedMedId(medicationId);
-      const newMed = pediatricMeds.medications.find(
-        (med) => med.id === medicationId
-      );
-
-      // Handle concentration index
-      let defaultConcentrationIndex = "";
-      if (newMed?.concentrations?.length === 1) {
-        defaultConcentrationIndex = "";
-      } else if ((newMed?.concentrations ?? []).length > 1) {
-        const commonIndex =
-          newMed?.concentrations?.findIndex((c) => c.common) ?? -1;
-        defaultConcentrationIndex = (
-          commonIndex >= 0 ? commonIndex : 0
-        ).toString();
-      }
-
-      // Find common frequency
-      const commonFrequency =
-        newMed?.frequencies.find((f) => f.common)?.value ||
-        newMed?.frequencies[0]?.value ||
-        "";
-
       // Reset form when medication changes - use setTimeout to ensure it happens after validation
       setTimeout(() => {
-        form.reset({
-          medicationId,
-          concentrationIndex: defaultConcentrationIndex,
-          weight: "",
-          weightUnit: "kg",
-          age: "",
-          ageUnit: "years",
-          frequency: commonFrequency,
-          duration: newMed?.durationDefault?.toString() || "",
-          customDose: "",
-        });
+        form.reset(getMedicationDefaults(medicationId));
       }, 0);
     }
   }, [medicationId, selectedMedId, form]);
@@ -237,7 +237,11 @@ export function ByMedicationForm() {
         perDoseInMg = bracket.dose;
         dailyDoseInMg = perDoseInMg * timesPerDay;
       }
-    } else if (selectedMed.dosingType === "age_brackets" && ageInYears > 0) {
+    } else if (
+      selectedMed.dosingType === "age_brackets" &&
+      ageInput.trim() !== "" &&
+      ageInYears >= 0
+    ) {
       const bracket = selectedMed.ageBrackets?.find(
         (b: any) => ageInYears >= b.minAge && ageInYears <= b.maxAge
       );
@@ -302,6 +306,7 @@ export function ByMedicationForm() {
     weight,
     weightUnit,
     age,
+    ageInput,
     ageUnit,
     frequency,
     customDose,

@@ -9,7 +9,7 @@ import { BSABasedDoseForm } from "./BSABasedDoseForm";
 import { useTranslations } from 'next-intl';
 import { ByMedicationForm } from "./ByMedicationForm"; // Updated import name
 
-export function DoseMethodSelector() {
+export function DoseMethodSelector({ initialMedicationId }: { initialMedicationId?: string }) {
   const t = useTranslations('DoseCalculator');
   const [selectedMethod, setSelectedMethod] = useState("byMedication");
 
@@ -104,7 +104,7 @@ export function DoseMethodSelector() {
           </div>
           {/* Method Forms */}
           <TabsContent value="byMedication" className="mt-0">
-            <ByMedicationForm />
+            <ByMedicationForm initialMedicationId={initialMedicationId} />
           </TabsContent>
           <TabsContent value="weight" className="mt-0">
             <WeightBasedDoseForm />

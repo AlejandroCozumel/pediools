@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, XCircle, RefreshCw } from "lucide-react";
-import SmartLoader from "@/components/SmartLoader";
+import ChartInputPrompt from "@/components/ChartInputPrompt";
 import GrowthChartDisplay from "./GrowthChartDisplay";
 import { useSubscriptionStore } from "@/stores/premiumStore";
 import ToggleViewChart from "@/components/ToggleViewChart";
@@ -14,7 +14,6 @@ const Charts = () => {
   const t = useTranslations('CDCChartPage');
   const locale = useLocale();
   const { isFullCurveView } = useSubscriptionStore();
-  const [showLoader, setShowLoader] = useState(true);
 
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
@@ -22,33 +21,18 @@ const Charts = () => {
   const calculationId = searchParams.get("calculationId");
 
   // Get data but don't show it immediately
-  const { data, isError, error, refetch } = useGrowthChartData(searchParams);
-
-  const handleLoaderComplete = () => {
-    setShowLoader(false);
-  };
+  const { data, isError, error, refetch, isLoading } = useGrowthChartData(searchParams);
 
   const handleRetry = () => {
-    setShowLoader(true);
     refetch();
   };
 
-  // If there's an error, hide loader and show error
-  useEffect(() => {
-    if (isError) {
-      setShowLoader(false);
-    }
-  }, [isError]);
+  if (!searchParams.get("weightData") || !searchParams.get("heightData")) {
+    return <ChartInputPrompt locale={locale} />;
+  }
 
-  // Show loader while processing or during simulation
-  if (showLoader && !isError) {
-    return (
-      <SmartLoader
-        type="growth"
-        duration={2500} // 2.5 seconds of simulated processing
-        onComplete={handleLoaderComplete}
-      />
-    );
+  if (isLoading || (!data && !isError)) {
+    return <div className="flex min-h-48 items-center justify-center text-muted-foreground">Loading chart…</div>;
   }
 
   if (isError) {

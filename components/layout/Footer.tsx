@@ -1,5 +1,5 @@
 "use client";
-import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
@@ -15,11 +15,6 @@ const navigation = {
     { nameKey: "features", href: "/features" },
     { nameKey: "premium", href: "/premium" },
     { nameKey: "blog", href: "/blog" },
-  ],
-  social: [
-    { name: "Facebook", href: "#", icon: Facebook },
-    { name: "Twitter", href: "#", icon: Twitter },
-    { name: "Instagram", href: "#", icon: Instagram },
   ],
 };
 
@@ -46,18 +41,6 @@ export default function Footer() {
             <p className="text-base font-medium text-medical-900">
               {t("description")}
             </p>
-            <div className="flex space-x-4">
-              {navigation.social.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-medical-900 hover:text-gray-500"
-                >
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-5 w-5" aria-hidden="true" />
-                </Link>
-              ))}
-            </div>
           </div>
           {/* Calculators Grid (Soluciones) - spans 2 columns on md+ */}
           <div className="md:col-span-2">

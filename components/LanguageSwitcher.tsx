@@ -30,10 +30,11 @@ const LanguageSwitcher: React.FC = () => {
   const router = useRouter();
 
   const handleLanguageChange = (newLocale: string) => {
+    const search = typeof window !== "undefined" ? window.location.search : "";
     if (pathname === '/' || pathname === '') {
-      router.replace('/', { locale: newLocale });
+      router.replace(`/${search}`, { locale: newLocale });
     } else {
-      router.replace(pathname, { locale: newLocale });
+      router.replace(`${pathname}${search}`, { locale: newLocale });
     }
   };
 

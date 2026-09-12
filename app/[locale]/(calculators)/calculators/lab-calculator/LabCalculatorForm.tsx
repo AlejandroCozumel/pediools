@@ -693,9 +693,10 @@ const LabResults: React.FC<{
 };
 
 // Main form component
-const LabCalculatorForm: React.FC = () => {
+const LabCalculatorForm: React.FC<{ initialTestKey?: string }> = ({ initialTestKey }) => {
   const t = useTranslations("LabCalculator");
   const locale = useLocale();
+  const [highlightedTestKey, setHighlightedTestKey] = useState(initialTestKey ?? "");
 
   const form = useForm<z.infer<typeof labFormSchema>>({
     resolver: zodResolver(labFormSchema),
@@ -720,6 +721,20 @@ const LabCalculatorForm: React.FC = () => {
     name: "dateOfMeasurement",
   });
   const gender = useWatch({ control: form.control, name: "gender" });
+
+  React.useEffect(() => {
+    if (!initialTestKey || !dateOfBirth || !dateOfMeasurement) return;
+
+    const focusTarget = window.setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>(
+        `[data-lab-test="${initialTestKey}"] input`,
+      );
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+      input?.focus({ preventScroll: true });
+    }, 100);
+
+    return () => window.clearTimeout(focusTarget);
+  }, [initialTestKey, dateOfBirth, dateOfMeasurement]);
 
   // Get display name based on locale
   const getDisplayName = (testData: TestData): string => {
@@ -988,8 +1003,11 @@ const LabCalculatorForm: React.FC = () => {
                                         ([testKey, testData]) => (
                                           <div
                                             key={testKey}
+                                            data-lab-test={testKey}
                                             className={cn(
                                               "p-4 rounded-lg border transition-colors duration-300 flex flex-col justify-between h-full",
+                                              highlightedTestKey === testKey &&
+                                                "ring-2 ring-medical-500 ring-offset-2",
                                               gender === "male"
                                                 ? "border-medical-200 bg-medical-50"
                                                 : "border-medical-pink-200 bg-medical-pink-50"
