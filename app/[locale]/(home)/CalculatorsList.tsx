@@ -16,6 +16,7 @@ import {
   FlaskConical,
   ShieldCheck,
   BookOpen,
+  CalendarDays,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import DashboardTitle from "@/components/DashboardTitle";
@@ -48,6 +49,13 @@ const CalculatorsList = () => {
       icon: <RulerIcon className="h-6 w-6 icon" />,
       category: t("categories.growth"),
       link: "/calculators/target-height-calculator",
+    },
+    {
+      title: t("calculators.correctedAge.title"),
+      description: t("calculators.correctedAge.description"),
+      icon: <CalendarDays className="h-6 w-6 icon" />,
+      category: t("categories.neonatal"),
+      link: "/calculators/corrected-age-calculator",
     },
     {
       title: t("calculators.dose.title"),

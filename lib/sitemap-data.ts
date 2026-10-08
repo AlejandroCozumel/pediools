@@ -12,6 +12,7 @@ export const staticRoutes = [
   "/calculators",
   "/charts",
   "/reference/labs",
+  "/calculators/corrected-age-calculator/results",
 ] as const;
 
 export const calculators = [
@@ -21,6 +22,7 @@ export const calculators = [
   "dose-calculator",
   "growth-calculator",
   "target-height-calculator",
+  "corrected-age-calculator",
   "lab-calculator",
 ] as const;
 

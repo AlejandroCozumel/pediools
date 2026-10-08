@@ -63,6 +63,9 @@ export default function Footer() {
               <Link href="/calculators/target-height-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.targetHeight.title")}
               </Link>
+              <Link href="/calculators/corrected-age-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
+                {s("calculators.correctedAge.title")}
+              </Link>
               <Link href="/calculators/lab-calculator" className="text-sm text-gray-500 hover:text-gray-900 font-medium block">
                 {s("calculators.lab.title")}
               </Link>

@@ -1,4 +1,4 @@
-import { Activity, DropletsIcon, FlaskConical, LineChart, Pill, RulerIcon } from "lucide-react";
+import { CalendarDays, Activity, DropletsIcon, FlaskConical, LineChart, Pill, RulerIcon } from "lucide-react";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
@@ -53,6 +53,13 @@ export default async function CalculatorsIndex({
       category: t("categories.growth"),
       href: "/calculators/target-height-calculator",
       icon: RulerIcon,
+    },
+    {
+      title: t("calculators.correctedAge.title"),
+      description: t("calculators.correctedAge.description"),
+      category: t("categories.neonatal"),
+      href: "/calculators/corrected-age-calculator",
+      icon: CalendarDays,
     },
     {
       title: t("calculators.dose.title"),

@@ -15,7 +15,7 @@ export default function CalculatorContainer({
   );
   return (
     <div
-      className={`${wide || targetHeight ? "max-w-6xl" : "max-w-3xl"} mx-auto p-2 md:p-6`}
+      className={`${wide || targetHeight || pathname.includes("/calculators/corrected-age-calculator") ? "max-w-6xl" : "max-w-3xl"} mx-auto p-2 md:p-6`}
     >
       {children}
     </div>
