@@ -15,6 +15,8 @@
 ## Pediatric Calculators
 
 - [Growth percentile calculator](https://www.pedimath.com/en/calculators/growth-calculator): WHO, CDC, and INTERGROWTH-21st growth calculations.
+- [Child height predictor](https://www.pedimath.com/en/calculators/target-height-calculator): Mid-parental adult target height and a conventional family-based range; not an exact prediction.
+- [Calculadora de talla diana](https://www.pedimath.com/es/calculators/target-height-calculator): Talla blanco familiar y rango orientativo a partir de las estaturas de los padres biológicos.
 - [BMI calculator](https://www.pedimath.com/en/calculators/bmi-calculator): Pediatric BMI and percentile tracking.
 - [Pediatric dose calculator](https://www.pedimath.com/en/calculators/dose-calculator): Weight- and age-based medication dosing support.
 - [Lab reference calculator](https://www.pedimath.com/en/calculators/lab-calculator): Pediatric laboratory value interpretation.

@@ -43,6 +43,13 @@ const CalculatorsList = () => {
       link: "/calculators/bmi-calculator",
     },
     {
+      title: t("calculators.targetHeight.title"),
+      description: t("calculators.targetHeight.description"),
+      icon: <RulerIcon className="h-6 w-6 icon" />,
+      category: t("categories.growth"),
+      link: "/calculators/target-height-calculator",
+    },
+    {
       title: t("calculators.dose.title"),
       description: t("calculators.dose.description"),
       icon: <Pill className="h-6 w-6 icon" />,

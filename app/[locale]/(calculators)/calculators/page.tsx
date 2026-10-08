@@ -48,6 +48,13 @@ export default async function CalculatorsIndex({
       icon: RulerIcon,
     },
     {
+      title: t("calculators.targetHeight.title"),
+      description: t("calculators.targetHeight.description"),
+      category: t("categories.growth"),
+      href: "/calculators/target-height-calculator",
+      icon: RulerIcon,
+    },
+    {
       title: t("calculators.dose.title"),
       description: t("calculators.dose.description"),
       category: t("categories.dose"),

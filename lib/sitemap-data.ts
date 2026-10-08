@@ -20,6 +20,7 @@ export const calculators = [
   "bmi-calculator",
   "dose-calculator",
   "growth-calculator",
+  "target-height-calculator",
   "lab-calculator",
 ] as const;
 

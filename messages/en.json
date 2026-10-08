@@ -16,6 +16,10 @@
       "dose": "Pediatric Dose"
     },
     "calculators": {
+      "targetHeight": {
+        "title": "Child Height Predictor",
+        "description": "Estimate adult family target height, explore a yearly growth chart and table, and share the results."
+      },
       "growthPercentiles": {
         "title": "Growth Percentiles",
         "description": "Calculate and track growth measurements using different standards"
@@ -60,6 +64,203 @@
         "Multiple growth standard comparisons"
       ]
     }
+  },
+  "TargetHeightCalculator": {
+    "seoTitle": "Child Height Predictor: Mid-Parental Height",
+    "seoDescription": "Estimate your child’s family target height. Compare CDC height percentiles in an interactive growth chart and yearly height table, in centimeters or inches.",
+    "title": "Child Height Predictor",
+    "subtitle": "Step 1: enter family heights and optionally add the child’s measurements. Step 2: explore the chart, height estimate and a shareable result.",
+    "formTitle": "Family heights",
+    "sex": "Child’s sex for the formula",
+    "male": "Boy",
+    "female": "Girl",
+    "sexHint": "Choose the sex used by this conventional growth formula.",
+    "unit": "Height units",
+    "cm": "Centimeters (cm)",
+    "in": "Inches (in)",
+    "father": "Biological father’s height",
+    "mother": "Biological mother’s height",
+    "measurementHint": "Use measured adult heights, without shoes. Enter both parents’ heights in the selected unit.",
+    "calculate": "View results",
+    "reset": "Clear",
+    "example": "Try an example",
+    "exampleHint": "Fictional example: father 178 cm, mother 165 cm, boy; 140 cm at age 10 and 134 cm at age 9.",
+    "errorHeight": "Enter a valid height greater than zero.",
+    "errorScale": "Check both heights and their units. These values cannot produce a meaningful target range.",
+    "errorSex": "Select boy or girl for this formula.",
+    "errorUnit": "Select centimeters or inches.",
+    "resultTitle": "Adult family target from parental heights",
+    "emptyTitle": "Your estimate appears here",
+    "emptyText": "Enter both parents’ heights, confirm the child’s sex and select Calculate height and chart.",
+    "staleTitle": "Calculate again after editing",
+    "staleText": "The inputs changed. Recalculate to see an estimate based on the current values.",
+    "range": "Conventional family-based range",
+    "rangeHint": "Target height ±8.5 cm. This range is approximate, not a guarantee or a personalized confidence interval.",
+    "formulaTitle": "Your calculation",
+    "formulaCaption": "Both parental heights are converted to centimeters. Displayed values are rounded.",
+    "resultSafety": "The family target is an approximate adult reference. The optional growth chart answers a separate height-for-age question. Neither result diagnoses a condition or recommends treatment.",
+    "growthLink": "Check growth percentiles",
+    "disclaimerLink": "Read the medical disclaimer",
+    "guideTitle": "How to estimate a child’s adult height",
+    "intro": "This free height calculator uses the mid-parental method, also called the target-height or Tanner method. It combines the measured heights of the biological parents with a conventional adjustment for the child’s sex. The answer is a starting point for discussing family height patterns, rather than a forecast of exactly how tall a child will become.",
+    "howTitle": "How to use the calculator",
+    "step1": "Measure the biological father’s and mother’s adult heights without shoes. Use recent measurements when available rather than an approximate height remembered from years ago.",
+    "step2": "Select centimeters or inches and enter both heights in that unit. For example, 5 feet 10 inches is 70 inches; do not enter 5.10 as a decimal height.",
+    "step3": "Confirm the child’s sex and calculate the family target. Optionally add the child’s age, measured height and previous measurements for the CDC chart. Changing any input requires a new calculation.",
+    "formulaHeading": "Mid-parental height formula",
+    "boysFormula": "Boys: (father’s height + mother’s height + 13 cm) ÷ 2",
+    "girlsFormula": "Girls: (father’s height + mother’s height − 13 cm) ÷ 2",
+    "formulaExplanation": "The adjustment is inside the parentheses: 13 cm is added or subtracted before dividing by two. Equivalently, calculate the parents’ average height and then add 6.5 cm for a boy or subtract 6.5 cm for a girl. The same metric formula is used when you enter inches, so changing units does not select a different method.",
+    "workedTitle": "Worked example: father 178 cm, mother 165 cm",
+    "workedBoy": "For a boy: (178 + 165 + 13) ÷ 2 = 178 cm. The conventional target range is 169.5–186.5 cm.",
+    "workedGirl": "For a girl with the same parental heights: (178 + 165 − 13) ÷ 2 = 165 cm. The conventional target range is 156.5–173.5 cm.",
+    "rangeTitle": "What does the target range mean?",
+    "rangeExplanation": "The calculator shows the target plus and minus 8.5 cm, following the clinical reference linked below. It describes a conventional family-based range, not an individual probability forecast. Published methods can use different adjustments or ranges. Real adult height can fall outside this interval, and the decimal shown in the result is calculation precision, not prediction accuracy.",
+    "limitsTitle": "What this height predictor cannot tell you",
+    "limitsText": "The family target calculation does not use the child’s age or current height. The optional chart compares entered heights with the CDC reference and can illustrate a constant-percentile scenario. Neither method evaluates puberty, bone age, growth remaining or the need for treatment. Nutrition, health conditions and puberty timing can affect final height.",
+    "consultText": "If you are concerned about growth, take repeated measurements and discuss them with a pediatrician. A clinician can consider the growth chart and medical history and decide whether further assessment is appropriate. Do not use a low or high estimate on its own to label a child’s growth or start supplements or medication.",
+    "faqTitle": "Questions about child height prediction",
+    "faq": {
+      "accuracy": {
+        "q": "Can this calculator predict exactly how tall my child will be?",
+        "a": "No. It estimates a family-based target and a conventional range. An individual child may finish growing above or below that range. A single calculated value cannot capture all the factors involved in growth."
+      },
+      "age": {
+        "q": "Do I need my child’s age or current height?",
+        "a": "Not for the family target formula: it uses parental heights and sex. You can optionally enter the child’s age and current measured height for the CDC height-for-age chart, for ages 2–20. These measurements do not change the family target."
+      },
+      "missing": {
+        "q": "What if I do not know one biological parent’s height?",
+        "a": "This calculator needs both heights. Do not enter a population average or a nonbiological caregiver’s height as a substitute and treat the answer as a personal estimate. Ask your pediatrician about assessing growth with the information available."
+      },
+      "boneAge": {
+        "q": "Is target height the same as a bone-age prediction?",
+        "a": "No. This tool uses family heights and does not assess bone maturity. Bone-age assessment uses additional clinical information and imaging interpreted by a professional. No X-ray is needed to use this simple calculator."
+      },
+      "units": {
+        "q": "Can I enter feet and inches?",
+        "a": "Select inches and first convert the full height: multiply feet by 12 and add the remaining inches. For example, 5 feet 5 inches is 65 inches. The calculator converts this to centimeters for the formula."
+      },
+      "growth": {
+        "q": "Does the result show whether my child is short for their age?",
+        "a": "The family target refers to adulthood. If you add the child’s measurements, the chart shows their height percentile for age and sex, including whether it is below P3 or above P97 in the CDC reference. That position alone does not diagnose a condition or confirm healthy growth."
+      },
+      "table": {
+        "q": "What does the yearly height table show?",
+        "a": "It shows CDC height-for-age references for each completed year from 2 to 20, including the 3rd, 50th and 97th percentiles for the selected sex. Optional illustration values are clearly separated from measured heights. You can hover, tap or focus a row to inspect the same age on the chart."
+      }
+    },
+    "sourcesTitle": "Sources and method",
+    "sourceMethod": "Formula and conventional ±8.5 cm range: Children’s Mercy — Evaluating Growth Failure.",
+    "sourceFamily": "Background for families: American Academy of Pediatrics — Predicting a Child’s Adult Height.",
+    "sourceGrowth": "Growth assessment: Pediatric Endocrine Society — Short Stature: A Guide for Families.",
+    "updated": "Content updated October 8, 2026. Educational reference; not a personalized medical assessment.",
+    "relatedTitle": "Explore growth references",
+    "chartsLink": "Growth charts",
+    "bmiLink": "Pediatric BMI calculator",
+    "growth": {
+      "enable": "Add the child’s measurements and growth chart",
+      "inputHint": "Optional. CDC standing-height reference for ages 2–20. Use the age at each measurement and heights measured without shoes. For younger children, use our growth calculator.",
+      "currentInput": "Current measurement",
+      "previousInput": "Previous measurement {number}",
+      "years": "Completed years",
+      "months": "Additional months",
+      "childHeight": "Child’s measured height",
+      "addPrevious": "Add a previous measurement",
+      "remove": "Remove measurement",
+      "removeLabel": "Remove previous measurement {number}",
+      "previousHint": "Enter up to 11 previous measurements, each at a different age before the current one. The chart connects only the measurements you enter; it does not invent missing records.",
+      "errorAge": "Enter an age from 2 years 0 months to 20 years 0 months. Years and additional months must be whole numbers; months must be 0–11.",
+      "errorHeight": "Enter a measured height greater than zero and no more than 250 cm (98.4 in). Check the selected unit.",
+      "errorOrder": "Previous measurements must have different ages and occur before the current measurement.",
+      "title": "Height by age: measurements and reference curves",
+      "intro": "See yearly height references and where your child’s measurements fall. Family target height describes adulthood; it is not a height target for each childhood year.",
+      "referenceLabel": "CDC 2000 · {sex} · Standing height · Ages 2–20",
+      "male": "Boys",
+      "female": "Girls",
+      "ageValue": "{years} years {months} months",
+      "current": "Current height for age",
+      "percentileValue": "Percentile {value}",
+      "belowMedian": "Below the reference median (P50).",
+      "aboveMedian": "Above the reference median (P50).",
+      "atMedian": "At the reference median (P50).",
+      "below": "Below P3 in this reference. Confirm the measurement and discuss it with a pediatrician, especially if the child is dropping across percentiles.",
+      "within": "Between P3 and P97 in this reference. This position alone cannot confirm healthy growth; changes over time and clinical context matter.",
+      "above": "Above P97 in this reference. Confirm the measurement and discuss any concerns or changes in the growth pattern with a pediatrician.",
+      "familyComparison": "Family height and the illustrative scenario",
+      "familyReminder": "Adult family target: {value}. Conventional adult range: {lower}–{upper}. Do not compare today’s childhood height directly with this adult range.",
+      "endpoint": "If the current percentile stayed the same, the reference at age 20 would be approximately {value}.",
+      "belowFamily": "This scenario falls below the family target range.",
+      "withinFamily": "This scenario falls within the family target range.",
+      "aboveFamily": "This scenario falls above the family target range.",
+      "unavailable": "A valid same-percentile scenario is unavailable for this measurement. The current measurement is still shown.",
+      "noMeasurement": "This is the population reference chart for the selected sex. To add measured child points and percentiles, select Edit information and enter the child’s measurements. The family target shown above is an adult reference, not a childhood height goal.",
+      "scenarioToggle": "Show same-percentile illustration (not a prediction)",
+      "scenarioWarning": "The dashed line is a conditional illustration, not a prediction. It carries the current height z-score forward through the CDC age curves. Puberty, health and growth tempo can change that path. It does not adjust the family target, use Khamis–Roche or assess bone age.",
+      "legend": "Chart legend",
+      "band": "Reference band P3–P97",
+      "median": "Median P50",
+      "measured": "Entered measurements",
+      "scenario": "Same-percentile illustration",
+      "chartRegion": "Scrollable height chart",
+      "chartDescription": "CDC height reference curves from ages 2 to 20, with entered measurements and an optional dashed same-percentile illustration. Exact values are available in the tables below.",
+      "heightAxis": "Height ({unit})",
+      "ageAxis": "Age (years)",
+      "chartHint": "On a small screen, scroll the chart sideways. Points are entered measurements; a solid purple line only connects those points. Blue curves are population references.",
+      "measurementTable": "Entered measurements",
+      "ageColumn": "Age",
+      "heightColumn": "Height",
+      "percentileColumn": "Percentile",
+      "yearTable": "See reference heights for each year (2–20)",
+      "tableHint": "These are population reference heights, not annual goals or promised growth. The optional scenario appears only at and after the current measurement’s age. All values are rounded.",
+      "scenarioColumn": "Illustration",
+      "interpretation": "CDC curves describe a US reference population; they are not a personalized Mexican growth standard. A high or low percentile is not a diagnosis. Measurements over time, family heights and clinical assessment provide context. No names or dates of birth are needed for this chart.",
+      "source": "CDC source data and LMS calculation method",
+      "guideTitle": "Can a chart show future height each year?",
+      "guideText": "The optional chart uses the CDC 2000 stature-for-age reference for ages 2–20. Enter the child’s age in completed years plus additional months and their measured standing height. Previous measurements show observed growth. The shaded P3–P97 band describes the reference population; it is not the child’s family target range.",
+      "guideScenario": "The dashed scenario keeps the current height z-score constant at later ages. For example, a child at the reference median would follow the median curve only if that percentile stayed the same. The age-20 scenario can be compared with the conventional adult family range as a discussion aid. It is not a validated personal adult-height prediction and cannot account for puberty timing, illness or changes in growth velocity. The family target calculation remains based on parental heights and sex.",
+      "guideMethod": "LMS parameters are linearly interpolated between the surrounding CDC ages. Percentiles come from the corresponding z-score; yearly reference curves and the scenario use the inverse LMS equation. Heights entered in inches are converted to centimeters before calculation.",
+      "historyTitle": "Previous measurements ({count})",
+      "viewChart": "View the growth chart",
+      "targetChip": "Adult family target (parents): {value}",
+      "interactionHint": "Hover over the chart or a table row to inspect values. On touch screens, tap. With the chart focused, use ←/→ for months, Shift + ←/→ for years, and Esc to close.",
+      "tooltipScenarioHint": "Illustration only; not a personal prediction.",
+      "topFamilySummary": "Estimated adult family target: {value}. Conventional family range: {lower}–{upper}. This is an approximate reference.",
+      "scenarioSummaryTitle": "Illustration based on the child’s current height",
+      "familySummaryTitle": "Reference based on parental heights",
+      "comparisonExplanation": "The family target comes from parental heights; the illustration follows the child’s current height percentile. They can give different numbers and neither guarantees the final adult height.",
+      "topEndpoint": "If the current percentile stayed the same, the reference at age 20 would be approximately <height>{value}</height>."
+    },
+    "sourceCdc": "Yearly stature references, percentiles and LMS equations: Centers for Disease Control and Prevention — CDC Growth Charts Data Files.",
+    "steps": {
+      "progress": "Calculator steps",
+      "information": "Enter information",
+      "results": "View results",
+      "opening": "Opening results…",
+      "loading": "Loading the shared result…",
+      "resultPageTitle": "Height and growth results",
+      "resultPageDescription": "View a family target-height estimate and a growth chart from the measurements included in a shared link.",
+      "edit": "Edit information",
+      "copyLink": "Copy result link",
+      "copied": "Link copied",
+      "copySuccess": "The result link is ready to paste.",
+      "copyManual": "Copy this link to share the result.",
+      "linkLabel": "Shareable result link",
+      "shareHint": "This link includes the entered heights and ages. Anyone with the link can view them. Share it only with the people you intend to receive it. The link recreates the calculation; it does not save a patient record.",
+      "invalidTitle": "This result link is incomplete or invalid",
+      "invalidText": "The link does not contain valid calculator data. Enter the information again to create a new result.",
+      "startAgain": "Open the calculator",
+      "guideToggle": "Read the formula, examples, limitations and sources",
+      "localHint": "This is a local preview link. Sharing with other people requires the published website."
+    },
+    "tableBenefitTitle": "Yearly height table: compare values alongside the chart",
+    "tableBenefitText": "The yearly height table makes it easier to read and compare numerical values for every age from 2 to 20. Your results show the P3, P50 and P97 CDC stature references for the selected sex, with optional same-percentile illustration values only from the child’s current age onward. Hovering or focusing a row highlights that age on the chart and shows its values. The separate measurements table contains only heights you entered. These tables describe reference values and measurements, not annual height goals or guaranteed growth.",
+    "publicTableCaption": "Yearly CDC median height reference (P50), centimeters",
+    "publicTableAge": "Age (years)",
+    "publicTableBoys": "Boys P50 (cm)",
+    "publicTableGirls": "Girls P50 (cm)",
+    "publicTableHint": "This public table shows population medians for orientation. Complete the calculator to see percentile ranges, entered measurements and the optional illustration together. A median is a reference value, not a recommended height.",
+    "resultBasis": "This calculation uses the parents’ heights and the child’s sex. The child’s current measured height does not change this family reference."
   },
   "GrowthForm": {
     "title": "Growth Percentile Calculator",
@@ -991,22 +1192,18 @@
   "LabCalculator": {
     "title": "Pediatric Lab Calculator",
     "description": "Enter patient information and lab values to get age and gender-specific reference ranges. Age-specific ranges require both birth date and measurement date.",
-
     "patientInfo": {
       "title": "Patient Information",
       "description": "Dates are optional but recommended for accurate age-specific reference ranges"
     },
-
     "gender": {
       "male": "Boy",
       "female": "Girl"
     },
-
     "dates": {
       "startHereTitle": "Start Here",
       "startHereDescription": "Please select both a Date of Birth and a Date of Measurement to proceed."
     },
-
     "labTests": {
       "title": "Laboratory Tests",
       "description": "Enter values for the tests you want to analyze. All sections are expanded by default.",
@@ -1014,7 +1211,6 @@
       "unit": "Unit: {unit}",
       "notAvailable": "N/A"
     },
-
     "results": {
       "title": "Lab Results ({count} test{plural})",
       "noResults": "Enter lab values to see results",
@@ -1030,14 +1226,12 @@
       "closestRange": "Closest range: {range}",
       "ageOutOfRangeNote": "Note: Patient age does not fit any reference range for this test. The closest available range is shown."
     },
-
     "status": {
       "normal": "NORMAL",
       "low": "LOW",
       "high": "HIGH",
       "critical": "CRITICAL"
     },
-
     "interpretation": {
       "normal": "Within normal limits",
       "low": "Below reference range",
@@ -1045,7 +1239,6 @@
       "critical": "Critical value - requires immediate attention",
       "unknown": "Reference range not available"
     },
-
     "alerts": {
       "dateWarning": {
         "title": "Age-specific ranges unavailable:",
@@ -1056,11 +1249,9 @@
         "description": "{count} result(s) require immediate attention."
       }
     },
-
     "badges": {
       "noAge": "NO AGE"
     },
-
     "disclaimer": {
       "title": "Reference Data Sources:",
       "chopLinkText": "CHOP Labs Reference Ranges - Children's Hospital of Philadelphia",

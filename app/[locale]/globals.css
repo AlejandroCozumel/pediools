@@ -203,3 +203,31 @@ input[type="number"] {
     color-adjust: exact;
   }
 }
+
+/* Height charts animate presentation only; measured values remain unchanged. */
+@media (prefers-reduced-motion: no-preference) {
+  .height-reference-curve {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: height-curve-draw 800ms ease-out forwards;
+  }
+  .height-scenario-curve {
+    animation: height-chart-fade 500ms ease-out both;
+  }
+  .height-measurement-point {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: height-point-enter 450ms ease-out both;
+  }
+}
+@keyframes height-curve-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes height-chart-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes height-point-enter {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}

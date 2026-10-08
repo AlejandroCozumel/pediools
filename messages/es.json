@@ -16,6 +16,10 @@
       "dose": "Dosis Pediátrica"
     },
     "calculators": {
+      "targetHeight": {
+        "title": "Talla diana",
+        "description": "Estima la talla diana adulta, consulta una gráfica y tabla de crecimiento por año y comparte el resultado."
+      },
       "growthPercentiles": {
         "title": "Percentiles de Crecimiento",
         "description": "Calcule y realice seguimiento de medidas de crecimiento utilizando diferentes estándares"
@@ -60,6 +64,203 @@
         "Comparaciones de múltiples estándares de crecimiento"
       ]
     }
+  },
+  "TargetHeightCalculator": {
+    "seoTitle": "Calculadora de talla diana: estatura adulta",
+    "seoDescription": "Calcula la talla diana de tu hijo. Compara percentiles CDC en una gráfica interactiva y una tabla de estatura por año, en centímetros o pulgadas.",
+    "title": "Calculadora de talla diana",
+    "subtitle": "Paso 1: introduce las tallas familiares y, si quieres, las mediciones del niño. Paso 2: consulta la gráfica, la estimación y un resultado que puedes compartir.",
+    "formTitle": "Estaturas familiares",
+    "sex": "Sexo del niño para la fórmula",
+    "male": "Niño",
+    "female": "Niña",
+    "sexHint": "Selecciona el sexo utilizado por esta fórmula convencional de crecimiento.",
+    "unit": "Unidades de estatura",
+    "cm": "Centímetros (cm)",
+    "in": "Pulgadas (in)",
+    "father": "Estatura del padre biológico",
+    "mother": "Estatura de la madre biológica",
+    "measurementHint": "Utiliza las estaturas adultas medidas sin zapatos. Introduce ambas en la unidad seleccionada.",
+    "calculate": "Ver resultados",
+    "reset": "Limpiar",
+    "example": "Probar un ejemplo",
+    "exampleHint": "Ejemplo ficticio: padre 178 cm, madre 165 cm, niño; 140 cm a los 10 años y 134 cm a los 9.",
+    "errorHeight": "Introduce una estatura válida mayor que cero.",
+    "errorScale": "Revisa ambas estaturas y sus unidades. Estos valores no permiten obtener un rango de talla diana coherente.",
+    "errorSex": "Selecciona niño o niña para esta fórmula.",
+    "errorUnit": "Selecciona centímetros o pulgadas.",
+    "resultTitle": "Talla diana adulta según los padres",
+    "emptyTitle": "Tu estimación aparecerá aquí",
+    "emptyText": "Introduce la estatura de ambos padres, confirma el sexo y selecciona Calcular talla y gráfica.",
+    "staleTitle": "Vuelve a calcular después de editar",
+    "staleText": "Los datos han cambiado. Recalcula para obtener una estimación con los valores actuales.",
+    "range": "Rango familiar convencional",
+    "rangeHint": "Talla diana ±8,5 cm. Es un rango aproximado, no una garantía ni un intervalo de confianza personalizado.",
+    "formulaTitle": "Tu cálculo",
+    "formulaCaption": "Las estaturas de ambos padres se convierten a centímetros. Los valores mostrados están redondeados.",
+    "resultSafety": "La talla diana es una referencia adulta aproximada. La gráfica opcional responde una pregunta distinta sobre estatura para la edad. Ningún resultado diagnostica una enfermedad ni recomienda tratamiento.",
+    "growthLink": "Consultar percentiles de crecimiento",
+    "disclaimerLink": "Leer el aviso legal médico",
+    "guideTitle": "Cómo estimar la estatura adulta de un niño",
+    "intro": "Esta calculadora gratuita utiliza el método de talla diana, también conocido como talla blanco familiar, talla objetivo genética o método de Tanner. Combina las estaturas medidas de los padres biológicos con un ajuste convencional según el sexo del niño. El resultado sirve como punto de partida para hablar sobre la estatura familiar; no permite saber exactamente cuánto medirá un niño al terminar de crecer.",
+    "howTitle": "Cómo utilizar la calculadora",
+    "step1": "Mide la estatura adulta del padre y de la madre biológicos sin zapatos. Si es posible, utiliza mediciones recientes en lugar de una estatura aproximada recordada de hace años.",
+    "step2": "Selecciona centímetros o pulgadas e introduce ambas estaturas en esa unidad. Por ejemplo, 5 pies y 10 pulgadas equivalen a 70 pulgadas; no introduzcas 5,10 como una estatura decimal.",
+    "step3": "Confirma el sexo del niño y calcula la talla diana familiar. Opcionalmente añade su edad, estatura medida y mediciones anteriores para la gráfica CDC. Recalcula después de cambiar cualquier dato.",
+    "formulaHeading": "Fórmula de talla diana o talla blanco familiar",
+    "boysFormula": "Niños: (estatura del padre + estatura de la madre + 13 cm) ÷ 2",
+    "girlsFormula": "Niñas: (estatura del padre + estatura de la madre − 13 cm) ÷ 2",
+    "formulaExplanation": "El ajuste está dentro del paréntesis: se suman o restan 13 cm antes de dividir entre dos. Otra forma equivalente es calcular el promedio de las estaturas de los padres y después sumar 6,5 cm para un niño o restar 6,5 cm para una niña. Si introduces pulgadas, se utiliza la misma fórmula métrica; cambiar de unidad no selecciona otro método.",
+    "workedTitle": "Ejemplo: padre de 178 cm y madre de 165 cm",
+    "workedBoy": "Para un niño: (178 + 165 + 13) ÷ 2 = 178 cm. El rango convencional de talla diana es de 169,5 a 186,5 cm.",
+    "workedGirl": "Para una niña con las mismas estaturas familiares: (178 + 165 − 13) ÷ 2 = 165 cm. El rango convencional es de 156,5 a 173,5 cm.",
+    "rangeTitle": "¿Qué significa el rango de talla diana?",
+    "rangeExplanation": "La calculadora muestra la talla diana más y menos 8,5 cm, siguiendo la referencia clínica enlazada abajo. Describe un rango familiar convencional, no un pronóstico individual de probabilidad. Otros métodos publicados pueden utilizar ajustes o rangos distintos. La estatura adulta real puede quedar fuera de este intervalo; el decimal del resultado expresa precisión del cálculo, no exactitud de la predicción.",
+    "limitsTitle": "Lo que esta calculadora de estatura no puede indicar",
+    "limitsText": "La fórmula de talla diana familiar no utiliza la edad ni la estatura actual del niño. La gráfica opcional compara las estaturas introducidas con la referencia CDC y puede ilustrar un escenario de percentil constante. Ningún método evalúa la pubertad, la edad ósea, el crecimiento restante o la necesidad de tratamiento. La nutrición, las enfermedades y el momento de la pubertad pueden afectar la talla final.",
+    "consultText": "Si te preocupa el crecimiento, reúne mediciones repetidas y coméntalas con su pediatra. El profesional puede valorar la gráfica de crecimiento y la historia clínica y decidir si conviene una evaluación adicional. No utilices una estimación baja o alta por sí sola para etiquetar el crecimiento de un niño ni para iniciar suplementos o medicamentos.",
+    "faqTitle": "Preguntas sobre talla diana y estatura adulta",
+    "faq": {
+      "accuracy": {
+        "q": "¿La calculadora puede predecir exactamente cuánto medirá mi hijo?",
+        "a": "No. Estima una talla diana familiar y un rango convencional. La estatura final de un niño puede quedar por encima o por debajo de ese rango. Un solo valor calculado no incluye todos los factores que intervienen en el crecimiento."
+      },
+      "age": {
+        "q": "¿Necesito la edad o la talla actual de mi hijo?",
+        "a": "No para la fórmula de talla diana familiar: utiliza las tallas parentales y el sexo. Opcionalmente puedes introducir la edad y estatura actual medida para la gráfica CDC de estatura para la edad, de 2–20 años. Estas mediciones no cambian la talla diana familiar."
+      },
+      "missing": {
+        "q": "¿Qué pasa si no conozco la estatura de uno de los padres biológicos?",
+        "a": "Esta calculadora requiere ambas estaturas. No sustituyas un dato desconocido por un promedio poblacional o por la estatura de un cuidador no biológico para tratar el resultado como una estimación personal. Consulta cómo valorar el crecimiento con los datos disponibles."
+      },
+      "boneAge": {
+        "q": "¿La talla diana es lo mismo que una predicción por edad ósea?",
+        "a": "No. Esta herramienta utiliza estaturas familiares y no evalúa la madurez ósea. La valoración de edad ósea utiliza información clínica adicional e imágenes interpretadas por un profesional. No necesitas una radiografía para utilizar esta calculadora sencilla."
+      },
+      "units": {
+        "q": "¿Puedo introducir pies y pulgadas?",
+        "a": "Selecciona pulgadas y convierte primero la estatura completa: multiplica los pies por 12 y suma las pulgadas restantes. Por ejemplo, 5 pies y 5 pulgadas son 65 pulgadas. La calculadora convierte ese dato a centímetros para la fórmula."
+      },
+      "growth": {
+        "q": "¿El resultado indica si mi hijo tiene talla baja para su edad?",
+        "a": "La talla diana corresponde a la edad adulta. Si añades las mediciones del niño, la gráfica muestra su percentil de estatura para la edad y el sexo, e indica si está por debajo de P3 o por encima de P97 en la referencia CDC. Esa posición sola no diagnostica una enfermedad ni confirma un crecimiento saludable."
+      },
+      "table": {
+        "q": "¿Qué muestra la tabla de estatura por año?",
+        "a": "Muestra referencias CDC de estatura para cada año cumplido de 2 a 20, con los percentiles 3, 50 y 97 para el sexo seleccionado. Los valores ilustrativos opcionales se distinguen de las estaturas medidas. Puedes pasar el cursor, tocar o enfocar una fila para consultar la misma edad en la gráfica."
+      }
+    },
+    "sourcesTitle": "Fuentes y método",
+    "sourceMethod": "Fórmula y rango convencional de ±8,5 cm: Children’s Mercy — Evaluating Growth Failure.",
+    "sourceFamily": "Información para familias: American Academy of Pediatrics — Cómo predecir la estatura que tendrá el niño cuando sea adulto.",
+    "sourceGrowth": "Valoración del crecimiento: Pediatric Endocrine Society — Short Stature: A Guide for Families.",
+    "updated": "Contenido actualizado el 8 de octubre de 2026. Referencia educativa; no es una valoración médica personalizada.",
+    "relatedTitle": "Explora las referencias de crecimiento",
+    "chartsLink": "Gráficas de crecimiento",
+    "bmiLink": "Calculadora de IMC pediátrico",
+    "growth": {
+      "enable": "Añadir las mediciones del niño y la gráfica de crecimiento",
+      "inputHint": "Opcional. Referencia CDC de estatura de pie para edades de 2–20 años. Usa la edad al medir y la estatura sin zapatos. Para menores de 2 años, usa nuestra calculadora de crecimiento.",
+      "currentInput": "Medición actual",
+      "previousInput": "Medición anterior {number}",
+      "years": "Años cumplidos",
+      "months": "Meses adicionales",
+      "childHeight": "Estatura medida del niño",
+      "addPrevious": "Añadir una medición anterior",
+      "remove": "Quitar medición",
+      "removeLabel": "Quitar la medición anterior {number}",
+      "previousHint": "Puedes añadir hasta 11 mediciones anteriores, cada una con una edad distinta y menor que la actual. La gráfica conecta solo las mediciones que introduces; no inventa registros faltantes.",
+      "errorAge": "Introduce una edad de 2 años 0 meses a 20 años 0 meses. Usa números enteros para años y meses adicionales; los meses deben ser de 0–11.",
+      "errorHeight": "Introduce una estatura medida mayor que cero y de hasta 250 cm (98,4 in). Revisa la unidad seleccionada.",
+      "errorOrder": "Las mediciones anteriores deben tener edades distintas y ser anteriores a la medición actual.",
+      "title": "Estatura por edad: mediciones y curvas de referencia",
+      "intro": "Consulta referencias de estatura para cada año y ubica las mediciones del niño. La talla diana familiar corresponde a la edad adulta; no es una meta de estatura para cada año de la infancia.",
+      "referenceLabel": "CDC 2000 · {sex} · Estatura de pie · Edades de 2–20 años",
+      "male": "Niños",
+      "female": "Niñas",
+      "ageValue": "{years} años {months} meses",
+      "current": "Estatura actual para la edad",
+      "percentileValue": "Percentil {value}",
+      "belowMedian": "Por debajo de la mediana de referencia (P50).",
+      "aboveMedian": "Por encima de la mediana de referencia (P50).",
+      "atMedian": "En la mediana de referencia (P50).",
+      "below": "Por debajo de P3 en esta referencia. Confirma la medición y coméntala con un pediatra, especialmente si el niño está descendiendo entre percentiles.",
+      "within": "Entre P3 y P97 en esta referencia. Esta posición por sí sola no confirma un crecimiento saludable; importan los cambios en el tiempo y el contexto clínico.",
+      "above": "Por encima de P97 en esta referencia. Confirma la medición y comenta cualquier inquietud o cambio en el patrón de crecimiento con un pediatra.",
+      "familyComparison": "Talla familiar y escenario ilustrativo",
+      "familyReminder": "Talla diana adulta: {value}. Rango adulto convencional: {lower}–{upper}. No compares directamente la estatura infantil actual con este rango adulto.",
+      "endpoint": "Si se mantuviera el percentil actual, la referencia a los 20 años sería de aproximadamente {value}.",
+      "belowFamily": "Este escenario queda por debajo del rango de talla diana familiar.",
+      "withinFamily": "Este escenario queda dentro del rango de talla diana familiar.",
+      "aboveFamily": "Este escenario queda por encima del rango de talla diana familiar.",
+      "unavailable": "No se puede obtener un escenario válido de percentil constante para esta medición. La medición actual sigue visible.",
+      "noMeasurement": "Esta es la gráfica de referencia poblacional para el sexo seleccionado. Para añadir puntos medidos y percentiles del niño, selecciona Editar datos e introduce sus mediciones. La talla diana mostrada arriba es una referencia adulta, no una meta de estatura infantil.",
+      "scenarioToggle": "Mostrar ilustración de percentil constante (no es una predicción)",
+      "scenarioWarning": "La línea discontinua es una ilustración condicional, no una predicción. Mantiene el puntaje z actual de estatura en las curvas CDC de edades posteriores. La pubertad, la salud y el ritmo de crecimiento pueden cambiar ese recorrido. No ajusta la talla diana, no utiliza Khamis–Roche ni evalúa la edad ósea.",
+      "legend": "Leyenda de la gráfica",
+      "band": "Banda de referencia P3–P97",
+      "median": "Mediana P50",
+      "measured": "Mediciones introducidas",
+      "scenario": "Ilustración de percentil constante",
+      "chartRegion": "Gráfica de estatura con desplazamiento",
+      "chartDescription": "Curvas CDC de estatura para edades de 2–20 años, con las mediciones introducidas y una ilustración discontinua opcional de percentil constante. Las tablas inferiores muestran los valores.",
+      "heightAxis": "Estatura ({unit})",
+      "ageAxis": "Edad (años)",
+      "chartHint": "En pantallas pequeñas, desplaza la gráfica horizontalmente. Los puntos son mediciones introducidas; la línea morada continua solo conecta esos puntos. Las curvas azules son referencias poblacionales.",
+      "measurementTable": "Mediciones introducidas",
+      "ageColumn": "Edad",
+      "heightColumn": "Estatura",
+      "percentileColumn": "Percentil",
+      "yearTable": "Ver estaturas de referencia para cada año (2–20)",
+      "tableHint": "Estas son estaturas de referencia poblacional, no metas anuales ni crecimiento garantizado. El escenario opcional aparece solo desde la edad de la medición actual. Los valores están redondeados.",
+      "scenarioColumn": "Ilustración",
+      "interpretation": "Las curvas CDC describen una población de referencia estadounidense; no son un estándar mexicano personalizado. Un percentil alto o bajo no es un diagnóstico. Las mediciones sucesivas, las tallas familiares y la valoración clínica aportan contexto. Esta gráfica no necesita nombres ni fechas de nacimiento.",
+      "source": "Datos CDC y método de cálculo LMS",
+      "guideTitle": "¿Una gráfica puede mostrar la estatura futura para cada año?",
+      "guideText": "La gráfica opcional utiliza la referencia CDC 2000 de estatura para la edad, de 2–20 años. Introduce la edad del niño en años cumplidos y meses adicionales, y su estatura de pie medida. Las mediciones anteriores muestran el crecimiento observado. La banda sombreada P3–P97 describe la población de referencia; no es el rango de talla diana familiar del niño.",
+      "guideScenario": "El escenario discontinuo mantiene constante el puntaje z actual de estatura en edades posteriores. Por ejemplo, un niño en la mediana seguiría esa curva solo si conservara el mismo percentil. El escenario a los 20 años se puede comparar con el rango adulto familiar convencional como apoyo para una conversación. No es una predicción personal validada de estatura adulta y no contempla el momento de la pubertad, enfermedades ni cambios en la velocidad de crecimiento. La talla diana sigue calculándose con las tallas parentales y el sexo.",
+      "guideMethod": "Los parámetros LMS se interpolan linealmente entre las edades CDC que rodean la edad introducida. Los percentiles se obtienen del puntaje z correspondiente; las curvas anuales y el escenario utilizan la ecuación LMS inversa. Las estaturas en pulgadas se convierten a centímetros antes del cálculo.",
+      "historyTitle": "Mediciones anteriores ({count})",
+      "viewChart": "Ver la gráfica de crecimiento",
+      "targetChip": "Talla diana adulta (padres): {value}",
+      "interactionHint": "Pasa el cursor por la gráfica o una fila para consultar valores. En pantallas táctiles, toca. Con la gráfica enfocada, usa ←/→ para meses, Mayús + ←/→ para años y Esc para cerrar.",
+      "tooltipScenarioHint": "Solo ilustración; no es una predicción personal.",
+      "topFamilySummary": "Talla diana adulta estimada: {value}. Rango familiar convencional: {lower}–{upper}. Es una referencia aproximada.",
+      "scenarioSummaryTitle": "Ilustración basada en la estatura actual del niño",
+      "familySummaryTitle": "Referencia basada en las estaturas parentales",
+      "comparisonExplanation": "La talla diana procede de las estaturas parentales; la ilustración sigue el percentil actual de estatura del niño. Pueden dar cifras distintas y ninguna garantiza la estatura adulta final.",
+      "topEndpoint": "Si se mantuviera el percentil actual, la referencia a los 20 años sería de aproximadamente <height>{value}</height>."
+    },
+    "sourceCdc": "Referencias anuales de estatura, percentiles y ecuaciones LMS: Centros para el Control y la Prevención de Enfermedades — Datos de las gráficas CDC.",
+    "steps": {
+      "progress": "Pasos de la calculadora",
+      "information": "Introducir datos",
+      "results": "Ver resultados",
+      "opening": "Abriendo resultados…",
+      "loading": "Cargando el resultado compartido…",
+      "resultPageTitle": "Resultados de talla y crecimiento",
+      "resultPageDescription": "Consulta una estimación de talla diana familiar y una gráfica de crecimiento con las mediciones incluidas en un enlace compartido.",
+      "edit": "Editar datos",
+      "copyLink": "Copiar enlace del resultado",
+      "copied": "Enlace copiado",
+      "copySuccess": "El enlace del resultado está listo para pegar.",
+      "copyManual": "Copia este enlace para compartir el resultado.",
+      "linkLabel": "Enlace del resultado para compartir",
+      "shareHint": "El enlace incluye las estaturas y edades introducidas. Cualquier persona con el enlace puede verlas. Compártelo solo con las personas a quienes deseas enviarlo. El enlace recrea el cálculo; no guarda un expediente del paciente.",
+      "invalidTitle": "Este enlace de resultado está incompleto o no es válido",
+      "invalidText": "El enlace no contiene datos válidos para la calculadora. Introduce la información de nuevo para crear otro resultado.",
+      "startAgain": "Abrir la calculadora",
+      "guideToggle": "Leer la fórmula, los ejemplos, las limitaciones y las fuentes",
+      "localHint": "Este enlace es una vista previa local. Para compartirlo con otras personas, utiliza el sitio publicado."
+    },
+    "tableBenefitTitle": "Tabla de estatura por año: compara los valores junto a la gráfica",
+    "tableBenefitText": "La tabla de estatura por año facilita leer y comparar valores numéricos para cada edad de 2 a 20 años. El resultado muestra las referencias CDC P3, P50 y P97 de estatura para el sexo seleccionado, con valores ilustrativos opcionales de percentil constante solo desde la edad actual del niño. Al pasar el cursor o enfocar una fila, se destaca esa edad en la gráfica y aparecen sus valores. La tabla de mediciones contiene solo las estaturas que introduces. Estas tablas describen referencias y mediciones, no metas anuales de estatura ni crecimiento garantizado.",
+    "publicTableCaption": "Referencia anual CDC de estatura mediana (P50), centímetros",
+    "publicTableAge": "Edad (años)",
+    "publicTableBoys": "Niños P50 (cm)",
+    "publicTableGirls": "Niñas P50 (cm)",
+    "publicTableHint": "Esta tabla pública muestra medianas poblacionales como orientación. Completa la calculadora para ver los rangos de percentiles, las mediciones introducidas y la ilustración opcional en conjunto. La mediana es una referencia, no una estatura recomendada.",
+    "resultBasis": "Este cálculo utiliza las estaturas parentales y el sexo del niño. La estatura actual medida del niño no cambia esta referencia familiar."
   },
   "GrowthForm": {
     "title": "Calculadora de Percentiles de Crecimiento",
@@ -981,22 +1182,18 @@
   "LabCalculator": {
     "title": "Calculadora de Laboratorio Pediátrico",
     "description": "Ingrese la información del paciente y los valores de laboratorio para obtener rangos de referencia específicos por edad y género. Los rangos específicos por edad requieren tanto la fecha de nacimiento como la fecha de medición.",
-
     "patientInfo": {
       "title": "Información del Paciente",
       "description": "Las fechas son opcionales pero recomendadas para rangos de referencia precisos específicos por edad"
     },
-
     "gender": {
       "male": "Niño",
       "female": "Niña"
     },
-
     "dates": {
       "startHereTitle": "Comience Aquí",
       "startHereDescription": "Por favor seleccione tanto una Fecha de Nacimiento como una Fecha de Medición para continuar."
     },
-
     "labTests": {
       "title": "Pruebas de Laboratorio",
       "description": "Ingrese los valores para las pruebas que desea analizar. Todas las secciones están expandidas por defecto.",
@@ -1004,7 +1201,6 @@
       "unit": "Unidad: {unit}",
       "notAvailable": "N/D"
     },
-
     "results": {
       "title": "Resultados de Laboratorio ({count} prueba{plural})",
       "noResults": "Ingrese valores de laboratorio para ver resultados",
@@ -1020,14 +1216,12 @@
       "closestRange": "Rango más cercano: {range}",
       "ageOutOfRangeNote": "Nota: La edad del paciente no coincide con ningún rango de referencia para esta prueba. Se muestra el rango disponible más cercano."
     },
-
     "status": {
       "normal": "NORMAL",
       "low": "BAJO",
       "high": "ALTO",
       "critical": "CRÍTICO"
     },
-
     "interpretation": {
       "normal": "Dentro de los límites normales",
       "low": "Por debajo del rango de referencia",
@@ -1035,7 +1229,6 @@
       "critical": "Valor crítico - requiere atención inmediata",
       "unknown": "Rango de referencia no disponible"
     },
-
     "alerts": {
       "dateWarning": {
         "title": "Rangos específicos por edad no disponibles:",
@@ -1046,11 +1239,9 @@
         "description": "{count} resultado(s) requieren atención inmediata."
       }
     },
-
     "badges": {
       "noAge": "SIN EDAD"
     },
-
     "disclaimer": {
       "title": "Fuentes de Datos de Referencia:",
       "chopLinkText": "Rangos de Referencia CHOP Labs - Hospital de Niños de Filadelfia",

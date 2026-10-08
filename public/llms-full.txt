@@ -27,6 +27,8 @@ PediMath is educational clinical decision support. It does not replace professio
 ## Calculators
 
 - Growth percentile calculator: https://www.pedimath.com/en/calculators/growth-calculator
+- Child height predictor / mid-parental height: https://www.pedimath.com/en/calculators/target-height-calculator
+- Calculadora de talla diana / talla blanco familiar: https://www.pedimath.com/es/calculators/target-height-calculator
 - BMI calculator: https://www.pedimath.com/en/calculators/bmi-calculator
 - Pediatric dose calculator: https://www.pedimath.com/en/calculators/dose-calculator
 - Lab reference calculator: https://www.pedimath.com/en/calculators/lab-calculator
@@ -51,4 +53,3 @@ PediMath is educational clinical decision support. It does not replace professio
 ## Update Policy
 
 PediMath should be treated as a live clinical reference tool. Users should verify critical decisions against current guidelines and institutional protocols.
-

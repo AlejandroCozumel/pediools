@@ -60,6 +60,7 @@ export default async function RootLayout({
         <Script
           src="https://scripts.simpleanalyticscdn.com/latest.js"
           strategy="afterInteractive"
+          data-ignore-pages="/en/calculators/target-height-calculator/results,/es/calculators/target-height-calculator/results"
         />
         <NextIntlClientProvider messages={messages} locale={locale}>
           <ProvidersQuery>{children}</ProvidersQuery>
