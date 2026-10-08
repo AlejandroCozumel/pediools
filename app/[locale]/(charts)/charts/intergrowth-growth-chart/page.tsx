@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ChartClient from "./ChartClient";
 import { JsonLd } from "@/components/JsonLd";
 import { SeoToolContent } from "@/components/SeoToolContent";
@@ -30,7 +31,13 @@ export default function Page({ params: { locale = "en" } }: { params: { locale?:
       <JsonLd data={getCalculatorSchema({ name: locale === "es" ? "Gráficas neonatales INTERGROWTH-21st" : "INTERGROWTH-21st Newborn Growth Charts", description: locale === "es" ? "Gráficas interactivas INTERGROWTH-21st para evaluar peso, longitud y perímetro cefálico del recién nacido." : "Interactive INTERGROWTH-21st standard charts for newborn growth assessment at birth. Assess weight, length, and head circumference.", url, locale })} />
       <JsonLd data={getBreadcrumbSchema([{ name: locale === "es" ? "Inicio" : "Home", url: `https://www.pedimath.com/${locale}` }, { name: locale === "es" ? "Gráficas" : "Charts", url: `https://www.pedimath.com/${locale}/charts` }, { name: "INTERGROWTH-21st", url }])} />
       <h1 className="container mx-auto mb-4 text-3xl font-bold text-medical-900 font-heading">{title}</h1>
-      <ChartClient />
+      <Suspense fallback={
+        <div className="flex min-h-48 items-center justify-center text-muted-foreground">
+          {locale === "es" ? "Cargando gráfica…" : "Loading chart…"}
+        </div>
+      }>
+        <ChartClient />
+      </Suspense>
       <div className="container mx-auto">
         <SeoToolContent
           locale={locale}

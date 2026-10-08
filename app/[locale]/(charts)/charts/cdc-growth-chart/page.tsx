@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ChartClient from "./ChartClient";
 import { JsonLd } from "@/components/JsonLd";
 import { SeoToolContent } from "@/components/SeoToolContent";
@@ -31,7 +32,13 @@ export default function Page({ params: { locale = "en" } }: { params: { locale?:
       <JsonLd data={getCalculatorSchema({ name: locale === "es" ? "Gráficas CDC de crecimiento pediátrico (2–20 años)" : "CDC Pediatric Growth Charts (Ages 2–20)", description: locale === "es" ? "Gráficas CDC interactivas para niños y adolescentes de 2 a 20 años. Visualiza percentiles de talla, peso e IMC." : "Interactive CDC growth charts for children and adolescents ages 2 to 20 years. Visualize and track height, weight, and BMI percentiles.", url, locale })} />
       <JsonLd data={getBreadcrumbSchema([{ name: locale === "es" ? "Inicio" : "Home", url: `https://www.pedimath.com/${locale}` }, { name: locale === "es" ? "Gráficas" : "Charts", url: `https://www.pedimath.com/${locale}/charts` }, { name: locale === "es" ? "Gráficas CDC" : "CDC Growth Charts", url }])} />
       <h1 className="container mx-auto mb-4 text-3xl font-bold text-medical-900 font-heading">{title}</h1>
-      <ChartClient />
+      <Suspense fallback={
+        <div className="flex min-h-48 items-center justify-center text-muted-foreground">
+          {locale === "es" ? "Cargando gráfica…" : "Loading chart…"}
+        </div>
+      }>
+        <ChartClient />
+      </Suspense>
       <div className="container mx-auto">
         <SeoToolContent
           locale={locale}

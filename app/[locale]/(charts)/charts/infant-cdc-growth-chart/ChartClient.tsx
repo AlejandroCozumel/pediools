@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { AlertTriangle, XCircle, RefreshCw } from "lucide-react";
 import ChartInputPrompt from "@/components/ChartInputPrompt";
@@ -15,12 +16,9 @@ const Charts = () => {
   const locale = useLocale();
   const { isFullCurveView } = useSubscriptionStore();
 
-  const searchParams = new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : ""
-  );
-  const calculationId = searchParams.get("calculationId");
+  const searchParams = useSearchParams();
 
-  // Get data but don't show it immediately
+  // Read the current route parameters during rendering and navigation.
   const { data, isError, error, refetch, isLoading } =
     useInfantGrowthChartData(searchParams);
 
