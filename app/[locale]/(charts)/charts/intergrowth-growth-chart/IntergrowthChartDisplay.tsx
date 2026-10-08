@@ -342,8 +342,8 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
 
   const chartData = {
     datasets: [
-      ...validPercentiles.map((key) => ({
-        label: `${key.slice(1)}th Perc.`,
+      ...validPercentiles.filter(key => patientPoints.length > 0 || ["P3", "P10", "P50", "P90", "P97"].includes(key)).map((key) => ({
+        label: `P${key.slice(1)}`,
         data: processedDataPoints
           .filter(p => p[key] !== undefined && p[key] !== null && !isNaN(p[key]))
           .map((p) => ({ x: p.gestationalWeeks, y: p[key] })),
@@ -356,7 +356,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         spanGaps: true, // This helps connect gaps in data
         hidden: false,
       })),
-      {
+      ...(patientPoints.length ? [{
         label: `${t('patientChartLabel')} ${rawData.originalInput[config.inputGenderKey].gender === "male" ? t('boys') : t('girls')}`,
         data: patientPoints,
         borderColor: "#DC2626",
@@ -368,7 +368,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
         tension: 0.1,
         showLine: patientPoints.length > 1,
         order: 10,
-      },
+      }] : []),
     ],
   };
 
@@ -402,7 +402,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
     if (!patientGestationalAge || patientValue === null)
       return {
         minWeeks: 24,
-        maxWeeks: 42,
+        maxWeeks: 42 + 6 / 7,
         minYValue: config.yAxisDomainFull[0],
         maxYValue: config.yAxisDomainFull[1],
       };
@@ -410,13 +410,13 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
     if (isFullCurveView)
       return {
         minWeeks: 24,
-        maxWeeks: 42,
+        maxWeeks: 42 + 6 / 7,
         minYValue: config.yAxisDomainFull[0],
         maxYValue: config.yAxisDomainFull[1],
       };
     else {
       const calcMinWeeks = Math.max(24, patientGestationalAge - weekRangeAround / 2);
-      const calcMaxWeeks = Math.min(42, patientGestationalAge + weekRangeAround / 2);
+      const calcMaxWeeks = Math.min(42 + 6 / 7, patientGestationalAge + weekRangeAround / 2);
       const calcMinY = Math.max(
         config.yAxisDomainFull[0],
         patientValue - yRangeAround / 2
@@ -484,7 +484,7 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
       }
 
       // Ensure gestational age is within valid range
-      const clampedWeeks = Math.max(24, Math.min(42, actualGestationalWeeks));
+      const clampedWeeks = Math.max(24, Math.min(42 + 6 / 7, actualGestationalWeeks));
       const title = `${t('gestationalAgeTooltipTitle')}: ${formatGestationalAge(clampedWeeks)}`;
 
       // Find the exact gestational age string (weeks+days format)
@@ -691,19 +691,19 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
               <div className="flex flex-wrap gap-2 md:gap-4">
                 {patientValue !== null && (
                   <Badge variant="outline" className="text-xs md:text-sm">
-                    {config.title.split(" ")[0]}: {patientValue}{" "}
+                    {t('patientValueLabel')}: {patientValue}{" "}
                     {config.yAxisUnit}
                   </Badge>
                 )}
                 {patientGestationalAge !== null && (
                   <Badge variant="outline" className="text-xs md:text-sm">
-                    GA: {formatGestationalAge(patientGestationalAge)}
+                    {t('gestationalAgeTooltipTitle')}: {formatGestationalAge(patientGestationalAge)}
                   </Badge>
                 )}
                 {latestCalculatedPercentile !== undefined &&
                   latestCalculatedPercentile !== null && (
                     <Badge variant="outline" className="text-xs md:text-sm">
-                      {latestCalculatedPercentile.toFixed(1)}{t('percentileLabel')}
+                      {t('percentileValue', { value: latestCalculatedPercentile.toFixed(1) })}
                     </Badge>
                   )}
               </div>
@@ -711,8 +711,8 @@ const { chartJsData, patientDataPointsWithPercentile } = useMemo(() => {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full h-[450px] md:h-[600px] p-2 md:p-4">
-            <Line ref={chartRef} options={chartJsOptions} data={chartJsData} />
+          <div className="w-full h-[360px] sm:h-[480px] p-2 md:p-4">
+            <Line ref={chartRef} options={chartJsOptions} data={chartJsData} role="img" aria-label={config.title} fallbackContent={config.title} />
           </div>
         </CardContent>
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">

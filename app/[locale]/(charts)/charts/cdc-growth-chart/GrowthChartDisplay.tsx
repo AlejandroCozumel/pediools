@@ -378,8 +378,8 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
     };
     const chartData = {
       datasets: [
-        ...percentileKeys.map((key) => ({
-          label: `${key.slice(1)}th Perc.`,
+        ...percentileKeys.filter(key => patientPoints.length > 0 || ["P3", "P10", "P50", "P90", "P97"].includes(key)).map((key) => ({
+          label: `P${key.slice(1)}`,
           data: processedDataPoints.map((p) => ({ x: p.age, y: p[key] })),
           borderColor: percentileColors[key],
           backgroundColor: percentileColors[key],
@@ -398,7 +398,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
             "P97",
           ].includes(key),
         })),
-        {
+        ...(patientPoints.length ? [{
           label: `${t('patientChartLabel', { gender: gender === 'male' ? t('boys') : t('girls') })} ${type === 'weight' ? t('weightLabel') : t('heightLabel')}`,
           data: patientPoints,
           borderColor: "#DC2626",
@@ -410,7 +410,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
           tension: 0.1,
           showLine: patientPoints.length > 1,
           order: 10,
-        },
+        }] : []),
       ],
     };
     return {
@@ -778,7 +778,7 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
               <CardTitle className="text-start bg-gradient-to-r from-medical-700 to-medical-900 bg-clip-text text-transparent text-base md:text-lg lg:text-xl font-bold tracking-tight">
                 {rawData.originalInput[config.inputGenderKey].gender === "male"
                   ? t('boys')
-                  : t('girls')}
+                  : t('girls')}{" "}
                 {type === "weight" ? t('weightLabel') : t('heightLabel')}
                 <span className="block text-sm md:text-base text-medical-90 font-medium">
                   {" "}
@@ -788,14 +788,14 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
               <div className="flex flex-wrap gap-2 md:gap-4">
                 {patientValue !== null && (
                   <Badge variant="outline" className="text-xs md:text-sm">
-                    {config.title.split(" ")[0]}: {patientValue}{" "}
+                    {t('patientValueLabel')}: {patientValue}{" "}
                     {config.yAxisUnit}
                   </Badge>
                 )}
                 {latestCalculatedPercentile !== undefined &&
                   latestCalculatedPercentile !== null && (
                     <Badge variant="outline" className="text-xs md:text-sm">
-                      {latestCalculatedPercentile.toFixed(1)}th percentile
+                      {t('percentileValue', { value: latestCalculatedPercentile.toFixed(1) })}
                     </Badge>
                   )}
               </div>
@@ -803,8 +803,8 @@ const GrowthChartDisplay: React.FC<ChartProps> = ({
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full h-[450px] md:h-[600px] p-2 md:p-4">
-            <Line ref={chartRef} options={chartJsOptions} data={chartJsData} />
+          <div className="w-full h-[360px] sm:h-[480px] p-2 md:p-4">
+            <Line ref={chartRef} options={chartJsOptions} data={chartJsData} role="img" aria-label={config.title} fallbackContent={config.title} />
           </div>
         </CardContent>
         <CardFooter className="border-t border-gray-100 mt-2 pt-3 pb-3">

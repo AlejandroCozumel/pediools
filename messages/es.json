@@ -1542,7 +1542,9 @@
     "weightYAxisLabel": "Peso (kg)",
     "heightYAxisLabel": "Talla (cm)",
     "kgUnit": "kg",
-    "cmUnit": "cm"
+    "cmUnit": "cm",
+    "percentileValue": "Percentil {value}",
+    "patientValueLabel": "Medición"
   },
   "InfantCDCChartDisplay": {
     "boys": "Niños",
@@ -1560,7 +1562,9 @@
     "weightYAxisLabel": "Peso (kg)",
     "heightYAxisLabel": "Talla (cm)",
     "kgUnit": "kg",
-    "cmUnit": "cm"
+    "cmUnit": "cm",
+    "percentileValue": "Percentil {value}",
+    "patientValueLabel": "Medición"
   },
   "IntergrowthChartDisplay": {
     "boys": "Niños",
@@ -1573,13 +1577,15 @@
     "patientTooltipLabel": "Paciente",
     "gestationalAgeAxisTitle": "Edad gestacional (semanas)",
     "currentGAAnnotation": "EG actual",
-    "dataSource": "Fuente: Estándares de Crecimiento Intergrowth-21st (24-42 semanas)",
+    "dataSource": "Fuente: INTERGROWTH-21st (24 semanas–42 semanas + 6 días al nacer)",
     "weightForGAChartTitle": "Gráfica de peso para la edad gestacional",
     "lengthForGAChartTitle": "Gráfica de longitud para la edad gestacional",
     "weightYAxisLabel": "Peso (kg)",
     "lengthYAxisLabel": "Longitud (cm)",
     "kgUnit": "kg",
-    "cmUnit": "cm"
+    "cmUnit": "cm",
+    "percentileValue": "Percentil {value}",
+    "patientValueLabel": "Medición"
   },
   "WHOChartDisplay": {
     "boysLabel": "Niños",
@@ -1600,7 +1606,8 @@
     "weightYAxisLabel": "Peso (kg)",
     "heightYAxisLabel": "Talla (cm)",
     "kgUnit": "kg",
-    "cmUnit": "cm"
+    "cmUnit": "cm",
+    "percentileValue": "Percentil {value}"
   },
   "ToggleViewChart": {
     "focusedView": "Vista enfocada",
