@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:dose": "node --test tests/dose-calculations.test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

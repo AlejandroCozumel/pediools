@@ -30,8 +30,8 @@ export default function About({ params: { locale = "en" } }: { params: { locale?
         </h1>
         <p className="text-lg leading-8 text-muted-foreground">
           {isSpanish
-            ? "PediMath reune calculadoras pediatricas y graficas de crecimiento para apoyar evaluaciones frecuentes en consulta, urgencias y seguimiento ambulatorio."
-            : "PediMath brings together pediatric calculators and growth chart references to support common assessments in clinic, emergency, and follow-up settings."}
+            ? "PediMath es un proyecto gratuito y sin fines de lucro que reúne calculadoras pediátricas y gráficas de crecimiento para consulta educativa y revisión de referencias. Los resultados requieren verificación independiente y no deben utilizarse como base única de decisiones clínicas ni de atención de urgencias."
+            : "PediMath is a free, noncommercial project that brings together pediatric calculators and growth charts for educational consultation and reference review. Results require independent verification and must not be the sole basis for clinical decisions or emergency care."}
         </p>
       </section>
 

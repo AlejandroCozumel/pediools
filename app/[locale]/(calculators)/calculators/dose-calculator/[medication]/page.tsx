@@ -4,9 +4,15 @@ import { getTranslations } from "next-intl/server";
 import { JsonLd } from "@/components/JsonLd";
 import { SeoToolContent } from "@/components/SeoToolContent";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { getBreadcrumbSchema, getCalculatorSchema } from "@/lib/structured-data";
+import {
+  getBreadcrumbSchema,
+  getCalculatorSchema,
+} from "@/lib/structured-data";
 import { getSeoMetadata } from "@/lib/seo";
-import { getMedicationById, medicationIds } from "@/lib/pediatric-reference-data";
+import {
+  getMedicationById,
+  medicationIds,
+} from "@/lib/pediatric-reference-data";
 import { locales } from "@/lib/sitemap-data";
 import { DoseMethodSelector } from "../DoseMethodSelector";
 
@@ -20,7 +26,9 @@ export function generateStaticParams() {
   );
 }
 
-export async function generateMetadata({ params }: MedicationPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MedicationPageProps): Promise<Metadata> {
   const medication = getMedicationById(params.medication);
   if (!medication) return {};
 
@@ -47,7 +55,9 @@ export async function generateMetadata({ params }: MedicationPageProps): Promise
   });
 }
 
-export default async function MedicationDosePage({ params }: MedicationPageProps) {
+export default async function MedicationDosePage({
+  params,
+}: MedicationPageProps) {
   const medication = getMedicationById(params.medication);
   if (!medication) notFound();
 
@@ -75,51 +85,107 @@ export default async function MedicationDosePage({ params }: MedicationPageProps
       />
       <JsonLd
         data={getBreadcrumbSchema([
-          { name: locale === "es" ? "Inicio" : "Home", url: `https://www.pedimath.com/${locale}` },
-          { name: locale === "es" ? "Calculadoras" : "Calculators", url: `https://www.pedimath.com/${locale}/calculators` },
-          { name: locale === "es" ? "Calculadora de dosis" : "Dose Calculator", url: `https://www.pedimath.com/${locale}/calculators/dose-calculator` },
+          {
+            name: locale === "es" ? "Inicio" : "Home",
+            url: `https://www.pedimath.com/${locale}`,
+          },
+          {
+            name: locale === "es" ? "Calculadoras" : "Calculators",
+            url: `https://www.pedimath.com/${locale}/calculators`,
+          },
+          {
+            name: locale === "es" ? "Calculadora de dosis" : "Dose Calculator",
+            url: `https://www.pedimath.com/${locale}/calculators/dose-calculator`,
+          },
           { name, url },
         ])}
       />
       <TooltipProvider>
         <div className="container mx-auto">
-          <h1 className="mb-4 text-3xl font-bold text-medical-900 font-heading">{title}</h1>
+          <h1 className="mb-4 text-3xl font-bold text-medical-900 font-heading">
+            {title}
+          </h1>
           <DoseMethodSelector initialMedicationId={medication.id} />
-          <SeoToolContent
-            locale={locale}
-            title={title}
-            summary={
-              locale === "es"
-                ? `Esta página abre la calculadora con ${name} seleccionado. Introduce el peso y confirma la concentración, frecuencia, indicación y límites de dosis antes de usar cualquier resultado.`
-                : `This page opens the calculator with ${name} selected. Enter the patient's weight and confirm the concentration, frequency, indication, and dose limits before using any result.`
-            }
-            inputs={
-              locale === "es"
-                ? ["Peso actual y unidad correcta.", "Concentración disponible.", "Frecuencia indicada.", "Duración cuando corresponda."]
-                : ["Current weight and correct unit.", "Available concentration.", "Prescribed frequency.", "Duration when applicable."]
-            }
-            references={
-              medication.notes?.[locale] ||
-              (locale === "es"
-                ? "Los rangos de dosis pueden variar por indicación, edad, función renal, formulación y protocolos locales."
-                : "Dose ranges can vary by indication, age, renal function, formulation, and local protocols.")
-            }
-            referenceLinks={[
-              ...(medication.referenceUrl
-                ? [{ href: medication.referenceUrl, label: locale === "es" ? "Referencia farmacológica" : "Medication reference" }]
-                : []),
-              { href: `/${locale}/calculators/dose-calculator`, label: t("title", { defaultValue: locale === "es" ? "Calculadora de dosis" : "Dose calculator" }) },
-            ]}
-            safety={
-              locale === "es"
-                ? "Confirma la indicación, alergias, concentración, unidades, función renal, dosis máxima y protocolo local con un profesional de salud."
-                : "Confirm the indication, allergies, concentration, units, renal function, maximum dose, and local protocol with a healthcare professional."
-            }
-            related={[
-              { href: `/${locale}/calculators/dose-calculator`, label: locale === "es" ? "Todos los métodos de dosis" : "All dose methods" },
-              { href: `/${locale}/calculators/lab-calculator`, label: locale === "es" ? "Referencias de laboratorio" : "Lab references" },
-            ]}
-          />
+          <details className="mt-8 rounded-xl border p-4">
+            <summary className="cursor-pointer text-sm font-medium text-medical-700">
+              {locale === "es"
+                ? "Acerca de este medicamento y sus fuentes"
+                : "About this medication and its sources"}
+            </summary>
+            <SeoToolContent
+              locale={locale}
+              title={title}
+              summary={
+                locale === "es"
+                  ? `Esta página abre la calculadora con ${name} seleccionado. Introduce el peso y confirma la concentración, frecuencia, indicación y límites de dosis antes de usar cualquier resultado.`
+                  : `This page opens the calculator with ${name} selected. Enter the patient's weight and confirm the concentration, frequency, indication, and dose limits before using any result.`
+              }
+              inputs={
+                locale === "es"
+                  ? [
+                      "Peso actual y unidad correcta.",
+                      "Concentración disponible.",
+                      "Frecuencia indicada.",
+                      "Duración cuando corresponda.",
+                    ]
+                  : [
+                      "Current weight and correct unit.",
+                      "Available concentration.",
+                      "Prescribed frequency.",
+                      "Duration when applicable.",
+                    ]
+              }
+              references={
+                medication.notes?.[locale] ||
+                (locale === "es"
+                  ? "Los rangos de dosis pueden variar por indicación, edad, función renal, formulación y protocolos locales."
+                  : "Dose ranges can vary by indication, age, renal function, formulation, and local protocols.")
+              }
+              referenceLinks={[
+                ...(medication.referenceUrl
+                  ? [
+                      {
+                        href: medication.referenceUrl,
+                        label:
+                          locale === "es"
+                            ? "Referencia farmacológica"
+                            : "Medication reference",
+                      },
+                    ]
+                  : []),
+                {
+                  href: `/${locale}/calculators/dose-calculator`,
+                  label: t("title", {
+                    defaultValue:
+                      locale === "es"
+                        ? "Calculadora de dosis"
+                        : "Dose calculator",
+                  }),
+                },
+              ]}
+              safety={
+                locale === "es"
+                  ? "Confirma la indicación, alergias, concentración, unidades, función renal, dosis máxima y protocolo local con un profesional de salud."
+                  : "Confirm the indication, allergies, concentration, units, renal function, maximum dose, and local protocol with a healthcare professional."
+              }
+              related={[
+                {
+                  href: `/${locale}/calculators/dose-calculator`,
+                  label:
+                    locale === "es"
+                      ? "Todos los métodos de dosis"
+                      : "All dose methods",
+                },
+                {
+                  href: `/${locale}/calculators/lab-calculator`,
+                  label:
+                    locale === "es"
+                      ? "Referencias de laboratorio"
+                      : "Lab references",
+                },
+              ]}
+            />
+          </details>
         </div>
       </TooltipProvider>
     </>
